@@ -1,0 +1,25 @@
+body {
+  margin: 0;
+}
+
+.wrapper {
+  height: 100vh;
+  display: grid;
+  grid-template-rows: auto auto 1fr;
+  grid-template-areas: 
+    "header"
+    "breadcrumb"
+    "content"
+  ;
+}
+
+.content {
+  grid-area: content;
+}
+
+.page-content {
+  padding-top: 50px;
+  @media screen and (max-width: 600px) {
+    padding-top: 25px;
+  }
+}
