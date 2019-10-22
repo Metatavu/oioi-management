@@ -1,54 +1,19 @@
 import * as React from "react";
-import { Container, Typography, Grid, Card, CardMedia, withStyles, createStyles, WithStyles, CardContent, CardActions, CardActionArea, Button } from "@material-ui/core";
+import { Container, Typography, Grid, Card, CardMedia, withStyles, WithStyles, CardContent, CardActions, CardActionArea, Button } from "@material-ui/core";
 import img from "../../resources/images/geopark.png";
 import AddIcon from "@material-ui/icons/AddCircle";
+import styles from "../../styles/card-styles";
+import { History } from "history";
 
 interface Props extends WithStyles<typeof styles> {
-
+  history: History
 }
 
 interface State {
 
 }
 
-const styles = createStyles({
-  heading: {
-    marginBottom: 50,
-  },
-  card: {
-    width: 320,
-  },
-  addCard: {
-    backgroundColor: "rgba(0, 0, 0, 0.2)",
-  },
-  add: {
-    height: 244,
-    width: 320,
-    display: "flex",
-    justifyItems: "center",
-    alignItems: "center"
-  },
-  addIcon: {
-    height: 140,
-    width: 140,
-  },
-  cardActions: {
-    backgroundColor: "#263338",
-    justifyContent: "space-between"
-  },
-  media: {
-    height: 140,
-  },
-  edit: {
-    color: "#fff",
-    fontWeight: "bold"
-  },
-  delete: {
-    color: "#ddd",
-  },
-});
-
-class CustomerPage extends React.Component<Props, State> {
+class CustomersList extends React.Component<Props, State> {
 
   /**
    * Constructor
@@ -91,7 +56,7 @@ class CustomerPage extends React.Component<Props, State> {
     return (
     <Grid item>
       <Card elevation={10} className={classes.card}>
-        <CardActionArea>
+        <CardActionArea onClick={this.onEditCustomerClick}>
           <CardMedia className={classes.media} image={img}></CardMedia>
           <CardContent>
             <Typography gutterBottom variant="h3" component="h2">
@@ -100,10 +65,10 @@ class CustomerPage extends React.Component<Props, State> {
           </CardContent>
         </CardActionArea>
         <CardActions className={classes.cardActions}>
-          <Button size="small" className={classes.edit}>
+          <Button size="small" className={classes.edit} onClick={this.onEditCustomerClick}>
             Edit
           </Button>
-          <Button size="small" className={classes.delete}>
+          <Button size="small" className={classes.delete} onClick={this.onDeleteCustomerClick}>
             Delete
           </Button>
         </CardActions>
@@ -120,13 +85,32 @@ class CustomerPage extends React.Component<Props, State> {
     return (
     <Grid item>
       <Card elevation={0} className={classes.addCard}>
-        <CardActionArea className={classes.add}>
+        <CardActionArea className={classes.add} onClick={this.onAddCustomerClick}>
           <AddIcon className={classes.addIcon} />
         </CardActionArea>
       </Card>
     </Grid>
     );
   }
+
+  /**
+   * Edit customer method
+   */
+  private onEditCustomerClick = () => {
+    this.props.history.push("/devices");
+  }
+  /**
+   * Delete customer method
+   */
+  private onDeleteCustomerClick = () => {
+    alert("Delete Customer!");
+  }
+  /**
+   * Add customer method
+   */
+  private onAddCustomerClick = () => {
+    alert("Add Customer!");
+  }
 }
 
-export default withStyles(styles)(CustomerPage);
+export default withStyles(styles)(CustomersList);

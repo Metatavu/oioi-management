@@ -57,7 +57,7 @@ const App: React.FC = () => {
       <CssBaseline />
       <BrowserRouter>
         <div className="App">
-          <Route exact path="/" component={IndexPage} />
+          <Route path="/" component={IndexPage} />
         </div>
       </BrowserRouter>
     </ThemeProvider>
