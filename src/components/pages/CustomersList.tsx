@@ -1,9 +1,10 @@
 import * as React from "react";
-import { Container, Typography, Grid, Card, CardMedia, withStyles, WithStyles, CardContent, CardActions, CardActionArea, Button } from "@material-ui/core";
+import { Container, Typography, Grid, Card, withStyles, WithStyles, CardActionArea } from "@material-ui/core";
 import img from "../../resources/images/geopark.png";
 import AddIcon from "@material-ui/icons/AddCircle";
 import styles from "../../styles/card-styles";
 import { History } from "history";
+import CardItem from "../generic/CardItem";
 
 interface Props extends WithStyles<typeof styles> {
   history: History
@@ -52,27 +53,9 @@ class CustomersList extends React.Component<Props, State> {
    * Card render method
    */
   private renderCards() {
-    const { classes } = this.props;
     return (
     <Grid item>
-      <Card elevation={10} className={classes.card}>
-        <CardActionArea onClick={this.onEditCustomerClick}>
-          <CardMedia className={classes.media} image={img}></CardMedia>
-          <CardContent>
-            <Typography gutterBottom variant="h3" component="h2">
-              Saimaa Geopark
-            </Typography>
-          </CardContent>
-        </CardActionArea>
-        <CardActions className={classes.cardActions}>
-          <Button size="small" className={classes.edit} onClick={this.onEditCustomerClick}>
-            Edit
-          </Button>
-          <Button size="small" className={classes.delete} onClick={this.onDeleteCustomerClick}>
-            Delete
-          </Button>
-        </CardActions>
-      </Card>
+      <CardItem title="Saimaa Geopark" img={ img } editClick={ this.onEditCustomerClick } deleteClick={ this.onDeleteCustomerClick }></CardItem>>
     </Grid>
     );
   }

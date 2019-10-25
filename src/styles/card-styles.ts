@@ -11,7 +11,7 @@ export default createStyles({
     backgroundColor: "rgba(0, 0, 0, 0.2)",
   },
   add: {
-    height: 244,
+    height: 185,
     width: 320,
     display: "flex",
     justifyItems: "center",
@@ -35,4 +35,19 @@ export default createStyles({
   delete: {
     color: "#ddd",
   },
+  overlay: {
+    backgroundColor: "rgba(0, 0, 0, 0.7)",
+    position: "absolute",
+    display: "flex",
+    color: "#fff",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    alignItems: "center",
+    justifyContent: "center"
+  },
+  actionArea: {
+    position: "relative"
+  }
 });
