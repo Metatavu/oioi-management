@@ -1,6 +1,6 @@
 import * as React from "react";
 // tslint:disable-next-line: max-line-length
-import { Typography, createStyles, Theme, Divider, List, ListItem, ListItemIcon, ListItemText, Hidden, AppBar, Toolbar, IconButton, WithStyles, withStyles, Drawer, CssBaseline } from "@material-ui/core";
+import { Typography, createStyles, Theme, Divider, List, ListItem, ListItemIcon, ListItemText, Hidden, AppBar, Toolbar, IconButton, WithStyles, withStyles, Drawer } from "@material-ui/core";
 import { History } from "history";
 import TreeView from "@material-ui/lab/TreeView";
 import SettingsIcon from "@material-ui/icons/Settings";
@@ -88,7 +88,6 @@ class ApplicationEditor extends React.Component<Props, State> {
     const { classes } = this.props;
     return (
       <div className={ classes.root }>
-        <CssBaseline />
         <AppBar elevation={ 0 } position="relative" className={ classes.appBar }>
           <Toolbar>
             <IconButton
