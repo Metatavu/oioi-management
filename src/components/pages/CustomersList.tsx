@@ -5,13 +5,14 @@ import AddIcon from "@material-ui/icons/AddCircle";
 import styles from "../../styles/card-styles";
 import { History } from "history";
 import CardItem from "../generic/CardItem";
+import AddCustomerDialog from "../generic/AddCustomerDialog";
 
 interface Props extends WithStyles<typeof styles> {
   history: History
 }
 
 interface State {
-
+  editorDialogOpen: boolean
 }
 
 class CustomersList extends React.Component<Props, State> {
@@ -24,7 +25,7 @@ class CustomersList extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = {
-
+      editorDialogOpen: false
     };
   }
 
@@ -35,7 +36,7 @@ class CustomersList extends React.Component<Props, State> {
     const { classes } = this.props;
     // const cars = this.state.cars.map((car) => renderCar(car))
     return (
-      <Container className="page-content">
+      <Container maxWidth="xl" className="page-content">
         <Typography className={classes.heading} variant="h1">Customers</Typography>
         <Grid container spacing={5} direction="row">
           {
@@ -45,6 +46,11 @@ class CustomersList extends React.Component<Props, State> {
             this.renderAddCustomer()
           }
         </Grid>
+        <AddCustomerDialog
+          open={ this.state.editorDialogOpen }
+          saveClick={ this.onSaveCustomerClick }
+          handleClose={ this.onDialogCloseClick}
+        />
       </Container>
     );
   }
@@ -55,7 +61,12 @@ class CustomersList extends React.Component<Props, State> {
   private renderCards() {
     return (
     <Grid item>
-      <CardItem title="Saimaa Geopark" img={ img } editClick={ this.onEditCustomerClick } deleteClick={ this.onDeleteCustomerClick }></CardItem>>
+      <CardItem
+        title="Saimaa Geopark"
+        img={ img }
+        editClick={ this.onEditCustomerClick }
+        deleteClick={ this.onDeleteCustomerClick }>
+      </CardItem>>
     </Grid>
     );
   }
@@ -67,8 +78,8 @@ class CustomersList extends React.Component<Props, State> {
     const { classes } = this.props;
     return (
     <Grid item>
-      <Card elevation={0} className={classes.addCard}>
-        <CardActionArea className={classes.add} onClick={this.onAddCustomerClick}>
+      <Card elevation={0} className={ classes.addCard}>
+        <CardActionArea className={classes.add} onClick={ this.onAddCustomerClick }>
           <AddIcon className={classes.addIcon} />
         </CardActionArea>
       </Card>
@@ -92,7 +103,23 @@ class CustomersList extends React.Component<Props, State> {
    * Add customer method
    */
   private onAddCustomerClick = () => {
-    alert("Add Customer!");
+    this.setState({ editorDialogOpen: true });
+  }
+  /**
+   * Save customer method
+   *
+   * TODO: handle saving
+   */
+  private onSaveCustomerClick = () => {
+    this.setState({ editorDialogOpen: false });
+  }
+  /**
+   * Close dialog method
+   *
+   * TODO: handle prompt if unsaved
+   */
+  private onDialogCloseClick = () => {
+    this.setState({ editorDialogOpen: false });
   }
 }
 

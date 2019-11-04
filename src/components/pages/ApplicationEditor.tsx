@@ -1,9 +1,12 @@
 import * as React from "react";
+// tslint:disable-next-line: max-line-length
 import { Typography, createStyles, Theme, Divider, List, ListItem, ListItemIcon, ListItemText, Hidden, AppBar, Toolbar, IconButton, WithStyles, withStyles, Drawer, CssBaseline } from "@material-ui/core";
 import { History } from "history";
-import InboxIcon from "@material-ui/icons/MoveToInbox";
-import MailIcon from "@material-ui/icons/Mail";
+import TreeView from "@material-ui/lab/TreeView";
+import SettingsIcon from "@material-ui/icons/Settings";
 import MenuIcon from "@material-ui/icons/Menu";
+import LanguageIcon from "@material-ui/icons/Language";
+import StyledTreeItem from "../generic/StyledTreeItem";
 
 interface Props extends WithStyles<typeof styles> {
   history: History,
@@ -34,9 +37,11 @@ const styles = (theme: Theme) =>
       },
     },
     appBar: {
+      height: 60,
       backgroundColor: "#F6F6F6",
       color: "#000",
       gridArea: "appbar",
+      borderBottomWidth: 0.5,
       borderBottom: "1px solid rgba(0, 0, 0, 0.2)",
     },
     menuButton: {
@@ -58,6 +63,9 @@ const styles = (theme: Theme) =>
       padding: theme.spacing(3),
       background: "#F6F6F6"
     },
+    treeRoot: {
+      margin: 10
+    }
   });
 
 class ApplicationEditor extends React.Component<Props, State> {
@@ -79,16 +87,16 @@ class ApplicationEditor extends React.Component<Props, State> {
   public render() {
     const { classes } = this.props;
     return (
-      <div className={classes.root}>
+      <div className={ classes.root }>
         <CssBaseline />
-        <AppBar elevation={0} position="relative" className={classes.appBar}>
+        <AppBar elevation={ 0 } position="relative" className={ classes.appBar }>
           <Toolbar>
             <IconButton
               color="inherit"
               aria-label="open drawer"
               edge="start"
               onClick={ this.handleDrawerToggle }
-              className={classes.menuButton}
+              className={ classes.menuButton }
             >
               <MenuIcon />
             </IconButton>
@@ -113,19 +121,19 @@ class ApplicationEditor extends React.Component<Props, State> {
         {/* The implementation can be swapped with js to avoid SEO duplication of links. */}
         <Hidden smUp implementation="css">
 
-        <Drawer
-          variant="temporary"
-          anchor="left"
-          open={ this.state.mobileOpen }
-          onClose={ this.handleDrawerToggle }
-          classes={{
-            paper: classes.drawerPaper,
-          }}
-          ModalProps={{
-            keepMounted: true, // Better open performance on mobile.
-          }}
-          >
-            { this.renderDrawer() }
+          <Drawer
+            variant="temporary"
+            anchor="left"
+            open={ this.state.mobileOpen }
+            onClose={ this.handleDrawerToggle }
+            classes={{
+              paper: classes.drawerPaper,
+            }}
+            ModalProps={{
+              keepMounted: true, // Better open performance on mobile.
+            }}
+            >
+              { this.renderDrawer() }
           </Drawer>
         </Hidden>
         <Hidden xsDown implementation="css">
@@ -149,25 +157,38 @@ class ApplicationEditor extends React.Component<Props, State> {
    * Render drawer method
    */
   private renderDrawer = () => {
+    const { classes } = this.props;
     return (
     <div>
       <List>
-        {["Inbox", "Starred", "Send email", "Drafts"].map((text, index) => (
-          <ListItem button key={text}>
-            <ListItemIcon>{index % 2 === 0 ? <InboxIcon /> : <MailIcon />}</ListItemIcon>
-            <ListItemText primary={text} />
-          </ListItem>
-        ))}
+        <ListItem button>
+          <ListItemIcon><SettingsIcon color="primary" /></ListItemIcon>
+          <ListItemText primary="Application settings" />
+        </ListItem>
       </List>
       <Divider />
-      <List>
-        {["All mail", "Trash", "Spam"].map((text, index) => (
-          <ListItem button key={text}>
-            <ListItemIcon>{index % 2 === 0 ? <InboxIcon /> : <MailIcon />}</ListItemIcon>
-            <ListItemText primary={text} />
-          </ListItem>
-        ))}
-      </List>
+      <TreeView className={ classes.treeRoot }>
+        <StyledTreeItem nodeId="1" label="Teaser" icon={ <LanguageIcon /> } />
+        <StyledTreeItem nodeId="2" label="Language" icon={ <LanguageIcon /> } />
+        <StyledTreeItem nodeId="3" label="Menu" icon={ <MenuIcon /> }>
+          <StyledTreeItem icon={ <MenuIcon /> } nodeId="4" label="Näin Saimaa syntyi">
+            <StyledTreeItem icon={ <MenuIcon /> } nodeId="5" label="1. Mannerlaattojen jakautuminen">
+              <StyledTreeItem nodeId="6" label="1620-1650 milj. v. sitten" />
+              <StyledTreeItem nodeId="7" label="1900 milj. v. vanhat blaablaa" />
+            </StyledTreeItem>
+            <StyledTreeItem icon={ <MenuIcon /> } nodeId="8" label="2. Poimuvuoriston muodostuminen">
+              <StyledTreeItem nodeId="9" label="1620-1650 milj. v. sitten" />
+              <StyledTreeItem nodeId="10" label="1900 milj. v. vanhat blaablaa" />
+            </StyledTreeItem>
+          </StyledTreeItem>
+          <StyledTreeItem icon={ <MenuIcon /> } nodeId="11" label="Mikä on Saimaa Geopark?">
+            <StyledTreeItem icon={ <MenuIcon /> } nodeId="12" label="Miksi se on olemassa?">
+              <StyledTreeItem nodeId="13" label="Löydä Saimaa" />
+              <StyledTreeItem nodeId="14" label="Taustakuva" />
+            </StyledTreeItem>
+          </StyledTreeItem>
+        </StyledTreeItem>
+      </TreeView>
     </div>
     );
   }

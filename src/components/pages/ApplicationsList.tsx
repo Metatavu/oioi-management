@@ -1,9 +1,10 @@
 import * as React from "react";
-import { Container, Typography, Grid, Card, CardMedia, withStyles, WithStyles, CardContent, CardActions, CardActionArea, Button } from "@material-ui/core";
+import { Container, Typography, Grid, Card, withStyles, WithStyles, CardActionArea } from "@material-ui/core";
 import img from "../../resources/images/infowall.png";
 import AddIcon from "@material-ui/icons/AddCircle";
 import styles from "../../styles/card-styles";
 import { History } from "history";
+import CardItem from "../generic/CardItem";
 
 interface Props extends WithStyles<typeof styles> {
   history: History
@@ -33,8 +34,8 @@ class ApplicationsList extends React.Component<Props, State> {
   public render() {
     const { classes } = this.props;
     return (
-      <Container className="page-content">
-        <Typography className={classes.heading} variant="h1">{"customer_name"} {"device_name"} Applications</Typography>
+      <Container maxWidth="xl" className="page-content">
+        <Typography className={classes.heading} variant="h1">{"Saimaa Geopark"} - {"Mac mini"} - Applications</Typography>
         <Grid container spacing={5} direction="row">
           {
             this.renderCards()
@@ -51,27 +52,15 @@ class ApplicationsList extends React.Component<Props, State> {
    * Card render method
    */
   private renderCards() {
-    const { classes } = this.props;
     return (
     <Grid item>
-      <Card elevation={10} className={classes.card}>
-        <CardActionArea onClick={this.onEditApplicationClick}>
-          <CardMedia className={classes.media} image={img}></CardMedia>
-          <CardContent>
-            <Typography gutterBottom variant="h3" component="h2">
-              Info Wall
-            </Typography>
-          </CardContent>
-        </CardActionArea>
-        <CardActions className={classes.cardActions}>
-          <Button size="small" className={classes.edit} onClick={this.onEditApplicationClick}>
-            Edit
-          </Button>
-          <Button size="small" className={classes.delete} onClick={this.onDeleteApplicationClick}>
-            Delete
-          </Button>
-        </CardActions>
-      </Card>
+      <CardItem
+        title="Info Wall"
+        img={ img }
+        editClick={ this.onEditApplicationClick }
+        deleteClick={ this.onDeleteApplicationClick }
+      >
+      </CardItem>
     </Grid>
     );
   }
@@ -83,9 +72,9 @@ class ApplicationsList extends React.Component<Props, State> {
     const { classes } = this.props;
     return (
     <Grid item>
-      <Card elevation={0} className={classes.addCard}>
-        <CardActionArea className={classes.add} onClick={this.onAddApplicationClick}>
-          <AddIcon className={classes.addIcon} />
+      <Card elevation={ 0 } className={ classes.addCard }>
+        <CardActionArea className={ classes.add } onClick={ this.onAddApplicationClick }>
+          <AddIcon className={ classes.addIcon } />
         </CardActionArea>
       </Card>
     </Grid>
