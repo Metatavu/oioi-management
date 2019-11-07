@@ -1,6 +1,6 @@
 import * as React from "react";
 import { Typography, Card, CardMedia, withStyles, WithStyles, CardActions, CardActionArea, Button } from "@material-ui/core";
-import styles from "../../styles/card-styles";
+import styles from "../../styles/card-item";
 
 interface Props extends WithStyles<typeof styles> {
   /**

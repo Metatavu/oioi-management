@@ -2,7 +2,7 @@ import * as React from "react";
 import { Container, Typography, Grid, Card, withStyles, WithStyles, CardActionArea } from "@material-ui/core";
 import img from "../../resources/images/geopark.png";
 import AddIcon from "@material-ui/icons/AddCircle";
-import styles from "../../styles/card-styles";
+import styles from "../../styles/card-item";
 import { History } from "history";
 import CardItem from "../generic/CardItem";
 import AddCustomerDialog from "../generic/AddCustomerDialog";

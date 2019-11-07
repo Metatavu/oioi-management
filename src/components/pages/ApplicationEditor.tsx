@@ -6,7 +6,9 @@ import TreeView from "@material-ui/lab/TreeView";
 import SettingsIcon from "@material-ui/icons/Settings";
 import MenuIcon from "@material-ui/icons/Menu";
 import LanguageIcon from "@material-ui/icons/Language";
-import StyledTreeItem from "../generic/StyledTreeItem";
+import { fade } from "@material-ui/core/styles";
+import TreeItem from "@material-ui/lab/TreeItem";
+import TransitionComponent from "../generic/TransitionComponent";
 
 interface Props extends WithStyles<typeof styles> {
   history: History,
@@ -37,7 +39,7 @@ const styles = (theme: Theme) =>
       },
     },
     appBar: {
-      height: 60,
+      height: 65,
       backgroundColor: "#F6F6F6",
       color: "#000",
       gridArea: "appbar",
@@ -65,6 +67,20 @@ const styles = (theme: Theme) =>
     },
     treeRoot: {
       margin: 10
+    },
+    treeContent: {
+      minHeight: 30
+    },
+    treeIconContainer: {
+      marginRight: 5,
+      "& .close": {
+        opacity: 0.3,
+      },
+    },
+    treeGroup: {
+      marginLeft: 12,
+      paddingLeft: 12,
+      borderLeft: `1px dashed ${fade(theme.palette.text.primary, 0.4)}`,
     }
   });
 
@@ -166,27 +182,27 @@ class ApplicationEditor extends React.Component<Props, State> {
         </ListItem>
       </List>
       <Divider />
-      <TreeView className={ classes.treeRoot }>
-        <StyledTreeItem nodeId="1" label="Teaser" icon={ <LanguageIcon /> } />
-        <StyledTreeItem nodeId="2" label="Language" icon={ <LanguageIcon /> } />
-        <StyledTreeItem nodeId="3" label="Menu" icon={ <MenuIcon /> }>
-          <StyledTreeItem icon={ <MenuIcon /> } nodeId="4" label="Näin Saimaa syntyi">
-            <StyledTreeItem icon={ <MenuIcon /> } nodeId="5" label="1. Mannerlaattojen jakautuminen">
-              <StyledTreeItem nodeId="6" label="1620-1650 milj. v. sitten" />
-              <StyledTreeItem nodeId="7" label="1900 milj. v. vanhat blaablaa" />
-            </StyledTreeItem>
-            <StyledTreeItem icon={ <MenuIcon /> } nodeId="8" label="2. Poimuvuoriston muodostuminen">
-              <StyledTreeItem nodeId="9" label="1620-1650 milj. v. sitten" />
-              <StyledTreeItem nodeId="10" label="1900 milj. v. vanhat blaablaa" />
-            </StyledTreeItem>
-          </StyledTreeItem>
-          <StyledTreeItem icon={ <MenuIcon /> } nodeId="11" label="Mikä on Saimaa Geopark?">
-            <StyledTreeItem icon={ <MenuIcon /> } nodeId="12" label="Miksi se on olemassa?">
-              <StyledTreeItem nodeId="13" label="Löydä Saimaa" />
-              <StyledTreeItem nodeId="14" label="Taustakuva" />
-            </StyledTreeItem>
-          </StyledTreeItem>
-        </StyledTreeItem>
+      <TreeView classes={{ root: classes.treeRoot }}>
+        <TreeItem TransitionComponent={TransitionComponent} classes={{ iconContainer: classes.treeIconContainer, group: classes.treeGroup, content: classes.treeContent }} nodeId="1" label="Teaser" icon={ <LanguageIcon fontSize="small" /> } />
+        <TreeItem TransitionComponent={TransitionComponent} classes={{ iconContainer: classes.treeIconContainer, group: classes.treeGroup, content: classes.treeContent }} nodeId="2" label="Language" icon={ <LanguageIcon fontSize="small" /> } />
+        <TreeItem TransitionComponent={TransitionComponent} classes={{ iconContainer: classes.treeIconContainer, group: classes.treeGroup, content: classes.treeContent }} nodeId="3" label="Menu" icon={ <MenuIcon fontSize="small" /> }>
+          <TreeItem TransitionComponent={TransitionComponent} classes={{ iconContainer: classes.treeIconContainer, group: classes.treeGroup, content: classes.treeContent }} icon={ <MenuIcon fontSize="small" /> } nodeId="4" label="Näin Saimaa syntyi">
+            <TreeItem TransitionComponent={TransitionComponent} classes={{ iconContainer: classes.treeIconContainer, group: classes.treeGroup, content: classes.treeContent }} icon={ <MenuIcon fontSize="small" /> } nodeId="5" label="1. Mannerlaattojen jakautuminen">
+              <TreeItem TransitionComponent={TransitionComponent} classes={{ iconContainer: classes.treeIconContainer, group: classes.treeGroup, content: classes.treeContent }} nodeId="6" label="1620-1650 milj. v. sitten" />
+              <TreeItem TransitionComponent={TransitionComponent} classes={{ iconContainer: classes.treeIconContainer, group: classes.treeGroup, content: classes.treeContent }} nodeId="7" label="1900 milj. v. vanhat blaablaa" />
+            </TreeItem>
+            <TreeItem TransitionComponent={TransitionComponent} classes={{ iconContainer: classes.treeIconContainer, group: classes.treeGroup, content: classes.treeContent }} icon={ <MenuIcon fontSize="small" /> } nodeId="8" label="2. Poimuvuoriston muodostuminen">
+              <TreeItem TransitionComponent={TransitionComponent} classes={{ iconContainer: classes.treeIconContainer, group: classes.treeGroup, content: classes.treeContent }} nodeId="9" label="1620-1650 milj. v. sitten" />
+              <TreeItem TransitionComponent={TransitionComponent} classes={{ iconContainer: classes.treeIconContainer, group: classes.treeGroup, content: classes.treeContent }} nodeId="10" label="1900 milj. v. vanhat blaablaa" />
+            </TreeItem>
+          </TreeItem>
+          <TreeItem TransitionComponent={TransitionComponent} classes={{ iconContainer: classes.treeIconContainer, group: classes.treeGroup, content: classes.treeContent }} icon={ <MenuIcon fontSize="small" /> } nodeId="11" label="Mikä on Saimaa Geopark?">
+            <TreeItem TransitionComponent={TransitionComponent} classes={{ iconContainer: classes.treeIconContainer, group: classes.treeGroup, content: classes.treeContent }} icon={ <MenuIcon fontSize="small" /> } nodeId="12" label="Miksi se on olemassa?">
+              <TreeItem TransitionComponent={TransitionComponent} classes={{ iconContainer: classes.treeIconContainer, group: classes.treeGroup, content: classes.treeContent }} nodeId="13" label="Löydä Saimaa" />
+              <TreeItem TransitionComponent={TransitionComponent} classes={{ iconContainer: classes.treeIconContainer, group: classes.treeGroup, content: classes.treeContent }} nodeId="14" label="Taustakuva" />
+            </TreeItem>
+          </TreeItem>
+        </TreeItem>
       </TreeView>
     </div>
     );

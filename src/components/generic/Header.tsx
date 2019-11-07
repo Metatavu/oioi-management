@@ -1,10 +1,11 @@
 import * as React from "react";
-import { AppBar, IconButton, Toolbar } from "@material-ui/core";
+import { AppBar, IconButton, Toolbar, WithStyles, withStyles } from '@material-ui/core';
 import SignOutIcon from "@material-ui/icons/ExitToAppSharp";
 import logo from "../../resources/svg/oioi-logo.svg";
 import { Link } from "react-router-dom";
+import styles from "../../styles/header";
 
-interface Props {
+interface Props extends WithStyles<typeof styles> {
 
 }
 
@@ -29,15 +30,16 @@ class Header extends React.Component<Props, State> {
    * Component render method
    */
   public render() {
+    const { classes } = this.props;
     return (
-      <AppBar color={"primary"} elevation={0} position="relative" className="header">
+      <AppBar color={"primary"} elevation={0} position="relative" className={ classes.header }>
         <Toolbar>
-          <div className="logo-container">
+          <div className={ classes.logoContainer }>
             <Link to="/">
-              <img className="logo" src={logo} alt="OiOi Logo"></img>
+              <img className={ classes.logo } src={logo} alt="OiOi Logo"></img>
             </Link>
           </div>
-          <IconButton edge="end" className="sign-out-btn" onClick={this.onLogOutClick}>
+          <IconButton edge="end" className={ classes.signOutBtn } onClick={this.onLogOutClick}>
             <SignOutIcon />
           </IconButton>
         </Toolbar>
@@ -53,4 +55,4 @@ class Header extends React.Component<Props, State> {
   }
 }
 
-export default Header;
+export default withStyles(styles)(Header);
