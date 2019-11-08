@@ -4,9 +4,15 @@ import SignOutIcon from "@material-ui/icons/ExitToAppSharp";
 import logo from "../../resources/svg/oioi-logo.svg";
 import { Link } from "react-router-dom";
 import styles from "../../styles/header";
+import { ReduxState, ReduxActions } from "../../store";
+import { Dispatch } from "redux";
+import { logout } from "../../actions/auth";
+import { connect } from "react-redux";
+import { AuthState } from "../../types";
 
 interface Props extends WithStyles<typeof styles> {
-
+  logout: typeof logout
+  auth: AuthState
 }
 
 interface State {
@@ -48,11 +54,27 @@ class Header extends React.Component<Props, State> {
   }
 
   /**
-   * Edit customer method
+   * Handle logout
    */
   private onLogOutClick = () => {
-    alert("You can run but you can't hide!");
+    const { auth, logout } = this.props;
+    if (!auth) {
+      return;
+    }
+
+    logout();
+    auth.logout();
   }
 }
 
-export default withStyles(styles)(Header);
+const mapStateToProps = (state: ReduxState) => ({
+  auth: state.auth
+});
+
+const mapDispatchToProps = (dispatch: Dispatch<ReduxActions>) => {
+  return {
+    logout: () => dispatch(logout())
+  }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(Header));
