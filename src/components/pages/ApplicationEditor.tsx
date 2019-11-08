@@ -1,6 +1,6 @@
 import * as React from "react";
 // tslint:disable-next-line: max-line-length
-import { Typography, createStyles, Theme, Divider, List, ListItem, ListItemIcon, ListItemText, Hidden, AppBar, Toolbar, IconButton, WithStyles, withStyles, Drawer } from "@material-ui/core";
+import { Typography, createStyles, Theme, Divider, List, ListItem, ListItemIcon, ListItemText, Hidden, AppBar, Toolbar, IconButton, WithStyles, withStyles, Drawer, SvgIcon } from "@material-ui/core";
 import { History } from "history";
 import TreeView from "@material-ui/lab/TreeView";
 import SettingsIcon from "@material-ui/icons/Settings";
@@ -9,6 +9,9 @@ import LanguageIcon from "@material-ui/icons/Language";
 import { fade } from "@material-ui/core/styles";
 import TreeItem from "@material-ui/lab/TreeItem";
 import TransitionComponent from "../generic/TransitionComponent";
+
+const pageIconPath = <path d="M24 17H1.14441e-05V1.90735e-06H24V17ZM23 1H1V16H23V1Z"/>;
+const folderIconPath = <path d="M17.9999 18H-0.000127792V6H17.9999V18ZM20.9998 15H19.9998V4H2.99982V3H20.9998V15ZM0.999872 7H16.9999V17H0.999872V7ZM24 12H23V0.999998H6V-1.90735e-06H24V12Z" />;
 
 interface Props extends WithStyles<typeof styles> {
   history: History,
@@ -81,6 +84,11 @@ const styles = (theme: Theme) =>
       marginLeft: 12,
       paddingLeft: 12,
       borderLeft: `1px dashed ${fade(theme.palette.text.primary, 0.4)}`,
+    },
+    treeLabel: {
+      whiteSpace: "nowrap",
+      overflow: "hidden",
+      textOverflow: "ellipsis"
     }
   });
 
@@ -173,6 +181,7 @@ class ApplicationEditor extends React.Component<Props, State> {
    */
   private renderDrawer = () => {
     const { classes } = this.props;
+    const  treeItemStyles  = { iconContainer: classes.treeIconContainer, group: classes.treeGroup, content: classes.treeContent, label: classes.treeLabel };
     return (
     <div>
       <List>
@@ -183,23 +192,23 @@ class ApplicationEditor extends React.Component<Props, State> {
       </List>
       <Divider />
       <TreeView classes={{ root: classes.treeRoot }}>
-        <TreeItem TransitionComponent={TransitionComponent} classes={{ iconContainer: classes.treeIconContainer, group: classes.treeGroup, content: classes.treeContent }} nodeId="1" label="Teaser" icon={ <LanguageIcon fontSize="small" /> } />
-        <TreeItem TransitionComponent={TransitionComponent} classes={{ iconContainer: classes.treeIconContainer, group: classes.treeGroup, content: classes.treeContent }} nodeId="2" label="Language" icon={ <LanguageIcon fontSize="small" /> } />
-        <TreeItem TransitionComponent={TransitionComponent} classes={{ iconContainer: classes.treeIconContainer, group: classes.treeGroup, content: classes.treeContent }} nodeId="3" label="Menu" icon={ <MenuIcon fontSize="small" /> }>
-          <TreeItem TransitionComponent={TransitionComponent} classes={{ iconContainer: classes.treeIconContainer, group: classes.treeGroup, content: classes.treeContent }} icon={ <MenuIcon fontSize="small" /> } nodeId="4" label="Näin Saimaa syntyi">
-            <TreeItem TransitionComponent={TransitionComponent} classes={{ iconContainer: classes.treeIconContainer, group: classes.treeGroup, content: classes.treeContent }} icon={ <MenuIcon fontSize="small" /> } nodeId="5" label="1. Mannerlaattojen jakautuminen">
-              <TreeItem TransitionComponent={TransitionComponent} classes={{ iconContainer: classes.treeIconContainer, group: classes.treeGroup, content: classes.treeContent }} nodeId="6" label="1620-1650 milj. v. sitten" />
-              <TreeItem TransitionComponent={TransitionComponent} classes={{ iconContainer: classes.treeIconContainer, group: classes.treeGroup, content: classes.treeContent }} nodeId="7" label="1900 milj. v. vanhat blaablaa" />
+        <TreeItem TransitionComponent={TransitionComponent} classes={ treeItemStyles } icon={ <SvgIcon fontSize="small">{ pageIconPath }</SvgIcon> } nodeId="1" label="Teaser" />
+        <TreeItem TransitionComponent={TransitionComponent} classes={ treeItemStyles } icon={ <LanguageIcon fontSize="small" />} nodeId="2" label="Language" />
+        <TreeItem TransitionComponent={TransitionComponent} classes={ treeItemStyles } icon={ <MenuIcon fontSize="small" /> } nodeId="3" label="Menu" >
+          <TreeItem TransitionComponent={TransitionComponent} classes={ treeItemStyles } icon={ <MenuIcon fontSize="small" /> } nodeId="4" label="Näin Saimaa syntyi">
+            <TreeItem TransitionComponent={TransitionComponent} classes={ treeItemStyles } icon={ <MenuIcon fontSize="small" /> } nodeId="5" label="1. Mannerlaattojen jakautuminen">
+              <TreeItem TransitionComponent={TransitionComponent} classes={ treeItemStyles } icon={ <SvgIcon fontSize="small">{ folderIconPath }</SvgIcon> } nodeId="6" label="1620-1650 milj. v. sitten" />
+              <TreeItem TransitionComponent={TransitionComponent} classes={ treeItemStyles } icon={ <SvgIcon fontSize="small">{ folderIconPath }</SvgIcon> } nodeId="7" label="1900 milj. v. vanhat blaablaa" />
             </TreeItem>
-            <TreeItem TransitionComponent={TransitionComponent} classes={{ iconContainer: classes.treeIconContainer, group: classes.treeGroup, content: classes.treeContent }} icon={ <MenuIcon fontSize="small" /> } nodeId="8" label="2. Poimuvuoriston muodostuminen">
-              <TreeItem TransitionComponent={TransitionComponent} classes={{ iconContainer: classes.treeIconContainer, group: classes.treeGroup, content: classes.treeContent }} nodeId="9" label="1620-1650 milj. v. sitten" />
-              <TreeItem TransitionComponent={TransitionComponent} classes={{ iconContainer: classes.treeIconContainer, group: classes.treeGroup, content: classes.treeContent }} nodeId="10" label="1900 milj. v. vanhat blaablaa" />
+            <TreeItem TransitionComponent={TransitionComponent} classes={ treeItemStyles }  icon={ <MenuIcon fontSize="small" /> } nodeId="8" label="2. Poimuvuoriston muodostuminen">
+              <TreeItem TransitionComponent={TransitionComponent} classes={ treeItemStyles } icon={ <SvgIcon fontSize="small">{ pageIconPath }</SvgIcon> } nodeId="9" label="1620-1650 milj. v. sitten" />
+              <TreeItem TransitionComponent={TransitionComponent} classes={ treeItemStyles } icon={ <SvgIcon fontSize="small">{ pageIconPath }</SvgIcon> } nodeId="10" label="1900 milj. v. vanhat blaablaa" />
             </TreeItem>
           </TreeItem>
-          <TreeItem TransitionComponent={TransitionComponent} classes={{ iconContainer: classes.treeIconContainer, group: classes.treeGroup, content: classes.treeContent }} icon={ <MenuIcon fontSize="small" /> } nodeId="11" label="Mikä on Saimaa Geopark?">
-            <TreeItem TransitionComponent={TransitionComponent} classes={{ iconContainer: classes.treeIconContainer, group: classes.treeGroup, content: classes.treeContent }} icon={ <MenuIcon fontSize="small" /> } nodeId="12" label="Miksi se on olemassa?">
-              <TreeItem TransitionComponent={TransitionComponent} classes={{ iconContainer: classes.treeIconContainer, group: classes.treeGroup, content: classes.treeContent }} nodeId="13" label="Löydä Saimaa" />
-              <TreeItem TransitionComponent={TransitionComponent} classes={{ iconContainer: classes.treeIconContainer, group: classes.treeGroup, content: classes.treeContent }} nodeId="14" label="Taustakuva" />
+          <TreeItem TransitionComponent={TransitionComponent} classes={ treeItemStyles } icon={ <MenuIcon fontSize="small" /> } nodeId="11" label="Mikä on Saimaa Geopark?">
+            <TreeItem TransitionComponent={TransitionComponent} classes={ treeItemStyles } icon={ <MenuIcon fontSize="small" /> } nodeId="12" label="Miksi se on olemassa?">
+              <TreeItem TransitionComponent={TransitionComponent} classes={ treeItemStyles } icon={ <SvgIcon fontSize="small">{ pageIconPath }</SvgIcon> } nodeId="13" label="Löydä Saimaa" />
+              <TreeItem TransitionComponent={TransitionComponent} classes={ treeItemStyles } icon={ <SvgIcon fontSize="small">{ pageIconPath }</SvgIcon> } nodeId="14" label="Taustakuva" />
             </TreeItem>
           </TreeItem>
         </TreeItem>

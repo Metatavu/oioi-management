@@ -2,6 +2,7 @@ import * as React from "react";
 import { withStyles, WithStyles, Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, Divider, Grid, Typography } from "@material-ui/core";
 import styles from "../../styles/dialog";
 import { DropzoneArea } from "material-ui-dropzone";
+import strings from "../../localization/strings";
 
 interface Props extends WithStyles<typeof styles> {
   /**
@@ -48,7 +49,9 @@ class AddDeviceDialog extends React.Component<Props, State> {
         onClose={ this.props.handleClose }
         aria-labelledby="dialog-title"
       >
-        <DialogTitle id="dialog-title"><Typography variant="h2">Add new device</Typography></DialogTitle>
+        <DialogTitle id="dialog-title">
+          <Typography variant="h2">{ strings.addNewDevice }</Typography>
+        </DialogTitle>
         <Divider />
         <DialogContent>
           <Grid container spacing={ 2 }>
@@ -75,8 +78,12 @@ class AddDeviceDialog extends React.Component<Props, State> {
               />
             </Grid>
             <Grid item className={ classes.fullWidth}>
-              <Typography variant="subtitle1">Device img</Typography>
-              <DropzoneArea dropzoneClass={ classes.dropzone }></DropzoneArea>
+              <Typography variant="subtitle1">{ strings.deviceImage }</Typography>
+              <DropzoneArea
+                dropzoneClass={ classes.dropzone }
+                dropzoneParagraphClass={ classes.dropzoneText }
+                dropzoneText={ strings.dropFile }
+              />
             </Grid>
           </Grid>
         </DialogContent>

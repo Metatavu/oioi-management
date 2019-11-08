@@ -1,8 +1,9 @@
 import * as React from "react";
-import { withStyles, WithStyles, Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, Divider, Typography, Grid } from "@material-ui/core";
+import { withStyles, WithStyles, Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, Divider, Typography, Grid, FormControl } from "@material-ui/core";
 import styles from "../../styles/dialog";
 import { DropzoneArea } from "material-ui-dropzone";
 import { Customer, CustomerFromJSON } from "../../generated/client/src";
+import strings from "../../localization/strings";
 
 interface Props extends WithStyles<typeof styles> {
   /**
@@ -49,26 +50,39 @@ class AddCustomerDialog extends React.Component<Props, State> {
         onClose={ this.props.handleClose }
         aria-labelledby="dialog-title"
       >
-        <DialogTitle id="dialog-title"><Typography variant="h2">Add new customer</Typography></DialogTitle>
+        <DialogTitle id="dialog-title">
+          <Typography variant="h2">{ strings.addNewCustomer }</Typography>
+        </DialogTitle>
         <Divider />
         <DialogContent>
           <Grid container spacing={ 2 }>
             <Grid item className={ classes.fullWidth }>
-              <TextField value={this.state.customerData["name"]} onChange={this.onDataChange} name="name" fullWidth variant="outlined" label="Name"></TextField>
+              <TextField
+                fullWidth
+                variant="outlined"
+                value={this.state.customerData["name"]}
+                onChange={this.onDataChange}
+                name="name"
+                label={ strings.name }
+                />
             </Grid>
             <Grid item className={ classes.fullWidth}>
-              <Typography variant="subtitle1">Customer logo</Typography>
-              <DropzoneArea dropzoneClass={ classes.dropzone }></DropzoneArea>
+              <Typography variant="subtitle1">{ strings.customerLogo }</Typography>
+              <DropzoneArea
+                dropzoneClass={ classes.dropzone }
+                dropzoneParagraphClass={ classes.dropzoneText }
+                dropzoneText={ strings.dropFile }
+              />
             </Grid>
           </Grid>
         </DialogContent>
         <Divider />
         <DialogActions>
           <Button variant="outlined" onClick={ this.props.handleClose } color="primary">
-            Cancel
+            { strings.cancel }
           </Button>
           <Button variant="contained" onClick={ this.onSave } color="primary" autoFocus>
-            Save
+            { strings.save }
           </Button>
         </DialogActions>
       </Dialog>
