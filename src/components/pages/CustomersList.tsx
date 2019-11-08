@@ -6,13 +6,21 @@ import styles from "../../styles/card-item";
 import { History } from "history";
 import CardItem from "../generic/CardItem";
 import AddCustomerDialog from "../generic/AddCustomerDialog";
+import { AuthState } from "../../types";
+import { Dispatch } from "redux";
+import { ReduxActions, ReduxState } from "../../store";
+import { connect } from "react-redux";
+import { Customer } from "../../generated/client/src";
+import ApiUtils from "../../utils/ApiUtils";
 
 interface Props extends WithStyles<typeof styles> {
-  history: History
+  history: History,
+  auth: AuthState
 }
 
 interface State {
-  editorDialogOpen: boolean
+  editorDialogOpen: boolean,
+  customers: Customer[]
 }
 
 class CustomersList extends React.Component<Props, State> {
@@ -25,8 +33,22 @@ class CustomersList extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = {
-      editorDialogOpen: false
+      editorDialogOpen: false,
+      customers: []
     };
+  }
+
+  public componentDidMount = async () => {
+    const { auth } = this.props;
+    if (!auth || !auth.token) {
+      return;
+    }
+
+    const customersApi = ApiUtils.getCustomersApi(auth.token);
+    const customers = await customersApi.listCustomers();
+    this.setState({
+      customers: customers
+    });
   }
 
   /**
@@ -34,13 +56,13 @@ class CustomersList extends React.Component<Props, State> {
    */
   public render() {
     const { classes } = this.props;
-    // const cars = this.state.cars.map((car) => renderCar(car))
+    const cards = this.state.customers.map((customer) => this.renderCard(customer));
     return (
       <Container maxWidth="xl" className="page-content">
         <Typography className={classes.heading} variant="h1">Customers</Typography>
         <Grid container spacing={5} direction="row">
           {
-            this.renderCards()
+            cards
           }
           {
             this.renderAddCustomer()
@@ -58,15 +80,15 @@ class CustomersList extends React.Component<Props, State> {
   /**
    * Card render method
    */
-  private renderCards() {
+  private renderCard(customer: Customer) {
     return (
     <Grid item>
       <CardItem
-        title="Saimaa Geopark"
-        img={ img }
-        editClick={ this.onEditCustomerClick }
-        deleteClick={ this.onDeleteCustomerClick }>
-      </CardItem>>
+        title={ customer.name }
+        img={ customer.image_url || img }
+        editClick={() => this.onEditCustomerClick(customer) }
+        deleteClick={() => this.onDeleteCustomerClick(customer) }>
+      </CardItem>
     </Grid>
     );
   }
@@ -90,29 +112,53 @@ class CustomersList extends React.Component<Props, State> {
   /**
    * Edit customer method
    */
-  private onEditCustomerClick = () => {
+  private onEditCustomerClick = (customer: Customer) => {
     this.props.history.push("/devices");
   }
+
   /**
    * Delete customer method
    */
-  private onDeleteCustomerClick = () => {
-    alert("Delete Customer!");
+  private onDeleteCustomerClick = async (customer: Customer) => {
+    const { auth } = this.props;
+    if (!auth || !auth.token || !customer.id) {
+      return;
+    }
+
+    const customersApi = ApiUtils.getCustomersApi(auth.token);
+    await customersApi.deleteCustomer({customer_id: customer.id});
+    const { customers } = this.state;
+    this.setState({
+      customers: customers.filter((c => c.id !== customer.id))
+    });
   }
+
   /**
    * Add customer method
    */
   private onAddCustomerClick = () => {
     this.setState({ editorDialogOpen: true });
   }
+
   /**
    * Save customer method
-   *
-   * TODO: handle saving
    */
-  private onSaveCustomerClick = () => {
-    this.setState({ editorDialogOpen: false });
+  private onSaveCustomerClick = async (customer: Customer) => {
+    const { auth } = this.props;
+    if (!auth || !auth.token) {
+      return;
+    }
+
+    const customersApi = ApiUtils.getCustomersApi(auth.token);
+    const newCustomer = await customersApi.createCustomer({customer: customer});
+    const { customers } = this.state;
+    customers.push(newCustomer);
+    this.setState({
+      customers: customers,
+      editorDialogOpen: false
+    });
   }
+
   /**
    * Close dialog method
    *
@@ -123,4 +169,12 @@ class CustomersList extends React.Component<Props, State> {
   }
 }
 
-export default withStyles(styles)(CustomersList);
+const mapStateToProps = (state: ReduxState) => ({
+  auth: state.auth
+});
+
+const mapDispatchToProps = (dispatch: Dispatch<ReduxActions>) => {
+  return {};
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(CustomersList));
