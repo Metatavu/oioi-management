@@ -1,5 +1,6 @@
 {
   "active": "Active",
+  "address": "Address",
   "addLanguage": "Add language",
   "addNewCustomer": "Add a new customer",
   "addNewDevice": "Add a new device",
@@ -16,10 +17,13 @@
   "dropFile": "Drop file or click to add",
   "edit": "Edit",
   "home": "Home",
+  "image": "Image",
+  "informationOptional": "Information (optional)",
   "languageVersions": "Language versions",
   "mainNavigationIcons": "Main navigation icons",
   "name": "Name",
   "normal": "Normal",
   "save": "Save",
-  "selectLanguage": "Select language"
+  "selectLanguage": "Select language",
+  "serialNubmerOptional": "Serial number (optional)"
 }

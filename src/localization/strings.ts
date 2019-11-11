@@ -2,6 +2,7 @@ import LocalizedStrings, { LocalizedStringsMethods } from "localized-strings";
 
 export interface IStrings extends LocalizedStringsMethods {
   active: string,
+  address: string,
   addLanguage: string,
   addNewCustomer: string,
   addNewDevice: string,
@@ -18,12 +19,15 @@ export interface IStrings extends LocalizedStringsMethods {
   dropFile: string,
   edit: string,
   home: string,
+  image: string,
+  informationOptional: string,
   languageVersions: string,
   mainNavigationIcons: string,
   name: string,
   normal: string,
   save: string,
-  selectLanguage: string
+  selectLanguage: string,
+  serialNumberOptional: string
 }
 
 const strings: IStrings = new LocalizedStrings({

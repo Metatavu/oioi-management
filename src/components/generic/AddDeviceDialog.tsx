@@ -59,14 +59,21 @@ class AddDeviceDialog extends React.Component<Props, State> {
               <TextField
                 fullWidth
                 variant="outlined"
-                label="Name"
+                label={ strings.name }
               />
             </Grid>
             <Grid item className={ classes.fullWidth }>
               <TextField
                 fullWidth
                 variant="outlined"
-                label="Address"
+                label={ strings.address }
+              />
+            </Grid>
+            <Grid item className={ classes.fullWidth }>
+              <TextField
+                fullWidth
+                variant="outlined"
+                label={ strings.serialNumberOptional }
               />
             </Grid>
             <Grid item className={ classes.fullWidth }>
@@ -74,11 +81,11 @@ class AddDeviceDialog extends React.Component<Props, State> {
                 multiline
                 fullWidth
                 variant="outlined"
-                label="Information (optional)"
+                label={ strings.informationOptional }
               />
             </Grid>
             <Grid item className={ classes.fullWidth}>
-              <Typography variant="subtitle1">{ strings.deviceImage }</Typography>
+              <Typography variant="subtitle1">{ strings.image }</Typography>
               <DropzoneArea
                 dropzoneClass={ classes.dropzone }
                 dropzoneParagraphClass={ classes.dropzoneText }
@@ -90,10 +97,10 @@ class AddDeviceDialog extends React.Component<Props, State> {
         <Divider />
         <DialogActions>
           <Button variant="outlined" onClick={ this.props.handleClose } color="primary">
-            Cancel
+            { strings.cancel }
           </Button>
           <Button variant="contained" onClick={ this.props.saveClick } color="primary" autoFocus>
-            Save
+            { strings.save }
           </Button>
         </DialogActions>
       </Dialog>
