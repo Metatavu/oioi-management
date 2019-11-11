@@ -54,8 +54,12 @@ export default createMuiTheme({
     }
   },
   overrides: {
-    MuiInput: {
-      input: {
+    MuiInputBase: {
+      root: {
+        minWidth: "100%",
+        [theme.breakpoints.up("sm")]: {
+          minWidth: 340
+        },
       }
     }
   }

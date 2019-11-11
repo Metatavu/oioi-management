@@ -1,10 +1,25 @@
 {
+  "active": "Aktiivinen",
+  "addLanguage": "Lisää kieli",
   "addNewCustomer": "Lisää uusi asiakas",
   "addNewDevice": "Lisää uusi laite",
+  "applications": "Sovellukset",
+  "applicationSettings": "Sovellusasetukset",
+  "back": "Takaisin",
   "cancel": "Peruuta",
+  "customers": "Asiakkaat",
   "customerLogo": "Logo",
+  "delete": "Poista",
+  "details": "Tiedot",
+  "devices": "Laitteet",
   "deviceImage": "Laitekuva",
   "dropFile": "Tiputa tiedosto tai klikkaa ja etsi",
+  "edit": "Editoi",
+  "home": "Kotivalikko",
+  "languageVersions": "Kieliversiot",
+  "mainNavigationIcons": "Ylimmän tason navigaatioikonit",
   "name": "Nimi",
-  "save": "Tallenna"
+  "normal": "Normaali",
+  "save": "Tallenna",
+  "selectLanguage": "Valitse kieli"
 }

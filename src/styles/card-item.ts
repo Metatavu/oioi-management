@@ -32,6 +32,10 @@ export default createStyles({
     color: "#fff",
     fontWeight: "bold"
   },
+  details: {
+    color: "#fff",
+    fontWeight: "bold"
+  },
   delete: {
     color: "#ddd",
   },

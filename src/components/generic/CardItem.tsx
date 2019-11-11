@@ -1,6 +1,7 @@
 import * as React from "react";
 import { Typography, Card, CardMedia, withStyles, WithStyles, CardActions, CardActionArea, Button } from "@material-ui/core";
 import styles from "../../styles/card-item";
+import strings from "../../localization/strings";
 
 interface Props extends WithStyles<typeof styles> {
   /**
@@ -15,6 +16,10 @@ interface Props extends WithStyles<typeof styles> {
    * Edit button click
    */
   editClick(): void
+  /**
+   * Details button click
+   */
+  detailsClick(): void
   /**
    * Delete button click
    */
@@ -57,10 +62,13 @@ class CardItem extends React.Component<Props, State> {
         </CardActionArea>
         <CardActions className={ classes.cardActions }>
           <Button size="small" className={ classes.edit } onClick={ this.props.editClick }>
-            Edit
+          { strings.edit }
+          </Button>
+          <Button size="small" className={ classes.details } onClick={ this.props.detailsClick }>
+          { strings.details }
           </Button>
           <Button size="small" className={ classes.delete } onClick={ this.props.deleteClick }>
-            Delete
+          { strings.delete }
           </Button>
         </CardActions>
       </Card>

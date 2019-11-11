@@ -1,10 +1,25 @@
 {
+  "active": "Active",
+  "addLanguage": "Add language",
   "addNewCustomer": "Add a new customer",
   "addNewDevice": "Add a new device",
+  "applications": "Applications",
+  "applicationSettings": "Application settings",
+  "back": "Back",
   "cancel": "Cancel",
+  "customers": "Customers",
   "customerLogo": "Customer logo",
+  "delete": "Delete",
+  "details": "Details",
+  "devices": "Devices",
   "deviceImage": "Device image",
   "dropFile": "Drop file or click to add",
+  "edit": "Edit",
+  "home": "Home",
+  "languageVersions": "Language versions",
+  "mainNavigationIcons": "Main navigation icons",
   "name": "Name",
-  "save": "Save"
+  "normal": "Normal",
+  "save": "Save",
+  "selectLanguage": "Select language"
 }

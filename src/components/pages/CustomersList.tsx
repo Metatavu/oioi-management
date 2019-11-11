@@ -12,6 +12,7 @@ import { ReduxActions, ReduxState } from "../../store";
 import { connect } from "react-redux";
 import { Customer } from "../../generated/client/src";
 import ApiUtils from "../../utils/ApiUtils";
+import strings from "../../localization/strings";
 
 interface Props extends WithStyles<typeof styles> {
   history: History,
@@ -59,7 +60,7 @@ class CustomersList extends React.Component<Props, State> {
     const cards = this.state.customers.map((customer) => this.renderCard(customer));
     return (
       <Container maxWidth="xl" className="page-content">
-        <Typography className={classes.heading} variant="h1">Customers</Typography>
+        <Typography className={classes.heading} variant="h2">{ strings.customers }</Typography>
         <Grid container spacing={5} direction="row">
           {
             cards
@@ -87,6 +88,7 @@ class CustomersList extends React.Component<Props, State> {
         title={ customer.name }
         img={ customer.image_url || img }
         editClick={() => this.onEditCustomerClick(customer) }
+        detailsClick={() => this.onEditCustomerClick(customer) }
         deleteClick={() => this.onDeleteCustomerClick(customer) }>
       </CardItem>
     </Grid>

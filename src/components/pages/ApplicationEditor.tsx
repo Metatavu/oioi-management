@@ -1,14 +1,16 @@
 import * as React from "react";
 // tslint:disable-next-line: max-line-length
-import { Typography, createStyles, Theme, Divider, List, ListItem, ListItemIcon, ListItemText, Hidden, AppBar, Toolbar, IconButton, WithStyles, withStyles, Drawer, SvgIcon } from "@material-ui/core";
+import { Typography, Divider, List, ListItem, ListItemIcon, ListItemText, Hidden, AppBar, Toolbar, IconButton, WithStyles, withStyles, Drawer, SvgIcon } from "@material-ui/core";
 import { History } from "history";
 import TreeView from "@material-ui/lab/TreeView";
 import SettingsIcon from "@material-ui/icons/Settings";
 import MenuIcon from "@material-ui/icons/Menu";
 import LanguageIcon from "@material-ui/icons/Language";
-import { fade } from "@material-ui/core/styles";
 import TreeItem from "@material-ui/lab/TreeItem";
 import TransitionComponent from "../generic/TransitionComponent";
+import AppSettingsView from "../views/AppSettingsView";
+import strings from "../../localization/strings";
+import styles from "../../styles/editor-view";
 
 const pageIconPath = <path d="M24 17H1.14441e-05V1.90735e-06H24V17ZM23 1H1V16H23V1Z"/>;
 const folderIconPath = <path d="M17.9999 18H-0.000127792V6H17.9999V18ZM20.9998 15H19.9998V4H2.99982V3H20.9998V15ZM0.999872 7H16.9999V17H0.999872V7ZM24 12H23V0.999998H6V-1.90735e-06H24V12Z" />;
@@ -20,77 +22,6 @@ interface Props extends WithStyles<typeof styles> {
 interface State {
   mobileOpen: boolean
 }
-
-const drawerWidth = 240;
-
-const styles = (theme: Theme) =>
-  createStyles({
-    root: {
-      display: "grid",
-      gridTemplateColumns: "auto 1fr",
-      gridTemplateRows: "auto auto 1fr",
-      gridTemplateAreas: "\"drawer appbar\" \"drawer content\" \"drawer content\"",
-      boxShadow: "0 0 20px rgba(0, 0, 0, 0.2)",
-      height: "100%"
-    },
-    drawer: {
-      gridArea: "drawer",
-      position: "relative",
-      [theme.breakpoints.up("sm")]: {
-        width: drawerWidth,
-        flexShrink: 0,
-      },
-    },
-    appBar: {
-      height: 65,
-      backgroundColor: "#F6F6F6",
-      color: "#000",
-      gridArea: "appbar",
-      borderBottomWidth: 0.5,
-      borderBottom: "1px solid rgba(0, 0, 0, 0.2)",
-    },
-    menuButton: {
-      marginRight: theme.spacing(2),
-      [theme.breakpoints.up("sm")]: {
-        display: "none",
-      },
-    },
-    toolbar: theme.mixins.toolbar,
-    drawerPaper: {
-      backgroundColor: "#fff",
-      position: "absolute",
-      width: drawerWidth,
-      height: "100%",
-    },
-    content: {
-      gridArea: "content",
-      flexGrow: 1,
-      padding: theme.spacing(3),
-      background: "#F6F6F6"
-    },
-    treeRoot: {
-      margin: 10
-    },
-    treeContent: {
-      minHeight: 30
-    },
-    treeIconContainer: {
-      marginRight: 5,
-      "& .close": {
-        opacity: 0.3,
-      },
-    },
-    treeGroup: {
-      marginLeft: 12,
-      paddingLeft: 12,
-      borderLeft: `1px dashed ${fade(theme.palette.text.primary, 0.4)}`,
-    },
-    treeLabel: {
-      whiteSpace: "nowrap",
-      overflow: "hidden",
-      textOverflow: "ellipsis"
-    }
-  });
 
 class ApplicationEditor extends React.Component<Props, State> {
 
@@ -123,8 +54,8 @@ class ApplicationEditor extends React.Component<Props, State> {
             >
               <MenuIcon />
             </IconButton>
-            <Typography variant="h6" noWrap>
-              Application settings
+            <Typography variant="h3" noWrap>
+            { "Info Wall" } { strings.applicationSettings }
             </Typography>
           </Toolbar>
         </AppBar>
@@ -187,7 +118,7 @@ class ApplicationEditor extends React.Component<Props, State> {
       <List>
         <ListItem button>
           <ListItemIcon><SettingsIcon color="primary" /></ListItemIcon>
-          <ListItemText primary="Application settings" />
+          <ListItemText  primary={ strings.applicationSettings } />
         </ListItem>
       </List>
       <Divider />
@@ -224,9 +155,7 @@ class ApplicationEditor extends React.Component<Props, State> {
     const { classes } = this.props;
     return (
       <main className={classes.content}>
-        <Typography paragraph>
-          Se ois niinq setuppi tässä.
-        </Typography>
+        <AppSettingsView />
       </main>
     );
   }

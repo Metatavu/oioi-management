@@ -6,6 +6,7 @@ import styles from "../../styles/card-item";
 import { History } from "history";
 import CardItem from "../generic/CardItem";
 import AddDeviceDialog from "../generic/AddDeviceDialog";
+import strings from "../../localization/strings";
 
 interface Props extends WithStyles<typeof styles> {
   history: History
@@ -37,7 +38,7 @@ class DevicesList extends React.Component<Props, State> {
     // const cars = this.state.cars.map((car) => renderCar(car))
     return (
       <Container maxWidth="xl" className="page-content">
-        <Typography className={ classes.heading } variant="h1">{ "Saimaa Geopark" } - devices</Typography>
+        <Typography className={ classes.heading } variant="h2">{ "Saimaa Geopark" } / { strings.devices }</Typography>
         <Grid container spacing={ 5 } direction="row">
           {
             this.renderCards()
@@ -65,6 +66,7 @@ class DevicesList extends React.Component<Props, State> {
         title="Mac mini"
         img={ img }
         editClick={ this.onEditDeviceClick }
+        detailsClick={ this.onDeviceDetailsClick }
         deleteClick={ this.onDeleteDeviceClick }>
       </CardItem>
     </Grid>
@@ -92,6 +94,12 @@ class DevicesList extends React.Component<Props, State> {
    */
   private onEditDeviceClick = () => {
     this.props.history.push("/applications");
+  }
+  /**
+   * Show device details method
+   */
+  private onDeviceDetailsClick = () => {
+    alert("Show device details!");
   }
   /**
    * Delete device method

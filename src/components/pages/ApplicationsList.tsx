@@ -5,6 +5,7 @@ import AddIcon from "@material-ui/icons/AddCircle";
 import styles from "../../styles/card-item";
 import { History } from "history";
 import CardItem from "../generic/CardItem";
+import strings from "../../localization/strings";
 
 interface Props extends WithStyles<typeof styles> {
   history: History
@@ -35,7 +36,7 @@ class ApplicationsList extends React.Component<Props, State> {
     const { classes } = this.props;
     return (
       <Container maxWidth="xl" className="page-content">
-        <Typography className={classes.heading} variant="h1">{"Saimaa Geopark"} - {"Mac mini"} - Applications</Typography>
+        <Typography className={classes.heading} variant="h2">{"Saimaa Geopark"} / {"Mac mini"} / { strings.applications }</Typography>
         <Grid container spacing={5} direction="row">
           {
             this.renderCards()
@@ -58,6 +59,7 @@ class ApplicationsList extends React.Component<Props, State> {
         title="Info Wall"
         img={ img }
         editClick={ this.onEditApplicationClick }
+        detailsClick={ this.onEditApplicationClick }
         deleteClick={ this.onDeleteApplicationClick }
       >
       </CardItem>
