@@ -25,5 +25,7 @@
   "normal": "Normal",
   "save": "Save",
   "selectLanguage": "Select language",
-  "serialNubmerOptional": "Serial number (optional)"
+  "serialNubmerOptional": "Serial number (optional)",
+  "loading": "Loading...",
+  "apikey": "API Key"
 }

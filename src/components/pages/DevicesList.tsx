@@ -7,13 +7,23 @@ import { History } from "history";
 import CardItem from "../generic/CardItem";
 import AddDeviceDialog from "../generic/AddDeviceDialog";
 import strings from "../../localization/strings";
+import { Device, Customer } from "../../generated/client/src";
+import ApiUtils from "../../utils/ApiUtils";
+import { AuthState } from "../../types";
+import { ReduxState, ReduxActions } from "../../store";
+import { Dispatch } from "redux";
+import { connect } from "react-redux";
 
 interface Props extends WithStyles<typeof styles> {
   history: History
+  customerId: string
+  auth: AuthState
 }
 
 interface State {
-  editorDialogOpen: boolean
+  editorDialogOpen: boolean,
+  devices: Device[],
+  customer?: Customer
 }
 
 class DevicesList extends React.Component<Props, State> {
@@ -26,8 +36,28 @@ class DevicesList extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = {
-      editorDialogOpen: false
+      editorDialogOpen: false,
+      devices: []
     };
+  }
+
+  public componentDidMount = async () => {
+    const { auth, customerId } = this.props;
+    if (!auth || !auth.token) {
+      return;
+    }
+
+    const customersApi = ApiUtils.getCustomersApi(auth.token);
+    const devicesApi = ApiUtils.getDevicesApi(auth.token);
+    const [customer, devices] = await Promise.all([
+      customersApi.findCustomer({customer_id: customerId}),
+      devicesApi.listDevices({customer_id: customerId})
+    ]);
+
+    this.setState({
+      customer: customer,
+      devices: devices
+    });
   }
 
   /**
@@ -35,13 +65,14 @@ class DevicesList extends React.Component<Props, State> {
    */
   public render() {
     const { classes } = this.props;
-    // const cars = this.state.cars.map((car) => renderCar(car))
+    const { customer } = this.state;
+    const cards = this.state.devices.map((device: Device) => this.renderCard(device));
     return (
       <Container maxWidth="xl" className="page-content">
-        <Typography className={ classes.heading } variant="h2">{ "Saimaa Geopark" } / { strings.devices }</Typography>
+        <Typography className={ classes.heading } variant="h2">{ customer ? customer.name : strings.loading } / { strings.devices }</Typography>
         <Grid container spacing={ 5 } direction="row">
           {
-            this.renderCards()
+            cards
           }
           {
             this.renderAdd()
@@ -59,15 +90,15 @@ class DevicesList extends React.Component<Props, State> {
   /**
    * Card render method
    */
-  private renderCards() {
+  private renderCard(device: Device) {
     return (
     <Grid item>
       <CardItem
-        title="Mac mini"
+        title={device.name}
         img={ img }
-        editClick={ this.onEditDeviceClick }
-        detailsClick={ this.onDeviceDetailsClick }
-        deleteClick={ this.onDeleteDeviceClick }>
+        editClick={ () => this.onEditDeviceClick(device) }
+        detailsClick={ () => this.onDeviceDetailsClick(device) }
+        deleteClick={ () => this.onDeleteDeviceClick(device) }>
       </CardItem>
     </Grid>
     );
@@ -92,20 +123,34 @@ class DevicesList extends React.Component<Props, State> {
   /**
    * Edit device method
    */
-  private onEditDeviceClick = () => {
-    this.props.history.push("/applications");
+  private onEditDeviceClick = (device: Device) => {
+    const { customerId } = this.props;
+    this.props.history.push(`/${customerId}/devices/${device.id}/applications`);
   }
   /**
    * Show device details method
    */
-  private onDeviceDetailsClick = () => {
+  private onDeviceDetailsClick = (device: Device) => {
     alert("Show device details!");
   }
   /**
    * Delete device method
    */
-  private onDeleteDeviceClick = () => {
-    alert("Delete device!");
+  private onDeleteDeviceClick = async (device: Device) => {
+    const { auth, customerId } = this.props;
+    if (!auth || !auth.token || !device.id) {
+      return;
+    }
+
+    const devicesApi = ApiUtils.getDevicesApi(auth.token);
+    await devicesApi.deleteDevice({
+      customer_id: customerId,
+      device_id: device.id
+    });
+    const { devices } = this.state;
+    this.setState({
+      devices: devices.filter((c => c.id !== device.id))
+    });
   }
   /**
    * Add device method
@@ -118,8 +163,23 @@ class DevicesList extends React.Component<Props, State> {
    *
    * TODO: handle saving
    */
-  private onSaveDeviceClick = () => {
-    this.setState({ editorDialogOpen: false });
+  private onSaveDeviceClick = async (device: Device) => {
+    const { auth, customerId } = this.props;
+    if (!auth || !auth.token) {
+      return;
+    }
+
+    const devicesApi = ApiUtils.getDevicesApi(auth.token);
+    const newDevice = await devicesApi.createDevice({
+      customer_id: customerId,
+      device: device
+    });
+    const { devices } = this.state;
+    devices.push(newDevice);
+    this.setState({
+      devices: devices,
+      editorDialogOpen: false
+    });
   }
   /**
    * Close dialog method
@@ -131,4 +191,12 @@ class DevicesList extends React.Component<Props, State> {
   }
 }
 
-export default withStyles(styles)(DevicesList);
+const mapStateToProps = (state: ReduxState) => ({
+  auth: state.auth
+});
+
+const mapDispatchToProps = (dispatch: Dispatch<ReduxActions>) => {
+  return {};
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(DevicesList));

@@ -17,6 +17,9 @@ const folderIconPath = <path d="M17.9999 18H-0.000127792V6H17.9999V18ZM20.9998 1
 
 interface Props extends WithStyles<typeof styles> {
   history: History,
+  customerId: string,
+  deviceId: string,
+  applicationId: string
 }
 
 interface State {

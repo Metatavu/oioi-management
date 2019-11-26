@@ -27,7 +27,9 @@ export interface IStrings extends LocalizedStringsMethods {
   normal: string,
   save: string,
   selectLanguage: string,
-  serialNumberOptional: string
+  serialNumberOptional: string,
+  loading: string,
+  apikey: string
 }
 
 const strings: IStrings = new LocalizedStrings({

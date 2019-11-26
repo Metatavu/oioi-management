@@ -115,7 +115,7 @@ class CustomersList extends React.Component<Props, State> {
    * Edit customer method
    */
   private onEditCustomerClick = (customer: Customer) => {
-    this.props.history.push("/devices");
+    this.props.history.push(`/${customer.id}/devices`);
   }
 
   /**

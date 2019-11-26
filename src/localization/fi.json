@@ -25,5 +25,7 @@
   "normal": "Normaali",
   "save": "Tallenna",
   "selectLanguage": "Valitse kieli",
-  "serialNumberOptional": "Sarjanumero (valinnainen)"
+  "serialNumberOptional": "Sarjanumero (valinnainen)",
+  "loading": "Ladataan...",
+  "apikey": "API - avain"
 }

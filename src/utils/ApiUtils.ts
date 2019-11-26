@@ -1,4 +1,9 @@
-import { Configuration, CustomersApi } from "../generated/client/src";
+import { 
+  Configuration,
+  CustomersApi,
+  DevicesApi,
+  ApplicationsApi
+} from "../generated/client/src";
 
 const API_BASE_PATH = "https://oioi-api.metatavu.io/v1"
 
@@ -14,6 +19,24 @@ export default class ApiUtils {
    */
   public static getCustomersApi(token: string) {
     return new CustomersApi(ApiUtils.getConfiguration(token));
+  }
+
+  /**
+   * Gets initialized applications api
+   * 
+   * @param token access token
+   */
+  public static getApplicationsApi(token: string) {
+    return new ApplicationsApi(ApiUtils.getConfiguration(token));
+  }
+
+  /**
+   * Gets initialized devices api
+   * 
+   * @param token access token
+   */
+  public static getDevicesApi(token: string) {
+    return new DevicesApi(ApiUtils.getConfiguration(token));
   }
 
   /**

@@ -78,28 +78,35 @@ class IndexPage extends React.Component<Props, State> {
             path="/"
             exact={true}
             render={ ({ history }) => (
-              <CustomersList history= {history} />
+              <CustomersList history={history} />
             )}
           />
           <Route
-            path="/devices"
+            path="/:customerId/devices"
             exact={true}
-            render={ ({ history }) => (
-              <DevicesList history= {history}/>
+            render={ ({ match, history }) => (
+              <DevicesList customerId={match.params.customerId} history={history}/>
             )}
           />
           <Route
-            path="/applications"
+            path="/:customerId/devices/:deviceId/applications"
             exact={true}
-            render={ ({ history }) => (
-              <ApplicationsList history= {history}/>
+            render={ ({ match, history }) => (
+              <ApplicationsList 
+                customerId={match.params.customerId} 
+                deviceId={match.params.deviceId}
+                history={history}/>
             )}
           />
           <Route
-            path="/application-editor"
+            path="/:customerId/devices/:deviceId/applications/:applicationId"
             exact={true}
-            render={ ({ history }) => (
-              <ApplicationEditor history= {history} />
+            render={ ({ match,history }) => (
+              <ApplicationEditor 
+              customerId={match.params.customerId} 
+              deviceId={match.params.deviceId}
+              applicationId={match.params.applicationId}
+              history={history} />
             )}
           />
         </div>
