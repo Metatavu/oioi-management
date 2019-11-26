@@ -4,6 +4,7 @@ import styles from "../../styles/dialog";
 import { DropzoneArea } from "material-ui-dropzone";
 import { Customer, CustomerFromJSON } from "../../generated/client/src";
 import strings from "../../localization/strings";
+import FileUpload from './../../utils/FileUpload';
 
 interface Props extends WithStyles<typeof styles> {
   /**
@@ -60,18 +61,19 @@ class AddCustomerDialog extends React.Component<Props, State> {
               <TextField
                 fullWidth
                 variant="outlined"
-                value={this.state.customerData["name"]}
-                onChange={this.onDataChange}
+                value={ this.state.customerData["name"] }
+                onChange={ this.onDataChange }
                 name="name"
                 label={ strings.name }
-                />
+              />
             </Grid>
-            <Grid item className={ classes.fullWidth}>
+            <Grid item className={ classes.fullWidth }>
               <Typography variant="subtitle1">{ strings.customerLogo }</Typography>
               <DropzoneArea
                 dropzoneClass={ classes.dropzone }
                 dropzoneParagraphClass={ classes.dropzoneText }
                 dropzoneText={ strings.dropFile }
+                onChange={ this.onImageChange }
               />
             </Grid>
           </Grid>
@@ -105,6 +107,18 @@ class AddCustomerDialog extends React.Component<Props, State> {
   private onDataChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { customerData } = this.state;
     customerData[e.target.name] = e.target.value;
+    
+    this.setState({
+      customerData: customerData
+    });
+  }
+
+  private onImageChange = async (files: File[]) => {
+    const file = files[0];
+    const response = await FileUpload.uploadFile(file, "customerImages");
+    const { customerData } = this.state;
+    customerData["imageUrl"] = response.uri;
+
     this.setState({
       customerData: customerData
     });
