@@ -15,6 +15,8 @@ import { ReduxState, ReduxActions } from "../../store";
 import { Dispatch } from "redux";
 import { connect } from "react-redux";
 import { AuthState } from "../../types";
+import ApiUtils from "../../utils/ApiUtils";
+import { Customer, Device, Application } from "../../generated/client/src";
 
 const pageIconPath = <path d="M24 17H1.14441e-05V1.90735e-06H24V17ZM23 1H1V16H23V1Z"/>;
 const folderIconPath = <path d="M17.9999 18H-0.000127792V6H17.9999V18ZM20.9998 15H19.9998V4H2.99982V3H20.9998V15ZM0.999872 7H16.9999V17H0.999872V7ZM24 12H23V0.999998H6V-1.90735e-06H24V12Z" />;
@@ -28,7 +30,10 @@ interface Props extends WithStyles<typeof styles> {
 }
 
 interface State {
-  mobileOpen: boolean
+  mobileOpen: boolean,
+  customer?: Customer,
+  device?: Device,
+  application?: Application
 }
 
 class ApplicationEditor extends React.Component<Props, State> {
@@ -43,6 +48,28 @@ class ApplicationEditor extends React.Component<Props, State> {
     this.state = {
       mobileOpen: false
     };
+  }
+
+  public componentDidMount = async () => {
+    const { auth, customerId, deviceId, applicationId } = this.props;
+    if (!auth || !auth.token) {
+      return;
+    }
+
+    const customersApi = ApiUtils.getCustomersApi(auth.token);
+    const devicesApi = ApiUtils.getDevicesApi(auth.token);
+    const applicationsApi = ApiUtils.getApplicationsApi(auth.token);
+    const [customer, device, application] = await Promise.all([
+      customersApi.findCustomer({customer_id: customerId}),
+      devicesApi.findDevice({customer_id: customerId, device_id: deviceId}),
+      applicationsApi.findApplication({customer_id: customerId, device_id: deviceId, application_id: applicationId})
+    ]);
+    
+    this.setState({
+      customer: customer,
+      device: device,
+      application: application
+    });
   }
 
   /**
@@ -64,7 +91,7 @@ class ApplicationEditor extends React.Component<Props, State> {
               <MenuIcon />
             </IconButton>
             <Typography variant="h3" noWrap>
-            { "Info Wall" } { strings.applicationSettings }
+            { this.state.application && this.state.application.name } { strings.applicationSettings }
             </Typography>
           </Toolbar>
         </AppBar>
