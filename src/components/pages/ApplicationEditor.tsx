@@ -11,6 +11,10 @@ import TransitionComponent from "../generic/TransitionComponent";
 import AppSettingsView from "../views/AppSettingsView";
 import strings from "../../localization/strings";
 import styles from "../../styles/editor-view";
+import { ReduxState, ReduxActions } from "../../store";
+import { Dispatch } from "redux";
+import { connect } from "react-redux";
+import { AuthState } from "../../types";
 
 const pageIconPath = <path d="M24 17H1.14441e-05V1.90735e-06H24V17ZM23 1H1V16H23V1Z"/>;
 const folderIconPath = <path d="M17.9999 18H-0.000127792V6H17.9999V18ZM20.9998 15H19.9998V4H2.99982V3H20.9998V15ZM0.999872 7H16.9999V17H0.999872V7ZM24 12H23V0.999998H6V-1.90735e-06H24V12Z" />;
@@ -20,6 +24,7 @@ interface Props extends WithStyles<typeof styles> {
   customerId: string,
   deviceId: string,
   applicationId: string
+  auth: AuthState
 }
 
 interface State {
@@ -39,6 +44,7 @@ class ApplicationEditor extends React.Component<Props, State> {
       mobileOpen: false
     };
   }
+
   /**
    * Component render method
    */
@@ -171,4 +177,12 @@ class ApplicationEditor extends React.Component<Props, State> {
   }
 }
 
-export default withStyles(styles)(ApplicationEditor);
+const mapStateToProps = (state: ReduxState) => ({
+  auth: state.auth
+});
+
+const mapDispatchToProps = (dispatch: Dispatch<ReduxActions>) => {
+  return {};
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(ApplicationEditor));
