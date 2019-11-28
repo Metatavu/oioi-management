@@ -28,7 +28,6 @@ export interface CreateResourceRequest {
     customer_id: string;
     device_id: string;
     application_id: string;
-    parent_id?: string;
 }
 
 export interface DeleteResourceRequest {
@@ -87,10 +86,6 @@ export class ResourcesApi extends runtime.BaseAPI {
         }
 
         const queryParameters: runtime.HTTPQuery = {};
-
-        if (requestParameters.parent_id !== undefined) {
-            queryParameters['parentId'] = requestParameters.parent_id;
-        }
 
         const headerParameters: runtime.HTTPHeaders = {};
 

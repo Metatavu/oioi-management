@@ -50,8 +50,8 @@ class DevicesList extends React.Component<Props, State> {
     const customersApi = ApiUtils.getCustomersApi(auth.token);
     const devicesApi = ApiUtils.getDevicesApi(auth.token);
     const [customer, devices] = await Promise.all([
-      customersApi.findCustomer({customer_id: customerId}),
-      devicesApi.listDevices({customer_id: customerId})
+      customersApi.findCustomer({ customer_id: customerId }),
+      devicesApi.listDevices({ customer_id: customerId })
     ]);
 
     this.setState({
@@ -81,7 +81,7 @@ class DevicesList extends React.Component<Props, State> {
         <AddDeviceDialog
           open={ this.state.editorDialogOpen }
           saveClick={ this.onSaveDeviceClick }
-          handleClose={ this.onDialogCloseClick}
+          handleClose={ this.onDialogCloseClick }
         />
       </Container>
     );
@@ -92,15 +92,15 @@ class DevicesList extends React.Component<Props, State> {
    */
   private renderCard(device: Device) {
     return (
-    <Grid item>
-      <CardItem
-        title={device.name}
-        img={ img }
-        editClick={ () => this.onEditDeviceClick(device) }
-        detailsClick={ () => this.onDeviceDetailsClick(device) }
-        deleteClick={ () => this.onDeleteDeviceClick(device) }>
-      </CardItem>
-    </Grid>
+      <Grid item>
+        <CardItem
+          title={ device.name }
+          img={ img }
+          editClick={ () => this.onEditDeviceClick(device) }
+          detailsClick={ () => this.onDeviceDetailsClick(device) }
+          deleteClick={ () => this.onDeleteDeviceClick(device) }>
+        </CardItem>
+      </Grid>
     );
   }
 
@@ -110,13 +110,13 @@ class DevicesList extends React.Component<Props, State> {
   private renderAdd() {
     const { classes } = this.props;
     return (
-    <Grid item>
-      <Card elevation={ 0 } className={ classes.addCard }>
-        <CardActionArea className={ classes.add } onClick={ this.onAddDeviceClick }>
-          <AddIcon className={ classes.addIcon } />
-        </CardActionArea>
-      </Card>
-    </Grid>
+      <Grid item>
+        <Card elevation={ 0 } className={ classes.addCard }>
+          <CardActionArea className={ classes.add } onClick={ this.onAddDeviceClick }>
+            <AddIcon className={ classes.addIcon } />
+          </CardActionArea>
+        </Card>
+      </Grid>
     );
   }
 

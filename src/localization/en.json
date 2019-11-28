@@ -27,5 +27,12 @@
   "selectLanguage": "Select language",
   "serialNubmerOptional": "Serial number (optional)",
   "loading": "Loading...",
-  "apikey": "API Key"
+  "apikey": "API Key",
+  "resourceSettings": "Resource settings",
+  "addNewResource": "Add new resource",
+  "resourceType": "Resource type",
+  "orderNumber": "Order number",
+  "slug": "Slug",
+  "saveResource": "Save",
+  "deleteResource": "Delete this resource"
 }

@@ -27,5 +27,12 @@
   "selectLanguage": "Valitse kieli",
   "serialNumberOptional": "Sarjanumero (valinnainen)",
   "loading": "Ladataan...",
-  "apikey": "API - avain"
+  "apikey": "API - avain",
+  "resourceSettings": "Resurssiasetukset",
+  "addNewResource": "Lisää uusi resurssi",
+  "resourceType": "Resurssityyppi",
+  "orderNumber": "Järjestysnumero",
+  "slug": "URL - pääte",
+  "saveResource": "Tallenna",
+  "deleteResource": "Poista tämä resurssi"
 }

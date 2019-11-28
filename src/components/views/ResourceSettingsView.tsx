@@ -1,19 +1,22 @@
 import * as React from "react";
 import { withStyles, WithStyles, TextField, Divider, Typography, Grid, FormControl, InputLabel, Select, MenuItem, Button } from "@material-ui/core";
+import DeleteIcon from '@material-ui/icons/Delete';
+import SaveIcon from '@material-ui/icons/Save';
 import styles from "../../styles/editor-view";
 import { DropzoneArea } from "material-ui-dropzone";
 import strings from "../../localization/strings";
 import theme from "../../styles/theme";
-import AddIcon from "@material-ui/icons/AddCircle";
+import { Resource, ResourceToJSON } from "../../generated/client/src";
 
 interface Props extends WithStyles<typeof styles> {
+  resource: Resource
 }
 
 interface State {
-  customerData: any
+  resourceData: any
 }
 
-class AppSettingsView extends React.Component<Props, State> {
+class ResourceSettingsView extends React.Component<Props, State> {
 
   /**
    * Constructor
@@ -23,7 +26,13 @@ class AppSettingsView extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = {
-      customerData: {}
+      resourceData: {}
+    };
+  }
+
+  static getDerivedStateFromProps(props: Props, state: State) {
+    return {
+      resourceData: ResourceToJSON(props.resource)
     };
   }
 
@@ -32,45 +41,37 @@ class AppSettingsView extends React.Component<Props, State> {
    */
   public render() {
     const { classes } = this.props;
+
     return (
       <div>
         <TextField
           style={{ marginBottom: theme.spacing(3) }}
           variant="outlined"
-          value={ this.state.customerData["name"] }
+          value={ this.state.resourceData["name"] }
           onChange={ this.onDataChange }
           name="name"
           label={ strings.name }
         />
-        <Divider style={{ marginBottom: theme.spacing(3) }} />
-        <Typography variant="h3">{ strings.languageVersions }</Typography>
-        <div className={ classes.languageInputContainer }>
-          <FormControl>
-            <InputLabel id="select-label">{ strings.selectLanguage }</InputLabel>
-            <Select
-              color="primary"
-              id="language-select"
-              value="fi"
-            >
-              <MenuItem value={ "fi" }>Suomi</MenuItem>
-              <MenuItem value={ "en" }>English</MenuItem>
-            </Select>
-          </FormControl>
-          <Button
-            style={{ marginLeft: theme.spacing(3) }}
-            color="primary"
-            variant="contained"
-            startIcon={ <AddIcon /> }
-          >
-            {
-              strings.addLanguage
-            }
-          </Button>
-        </div>
+        <Button
+          style={{ marginLeft: theme.spacing(3) }}
+          color="primary"
+          variant="contained"
+          startIcon={ <SaveIcon /> }
+        >
+          { strings.saveResource }
+        </Button>
+        <Button
+          style={{ marginLeft: theme.spacing(3) }}
+          color="primary"
+          variant="contained"
+          startIcon={ <DeleteIcon /> }
+        >
+          { strings.deleteResource }
+        </Button>
         <Divider style={{ marginBottom: theme.spacing(3) }} />
         <div>
           <Typography variant="h3">{ strings.mainNavigationIcons }</Typography>
-          <Grid direction="row" style={{ marginTop: theme.spacing(3)} } container spacing={ 3 }>
+          <Grid direction="row" style={{ marginTop: theme.spacing(3) }} container spacing={ 3 }>
             <Grid item>
               <Grid container>
                 <Typography variant="subtitle1">{ strings.home }</Typography>
@@ -128,12 +129,16 @@ class AppSettingsView extends React.Component<Props, State> {
    * Handles data change
    */
   private onDataChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { customerData } = this.state;
-    customerData[e.target.name] = e.target.value;
+    const { resourceData } = this.state;
+    resourceData[e.target.name] = e.target.value;
     this.setState({
-      customerData: customerData
+      resourceData: resourceData
     });
+  }
+
+  private deleteResource = () => {
+    
   }
 }
 
-export default withStyles(styles)(AppSettingsView);
+export default withStyles(styles)(ResourceSettingsView);

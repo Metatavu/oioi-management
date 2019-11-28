@@ -44,6 +44,12 @@ export interface Resource {
     parent_id: string;
     /**
      * 
+     * @type {number}
+     * @memberof Resource
+     */
+    order_number?: number;
+    /**
+     * 
      * @type {ResourceType}
      * @memberof Resource
      */
@@ -116,6 +122,7 @@ export function ResourceFromJSONTyped(json: any, ignoreDiscriminator: boolean): 
         
         'id': !exists(json, 'id') ? undefined : json['id'],
         'parent_id': json['parentId'],
+        'order_number': !exists(json, 'orderNumber') ? undefined : json['orderNumber'],
         'type': ResourceTypeFromJSON(json['type']),
         'styles': !exists(json, 'styles') ? undefined : (json['styles'] as Array<any>).map(KeyValuePropertyFromJSON),
         'properties': !exists(json, 'properties') ? undefined : (json['properties'] as Array<any>).map(KeyValuePropertyFromJSON),
@@ -139,6 +146,7 @@ export function ResourceToJSON(value?: Resource | null): any {
     return {
         
         'parentId': value.parent_id,
+        'orderNumber': value.order_number,
         'type': ResourceTypeToJSON(value.type),
         'styles': value.styles == null ? undefined : (value.styles as Array<any>).map(KeyValuePropertyToJSON),
         'properties': value.properties == null ? undefined : (value.properties as Array<any>).map(KeyValuePropertyToJSON),

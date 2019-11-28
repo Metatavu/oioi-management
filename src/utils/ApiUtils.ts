@@ -2,7 +2,8 @@ import {
   Configuration,
   CustomersApi,
   DevicesApi,
-  ApplicationsApi
+  ApplicationsApi,
+  ResourcesApi
 } from "../generated/client/src";
 
 const API_BASE_PATH = "https://oioi-api.metatavu.io/v1"
@@ -37,6 +38,15 @@ export default class ApiUtils {
    */
   public static getDevicesApi(token: string) {
     return new DevicesApi(ApiUtils.getConfiguration(token));
+  }
+
+  /**
+   * Gets initialized devices api
+   * 
+   * @param token access token
+   */
+  public static getResourcesApi(token: string) {
+    return new ResourcesApi(ApiUtils.getConfiguration(token));
   }
 
   /**
