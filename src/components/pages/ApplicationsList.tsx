@@ -6,7 +6,7 @@ import styles from "../../styles/card-item";
 import { History } from "history";
 import CardItem from "../generic/CardItem";
 import strings from "../../localization/strings";
-import { Customer, Device, Application } from "../../generated/client/src";
+import { Customer, Device, Application, ResourcesApi } from "../../generated/client/src";
 import { ReduxState, ReduxActions } from "../../store";
 import { Dispatch } from "redux";
 import { connect } from "react-redux";
@@ -50,11 +50,11 @@ class ApplicationsList extends React.Component<Props, State> {
     const devicesApi = ApiUtils.getDevicesApi(auth.token);
     const applicationsApi = ApiUtils.getApplicationsApi(auth.token);
     const [customer, device, applications] = await Promise.all([
-      customersApi.findCustomer({customer_id: customerId}),
-      devicesApi.findDevice({customer_id: customerId, device_id: deviceId}),
-      applicationsApi.listApplications({customer_id: customerId, device_id: deviceId})
+      customersApi.findCustomer({ customer_id: customerId }),
+      devicesApi.findDevice({ customer_id: customerId, device_id: deviceId }),
+      applicationsApi.listApplications({ customer_id: customerId, device_id: deviceId })
     ]);
-    
+
     this.setState({
       customer: customer,
       device: device,
@@ -71,10 +71,10 @@ class ApplicationsList extends React.Component<Props, State> {
     const cards = applications.map((application) => this.renderCard(application));
     return (
       <Container maxWidth="xl" className="page-content">
-        <Typography className={classes.heading} variant="h2">
+        <Typography className={ classes.heading } variant="h2">
           { customer ? customer.name : strings.loading } / { device ? device.name : strings.loading } / { strings.applications }
         </Typography>
-        <Grid container spacing={5} direction="row">
+        <Grid container spacing={ 5 } direction="row">
           {
             cards
           }
@@ -91,16 +91,16 @@ class ApplicationsList extends React.Component<Props, State> {
    */
   private renderCard(application: Application) {
     return (
-    <Grid item>
-      <CardItem
-        title={ application.name }
-        img={ img }
-        editClick={ () => this.onEditApplicationClick(application) }
-        detailsClick={ () => this.onEditApplicationClick(application) }
-        deleteClick={ () => this.onDeleteApplicationClick(application) }
-      >
-      </CardItem>
-    </Grid>
+      <Grid item>
+        <CardItem
+          title={ application.name }
+          img={ img }
+          editClick={ () => this.onEditApplicationClick(application) }
+          detailsClick={ () => this.onEditApplicationClick(application) }
+          deleteClick={ () => this.onDeleteApplicationClick(application) }
+        >
+        </CardItem>
+      </Grid>
     );
   }
 
@@ -110,18 +110,18 @@ class ApplicationsList extends React.Component<Props, State> {
   private renderAdd() {
     const { classes } = this.props;
     return (
-    <Grid item>
-      <Card elevation={ 0 } className={ classes.addCard }>
-        <CardActionArea className={ classes.add } onClick={ this.onAddApplicationClick }>
-          <AddIcon className={ classes.addIcon } />
-        </CardActionArea>
-      </Card>
-    </Grid>
+      <Grid item>
+        <Card elevation={ 0 } className={ classes.addCard }>
+          <CardActionArea className={ classes.add } onClick={ this.onAddApplicationClick }>
+            <AddIcon className={ classes.addIcon } />
+          </CardActionArea>
+        </Card>
+      </Grid>
     );
   }
 
   private onEditApplicationClick = (application: Application) => {
-    const {customerId, deviceId } = this.props;
+    const { customerId, deviceId } = this.props;
     this.props.history.push(`/${customerId}/devices/${deviceId}/applications/${application.id}`);
   }
 
@@ -152,7 +152,7 @@ class ApplicationsList extends React.Component<Props, State> {
     const applicationData: Application = {
       name: "New Application"
     };
-    
+
     const applicationsApi = ApiUtils.getApplicationsApi(auth.token);
     const application = await applicationsApi.createApplication({
       customer_id: customerId,

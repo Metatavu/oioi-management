@@ -29,7 +29,28 @@ export interface IStrings extends LocalizedStringsMethods {
   selectLanguage: string,
   serialNumberOptional: string,
   loading: string,
-  apikey: string
+  apikey: string,
+  resourceSettings: string,
+  addNewResource: string,
+  resourceType: string,
+  orderNumber: string,
+  slug: string,
+  deleteResource: string,
+  deleteResourceDialogDescription: string,
+  andAllChildren: string,
+  key: string,
+  value: string,
+  styles: string,
+  properties: string,
+  pdf: string,
+  text: string,
+  video: string,
+  file: string,
+  page: string,
+  slideshow: string,
+  intro: string,
+  language: string,
+  menu: string
 }
 
 const strings: IStrings = new LocalizedStrings({

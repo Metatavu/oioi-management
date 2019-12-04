@@ -109,7 +109,7 @@ class AddDeviceDialog extends React.Component<Props, State> {
                 label={ strings.informationOptional }
               />
             </Grid>
-            <Grid item className={ classes.fullWidth}>
+            <Grid item className={ classes.fullWidth }>
               <Typography variant="subtitle1">{ strings.image }</Typography>
               <DropzoneArea
                 dropzoneClass={ classes.dropzone }
