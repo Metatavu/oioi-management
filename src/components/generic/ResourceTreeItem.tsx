@@ -1,6 +1,6 @@
 import * as React from "react";
 import styles from "../../styles/editor-view";
-import { withStyles, WithStyles, SvgIcon } from "@material-ui/core";
+import { withStyles, WithStyles, SvgIcon, Icon } from "@material-ui/core";
 import LanguageIcon from "@material-ui/icons/Language";
 import TreeItem from "@material-ui/lab/TreeItem";
 import TransitionComponent from "../generic/TransitionComponent";
@@ -8,9 +8,10 @@ import { Resource, ResourceType } from "../../generated/client/src";
 import ApiUtils from "../../utils/ApiUtils";
 import { AuthState } from "../../types";
 import { ReduxState, ReduxActions } from "../../store";
+import DeleteIcon from '@material-ui/icons/Delete';
 import { Dispatch } from "redux";
 import { connect } from "react-redux";
-import AddResourceDialog from "./AddResourceDialog";
+import strings from "../../localization/strings";
 
 const pageIconPath = <path d="M24 17H1.14441e-05V1.90735e-06H24V17ZM23 1H1V16H23V1Z" />;
 const folderIconPath = <path d="M17.9999 18H-0.000127792V6H17.9999V18ZM20.9998 15H19.9998V4H2.99982V3H20.9998V15ZM0.999872 7H16.9999V17H0.999872V7ZM24 12H23V0.999998H6V-1.90735e-06H24V12Z" />;
@@ -21,13 +22,15 @@ interface Props extends WithStyles<typeof styles> {
   deviceId: string,
   applicationId: string,
   resource: Resource,
+  orderNumber: number,
   auth?: AuthState,
-  onOpenResource(resource: Resource): void
+  onOpenResource(resource: Resource): void,
+  onAddClick: (parentResourceId: string, afterSave: (resource: Resource) => void) => void,
+  onDelete: (resourceId: string) => void
 }
 
 interface State {
   open: boolean,
-  addResourceDialogOpen: boolean,
   resource: Resource,
   parentResourceId?: string,
   childResources: Resource[]
@@ -44,7 +47,6 @@ class ResourceTreeItemClass extends React.Component<Props, State> {
     super(props);
     this.state = {
       open: false,
-      addResourceDialogOpen: false,
       resource: this.props.resource,
       childResources: []
     };
@@ -62,52 +64,79 @@ class ResourceTreeItemClass extends React.Component<Props, State> {
       content: classes.treeContent,
       label: classes.treeLabel
     };
-
     const icon = this.getIconComponentByResourceType(resource.type);
-
-    const childTreeItems = childResources ? childResources.map((resource) => this.renderTreeItem(resource)) : [];
+    const childTreeItems = childResources ? childResources.map((resource) => this.renderTreeItem(resource)).sort((a, b) => { return a.props.orderNumber - b.props.orderNumber }) : [];
 
     if (!resource.id) {
       return;
     }
 
-    return (
-      <div>
+    if (this.isAllowedChildren()) {
+      return (
+        <div>
+          <TreeItem
+            classes={ treeItemStyles }
+            TransitionComponent={ TransitionComponent }
+            icon={ icon }
+            nodeId={ resource.id }
+            label={ <div>{this.state.resource.name}<DeleteIcon onClick={() => this.onDelete()} /></div> }
+            onClick={ this.onTreeItemClick }
+          >
+            { this.state.childResources != [] &&
+              childTreeItems
+            }
+            { this.renderAdd() }
+          </TreeItem>
+        </div>
+      )
+    } else {
+      return (
         <TreeItem
           classes={ treeItemStyles }
           TransitionComponent={ TransitionComponent }
           icon={ icon }
           nodeId={ resource.id }
-          label={ this.state.resource.name }
-          onClick={ this.onTreeItemClick }
-        >
-          {
-            this.state.childResources != [] &&
-            childTreeItems
-          }
-          {
-            this.renderAdd()
-          }
-        </TreeItem>
-        <AddResourceDialog
-          open={ this.state.addResourceDialogOpen }
-          parentResourceId={ this.state.parentResourceId || "" }
-          saveClick={ this.onSaveNewResourceClick }
-          handleClose={ this.onDialogCloseClick }
-        />
-      </div>
-    )
+          label={ <div>{this.state.resource.name}<DeleteIcon onClick={() => this.onDelete()} /></div> }
+          onClick={ this.onTreeItemClick } />
+      )
+    }
+  }
+
+  private onChildDelete = (childResourceId: string) => {
+    const { childResources } = this.state;
+    this.setState({
+      childResources: childResources.filter((c => c.id !== childResourceId))
+    });
+  }
+
+  private onDelete = async () => {
+    const { auth, customerId, deviceId, applicationId, resource } = this.props;
+    const resourceId = resource.id;
+
+    if (!auth || !auth.token || !resourceId) {
+      return;
+    }
+
+    const resourcesApi = ApiUtils.getResourcesApi(auth.token);
+    const childResources = await resourcesApi.listResources({ customer_id: customerId, device_id: deviceId, application_id: applicationId, parent_id: resourceId });
+
+    /**
+     * TODO: prettier delete confirmation
+     */
+    if (window.confirm(`${strings.deleteResourceDialogDescription} ${resource.name} ${childResources && strings.andAllChildren}?`)) {
+      await resourcesApi.deleteResource({ customer_id: customerId, device_id: deviceId, application_id: applicationId, resource_id: resourceId });
+      this.props.onDelete(resourceId);
+    }
   }
 
   /**
    * On treeItem open method
    */
   private onTreeItemClick = async () => {
-    this.props.onOpenResource(this.props.resource);
+    this.props.onOpenResource(this.state.resource);
 
     if (!this.state.open) {
-      console.log(this.state.childResources);
-      if (this.state.childResources.length === 0) {
+      if (this.state.childResources.length === 0 && this.isAllowedChildren) {
         const { auth, customerId, deviceId, applicationId } = this.props;
         if (!auth || !auth.token) {
           return;
@@ -138,15 +167,21 @@ class ResourceTreeItemClass extends React.Component<Props, State> {
   private renderTreeItem = (resource: Resource) => {
     const { classes } = this.props;
     const { customerId, deviceId, applicationId } = this.props;
+    const orderNumber = resource.order_number;
+
 
     return (
       <ResourceTreeItem
+        key={resource.id}
         resource={ resource }
+        orderNumber={ orderNumber || 0 }
         customerId={ customerId }
         deviceId={ deviceId }
         applicationId={ applicationId }
         classes={ classes }
         onOpenResource={ this.props.onOpenResource }
+        onAddClick={ this.props.onAddClick }
+        onDelete={ this.onChildDelete }
       />
     );
   }
@@ -165,10 +200,14 @@ class ResourceTreeItemClass extends React.Component<Props, State> {
         nodeId={ resourceId + "add" }
         icon={ <SvgIcon fontSize="small">{ addIconPath }</SvgIcon> }
         onClick={ this.onAddNewResourceClick }
+        label={ strings.addNewResource }
       />
     );
   }
 
+  /**
+   * On add new resource click method
+   */
   private onAddNewResourceClick = () => {
     const parentResourceId = this.props.resource && this.props.resource.id;
 
@@ -176,42 +215,21 @@ class ResourceTreeItemClass extends React.Component<Props, State> {
       return;
     }
 
-    this.setState({
-      addResourceDialogOpen: true,
-      parentResourceId: parentResourceId
-    });
-  }
-
-  private onSaveNewResourceClick = async (resource: Resource) => {
-    const { auth, customerId, deviceId, applicationId } = this.props;
-
-    if (!auth || !auth.token) {
-      return;
-    }
-    const resourcesApi = ApiUtils.getResourcesApi(auth.token);
-
-    const newResource = await resourcesApi.createResource({
-      customer_id: customerId,
-      device_id: deviceId,
-      application_id: applicationId,
-      resource: resource
-    });
-
-    const { childResources } = this.state;
-    childResources.push(newResource);
-    this.setState({
-      addResourceDialogOpen: false,
-      childResources: childResources
+    this.props.onAddClick(parentResourceId, (resource: Resource) => {
+      this.onSaveNewResource(resource);
     });
   }
 
   /**
-   * Close dialog method
-   *
-   * TODO: handle prompt if unsaved
+   * On save new resource click method
    */
-  private onDialogCloseClick = () => {
-    this.setState({ addResourceDialogOpen: false });
+  private onSaveNewResource = async (resource: Resource) => {
+    const { childResources } = this.state;
+    childResources.push(resource);
+
+    this.setState({
+      childResources: [...childResources]
+    });
   }
 
   /**
@@ -234,6 +252,18 @@ class ResourceTreeItemClass extends React.Component<Props, State> {
         return <SvgIcon fontSize="small">{ folderIconPath }</SvgIcon>;
       }
     }
+  }
+
+  /**
+   * check if resource is allowed to have children method
+   */
+  private isAllowedChildren = (): boolean => {
+    const resourceType = this.props.resource.type;
+    if (!resourceType) {
+      return false;
+    }
+
+    return resourceType != ResourceType.IMAGE && resourceType != ResourceType.PDF && resourceType != ResourceType.TEXT && resourceType != ResourceType.VIDEO;
   }
 }
 

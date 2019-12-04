@@ -1,6 +1,6 @@
 import * as React from "react";
 // tslint:disable-next-line: max-line-length
-import { Typography, Divider, List, ListItem, ListItemIcon, ListItemText, Hidden, AppBar, Toolbar, IconButton, WithStyles, withStyles, Drawer, SvgIcon } from "@material-ui/core";
+import { Typography, Divider, List, ListItem, ListItemIcon, ListItemText, Hidden, AppBar, Toolbar, IconButton, WithStyles, withStyles, Drawer, SvgIcon, Button, Dialog } from "@material-ui/core";
 import { History } from "history";
 import TreeView from "@material-ui/lab/TreeView";
 import SettingsIcon from "@material-ui/icons/Settings";
@@ -38,7 +38,8 @@ interface State {
   device?: Device,
   application?: Application,
   rootResources: Resource[],
-  openedResource?: Resource
+  openedResource?: Resource,
+  afterResourceSave?: (resource: Resource) => void
 }
 
 class ApplicationEditor extends React.Component<Props, State> {
@@ -103,10 +104,10 @@ class ApplicationEditor extends React.Component<Props, State> {
             </IconButton>
             <Typography variant="h3" noWrap>
               { !this.state.openedResource && this.state.application &&
-                (this.state.application.name + ": " + strings.applicationSettings)
+                (this.state.application.name + " " + strings.applicationSettings)
               }
-              { this.state.openedResource && 
-                (this.state.openedResource.name + ": " + strings.resourceSettings)
+              { this.state.openedResource &&
+                (this.state.openedResource.name + " " + strings.resourceSettings)
               }
             </Typography>
           </Toolbar>
@@ -125,37 +126,17 @@ class ApplicationEditor extends React.Component<Props, State> {
 
     return (
       <nav className={ classes.drawer } aria-label="mailbox folders">
-        {/* The implementation can be swapped with js to avoid SEO duplication of links. */ }
-        <Hidden smUp implementation="css">
+        <Drawer
 
-          <Drawer
-            variant="temporary"
-            anchor="left"
-            open={ this.state.mobileOpen }
-            onClose={ this.handleDrawerToggle }
-            classes={ {
-              paper: classes.drawerPaper,
-            } }
-            ModalProps={ {
-              keepMounted: true, // Better open performance on mobile.
-            } }
-          >
-            { this.renderDrawer() }
-          </Drawer>
-        </Hidden>
-        <Hidden xsDown implementation="css">
-          <Drawer
-
-            classes={ {
-              paper: classes.drawerPaper,
-            } }
-            variant="permanent"
-            anchor="left"
-            open
-          >
-            { this.renderDrawer() }
-          </Drawer>
-        </Hidden>
+          classes={ {
+            paper: classes.drawerPaper,
+          } }
+          variant="permanent"
+          anchor="left"
+          open
+        >
+          { this.renderDrawer() }
+        </Drawer>
       </nav>
     );
   }
@@ -166,7 +147,7 @@ class ApplicationEditor extends React.Component<Props, State> {
   private renderDrawer = () => {
     const { classes } = this.props;
     const { rootResources } = this.state;
-    const treeItems = rootResources.map((resource) => this.renderTreeItem(resource));
+    const treeItems = rootResources.map((resource) => this.renderTreeItem(resource)).sort((a, b) => { return a.props.orderNumber - b.props.orderNumber });
 
     return (
       <div>
@@ -184,7 +165,7 @@ class ApplicationEditor extends React.Component<Props, State> {
         <AddResourceDialog
           open={ this.state.addResourceDialogOpen }
           parentResourceId={ this.state.parentResourceId || "" }
-          saveClick={ this.onSaveNewResourceClick }
+          onSave={ this.onSaveNewResourceClick }
           handleClose={ this.onDialogCloseClick }
         />
       </div>
@@ -195,55 +176,86 @@ class ApplicationEditor extends React.Component<Props, State> {
    * Render treeItem method
    */
   private renderTreeItem = (resource: Resource) => {
-    const { classes } = this.props;
-    const { customerId, deviceId, applicationId } = this.props;
+    const { classes, customerId, deviceId, applicationId } = this.props;
+    const orderNumber = resource.order_number;
 
     return (
       <ResourceTreeItem
+        key={resource.id}
         resource={ resource }
+        orderNumber={ orderNumber || 0 }
         customerId={ customerId }
         deviceId={ deviceId }
         applicationId={ applicationId }
         classes={ classes }
         onOpenResource={ this.onOpenResourceClick }
+        onDelete={this.onChildDelete}
+        onAddClick={this.onChildAddClick}
       />
     );
+  }
+
+  private onChildDelete = (childResourceId: string) => {
+    const { rootResources } = this.state;
+    this.setState({
+      rootResources: rootResources.filter((c => c.id !== childResourceId))
+    });
+  }
+
+  private onChildAddClick = (parentResourceId: string, afterSave: (resource: Resource) => void ) => {
+    this.setState({
+      afterResourceSave: afterSave,
+      addResourceDialogOpen: true,
+      parentResourceId: parentResourceId
+    })
   }
 
   /**
    * Render editor method
    */
   private renderEditor = () => {
-    const { classes } = this.props;
-    const { openedResource } = this.state;
-
-    console.log("rendering editor for: ", openedResource);
+    const { classes, customerId } = this.props;
+    const { openedResource, application } = this.state;
 
     if (openedResource && openedResource != null) {
       return (
         <main className={ classes.content }>
-          <ResourceSettingsView resource={ openedResource } />
+          <ResourceSettingsView
+            resource={ openedResource }
+            customerId={ customerId }
+            onUpdate={ this.onUpdateResource }
+            onDelete={ this.onDeleteResource } />
+        </main>
+      );
+    } else if (application && application != null) {
+      return (
+        <main className={ classes.content }>
+          <AppSettingsView application={ application } onUpdate={ this.onUpdateApplication } />
         </main>
       );
     } else {
       return (
-        <main className={ classes.content }>
-          <AppSettingsView />
-        </main>
+        <main className={ classes.content }></main>
       );
     }
   }
-
 
   /**
    * Render add resource treeItem method
    */
   private renderAdd = () => {
+    const parentResourceId = this.state.application && this.state.application.root_resource_id;
+
+    if (!parentResourceId) {
+      return (<TreeItem nodeId={ "loading" } label={ strings.loading } />);
+    }
+
     return (
       <TreeItem TransitionComponent={ TransitionComponent }
-        nodeId={ this.props.applicationId + "add" }
+        nodeId={ parentResourceId + "add" }
         icon={ <SvgIcon fontSize="small">{ addIconPath }</SvgIcon> }
-        onClick={ this.onAddNewResourceClick }
+        onClick={ () => this.onAddNewResourceClick(parentResourceId) }
+        label={ strings.addNewResource }
       />
     );
   }
@@ -258,13 +270,7 @@ class ApplicationEditor extends React.Component<Props, State> {
   /**
    * on add resource click method
    */
-  private onAddNewResourceClick = () => {
-    const parentResourceId = this.state.application && this.state.application.root_resource_id;
-
-    if (!parentResourceId) {
-      return;
-    }
-
+  private onAddNewResourceClick = (parentResourceId: string) => {
     this.setState({
       addResourceDialogOpen: true,
       parentResourceId: parentResourceId
@@ -274,34 +280,116 @@ class ApplicationEditor extends React.Component<Props, State> {
   /**
    * on open resource click method
    */
-  private onOpenResourceClick = (resource: Resource) => {
+  private onOpenResourceClick = async (resource: Resource) => {
+    const { auth, customerId, deviceId, applicationId } = this.props;
+    if (!auth || !auth.token || !resource.id) {
+      return;
+    }
+
+    const resourcesApi = ApiUtils.getResourcesApi(auth.token);
+    const resourceFromServer = await resourcesApi.findResource({ customer_id: customerId, device_id: deviceId, application_id: applicationId, resource_id: resource.id });
+
     this.setState({
-      openedResource: resource
+      openedResource: resourceFromServer
     });
   }
 
   /**
-   * on save resource method
+   * on save new resource method
    */
   private onSaveNewResourceClick = async (resource: Resource) => {
     const { auth, customerId, deviceId, applicationId } = this.props;
+    const { rootResources } = this.state;
 
     if (!auth || !auth.token) {
       return;
     }
 
     const resourcesApi = ApiUtils.getResourcesApi(auth.token);
-
-    await resourcesApi.createResource({
+    const newResource = await resourcesApi.createResource({
       customer_id: customerId,
       device_id: deviceId,
       application_id: applicationId,
       resource: resource
     });
 
+    if (this.state.afterResourceSave) {
+      this.state.afterResourceSave(newResource);
+    } else {
+      rootResources.push(newResource);
+    }
+
     this.setState({
-      addResourceDialogOpen: false
+      afterResourceSave: undefined,
+      addResourceDialogOpen: false,
+      rootResources: rootResources
     });
+  }
+
+  /**
+   * Update resource method
+   *
+   * TODO: handle error if resourceId was undefined
+   */
+  private onUpdateResource = async (resource: Resource) => {
+    const { auth, customerId, deviceId, applicationId } = this.props;
+    const resourceId = resource.id;
+
+    if (!auth || !auth.token || !resourceId) {
+      return;
+    }
+
+    const resourcesApi = ApiUtils.getResourcesApi(auth.token);
+    const updatedResource = await resourcesApi.updateResource({ resource: resource, customer_id: customerId, device_id: deviceId, application_id: applicationId, resource_id: resourceId });
+
+    this.setState({
+      openedResource: updatedResource
+    });
+  }
+
+  /**
+   * Delete resource method
+   */
+  private onDeleteResource = async (resource: Resource) => {
+    const { auth, customerId, deviceId, applicationId } = this.props;
+    const resourceId = resource.id;
+
+    if (!auth || !auth.token || !resourceId) {
+      return;
+    }
+
+    const resourcesApi = ApiUtils.getResourcesApi(auth.token);
+    const childResources = await resourcesApi.listResources({ customer_id: customerId, device_id: deviceId, application_id: applicationId, parent_id: resourceId });
+
+    /**
+     * TODO: prettier delete confirmation
+     */
+    if (window.confirm(`${strings.deleteResourceDialogDescription} ${resource.name} ${childResources && strings.andAllChildren}?`)) {
+      await resourcesApi.deleteResource({ customer_id: customerId, device_id: deviceId, application_id: applicationId, resource_id: resourceId });
+
+      this.setState({
+        openedResource: undefined
+      });
+    }
+  }
+
+  /**
+   * Update application method
+   */
+  private onUpdateApplication = async (application: Application) => {
+    const { auth, customerId, deviceId, applicationId } = this.props;
+
+    if (!auth || !auth.token) {
+      return;
+    }
+
+    const applicationsApi = ApiUtils.getApplicationsApi(auth.token);
+    const updatedApplication = await applicationsApi.updateApplication({ application: application, customer_id: customerId, device_id: deviceId, application_id: applicationId });
+
+    this.setState({
+      application: updatedApplication
+    });
+
   }
 
   /**

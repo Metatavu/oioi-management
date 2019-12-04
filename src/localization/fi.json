@@ -33,6 +33,20 @@
   "resourceType": "Resurssityyppi",
   "orderNumber": "Järjestysnumero",
   "slug": "URL - pääte",
-  "saveResource": "Tallenna",
-  "deleteResource": "Poista tämä resurssi"
+  "deleteResource": "Poista tämä resurssi",
+  "deleteResourceDialogDescription": "Haluatko varmasti poistaa resurssin ",
+  "andAllChildren": " ja kaikki sen alla olevat resurssit",
+  "key": "Avain",
+  "value": "Arvo",
+  "styles": "Tyylit",
+  "properties": "Ominaisuudet",
+  "pdf": "PDF",
+  "text": "Teksti",
+  "video": "Video",
+  "file": "Tiedosto",
+  "page": "Sivu",
+  "slideshow": "Slideshow",
+  "intro": "Intro",
+  "language": "Kieli",
+  "menu": "Valikko"
 }

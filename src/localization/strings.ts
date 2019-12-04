@@ -35,8 +35,22 @@ export interface IStrings extends LocalizedStringsMethods {
   resourceType: string,
   orderNumber: string,
   slug: string,
-  saveResource: string,
-  deleteResource: string
+  deleteResource: string,
+  deleteResourceDialogDescription: string,
+  andAllChildren: string,
+  key: string,
+  value: string,
+  styles: string,
+  properties: string,
+  pdf: string,
+  text: string,
+  video: string,
+  file: string,
+  page: string,
+  slideshow: string,
+  intro: string,
+  language: string,
+  menu: string
 }
 
 const strings: IStrings = new LocalizedStrings({

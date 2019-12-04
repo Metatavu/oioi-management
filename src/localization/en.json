@@ -33,6 +33,20 @@
   "resourceType": "Resource type",
   "orderNumber": "Order number",
   "slug": "Slug",
-  "saveResource": "Save",
-  "deleteResource": "Delete this resource"
+  "deleteResource": "Delete this resource",
+  "deleteResourceDialogDescription": "Are you sure you want to delete resource ",
+  "andAllChildren": " and all its child resources",
+  "key": "Key",
+  "value": "Value",
+  "styles": "Styles",
+  "properties": "Properties",
+  "pdf": "PDF",
+  "text": "Text",
+  "video": "Video",
+  "file": "File",
+  "page": "Page",
+  "slideshow": "Slideshow",
+  "intro": "Intro",
+  "language": "Language",
+  "menu": "Menu"
 }

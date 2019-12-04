@@ -16,7 +16,7 @@ interface Props extends WithStyles<typeof styles> {
   /**
    * Save button click
    */
-  saveClick(resource: Resource): void
+  onSave(resource: Resource): void
   /**
    * Close handler
    */
@@ -67,7 +67,7 @@ class AddResourceDialog extends React.Component<Props, State> {
                 fullWidth
                 variant="outlined"
                 value={ this.state.resourceData["name"] }
-                onChange={ () => console.log("asdadsadsdas") /*this.onDataChange*/ }
+                onChange={ this.onDataChange }
                 name="name"
                 label={ strings.name }
               />
@@ -82,15 +82,17 @@ class AddResourceDialog extends React.Component<Props, State> {
                   id: "resourceType"
                 }}
                 onChange={ this.onSelectChange }
-                name="type">
-                <MenuItem value={ ResourceType.INTRO }>Intro</MenuItem>
-                <MenuItem value={ ResourceType.LANGUAGE }>Kieli</MenuItem>
-                <MenuItem value={ ResourceType.MENU }>Valikko</MenuItem>
-                <MenuItem value={ ResourceType.PAGE }>Sivu</MenuItem>
-                <MenuItem value={ ResourceType.PDF }>PDF</MenuItem>
-                <MenuItem value={ ResourceType.SLIDESHOW }>Slideshow</MenuItem>
-                <MenuItem value={ ResourceType.TEXT }>Teksti</MenuItem>
-                <MenuItem value={ ResourceType.VIDEO }>Video</MenuItem>
+                name="type"
+              >
+                <MenuItem value={ ResourceType.INTRO }>{ strings.intro }</MenuItem>
+                <MenuItem value={ ResourceType.LANGUAGE }>{ strings.language }</MenuItem>
+                <MenuItem value={ ResourceType.MENU }>{ strings.menu }</MenuItem>
+                <MenuItem value={ ResourceType.SLIDESHOW }>{ strings.slideshow }</MenuItem>
+                <MenuItem value={ ResourceType.PAGE }>{ strings.page }</MenuItem>
+                <MenuItem value={ ResourceType.PDF }>{ strings.pdf }</MenuItem>
+                <MenuItem value={ ResourceType.IMAGE }>{ strings.image }</MenuItem>
+                <MenuItem value={ ResourceType.TEXT }>{ strings.text }</MenuItem>
+                <MenuItem value={ ResourceType.VIDEO }>{ strings.video }</MenuItem>
               </Select>
             </Grid>
             <Grid item className={ classes.fullWidth }>
@@ -120,7 +122,7 @@ class AddResourceDialog extends React.Component<Props, State> {
           <Button variant="outlined" onClick={ this.props.handleClose } color="primary">
             { strings.cancel }
           </Button>
-          <Button variant="contained" onClick={ this.onSave } color="primary" autoFocus>
+          <Button variant="contained" onClick={ this.onSaveNewResource } color="primary" autoFocus>
             { strings.save }
           </Button>
         </DialogActions>
@@ -131,12 +133,12 @@ class AddResourceDialog extends React.Component<Props, State> {
   /**
    * Handles save button click
    */
-  private onSave = () => {
-    const { saveClick } = this.props;
+  private onSaveNewResource = () => {
+    const { onSave } = this.props;
     const { resourceData } = this.state;
     resourceData["parentId"] = this.props.parentResourceId;
     const resource = ResourceFromJSON(resourceData);
-    saveClick(resource);
+    onSave(resource);
   }
 
   /**
@@ -147,7 +149,6 @@ class AddResourceDialog extends React.Component<Props, State> {
       return;
     }
 
-    console.log(e.target.name);
     const { resourceData } = this.state;
     resourceData[e.target.name] = e.target.value;
 
@@ -160,12 +161,11 @@ class AddResourceDialog extends React.Component<Props, State> {
    * Handles input element data change
    */
   private onDataChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    console.log(e);
     const { resourceData } = this.state;
     resourceData[e.target.name] = e.target.value;
 
     this.setState({
-      resourceData: {...resourceData}
+      resourceData: resourceData
     });
   }
 }
