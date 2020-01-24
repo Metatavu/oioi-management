@@ -1,12 +1,13 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import * as React from "react";
 import { withStyles, WithStyles, TextField, Divider, Typography, Grid, FormControl, InputLabel, Select, MenuItem, Button } from "@material-ui/core";
 import MaterialTable from "material-table";
-import AddIcon from '@material-ui/icons/AddBox';
-import DeleteIcon from '@material-ui/icons/Delete';
-import SaveIcon from '@material-ui/icons/Save';
-import CheckIcon from '@material-ui/icons/Check';
-import ClearIcon from '@material-ui/icons/Clear';
-import EditIcon from '@material-ui/icons/Edit';
+import AddIcon from "@material-ui/icons/AddBox";
+import DeleteIcon from "@material-ui/icons/Delete";
+import SaveIcon from "@material-ui/icons/Save";
+import CheckIcon from "@material-ui/icons/Check";
+import ClearIcon from "@material-ui/icons/Clear";
+import EditIcon from "@material-ui/icons/Edit";
 import styles from "../../styles/editor-view";
 import { DropzoneArea } from "material-ui-dropzone";
 import strings from "../../localization/strings";
@@ -16,19 +17,18 @@ import FileUpload from "../../utils/FileUpload";
 import { forwardRef } from "react";
 
 interface Props extends WithStyles<typeof styles> {
-  resource: Resource,
-  customerId: string,
-  onUpdate(resource: Resource): void,
-  onDelete(resource: Resource): void
+  resource: Resource;
+  customerId: string;
+  onUpdate(resource: Resource): void;
+  onDelete(resource: Resource): void;
 }
 
 interface State {
-  resourceId: string,
-  resourceData: any
+  resourceId: string;
+  resourceData: any;
 }
 
 class ResourceSettingsView extends React.Component<Props, State> {
-
   /**
    * Constructor
    *
@@ -39,7 +39,7 @@ class ResourceSettingsView extends React.Component<Props, State> {
     this.state = {
       resourceId: "",
       resourceData: {}
-    }
+    };
   }
 
   public componentDidMount() {
@@ -85,54 +85,56 @@ class ResourceSettingsView extends React.Component<Props, State> {
         <TextField
           style={{ marginBottom: theme.spacing(3) }}
           variant="outlined"
-          value={ this.state.resourceData["name"] }
-          onChange={ this.onDataChange }
+          value={this.state.resourceData["name"]}
+          onChange={this.onDataChange}
           name="name"
-          label={ strings.name }
+          label={strings.name}
         />
         <TextField
           style={{ marginLeft: theme.spacing(3) }}
           variant="outlined"
-          value={ this.state.resourceData["orderNumber"] }
-          onChange={ this.onDataChange }
+          value={this.state.resourceData["orderNumber"]}
+          onChange={this.onDataChange}
           name="orderNumber"
-          label={ strings.orderNumber }
+          label={strings.orderNumber}
         />
         <TextField
           style={{ marginLeft: theme.spacing(3) }}
           variant="outlined"
-          value={ this.state.resourceData["slug"] }
-          onChange={ this.onDataChange }
+          value={this.state.resourceData["slug"]}
+          onChange={this.onDataChange}
           name="slug"
-          label={ strings.slug }
+          label={strings.slug}
         />
         <Button
           style={{ marginLeft: theme.spacing(3), marginTop: theme.spacing(1) }}
           color="primary"
           variant="contained"
-          startIcon={ <SaveIcon /> }
-          onClick={ this.onUpdateResource }
+          startIcon={<SaveIcon />}
+          onClick={this.onUpdateResource}
         >
-          { strings.save }
+          {strings.save}
         </Button>
         <Divider style={{ marginBottom: theme.spacing(3) }} />
         <div>
-          <Typography variant="h3">{ localizedDataString }</Typography>
-          { dataField }
+          <Typography variant="h3">{localizedDataString}</Typography>
+          {dataField}
         </div>
         <Divider style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} />
         <div>
           <MaterialTable
-            icons={{ Add: forwardRef((props, ref) => <AddIcon {...props} ref={ref} />),
+            icons={{
+              Add: forwardRef((props, ref) => <AddIcon {...props} ref={ref} />),
               Delete: forwardRef((props, ref) => <DeleteIcon {...props} ref={ref} />),
               Check: forwardRef((props, ref) => <CheckIcon {...props} ref={ref} />),
               Clear: forwardRef((props, ref) => <ClearIcon {...props} ref={ref} />),
-              Edit: forwardRef((props, ref) => <EditIcon {...props} ref={ref} />) }}
+              Edit: forwardRef((props, ref) => <EditIcon {...props} ref={ref} />)
+            }}
             columns={[
               { title: strings.key, field: "key" },
               { title: strings.value, field: "value" }
             ]}
-            data={ resourceData["styles"] }
+            data={resourceData["styles"]}
             editable={{
               onRowAdd: newData =>
                 new Promise((resolve, reject) => {
@@ -170,7 +172,7 @@ class ResourceSettingsView extends React.Component<Props, State> {
                   resolve();
                 })
             }}
-            title={ strings.styles }
+            title={strings.styles}
             options={{
               grouping: false,
               search: false,
@@ -189,16 +191,18 @@ class ResourceSettingsView extends React.Component<Props, State> {
         <Divider style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} />
         <div>
           <MaterialTable
-            icons={{ Add: forwardRef((props, ref) => <AddIcon {...props} ref={ref} />),
+            icons={{
+              Add: forwardRef((props, ref) => <AddIcon {...props} ref={ref} />),
               Delete: forwardRef((props, ref) => <DeleteIcon {...props} ref={ref} />),
               Check: forwardRef((props, ref) => <CheckIcon {...props} ref={ref} />),
               Clear: forwardRef((props, ref) => <ClearIcon {...props} ref={ref} />),
-              Edit: forwardRef((props, ref) => <EditIcon {...props} ref={ref} />) }}
+              Edit: forwardRef((props, ref) => <EditIcon {...props} ref={ref} />)
+            }}
             columns={[
               { title: strings.key, field: "key" },
               { title: strings.value, field: "value" }
             ]}
-            data={ resourceData["properties"] }
+            data={resourceData["properties"]}
             editable={{
               onRowAdd: newData =>
                 new Promise((resolve, reject) => {
@@ -236,7 +240,7 @@ class ResourceSettingsView extends React.Component<Props, State> {
                   resolve();
                 })
             }}
-            title={ strings.properties }
+            title={strings.properties}
             options={{
               grouping: false,
               search: false,
@@ -263,14 +267,14 @@ class ResourceSettingsView extends React.Component<Props, State> {
     const { classes, resource } = this.props;
     const resourceType = resource.type;
 
-    if (resourceType == ResourceType.TEXT) {
+    if (resourceType === ResourceType.TEXT) {
       return (
         <TextField
           fullWidth
           name="data"
-          value={ this.state.resourceData["data"] }
-          onChange={ this.onDataChange }
-          label={ strings.text }
+          value={this.state.resourceData["data"]}
+          onChange={this.onDataChange}
+          label={strings.text}
           multiline
           rows="8"
           margin="normal"
@@ -284,35 +288,35 @@ class ResourceSettingsView extends React.Component<Props, State> {
       if (fileData) {
         return (
           <DropzoneArea
-            acceptedFiles={ allowedFileTypes }
-            filesLimit={ 1 }
-            dropzoneClass={ classes.dropzone }
-            dropzoneParagraphClass={ classes.dropzoneText }
-            dropzoneText={ strings.dropFile }
-            onChange={ this.onImageChange }
-            showPreviews={ true }
-            showPreviewsInDropzone={ false }
-            showFileNamesInPreview={ true }
-            initialFiles={ [fileData] }
+            acceptedFiles={allowedFileTypes}
+            filesLimit={1}
+            dropzoneClass={classes.dropzone}
+            dropzoneParagraphClass={classes.dropzoneText}
+            dropzoneText={strings.dropFile}
+            onChange={this.onImageChange}
+            showPreviews={true}
+            showPreviewsInDropzone={false}
+            showFileNamesInPreview={true}
+            initialFiles={[fileData]}
           />
         );
       } else {
         return (
-          <Grid item className={ classes.fullWidth }>
+          <Grid item className={classes.fullWidth}>
             <DropzoneArea
-              acceptedFiles={ allowedFileTypes }
-              filesLimit={ 1 }
-              dropzoneClass={ classes.dropzone }
-              dropzoneParagraphClass={ classes.dropzoneText }
-              dropzoneText={ strings.dropFile }
-              showFileNamesInPreview={ true }
-              onChange={ this.onImageChange }
+              acceptedFiles={allowedFileTypes}
+              filesLimit={1}
+              dropzoneClass={classes.dropzone}
+              dropzoneParagraphClass={classes.dropzoneText}
+              dropzoneText={strings.dropFile}
+              showFileNamesInPreview={true}
+              onChange={this.onImageChange}
             />
           </Grid>
         );
       }
     }
-  }
+  };
 
   /**
    * Handles image change
@@ -327,7 +331,7 @@ class ResourceSettingsView extends React.Component<Props, State> {
     this.setState({
       resourceData: resourceData
     });
-  }
+  };
 
   /**
    * Handles data change
@@ -338,7 +342,7 @@ class ResourceSettingsView extends React.Component<Props, State> {
     this.setState({
       resourceData: resourceData
     });
-  }
+  };
 
   /**
    * On update resource method
@@ -352,7 +356,7 @@ class ResourceSettingsView extends React.Component<Props, State> {
     this.setState({
       resourceData: resourceData
     });
-  }
+  };
 
   /**
    * Get localized string for data type method
@@ -377,7 +381,7 @@ class ResourceSettingsView extends React.Component<Props, State> {
         return strings.file;
       }
     }
-  }
+  };
 
   /**
    * Get file types for resource type method
@@ -399,7 +403,7 @@ class ResourceSettingsView extends React.Component<Props, State> {
         return [];
       }
     }
-  }
+  };
 }
 
 export default withStyles(styles)(ResourceSettingsView);

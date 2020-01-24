@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-useless-constructor */
 import * as React from "react";
 import { Collapse} from "@material-ui/core";
 import { TransitionProps } from "@material-ui/core/transitions";
