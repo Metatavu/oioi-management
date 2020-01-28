@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Container, Typography, Grid, Card, withStyles, WithStyles, CardActionArea } from "@material-ui/core";
+import { Container, Typography, Grid, Card, withStyles, WithStyles, CardActionArea, Snackbar } from "@material-ui/core";
 import img from "../../resources/images/macmini.png";
 import AddIcon from "@material-ui/icons/AddCircle";
 import styles from "../../styles/card-item";
@@ -13,21 +13,25 @@ import { AuthState } from "../../types";
 import { ReduxState, ReduxActions } from "../../store";
 import { Dispatch } from "redux";
 import { connect } from "react-redux";
-
+import DeleteDialog from "../generic/DeleteDialog";
 interface Props extends WithStyles<typeof styles> {
-  history: History
-  customerId: string
-  auth: AuthState
+  history: History;
+  customerId: string;
+  auth: AuthState;
 }
 
 interface State {
-  editorDialogOpen: boolean,
-  devices: Device[],
-  customer?: Customer
+  editorDialogOpen: boolean;
+  deleteDialogOpen: boolean;
+  deviceInDialog?: Device;
+  devices: Device[];
+  customer?: Customer;
 }
 
+/**
+ * Creates list of devices
+ */
 class DevicesList extends React.Component<Props, State> {
-
   /**
    * Constructor
    *
@@ -37,6 +41,8 @@ class DevicesList extends React.Component<Props, State> {
     super(props);
     this.state = {
       editorDialogOpen: false,
+      deleteDialogOpen: false,
+      deviceInDialog: undefined,
       devices: []
     };
   }
@@ -58,30 +64,31 @@ class DevicesList extends React.Component<Props, State> {
       customer: customer,
       devices: devices
     });
-  }
+  };
 
   /**
    * Component render method
    */
   public render() {
     const { classes } = this.props;
-    const { customer } = this.state;
+    const { customer, deviceInDialog, editorDialogOpen, deleteDialogOpen } = this.state;
     const cards = this.state.devices.map((device: Device) => this.renderCard(device));
     return (
       <Container maxWidth="xl" className="page-content">
-        <Typography className={ classes.heading } variant="h2">{ customer ? customer.name : strings.loading } / { strings.devices }</Typography>
-        <Grid container spacing={ 5 } direction="row">
-          {
-            cards
-          }
-          {
-            this.renderAdd()
-          }
+        <Typography className={classes.heading} variant="h2">
+          {customer ? customer.name : strings.loading} / {strings.devices}
+        </Typography>
+        <Grid container spacing={5} direction="row">
+          {cards}
+          {this.renderAdd()}
         </Grid>
-        <AddDeviceDialog
-          open={ this.state.editorDialogOpen }
-          saveClick={ this.onSaveDeviceClick }
-          handleClose={ this.onDialogCloseClick }
+        <AddDeviceDialog open={editorDialogOpen} saveClick={this.onSaveDeviceClick} handleClose={this.onDialogCloseClick} />
+        <DeleteDialog
+          open={deleteDialogOpen}
+          deleteClick={this.onDeleteDeviceClick}
+          itemToDelete={deviceInDialog || undefined}
+          handleClose={this.onDeleteDialogCloseClick}
+          title={strings.deleteConfirmation}
         />
       </Container>
     );
@@ -94,12 +101,12 @@ class DevicesList extends React.Component<Props, State> {
     return (
       <Grid item>
         <CardItem
-          title={ device.name }
-          img={ img }
-          editClick={ () => this.onEditDeviceClick(device) }
-          detailsClick={ () => this.onDeviceDetailsClick(device) }
-          deleteClick={ () => this.onDeleteDeviceClick(device) }>
-        </CardItem>
+          title={device.name}
+          img={img}
+          editClick={() => this.onEditDeviceClick(device)}
+          detailsClick={() => this.onDeviceDetailsClick(device)}
+          deleteClick={() => this.onDeleteOpenModalClick(device)}
+        ></CardItem>
       </Grid>
     );
   }
@@ -111,9 +118,9 @@ class DevicesList extends React.Component<Props, State> {
     const { classes } = this.props;
     return (
       <Grid item>
-        <Card elevation={ 0 } className={ classes.addCard }>
-          <CardActionArea className={ classes.add } onClick={ this.onAddDeviceClick }>
-            <AddIcon className={ classes.addIcon } />
+        <Card elevation={0} className={classes.addCard}>
+          <CardActionArea className={classes.add} onClick={this.onAddDeviceClick}>
+            <AddIcon className={classes.addIcon} />
           </CardActionArea>
         </Card>
       </Grid>
@@ -126,13 +133,22 @@ class DevicesList extends React.Component<Props, State> {
   private onEditDeviceClick = (device: Device) => {
     const { customerId } = this.props;
     this.props.history.push(`/${customerId}/devices/${device.id}/applications`);
-  }
+  };
+
   /**
    * Show device details method
    */
   private onDeviceDetailsClick = (device: Device) => {
     alert("Show device details!");
-  }
+  };
+
+  private onDeleteOpenModalClick = (device: Device) => {
+    this.setState({
+      deleteDialogOpen: true,
+      deviceInDialog: device
+    });
+  };
+
   /**
    * Delete device method
    */
@@ -149,15 +165,18 @@ class DevicesList extends React.Component<Props, State> {
     });
     const { devices } = this.state;
     this.setState({
-      devices: devices.filter((c => c.id !== device.id))
+      deleteDialogOpen: false,
+      devices: devices.filter(c => c.id !== device.id)
     });
-  }
+  };
+
   /**
    * Add device method
    */
   private onAddDeviceClick = () => {
     this.setState({ editorDialogOpen: true });
-  }
+  };
+
   /**
    * Save device method
    *
@@ -180,7 +199,8 @@ class DevicesList extends React.Component<Props, State> {
       devices: devices,
       editorDialogOpen: false
     });
-  }
+  };
+
   /**
    * Close dialog method
    *
@@ -188,7 +208,11 @@ class DevicesList extends React.Component<Props, State> {
    */
   private onDialogCloseClick = () => {
     this.setState({ editorDialogOpen: false });
-  }
+  };
+
+  private onDeleteDialogCloseClick = () => {
+    this.setState({ deleteDialogOpen: false });
+  };
 }
 
 const mapStateToProps = (state: ReduxState) => ({
@@ -197,6 +221,6 @@ const mapStateToProps = (state: ReduxState) => ({
 
 const mapDispatchToProps = (dispatch: Dispatch<ReduxActions>) => {
   return {};
-}
+};
 
 export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(DevicesList));
