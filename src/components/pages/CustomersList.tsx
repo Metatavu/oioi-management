@@ -80,6 +80,7 @@ class CustomersList extends React.Component<Props, State> {
         <CardItem
           title={customer.name}
           img={customer.image_url || img}
+          editConfiguration={() => this.onEditConfiguration(customer)}
           editClick={() => this.onEditCustomerClick(customer)}
           detailsClick={() => this.onEditCustomerClick(customer)}
           deleteClick={() => this.onDeleteCustomerClick(customer)}
@@ -103,6 +104,10 @@ class CustomersList extends React.Component<Props, State> {
       </Grid>
     );
   }
+
+  private onEditConfiguration = (customer: Customer) => {
+    this.props.history.push(`/${customer.id}/devices`);
+  };
 
   /**
    * Edit customer method

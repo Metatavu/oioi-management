@@ -15,20 +15,19 @@ import { AuthState } from "../../types";
 import ApiUtils from "../../utils/ApiUtils";
 
 interface Props extends WithStyles<typeof styles> {
-  history: History,
-  customerId: string,
-  deviceId: string,
-  auth: AuthState
+  history: History;
+  customerId: string;
+  deviceId: string;
+  auth: AuthState;
 }
 
 interface State {
-  customer?: Customer,
-  device?: Device,
-  applications: Application[]
+  customer?: Customer;
+  device?: Device;
+  applications: Application[];
 }
 
 class ApplicationsList extends React.Component<Props, State> {
-
   /**
    * Constructor
    *
@@ -61,7 +60,7 @@ class ApplicationsList extends React.Component<Props, State> {
       device: device,
       applications: applications
     });
-  }
+  };
 
   /**
    * Component render method
@@ -69,19 +68,15 @@ class ApplicationsList extends React.Component<Props, State> {
   public render() {
     const { classes } = this.props;
     const { customer, device, applications } = this.state;
-    const cards = applications.map((application) => this.renderCard(application));
+    const cards = applications.map((application, index) => this.renderCard(application, `${index}${application.name}`));
     return (
       <Container maxWidth="xl" className="page-content">
-        <Typography className={ classes.heading } variant="h2">
-          { customer ? customer.name : strings.loading } / { device ? device.name : strings.loading } / { strings.applications }
+        <Typography className={classes.heading} variant="h2">
+          {customer ? customer.name : strings.loading} / {device ? device.name : strings.loading} / {strings.applications}
         </Typography>
-        <Grid container spacing={ 5 } direction="row">
-          {
-            cards
-          }
-          {
-            this.renderAdd()
-          }
+        <Grid container spacing={5} direction="row">
+          {cards}
+          {this.renderAdd()}
         </Grid>
       </Container>
     );
@@ -90,17 +85,17 @@ class ApplicationsList extends React.Component<Props, State> {
   /**
    * Card render method
    */
-  private renderCard(application: Application) {
+  private renderCard(application: Application, key: string) {
     return (
       <Grid item>
         <CardItem
-          title={ application.name }
-          img={ img }
-          editClick={ () => this.onEditApplicationClick(application) }
-          detailsClick={ () => this.onEditApplicationClick(application) }
-          deleteClick={ () => this.onDeleteApplicationClick(application) }
-        >
-        </CardItem>
+          title={application.name}
+          img={img}
+          editConfiguration={() => this.onEditConfiguration(application)}
+          editClick={() => this.onEditApplicationClick(application)}
+          detailsClick={() => this.onEditApplicationClick(application)}
+          deleteClick={() => this.onDeleteApplicationClick(application)}
+        ></CardItem>
       </Grid>
     );
   }
@@ -112,19 +107,24 @@ class ApplicationsList extends React.Component<Props, State> {
     const { classes } = this.props;
     return (
       <Grid item>
-        <Card elevation={ 0 } className={ classes.addCard }>
-          <CardActionArea className={ classes.add } onClick={ this.onAddApplicationClick }>
-            <AddIcon className={ classes.addIcon } />
+        <Card elevation={0} className={classes.addCard}>
+          <CardActionArea className={classes.add} onClick={this.onAddApplicationClick}>
+            <AddIcon className={classes.addIcon} />
           </CardActionArea>
         </Card>
       </Grid>
     );
   }
 
+  private onEditConfiguration = (application: Application) => {
+    const { customerId, deviceId } = this.props;
+    this.props.history.push(`/${customerId}/devices/${deviceId}/applications/${application.id}`);
+  };
+
   private onEditApplicationClick = (application: Application) => {
     const { customerId, deviceId } = this.props;
     this.props.history.push(`/${customerId}/devices/${deviceId}/applications/${application.id}`);
-  }
+  };
 
   private onDeleteApplicationClick = async (application: Application) => {
     const { auth, customerId, deviceId } = this.props;
@@ -140,9 +140,9 @@ class ApplicationsList extends React.Component<Props, State> {
     });
     const { applications } = this.state;
     this.setState({
-      applications: applications.filter((c => c.id !== application.id))
+      applications: applications.filter(c => c.id !== application.id)
     });
-  }
+  };
 
   private onAddApplicationClick = async () => {
     const { auth, customerId, deviceId } = this.props;
@@ -162,7 +162,7 @@ class ApplicationsList extends React.Component<Props, State> {
     });
 
     this.onEditApplicationClick(application);
-  }
+  };
 }
 
 const mapStateToProps = (state: ReduxState) => ({
@@ -171,6 +171,6 @@ const mapStateToProps = (state: ReduxState) => ({
 
 const mapDispatchToProps = (dispatch: Dispatch<ReduxActions>) => {
   return {};
-}
+};
 
 export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(ApplicationsList));
