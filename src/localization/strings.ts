@@ -18,6 +18,7 @@ export interface IStrings extends LocalizedStringsMethods {
   devices: string;
   deviceImage: string;
   deleteConfirmation: string;
+  deleteSuccess: string;
   dropFile: string;
   edit: string;
   home: string;

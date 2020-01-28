@@ -14,6 +14,7 @@ import { ReduxState, ReduxActions } from "../../store";
 import { Dispatch } from "redux";
 import { connect } from "react-redux";
 import DeleteDialog from "../generic/DeleteDialog";
+import { Alert } from "@material-ui/lab";
 interface Props extends WithStyles<typeof styles> {
   history: History;
   customerId: string;
@@ -23,6 +24,7 @@ interface Props extends WithStyles<typeof styles> {
 interface State {
   editorDialogOpen: boolean;
   deleteDialogOpen: boolean;
+  snackbarOpen: boolean;
   deviceInDialog?: Device;
   devices: Device[];
   customer?: Customer;
@@ -42,6 +44,7 @@ class DevicesList extends React.Component<Props, State> {
     this.state = {
       editorDialogOpen: false,
       deleteDialogOpen: false,
+      snackbarOpen: false,
       deviceInDialog: undefined,
       devices: []
     };
@@ -71,7 +74,7 @@ class DevicesList extends React.Component<Props, State> {
    */
   public render() {
     const { classes } = this.props;
-    const { customer, deviceInDialog, editorDialogOpen, deleteDialogOpen } = this.state;
+    const { customer, deviceInDialog, editorDialogOpen, deleteDialogOpen, snackbarOpen } = this.state;
     const cards = this.state.devices.map((device: Device) => this.renderCard(device));
     return (
       <Container maxWidth="xl" className="page-content">
@@ -90,6 +93,11 @@ class DevicesList extends React.Component<Props, State> {
           handleClose={this.onDeleteDialogCloseClick}
           title={strings.deleteConfirmation}
         />
+        <Snackbar open={snackbarOpen} autoHideDuration={6000} onClose={this.onSnackbarClose}>
+          <Alert onClose={this.onSnackbarClose} severity="success">
+            {strings.deleteSuccess}
+          </Alert>
+        </Snackbar>
       </Container>
     );
   }
@@ -142,6 +150,9 @@ class DevicesList extends React.Component<Props, State> {
     alert("Show device details!");
   };
 
+  /**
+   * Delete open modal click
+   */
   private onDeleteOpenModalClick = (device: Device) => {
     this.setState({
       deleteDialogOpen: true,
@@ -165,6 +176,7 @@ class DevicesList extends React.Component<Props, State> {
     });
     const { devices } = this.state;
     this.setState({
+      snackbarOpen: true,
       deleteDialogOpen: false,
       devices: devices.filter(c => c.id !== device.id)
     });
@@ -202,6 +214,19 @@ class DevicesList extends React.Component<Props, State> {
   };
 
   /**
+   * Snack bar close click
+   */
+  private onSnackbarClose = (event?: React.SyntheticEvent, reason?: string) => {
+    if (reason === "clickaway") {
+      return;
+    }
+
+    this.setState({
+      snackbarOpen: false
+    });
+  };
+
+  /**
    * Close dialog method
    *
    * TODO: handle prompt if unsaved
@@ -210,6 +235,9 @@ class DevicesList extends React.Component<Props, State> {
     this.setState({ editorDialogOpen: false });
   };
 
+  /**
+   * Delete dialog close click
+   */
   private onDeleteDialogCloseClick = () => {
     this.setState({ deleteDialogOpen: false });
   };

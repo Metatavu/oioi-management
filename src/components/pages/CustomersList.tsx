@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Container, Typography, Grid, Card, withStyles, WithStyles, CardActionArea } from "@material-ui/core";
+import { Container, Typography, Grid, Card, withStyles, WithStyles, CardActionArea, Snackbar } from "@material-ui/core";
 import img from "../../resources/images/geopark.png";
 import AddIcon from "@material-ui/icons/AddCircle";
 import styles from "../../styles/card-item";
@@ -14,6 +14,7 @@ import { Customer } from "../../generated/client/src";
 import ApiUtils from "../../utils/ApiUtils";
 import strings from "../../localization/strings";
 import DeleteDialog from "../generic/DeleteDialog";
+import { Alert } from "@material-ui/lab";
 
 interface Props extends WithStyles<typeof styles> {
   history: History;
@@ -25,6 +26,7 @@ interface State {
   deleteDialogOpen: boolean;
   customerInDialog?: Customer;
   customers: Customer[];
+  snackbarOpen: boolean;
 }
 
 /**
@@ -41,6 +43,7 @@ class CustomersList extends React.Component<Props, State> {
     this.state = {
       editorDialogOpen: false,
       deleteDialogOpen: false,
+      snackbarOpen: false,
       customerInDialog: undefined,
       customers: []
     };
@@ -67,7 +70,7 @@ class CustomersList extends React.Component<Props, State> {
    */
   public render() {
     const { classes } = this.props;
-    const { editorDialogOpen, deleteDialogOpen, customerInDialog } = this.state;
+    const { editorDialogOpen, deleteDialogOpen, customerInDialog, snackbarOpen } = this.state;
     const cards = this.state.customers.map(customer => this.renderCard(customer));
     return (
       <Container maxWidth="xl" className="page-content">
@@ -86,6 +89,11 @@ class CustomersList extends React.Component<Props, State> {
           handleClose={this.onDeleteDialogCloseClick}
           title={strings.deleteConfirmation}
         />
+        <Snackbar open={snackbarOpen} autoHideDuration={6000} onClose={this.onSnackbarClose}>
+          <Alert onClose={this.onSnackbarClose} severity="success">
+            {strings.deleteSuccess}
+          </Alert>
+        </Snackbar>
       </Container>
     );
   }
@@ -143,6 +151,7 @@ class CustomersList extends React.Component<Props, State> {
     await customersApi.deleteCustomer({ customer_id: customer.id });
     const { customers } = this.state;
     this.setState({
+      snackbarOpen: true,
       deleteDialogOpen: false,
       customers: customers.filter(c => c.id !== customer.id)
     });
@@ -181,6 +190,19 @@ class CustomersList extends React.Component<Props, State> {
     this.setState({
       customers: customers,
       editorDialogOpen: false
+    });
+  };
+
+  /**
+   * Snack bar close click
+   */
+  private onSnackbarClose = (event?: React.SyntheticEvent, reason?: string) => {
+    if (reason === "clickaway") {
+      return;
+    }
+
+    this.setState({
+      snackbarOpen: false
     });
   };
 

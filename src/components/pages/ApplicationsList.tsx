@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Container, Typography, Grid, Card, withStyles, WithStyles, CardActionArea } from "@material-ui/core";
+import { Container, Typography, Grid, Card, withStyles, WithStyles, CardActionArea, Snackbar } from "@material-ui/core";
 import img from "../../resources/images/infowall.png";
 import AddIcon from "@material-ui/icons/AddCircle";
 import styles from "../../styles/card-item";
@@ -13,6 +13,7 @@ import { connect } from "react-redux";
 import { AuthState } from "../../types";
 import ApiUtils from "../../utils/ApiUtils";
 import DeleteDialog from "../generic/DeleteDialog";
+import { Alert } from "@material-ui/lab";
 
 interface Props extends WithStyles<typeof styles> {
   history: History;
@@ -27,6 +28,7 @@ interface State {
   applicationInDialog?: Application;
   applications: Application[];
   deleteDialogOpen: boolean;
+  snackbarOpen: boolean;
 }
 
 /**
@@ -43,7 +45,8 @@ class ApplicationsList extends React.Component<Props, State> {
     this.state = {
       applications: [],
       applicationInDialog: undefined,
-      deleteDialogOpen: false
+      deleteDialogOpen: false,
+      snackbarOpen: false
     };
   }
 
@@ -77,7 +80,7 @@ class ApplicationsList extends React.Component<Props, State> {
    */
   public render() {
     const { classes } = this.props;
-    const { customer, device, applications, deleteDialogOpen, applicationInDialog } = this.state;
+    const { customer, device, applications, deleteDialogOpen, applicationInDialog, snackbarOpen } = this.state;
     const cards = applications.map(application => this.renderCard(application));
     return (
       <Container maxWidth="xl" className="page-content">
@@ -95,6 +98,11 @@ class ApplicationsList extends React.Component<Props, State> {
           handleClose={this.onDeleteDialogCloseClick}
           title={strings.deleteConfirmation}
         />
+        <Snackbar open={snackbarOpen} autoHideDuration={6000} onClose={this.onSnackbarClose}>
+          <Alert onClose={this.onSnackbarClose} severity="success">
+            {strings.deleteSuccess}
+          </Alert>
+        </Snackbar>
       </Container>
     );
   }
@@ -157,6 +165,7 @@ class ApplicationsList extends React.Component<Props, State> {
     });
     const { applications } = this.state;
     this.setState({
+      snackbarOpen: true,
       deleteDialogOpen: false,
       applications: applications.filter(c => c.id !== application.id)
     });
@@ -193,6 +202,19 @@ class ApplicationsList extends React.Component<Props, State> {
     });
 
     this.onEditApplicationClick(application);
+  };
+
+  /**
+   * Snack bar close click
+   */
+  private onSnackbarClose = (event?: React.SyntheticEvent, reason?: string) => {
+    if (reason === "clickaway") {
+      return;
+    }
+
+    this.setState({
+      snackbarOpen: false
+    });
   };
 
   /**

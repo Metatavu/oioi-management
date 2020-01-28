@@ -16,6 +16,7 @@
   "devices": "Laitteet",
   "deviceImage": "Laitekuva",
   "deleteConfirmation": "Varmista poisto",
+  "deleteSuccess": "Poisto onnistui",
   "dropFile": "Tiputa tiedosto tai klikkaa ja etsi",
   "edit": "Editoi",
   "home": "Kotivalikko",
