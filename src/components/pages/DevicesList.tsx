@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Container, Typography, Grid, Card, withStyles, WithStyles, CardActionArea } from "@material-ui/core";
+import { Container, Typography, Grid, Card, withStyles, WithStyles, CardActionArea, Snackbar } from "@material-ui/core";
 import img from "../../resources/images/macmini.png";
 import AddIcon from "@material-ui/icons/AddCircle";
 import styles from "../../styles/card-item";
@@ -13,6 +13,8 @@ import { AuthState, DialogType } from "../../types";
 import { ReduxState, ReduxActions } from "../../store";
 import { Dispatch } from "redux";
 import { connect } from "react-redux";
+import DeleteDialog from "../generic/DeleteDialog";
+import { Alert } from "@material-ui/lab";
 
 /**
  * Component props
@@ -38,13 +40,15 @@ interface Props extends WithStyles<typeof styles> {
 interface State {
   editorDialogOpen: boolean;
   dialogType: DialogType;
+  deleteDialogOpen: boolean;
+  snackbarOpen: boolean;
   deviceInDialog?: Device;
   devices: Device[];
   customer?: Customer;
 }
 
 /**
- * Creates Device list component
+ * Creates list of devices
  */
 class DevicesList extends React.Component<Props, State> {
   /**
@@ -58,7 +62,9 @@ class DevicesList extends React.Component<Props, State> {
       editorDialogOpen: false,
       devices: [],
       dialogType: "new",
-      deviceInDialog: undefined
+      deviceInDialog: undefined,
+      deleteDialogOpen: false,
+      snackbarOpen: false
     };
   }
 
@@ -89,9 +95,8 @@ class DevicesList extends React.Component<Props, State> {
    */
   public render() {
     const { classes } = this.props;
-    const { customer, dialogType, deviceInDialog } = this.state;
+    const { customer, deviceInDialog, dialogType, editorDialogOpen, deleteDialogOpen, snackbarOpen } = this.state;
     const cards = this.state.devices.map((device: Device, index) => this.renderCard(device, `${index}${device.name}`));
-
     return (
       <Container maxWidth="xl" className="page-content">
         <Typography className={classes.heading} variant="h2">
@@ -110,6 +115,18 @@ class DevicesList extends React.Component<Props, State> {
             handleClose={this.onDialogCloseClick}
           />
         )}
+        <DeleteDialog
+          open={deleteDialogOpen}
+          deleteClick={this.onDeleteDeviceClick}
+          itemToDelete={deviceInDialog || undefined}
+          handleClose={this.onDeleteDialogCloseClick}
+          title={strings.deleteConfirmation}
+        />
+        <Snackbar open={snackbarOpen} autoHideDuration={6000} onClose={this.onSnackbarClose}>
+          <Alert onClose={this.onSnackbarClose} severity="success">
+            {strings.deleteSuccess}
+          </Alert>
+        </Snackbar>
       </Container>
     );
   }
@@ -126,7 +143,7 @@ class DevicesList extends React.Component<Props, State> {
           editConfiguration={() => this.onEditDeviceConfigurationClick(device)}
           editClick={() => this.onEditDeviceClick(device)}
           detailsClick={() => this.onDeviceDetailsClick(device)}
-          deleteClick={() => this.onDeleteDeviceClick(device)}
+          deleteClick={() => this.onDeleteOpenModalClick(device)}
         ></CardItem>
       </Grid>
     );
@@ -186,6 +203,16 @@ class DevicesList extends React.Component<Props, State> {
   };
 
   /**
+   * Delete open modal click
+   */
+  private onDeleteOpenModalClick = (device: Device) => {
+    this.setState({
+      deleteDialogOpen: true,
+      deviceInDialog: device
+    });
+  };
+
+  /**
    * Delete device method
    */
   private onDeleteDeviceClick = async (device: Device) => {
@@ -201,6 +228,8 @@ class DevicesList extends React.Component<Props, State> {
     });
     const { devices } = this.state;
     this.setState({
+      snackbarOpen: true,
+      deleteDialogOpen: false,
       devices: devices.filter(c => c.id !== device.id)
     });
   };
@@ -275,6 +304,18 @@ class DevicesList extends React.Component<Props, State> {
       editorDialogOpen: false
     });
   };
+  /*
+   * Snack bar close click
+   */
+  private onSnackbarClose = (event?: React.SyntheticEvent, reason?: string) => {
+    if (reason === "clickaway") {
+      return;
+    }
+
+    this.setState({
+      snackbarOpen: false
+    });
+  };
 
   /**
    * Close dialog method
@@ -283,6 +324,13 @@ class DevicesList extends React.Component<Props, State> {
    */
   private onDialogCloseClick = () => {
     this.setState({ editorDialogOpen: false });
+  };
+
+  /**
+   * Delete dialog close click
+   */
+  private onDeleteDialogCloseClick = () => {
+    this.setState({ deleteDialogOpen: false });
   };
 }
 

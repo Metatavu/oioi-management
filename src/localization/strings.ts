@@ -10,6 +10,7 @@ export interface IStrings extends LocalizedStringsMethods {
   applicationSettings: string;
   back: string;
   cancel: string;
+  confirm: string;
   customers: string;
   customerLogo: string;
   delete: string;
@@ -20,6 +21,8 @@ export interface IStrings extends LocalizedStringsMethods {
   dropFile: string;
   edit: string;
   editDevice: string;
+  deleteConfirmation: string;
+  deleteSuccess: string;
   home: string;
   image: string;
   informationOptional: string;

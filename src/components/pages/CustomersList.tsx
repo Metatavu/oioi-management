@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Container, Typography, Grid, Card, withStyles, WithStyles, CardActionArea } from "@material-ui/core";
+import { Container, Typography, Grid, Card, withStyles, WithStyles, CardActionArea, Snackbar } from "@material-ui/core";
 import img from "../../resources/images/geopark.png";
 import AddIcon from "@material-ui/icons/AddCircle";
 import styles from "../../styles/card-item";
@@ -13,6 +13,8 @@ import { connect } from "react-redux";
 import { Customer } from "../../generated/client/src";
 import ApiUtils from "../../utils/ApiUtils";
 import strings from "../../localization/strings";
+import DeleteDialog from "../generic/DeleteDialog";
+import { Alert } from "@material-ui/lab";
 
 interface Props extends WithStyles<typeof styles> {
   history: History;
@@ -22,8 +24,14 @@ interface Props extends WithStyles<typeof styles> {
 interface State {
   editorDialogOpen: boolean;
   customers: Customer[];
+  deleteDialogOpen: boolean;
+  customerInDialog?: Customer;
+  snackbarOpen: boolean;
 }
 
+/**
+ * Creates list of customers
+ */
 class CustomersList extends React.Component<Props, State> {
   /**
    * Constructor
@@ -34,10 +42,16 @@ class CustomersList extends React.Component<Props, State> {
     super(props);
     this.state = {
       editorDialogOpen: false,
+      deleteDialogOpen: false,
+      snackbarOpen: false,
+      customerInDialog: undefined,
       customers: []
     };
   }
 
+  /**
+   * Component did mount
+   */
   public componentDidMount = async () => {
     const { auth } = this.props;
     if (!auth || !auth.token) {
@@ -56,7 +70,9 @@ class CustomersList extends React.Component<Props, State> {
    */
   public render() {
     const { classes } = this.props;
+    const { editorDialogOpen, deleteDialogOpen, customerInDialog, snackbarOpen } = this.state;
     const cards = this.state.customers.map((customer, index) => this.renderCard(customer, `${index}${customer.name}`));
+
     return (
       <Container maxWidth="xl" className="page-content">
         <Typography className={classes.heading} variant="h2">
@@ -66,7 +82,19 @@ class CustomersList extends React.Component<Props, State> {
           {cards}
           {this.renderAddCustomer()}
         </Grid>
-        <AddCustomerDialog open={this.state.editorDialogOpen} saveClick={this.onSaveCustomerClick} handleClose={this.onDialogCloseClick} />
+        <AddCustomerDialog open={editorDialogOpen} saveClick={this.onSaveCustomerClick} handleClose={this.onDialogCloseClick} />
+        <DeleteDialog
+          open={deleteDialogOpen}
+          deleteClick={this.onDeleteCustomerClick}
+          itemToDelete={customerInDialog}
+          handleClose={this.onDeleteDialogCloseClick}
+          title={strings.deleteConfirmation}
+        />
+        <Snackbar open={snackbarOpen} autoHideDuration={6000} onClose={this.onSnackbarClose}>
+          <Alert onClose={this.onSnackbarClose} severity="success">
+            {strings.deleteSuccess}
+          </Alert>
+        </Snackbar>
       </Container>
     );
   }
@@ -83,7 +111,7 @@ class CustomersList extends React.Component<Props, State> {
           editConfiguration={() => this.onEditConfiguration(customer)}
           editClick={() => this.onEditCustomerClick(customer)}
           detailsClick={() => this.onEditCustomerClick(customer)}
-          deleteClick={() => this.onDeleteCustomerClick(customer)}
+          deleteClick={() => this.onDeleteOpenModalClick(customer)}
         ></CardItem>
       </Grid>
     );
@@ -129,7 +157,19 @@ class CustomersList extends React.Component<Props, State> {
     await customersApi.deleteCustomer({ customer_id: customer.id });
     const { customers } = this.state;
     this.setState({
-      customers: customers.filter(c => c.id !== customer.id)
+      customers: customers.filter(c => c.id !== customer.id),
+      snackbarOpen: true,
+      deleteDialogOpen: false
+    });
+  };
+
+  /**
+   * Delete open modal click
+   */
+  private onDeleteOpenModalClick = (customer: Customer) => {
+    this.setState({
+      deleteDialogOpen: true,
+      customerInDialog: customer
     });
   };
 
@@ -160,12 +200,32 @@ class CustomersList extends React.Component<Props, State> {
   };
 
   /**
+   * Snack bar close click
+   */
+  private onSnackbarClose = (event?: React.SyntheticEvent, reason?: string) => {
+    if (reason === "clickaway") {
+      return;
+    }
+
+    this.setState({
+      snackbarOpen: false
+    });
+  };
+
+  /**
    * Close dialog method
    *
    * TODO: handle prompt if unsaved
    */
   private onDialogCloseClick = () => {
     this.setState({ editorDialogOpen: false });
+  };
+
+  /**
+   * Delete dialog close click
+   */
+  private onDeleteDialogCloseClick = () => {
+    this.setState({ deleteDialogOpen: false });
   };
 }
 
