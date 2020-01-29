@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Container, Typography, Grid, Card, withStyles, WithStyles, CardActionArea } from "@material-ui/core";
+import { Container, Typography, Grid, Card, withStyles, WithStyles, CardActionArea, Snackbar } from "@material-ui/core";
 import img from "../../resources/images/infowall.png";
 import AddIcon from "@material-ui/icons/AddCircle";
 import styles from "../../styles/card-item";
@@ -12,22 +12,29 @@ import { Dispatch } from "redux";
 import { connect } from "react-redux";
 import { AuthState } from "../../types";
 import ApiUtils from "../../utils/ApiUtils";
+import DeleteDialog from "../generic/DeleteDialog";
+import { Alert } from "@material-ui/lab";
 
 interface Props extends WithStyles<typeof styles> {
-  history: History,
-  customerId: string,
-  deviceId: string,
-  auth: AuthState
+  history: History;
+  customerId: string;
+  deviceId: string;
+  auth: AuthState;
 }
 
 interface State {
-  customer?: Customer,
-  device?: Device,
-  applications: Application[]
+  customer?: Customer;
+  device?: Device;
+  applicationInDialog?: Application;
+  applications: Application[];
+  deleteDialogOpen: boolean;
+  snackbarOpen: boolean;
 }
 
+/**
+ * Creates list of applications
+ */
 class ApplicationsList extends React.Component<Props, State> {
-
   /**
    * Constructor
    *
@@ -36,10 +43,16 @@ class ApplicationsList extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = {
-      applications: []
+      applications: [],
+      applicationInDialog: undefined,
+      deleteDialogOpen: false,
+      snackbarOpen: false
     };
   }
 
+  /**
+   * Component did mount
+   */
   public componentDidMount = async () => {
     const { auth, customerId, deviceId } = this.props;
     if (!auth || !auth.token) {
@@ -60,28 +73,36 @@ class ApplicationsList extends React.Component<Props, State> {
       device: device,
       applications: applications
     });
-  }
+  };
 
   /**
    * Component render method
    */
   public render() {
     const { classes } = this.props;
-    const { customer, device, applications } = this.state;
-    const cards = applications.map((application) => this.renderCard(application));
+    const { customer, device, applications, deleteDialogOpen, applicationInDialog, snackbarOpen } = this.state;
+    const cards = applications.map(application => this.renderCard(application));
     return (
       <Container maxWidth="xl" className="page-content">
-        <Typography className={ classes.heading } variant="h2">
-          { customer ? customer.name : strings.loading } / { device ? device.name : strings.loading } / { strings.applications }
+        <Typography className={classes.heading} variant="h2">
+          {customer ? customer.name : strings.loading} / {device ? device.name : strings.loading} / {strings.applications}
         </Typography>
-        <Grid container spacing={ 5 } direction="row">
-          {
-            cards
-          }
-          {
-            this.renderAdd()
-          }
+        <Grid container spacing={5} direction="row">
+          {cards}
+          {this.renderAdd()}
         </Grid>
+        <DeleteDialog
+          open={deleteDialogOpen}
+          deleteClick={this.onDeleteApplicationClick}
+          itemToDelete={applicationInDialog}
+          handleClose={this.onDeleteDialogCloseClick}
+          title={strings.deleteConfirmation}
+        />
+        <Snackbar open={snackbarOpen} autoHideDuration={6000} onClose={this.onSnackbarClose}>
+          <Alert onClose={this.onSnackbarClose} severity="success">
+            {strings.deleteSuccess}
+          </Alert>
+        </Snackbar>
       </Container>
     );
   }
@@ -93,13 +114,12 @@ class ApplicationsList extends React.Component<Props, State> {
     return (
       <Grid item>
         <CardItem
-          title={ application.name }
-          img={ img }
-          editClick={ () => this.onEditApplicationClick(application) }
-          detailsClick={ () => this.onEditApplicationClick(application) }
-          deleteClick={ () => this.onDeleteApplicationClick(application) }
-        >
-        </CardItem>
+          title={application.name}
+          img={img}
+          editClick={() => this.onEditApplicationClick(application)}
+          detailsClick={() => this.onEditApplicationClick(application)}
+          deleteClick={() => this.onDeleteOpenModalClick(application)}
+        ></CardItem>
       </Grid>
     );
   }
@@ -111,20 +131,26 @@ class ApplicationsList extends React.Component<Props, State> {
     const { classes } = this.props;
     return (
       <Grid item>
-        <Card elevation={ 0 } className={ classes.addCard }>
-          <CardActionArea className={ classes.add } onClick={ this.onAddApplicationClick }>
-            <AddIcon className={ classes.addIcon } />
+        <Card elevation={0} className={classes.addCard}>
+          <CardActionArea className={classes.add} onClick={this.onAddApplicationClick}>
+            <AddIcon className={classes.addIcon} />
           </CardActionArea>
         </Card>
       </Grid>
     );
   }
 
+  /**
+   * Edit application click
+   */
   private onEditApplicationClick = (application: Application) => {
     const { customerId, deviceId } = this.props;
     this.props.history.push(`/${customerId}/devices/${deviceId}/applications/${application.id}`);
-  }
+  };
 
+  /**
+   * Delete application click
+   */
   private onDeleteApplicationClick = async (application: Application) => {
     const { auth, customerId, deviceId } = this.props;
     if (!auth || !auth.token || !application.id) {
@@ -139,10 +165,25 @@ class ApplicationsList extends React.Component<Props, State> {
     });
     const { applications } = this.state;
     this.setState({
-      applications: applications.filter((c => c.id !== application.id))
+      snackbarOpen: true,
+      deleteDialogOpen: false,
+      applications: applications.filter(c => c.id !== application.id)
     });
-  }
+  };
 
+  /**
+   * Delete open modal click
+   */
+  private onDeleteOpenModalClick = (application: Application) => {
+    this.setState({
+      applicationInDialog: application,
+      deleteDialogOpen: true
+    });
+  };
+
+  /**
+   * Add application click
+   */
   private onAddApplicationClick = async () => {
     const { auth, customerId, deviceId } = this.props;
     if (!auth || !auth.token) {
@@ -161,7 +202,29 @@ class ApplicationsList extends React.Component<Props, State> {
     });
 
     this.onEditApplicationClick(application);
-  }
+  };
+
+  /**
+   * Snack bar close click
+   */
+  private onSnackbarClose = (event?: React.SyntheticEvent, reason?: string) => {
+    if (reason === "clickaway") {
+      return;
+    }
+
+    this.setState({
+      snackbarOpen: false
+    });
+  };
+
+  /**
+   * Delete dialog close click
+   */
+  private onDeleteDialogCloseClick = () => {
+    this.setState({
+      deleteDialogOpen: false
+    });
+  };
 }
 
 const mapStateToProps = (state: ReduxState) => ({
@@ -170,6 +233,6 @@ const mapStateToProps = (state: ReduxState) => ({
 
 const mapDispatchToProps = (dispatch: Dispatch<ReduxActions>) => {
   return {};
-}
+};
 
 export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(ApplicationsList));
