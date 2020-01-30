@@ -70,6 +70,22 @@ class DeviceDialog extends React.Component<Props, State> {
   };
 
   /**
+   * Component did update
+   */
+  public componentDidUpdate = (prevProps: Props, prevState: State) => {
+    if (prevProps.device !== this.props.device) {
+      const deviceMeta = this.convertArrayToObject((this.props.device && this.props.device.metas) || []);
+
+      this.setState({
+        deviceData: {
+          ...this.props.device
+        },
+        deviceMeta: deviceMeta
+      });
+    }
+  };
+
+  /**
    * Component render method
    */
   public render() {

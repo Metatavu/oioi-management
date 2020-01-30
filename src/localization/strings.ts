@@ -13,6 +13,7 @@ export interface IStrings extends LocalizedStringsMethods {
   confirm: string;
   customers: string;
   customerLogo: string;
+  customerInformation: string;
   delete: string;
   details: string;
   devices: string;
@@ -21,6 +22,7 @@ export interface IStrings extends LocalizedStringsMethods {
   dropFile: string;
   edit: string;
   editDevice: string;
+  editCustomer: string;
   deleteConfirmation: string;
   deleteSuccess: string;
   home: string;
