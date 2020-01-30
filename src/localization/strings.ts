@@ -17,10 +17,12 @@ export interface IStrings extends LocalizedStringsMethods {
   details: string;
   devices: string;
   deviceImage: string;
-  deleteConfirmation: string;
-  deleteSuccess: string;
+  deviceInformation: string;
   dropFile: string;
   edit: string;
+  editDevice: string;
+  deleteConfirmation: string;
+  deleteSuccess: string;
   home: string;
   image: string;
   informationOptional: string;

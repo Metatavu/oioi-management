@@ -23,9 +23,9 @@ interface Props extends WithStyles<typeof styles> {
 
 interface State {
   editorDialogOpen: boolean;
+  customers: Customer[];
   deleteDialogOpen: boolean;
   customerInDialog?: Customer;
-  customers: Customer[];
   snackbarOpen: boolean;
 }
 
@@ -71,7 +71,8 @@ class CustomersList extends React.Component<Props, State> {
   public render() {
     const { classes } = this.props;
     const { editorDialogOpen, deleteDialogOpen, customerInDialog, snackbarOpen } = this.state;
-    const cards = this.state.customers.map(customer => this.renderCard(customer));
+    const cards = this.state.customers.map((customer, index) => this.renderCard(customer, `${index}${customer.name}`));
+
     return (
       <Container maxWidth="xl" className="page-content">
         <Typography className={classes.heading} variant="h2">
@@ -101,12 +102,13 @@ class CustomersList extends React.Component<Props, State> {
   /**
    * Card render method
    */
-  private renderCard(customer: Customer) {
+  private renderCard(customer: Customer, key: string) {
     return (
-      <Grid item>
+      <Grid key={key} item>
         <CardItem
           title={customer.name}
           img={customer.image_url || img}
+          editConfiguration={() => this.onEditConfiguration(customer)}
           editClick={() => this.onEditCustomerClick(customer)}
           detailsClick={() => this.onEditCustomerClick(customer)}
           deleteClick={() => this.onDeleteOpenModalClick(customer)}
@@ -131,6 +133,10 @@ class CustomersList extends React.Component<Props, State> {
     );
   }
 
+  private onEditConfiguration = (customer: Customer) => {
+    this.props.history.push(`/${customer.id}/devices`);
+  };
+
   /**
    * Edit customer method
    */
@@ -151,9 +157,9 @@ class CustomersList extends React.Component<Props, State> {
     await customersApi.deleteCustomer({ customer_id: customer.id });
     const { customers } = this.state;
     this.setState({
+      customers: customers.filter(c => c.id !== customer.id),
       snackbarOpen: true,
-      deleteDialogOpen: false,
-      customers: customers.filter(c => c.id !== customer.id)
+      deleteDialogOpen: false
     });
   };
 

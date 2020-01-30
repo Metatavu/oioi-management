@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import * as React from "react";
 import { Container, Typography, Grid, Card, withStyles, WithStyles, CardActionArea, Snackbar } from "@material-ui/core";
 import img from "../../resources/images/infowall.png";
@@ -81,7 +82,7 @@ class ApplicationsList extends React.Component<Props, State> {
   public render() {
     const { classes } = this.props;
     const { customer, device, applications, deleteDialogOpen, applicationInDialog, snackbarOpen } = this.state;
-    const cards = applications.map(application => this.renderCard(application));
+    const cards = applications.map((application, index) => this.renderCard(application, `${index}${application.name}`));
     return (
       <Container maxWidth="xl" className="page-content">
         <Typography className={classes.heading} variant="h2">
@@ -110,12 +111,13 @@ class ApplicationsList extends React.Component<Props, State> {
   /**
    * Card render method
    */
-  private renderCard(application: Application) {
+  private renderCard(application: Application, key: string) {
     return (
       <Grid item>
         <CardItem
           title={application.name}
           img={img}
+          editConfiguration={() => this.onEditConfiguration(application)}
           editClick={() => this.onEditApplicationClick(application)}
           detailsClick={() => this.onEditApplicationClick(application)}
           deleteClick={() => this.onDeleteOpenModalClick(application)}
@@ -139,6 +141,11 @@ class ApplicationsList extends React.Component<Props, State> {
       </Grid>
     );
   }
+
+  private onEditConfiguration = (application: Application) => {
+    const { customerId, deviceId } = this.props;
+    this.props.history.push(`/${customerId}/devices/${deviceId}/applications/${application.id}`);
+  };
 
   /**
    * Edit application click
