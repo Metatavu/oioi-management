@@ -65,13 +65,26 @@ class CustomerDialog extends React.Component<Props, State> {
   };
 
   /**
+   * Component did update
+   */
+  public componentDidUpdate = (prevProps: Props, prevState: State) => {
+    if (prevProps.customer !== this.props.customer) {
+      this.setState({
+        customerData: {
+          ...this.props.customer
+        }
+      });
+    }
+  };
+
+  /**
    * Component render method
    */
   public render() {
     const { classes, dialogType } = this.props;
 
     return (
-      <Dialog fullScreen={false} open={true} onClose={this.props.handleClose} aria-labelledby="dialog-title">
+      <Dialog fullScreen={false} open={this.props.open} onClose={this.props.handleClose} aria-labelledby="dialog-title">
         <DialogTitle id="dialog-title">
           <div>
             <Typography variant="h2">{this.renderDialogTitle(dialogType)}</Typography>

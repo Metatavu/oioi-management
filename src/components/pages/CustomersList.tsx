@@ -91,15 +91,13 @@ class CustomersList extends React.Component<Props, State> {
           {cards}
           {this.renderAddCustomer()}
         </Grid>
-        {editorDialogOpen && (
-          <CustomerDialog
-            open={editorDialogOpen}
-            customer={customerInDialog}
-            dialogType={dialogType}
-            saveClick={this.onSaveOrUpdateCustomerClick}
-            handleClose={this.onDialogCloseClick}
-          />
-        )}
+        <CustomerDialog
+          open={editorDialogOpen}
+          customer={customerInDialog}
+          dialogType={dialogType}
+          saveClick={this.onSaveOrUpdateCustomerClick}
+          handleClose={this.onDialogCloseClick}
+        />
 
         <DeleteDialog
           open={deleteDialogOpen}

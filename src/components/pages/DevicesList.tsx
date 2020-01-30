@@ -106,15 +106,13 @@ class DevicesList extends React.Component<Props, State> {
           {cards}
           {this.renderAdd()}
         </Grid>
-        {editorDialogOpen && (
-          <DeviceDialog
-            open={true}
-            device={deviceInDialog}
-            dialogType={dialogType}
-            saveClick={this.onSaveOrUpdateDeviceClick}
-            handleClose={this.onDialogCloseClick}
-          />
-        )}
+        <DeviceDialog
+          open={editorDialogOpen}
+          device={deviceInDialog}
+          dialogType={dialogType}
+          saveClick={this.onSaveOrUpdateDeviceClick}
+          handleClose={this.onDialogCloseClick}
+        />
         <DeleteDialog
           open={deleteDialogOpen}
           deleteClick={this.onDeleteDeviceClick}
