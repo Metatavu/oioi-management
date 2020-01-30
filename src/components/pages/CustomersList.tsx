@@ -5,7 +5,7 @@ import AddIcon from "@material-ui/icons/AddCircle";
 import styles from "../../styles/card-item";
 import { History } from "history";
 import CardItem from "../generic/CardItem";
-import AddCustomerDialog from "../generic/AddCustomerDialog";
+import CustomerDialog from "../generic/CustomerDialog";
 import { AuthState } from "../../types";
 import { Dispatch } from "redux";
 import { ReduxActions, ReduxState } from "../../store";
@@ -15,9 +15,16 @@ import ApiUtils from "../../utils/ApiUtils";
 import strings from "../../localization/strings";
 import DeleteDialog from "../generic/DeleteDialog";
 import { Alert } from "@material-ui/lab";
+import { DialogType } from "../../types/index";
 
 interface Props extends WithStyles<typeof styles> {
+  /**
+   * Props history
+   */
   history: History;
+  /**
+   * Auth
+   */
   auth: AuthState;
 }
 
@@ -27,6 +34,7 @@ interface State {
   deleteDialogOpen: boolean;
   customerInDialog?: Customer;
   snackbarOpen: boolean;
+  dialogType: DialogType;
 }
 
 /**
@@ -45,7 +53,8 @@ class CustomersList extends React.Component<Props, State> {
       deleteDialogOpen: false,
       snackbarOpen: false,
       customerInDialog: undefined,
-      customers: []
+      customers: [],
+      dialogType: "new"
     };
   }
 
@@ -70,7 +79,7 @@ class CustomersList extends React.Component<Props, State> {
    */
   public render() {
     const { classes } = this.props;
-    const { editorDialogOpen, deleteDialogOpen, customerInDialog, snackbarOpen } = this.state;
+    const { editorDialogOpen, deleteDialogOpen, customerInDialog, snackbarOpen, dialogType } = this.state;
     const cards = this.state.customers.map((customer, index) => this.renderCard(customer, `${index}${customer.name}`));
 
     return (
@@ -82,7 +91,16 @@ class CustomersList extends React.Component<Props, State> {
           {cards}
           {this.renderAddCustomer()}
         </Grid>
-        <AddCustomerDialog open={editorDialogOpen} saveClick={this.onSaveCustomerClick} handleClose={this.onDialogCloseClick} />
+        {editorDialogOpen && (
+          <CustomerDialog
+            open={editorDialogOpen}
+            customer={customerInDialog}
+            dialogType={dialogType}
+            saveClick={this.onSaveOrUpdateCustomerClick}
+            handleClose={this.onDialogCloseClick}
+          />
+        )}
+
         <DeleteDialog
           open={deleteDialogOpen}
           deleteClick={this.onDeleteCustomerClick}
@@ -108,9 +126,9 @@ class CustomersList extends React.Component<Props, State> {
         <CardItem
           title={customer.name}
           img={customer.image_url || img}
-          editConfiguration={() => this.onEditConfiguration(customer)}
+          editConfiguration={() => this.onEditCustomerConfigurationClick(customer)}
           editClick={() => this.onEditCustomerClick(customer)}
-          detailsClick={() => this.onEditCustomerClick(customer)}
+          detailsClick={() => this.onCustomerDetailsClick(customer)}
           deleteClick={() => this.onDeleteOpenModalClick(customer)}
         ></CardItem>
       </Grid>
@@ -133,19 +151,61 @@ class CustomersList extends React.Component<Props, State> {
     );
   }
 
-  private onEditConfiguration = (customer: Customer) => {
+  /**
+   * Handles save or update on customer modal component
+   * @param customer
+   * @param dialogType
+   */
+  private onSaveOrUpdateCustomerClick = async (customer: Customer, dialogType: DialogType) => {
+    switch (dialogType) {
+      case "new":
+        this.saveCustomer(customer);
+        break;
+      case "edit":
+        if (customer.id) {
+          this.updateCustomer(customer, customer.id);
+        }
+        break;
+      default:
+        break;
+    }
+  };
+
+  /**
+   * Handles edit customer configuration
+   * @param customer
+   */
+  private onEditCustomerConfigurationClick = (customer: Customer) => {
     this.props.history.push(`/${customer.id}/devices`);
   };
 
   /**
    * Edit customer method
+   * @param customer
    */
   private onEditCustomerClick = (customer: Customer) => {
-    this.props.history.push(`/${customer.id}/devices`);
+    this.setState({
+      dialogType: "edit",
+      editorDialogOpen: true,
+      customerInDialog: customer
+    });
+  };
+
+  /**
+   * Handles customer details click
+   * @param customer
+   */
+  private onCustomerDetailsClick = (customer: Customer) => {
+    this.setState({
+      dialogType: "show",
+      editorDialogOpen: true,
+      customerInDialog: customer
+    });
   };
 
   /**
    * Delete customer method
+   * @param customer
    */
   private onDeleteCustomerClick = async (customer: Customer) => {
     const { auth } = this.props;
@@ -165,6 +225,7 @@ class CustomersList extends React.Component<Props, State> {
 
   /**
    * Delete open modal click
+   * @param customer
    */
   private onDeleteOpenModalClick = (customer: Customer) => {
     this.setState({
@@ -182,8 +243,9 @@ class CustomersList extends React.Component<Props, State> {
 
   /**
    * Save customer method
+   * @param customer
    */
-  private onSaveCustomerClick = async (customer: Customer) => {
+  private saveCustomer = async (customer: Customer) => {
     const { auth } = this.props;
     if (!auth || !auth.token) {
       return;
@@ -200,7 +262,36 @@ class CustomersList extends React.Component<Props, State> {
   };
 
   /**
+   * Updates customer method
+   * @param customer
+   * @param id
+   */
+  private updateCustomer = async (customer: Customer, id: string) => {
+    const { auth } = this.props;
+    if (!auth || !auth.token) {
+      return;
+    }
+
+    const customersApi = ApiUtils.getCustomersApi(auth.token);
+    const updateCustomer = await customersApi.updateCustomer({
+      customer_id: id,
+      customer: customer
+    });
+
+    const { customers } = this.state;
+    const updateCustomerList = [...customers].filter(cus => cus.id !== id);
+    updateCustomerList.push(updateCustomer);
+
+    this.setState({
+      customers: updateCustomerList,
+      editorDialogOpen: false
+    });
+  };
+
+  /**
    * Snack bar close click
+   * @param event
+   * @param reason
    */
   private onSnackbarClose = (event?: React.SyntheticEvent, reason?: string) => {
     if (reason === "clickaway") {

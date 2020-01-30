@@ -106,7 +106,7 @@ class DevicesList extends React.Component<Props, State> {
           {cards}
           {this.renderAdd()}
         </Grid>
-        {this.state.editorDialogOpen && (
+        {editorDialogOpen && (
           <DeviceDialog
             open={true}
             device={deviceInDialog}
@@ -167,6 +167,7 @@ class DevicesList extends React.Component<Props, State> {
 
   /**
    * Edit device configuration method
+   * @param device
    */
   private onEditDeviceConfigurationClick = (device: Device) => {
     const { customerId } = this.props;
@@ -175,6 +176,7 @@ class DevicesList extends React.Component<Props, State> {
 
   /**
    * Edit device method
+   * @param device
    */
   private onEditDeviceClick = (device: Device) => {
     this.setState({
@@ -186,6 +188,7 @@ class DevicesList extends React.Component<Props, State> {
 
   /**
    * Show device details method
+   * @param device
    */
   private onDeviceDetailsClick = (device: Device) => {
     this.setState({
@@ -204,6 +207,7 @@ class DevicesList extends React.Component<Props, State> {
 
   /**
    * Delete open modal click
+   * @param device
    */
   private onDeleteOpenModalClick = (device: Device) => {
     this.setState({
@@ -214,6 +218,7 @@ class DevicesList extends React.Component<Props, State> {
 
   /**
    * Delete device method
+   * @param device
    */
   private onDeleteDeviceClick = async (device: Device) => {
     const { auth, customerId } = this.props;
@@ -236,7 +241,8 @@ class DevicesList extends React.Component<Props, State> {
 
   /**
    * Save device method
-   *
+   * @param device
+   * @param dialogType
    */
   private onSaveOrUpdateDeviceClick = async (device: Device, dialogType: DialogType) => {
     switch (dialogType) {
@@ -256,6 +262,7 @@ class DevicesList extends React.Component<Props, State> {
 
   /**
    * Save new device method
+   * @param device
    */
   private saveNewDevice = async (device: Device) => {
     const { auth, customerId } = this.props;
@@ -277,6 +284,8 @@ class DevicesList extends React.Component<Props, State> {
 
   /**
    * Updates device
+   * @param device
+   * @param id
    */
   private updateDevice = async (device: Device, id: string) => {
     const { auth, customerId } = this.props;
@@ -296,7 +305,7 @@ class DevicesList extends React.Component<Props, State> {
     /**
      * Creates updated list by removing old device from list and pushing updated device to list in stead
      */
-    const updateDeviceList = devices.filter(dev => dev.id !== id);
+    const updateDeviceList = [...devices].filter(dev => dev.id !== id);
     updateDeviceList.push(updatedDevice);
 
     this.setState({
@@ -304,8 +313,11 @@ class DevicesList extends React.Component<Props, State> {
       editorDialogOpen: false
     });
   };
-  /*
+
+  /**
    * Snack bar close click
+   * @param event
+   * @param reason
    */
   private onSnackbarClose = (event?: React.SyntheticEvent, reason?: string) => {
     if (reason === "clickaway") {
