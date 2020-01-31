@@ -104,9 +104,6 @@ class CustomerDialog extends React.Component<Props, State> {
     const { classes, dialogType } = this.props;
     const { isFormValid } = this.state.form;
 
-    console.log(this.props.customer);
-    console.log(this.props.dialogType);
-
     return (
       <Dialog fullScreen={false} open={this.props.open} onClose={this.props.handleClose} aria-labelledby="dialog-title">
         <DialogTitle id="dialog-title">
