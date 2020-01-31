@@ -236,7 +236,7 @@ class CustomersList extends React.Component<Props, State> {
    * Add customer method
    */
   private onAddCustomerClick = () => {
-    this.setState({ editorDialogOpen: true });
+    this.setState({ editorDialogOpen: true, dialogType: "new", customerInDialog: undefined });
   };
 
   /**
@@ -251,6 +251,7 @@ class CustomersList extends React.Component<Props, State> {
 
     const customersApi = ApiUtils.getCustomersApi(auth.token);
     const newCustomer = await customersApi.createCustomer({ customer: customer });
+
     const { customers } = this.state;
     customers.push(newCustomer);
     this.setState({
@@ -307,7 +308,7 @@ class CustomersList extends React.Component<Props, State> {
    * TODO: handle prompt if unsaved
    */
   private onDialogCloseClick = () => {
-    this.setState({ editorDialogOpen: false });
+    this.setState({ editorDialogOpen: false, customerInDialog: undefined });
   };
 
   /**

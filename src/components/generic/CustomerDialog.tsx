@@ -6,6 +6,7 @@ import { Customer } from "../../generated/client/src";
 import strings from "../../localization/strings";
 import FileUpload from "../../utils/FileUpload";
 import { DialogType } from "../../types/index";
+import { FormValidationRules, validateForm, Form, initForm, MessageType } from "ts-form-validation";
 
 interface Props extends WithStyles<typeof styles> {
   /**
@@ -33,8 +34,24 @@ interface Props extends WithStyles<typeof styles> {
   handleClose(): void;
 }
 
+interface CustomerForm extends Partial<Customer> {}
+
+const rules: FormValidationRules<CustomerForm> = {
+  fields: {
+    name: {
+      required: true,
+      trim: true,
+      requiredText: strings.requiredField
+    }
+  },
+  validateForm: form => {
+    const messages = {};
+    return { ...form, messages };
+  }
+};
+
 interface State {
-  customerData: Partial<Customer>;
+  form: Form<CustomerForm>;
 }
 
 /**
@@ -49,30 +66,33 @@ class CustomerDialog extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = {
-      customerData: {}
+      form: initForm<CustomerForm>(
+        {
+          name: props.customer ? props.customer.name : "",
+          ...props.customer
+        },
+        rules
+      )
     };
   }
-
-  /**
-   * Component did mount
-   */
-  public componentDidMount = () => {
-    this.setState({
-      customerData: {
-        ...this.props.customer
-      }
-    });
-  };
 
   /**
    * Component did update
    */
   public componentDidUpdate = (prevProps: Props, prevState: State) => {
     if (prevProps.customer !== this.props.customer) {
-      this.setState({
-        customerData: {
+      let form = initForm<CustomerForm>(
+        {
+          name: this.props.customer ? this.props.customer.name : "",
           ...this.props.customer
-        }
+        },
+        rules
+      );
+
+      form = validateForm(form);
+
+      this.setState({
+        form
       });
     }
   };
@@ -82,6 +102,10 @@ class CustomerDialog extends React.Component<Props, State> {
    */
   public render() {
     const { classes, dialogType } = this.props;
+    const { isFormValid } = this.state.form;
+
+    console.log(this.props.customer);
+    console.log(this.props.dialogType);
 
     return (
       <Dialog fullScreen={false} open={this.props.open} onClose={this.props.handleClose} aria-labelledby="dialog-title">
@@ -94,15 +118,7 @@ class CustomerDialog extends React.Component<Props, State> {
         <DialogContent>
           <Grid container spacing={2}>
             <Grid item className={classes.fullWidth}>
-              <TextField
-                fullWidth
-                variant="outlined"
-                value={this.state.customerData.name || ""}
-                onChange={this.onDataChange}
-                name="name"
-                label={strings.name}
-                disabled={dialogType === "show"}
-              />
+              {this.renderField("name", strings.name)}
             </Grid>
             <Grid item className={classes.fullWidth}>
               {dialogType !== "show" && (
@@ -121,18 +137,44 @@ class CustomerDialog extends React.Component<Props, State> {
         </DialogContent>
         <Divider />
         <DialogActions>
-          <Button variant="outlined" onClick={this.props.handleClose} color="primary">
+          <Button variant="outlined" onClick={this.onCloseClick} color="primary">
             {strings.cancel}
           </Button>
           {dialogType !== "show" && (
-            <Button variant="contained" onClick={this.onSave} color="primary" autoFocus>
-              {strings.save}
+            <Button variant="contained" onClick={this.onSave} color="primary" autoFocus disabled={!isFormValid}>
+              {dialogType === "edit" ? strings.update : strings.save}
             </Button>
           )}
         </DialogActions>
       </Dialog>
     );
   }
+
+  /**
+   * Renders textfield
+   */
+  private renderField = (key: keyof CustomerForm, label: string) => {
+    const { dialogType } = this.props;
+    const {
+      values,
+      messages: { [key]: message }
+    } = this.state.form;
+    return (
+      <TextField
+        multiline
+        fullWidth
+        error={message && message.type === MessageType.ERROR}
+        helperText={message && message.message}
+        value={values[key]}
+        onChange={this.onHandleChange(key)}
+        onBlur={this.onHandleBlur(key)}
+        name={key}
+        variant="outlined"
+        label={label}
+        disabled={dialogType === "show"}
+      />
+    );
+  };
 
   /**
    * Renders dialog title by type
@@ -156,22 +198,61 @@ class CustomerDialog extends React.Component<Props, State> {
   /**
    * Handles save button click
    */
-  private onSave = () => {
+  private onSave = async () => {
     const { saveClick, dialogType } = this.props;
-    const { customerData } = this.state;
+    const { values } = this.state.form;
 
-    saveClick(customerData as Customer, dialogType);
+    const customer = { ...values } as Customer;
+
+    await saveClick(customer, dialogType);
+
+    this.props.handleClose();
   };
 
   /**
-   * Handles data change
-   * @param e
+   * Handles textfields change events
+   * @param key
+   * @param event
    */
-  private onDataChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { customerData } = this.state;
+  private onHandleChange = (key: keyof CustomerForm) => (event: React.ChangeEvent<HTMLInputElement>) => {
+    const values = {
+      ...this.state.form.values,
+      [key]: event.target.value
+    };
+
+    const form = validateForm(
+      {
+        ...this.state.form,
+        values
+      },
+      {
+        usePreprocessor: false
+      }
+    );
 
     this.setState({
-      customerData: { ...customerData, [e.target.name]: e.target.value }
+      form
+    });
+  };
+
+  /**
+   * Handles fields blur event
+   * @param key
+   */
+  private onHandleBlur = (key: keyof CustomerForm) => () => {
+    let form = { ...this.state.form };
+    const filled = {
+      ...form.filled,
+      [key]: true
+    };
+
+    form = validateForm({
+      ...this.state.form,
+      filled
+    });
+
+    this.setState({
+      form
     });
   };
 
@@ -182,11 +263,33 @@ class CustomerDialog extends React.Component<Props, State> {
   private onImageChange = async (files: File[]) => {
     const file = files[0];
     const response = await FileUpload.uploadFile(file, "customerImages");
-    const { customerData } = this.state;
 
     this.setState({
-      customerData: { ...customerData, image_url: response.uri }
+      form: {
+        ...this.state.form,
+        values: {
+          ...this.state.form.values,
+          image_url: response.uri
+        }
+      }
     });
+  };
+
+  /**
+   * Handles close click and resets form values
+   */
+  private onCloseClick = () => {
+    this.setState(
+      {
+        form: initForm<CustomerForm>(
+          {
+            name: ""
+          },
+          rules
+        )
+      },
+      () => this.props.handleClose()
+    );
   };
 }
 
