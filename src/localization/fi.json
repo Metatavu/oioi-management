@@ -53,6 +53,8 @@
   "file": "Tiedosto",
   "page": "Sivu",
   "slideshow": "Slideshow",
+  "update": "Päivitä",
+  "requiredField": "Vaadittu kenttä",
   "intro": "Intro",
   "language": "Kieli",
   "menu": "Valikko"
