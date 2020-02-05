@@ -57,11 +57,6 @@ const rules: FormValidationRules<DeviceForm> = {
       required: true,
       trim: true,
       requiredText: strings.requiredField
-      /*       validate: (value?: string) =>
-        validator.isLength(value || "", { min: 1 }) || {
-          type: MessageType.ERROR,
-          message: "Liian lyhyt"
-        } */
     },
     serialnumber: {
       required: false
