@@ -7,7 +7,7 @@ import { History } from "history";
 import CardItem from "../generic/CardItem";
 import DeviceDialog from "../generic/DeviceDialog";
 import strings from "../../localization/strings";
-import { Device, Customer } from "../../generated/client/src";
+import { Device, Customer, Application } from "../../generated/client/src";
 import ApiUtils from "../../utils/ApiUtils";
 import { AuthState, DialogType } from "../../types";
 import { ReduxState, ReduxActions } from "../../store";
@@ -15,6 +15,9 @@ import { Dispatch } from "redux";
 import { connect } from "react-redux";
 import DeleteDialog from "../generic/DeleteDialog";
 import { Alert } from "@material-ui/lab";
+import { setDevice } from "../../actions/device";
+import { setApplications } from "../../actions/applications";
+import { setCustomer } from "../../actions/customer";
 
 /**
  * Component props
@@ -32,6 +35,9 @@ interface Props extends WithStyles<typeof styles> {
    * Auth
    */
   auth: AuthState;
+  setCustomer: typeof setCustomer;
+  setDevice: typeof setDevice;
+  setApplications: typeof setApplications;
 }
 
 /**
@@ -72,7 +78,7 @@ class DevicesList extends React.Component<Props, State> {
    * Component did mount
    */
   public componentDidMount = async () => {
-    const { auth, customerId } = this.props;
+    const { auth, customerId, setDevice, setApplications, setCustomer } = this.props;
     if (!auth || !auth.token) {
       return;
     }
@@ -88,6 +94,9 @@ class DevicesList extends React.Component<Props, State> {
       customer: customer,
       devices: devices
     });
+    setCustomer(customer);
+    setDevice({} as Device);
+    setApplications([{} as Application]);
   };
 
   /**
@@ -349,7 +358,11 @@ const mapStateToProps = (state: ReduxState) => ({
 });
 
 const mapDispatchToProps = (dispatch: Dispatch<ReduxActions>) => {
-  return {};
+  return {
+    setCustomer: (customer:Customer) => dispatch(setCustomer(customer)),
+    setDevice: (device:Device) => dispatch(setDevice(device)),
+    setApplications: (applications:Application[]) => dispatch(setApplications(applications))
+  };
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(DevicesList));

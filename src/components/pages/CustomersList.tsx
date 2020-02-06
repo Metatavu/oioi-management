@@ -10,12 +10,15 @@ import { AuthState } from "../../types";
 import { Dispatch } from "redux";
 import { ReduxActions, ReduxState } from "../../store";
 import { connect } from "react-redux";
-import { Customer } from "../../generated/client/src";
+import { Customer, Device, Application } from "../../generated/client/src";
 import ApiUtils from "../../utils/ApiUtils";
 import strings from "../../localization/strings";
 import DeleteDialog from "../generic/DeleteDialog";
 import { Alert } from "@material-ui/lab";
 import { DialogType } from "../../types/index";
+import { setCustomer } from "../../actions/customer";
+import { setDevice } from "../../actions/device";
+import { setApplications } from "../../actions/applications";
 
 interface Props extends WithStyles<typeof styles> {
   /**
@@ -26,6 +29,9 @@ interface Props extends WithStyles<typeof styles> {
    * Auth
    */
   auth: AuthState;
+  setCustomer: typeof setCustomer;
+  setDevice: typeof setDevice;
+  setApplications: typeof setApplications;
 }
 
 interface State {
@@ -62,7 +68,7 @@ class CustomersList extends React.Component<Props, State> {
    * Component did mount
    */
   public componentDidMount = async () => {
-    const { auth } = this.props;
+    const { auth, setCustomer, setDevice, setApplications } = this.props;
     if (!auth || !auth.token) {
       return;
     }
@@ -72,6 +78,9 @@ class CustomersList extends React.Component<Props, State> {
     this.setState({
       customers: customers
     });
+    setCustomer({} as Customer);
+    setDevice({} as Device);
+    setApplications([{} as Application]);
   };
 
   /**
@@ -323,7 +332,11 @@ const mapStateToProps = (state: ReduxState) => ({
 });
 
 const mapDispatchToProps = (dispatch: Dispatch<ReduxActions>) => {
-  return {};
+  return {
+    setCustomer: (customer:Customer) => dispatch(setCustomer(customer)),
+    setDevice: (device:Device) => dispatch(setDevice(device)),
+    setApplications: (applications:Application[]) => dispatch(setApplications(applications))
+  };
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(CustomersList));

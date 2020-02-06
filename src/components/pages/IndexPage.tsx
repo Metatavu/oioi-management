@@ -71,8 +71,14 @@ class IndexPage extends React.Component<Props, State> {
 
     return (
       <div className="wrapper">
+        <Route
+          path="/"
+          exact={false}
+          render={ ({ history }) => (
+            <BreadCrumb history={history} />
+          )}
+        />
         <Header></Header>
-        <BreadCrumb></BreadCrumb>
         <div>
           <Route
             path="/"

@@ -15,12 +15,18 @@ import { AuthState } from "../../types";
 import ApiUtils from "../../utils/ApiUtils";
 import DeleteDialog from "../generic/DeleteDialog";
 import { Alert } from "@material-ui/lab";
+import { setCustomer } from "../../actions/customer";
+import { setApplications } from "../../actions/applications";
+import { setDevice } from "../../actions/device";
 
 interface Props extends WithStyles<typeof styles> {
   history: History;
   customerId: string;
   deviceId: string;
   auth: AuthState;
+  setCustomer: typeof setCustomer;
+  setDevice: typeof setDevice;
+  setApplications: typeof setApplications;
 }
 
 interface State {
@@ -55,7 +61,7 @@ class ApplicationsList extends React.Component<Props, State> {
    * Component did mount
    */
   public componentDidMount = async () => {
-    const { auth, customerId, deviceId } = this.props;
+    const { auth, customerId, deviceId, setApplications, setDevice, setCustomer } = this.props;
     if (!auth || !auth.token) {
       return;
     }
@@ -74,6 +80,9 @@ class ApplicationsList extends React.Component<Props, State> {
       device: device,
       applications: applications
     });
+    setCustomer(customer);
+    setDevice(device);
+    setApplications([{} as Application]);
   };
 
   /**
@@ -82,6 +91,7 @@ class ApplicationsList extends React.Component<Props, State> {
   public render() {
     const { classes } = this.props;
     const { customer, device, applications, deleteDialogOpen, applicationInDialog, snackbarOpen } = this.state;
+    console.log(customer);
     const cards = applications.map((application, index) => this.renderCard(application, `${index}${application.name}`));
     return (
       <Container maxWidth="xl" className="page-content">
@@ -235,11 +245,15 @@ class ApplicationsList extends React.Component<Props, State> {
 }
 
 const mapStateToProps = (state: ReduxState) => ({
-  auth: state.auth
+  auth: state.auth,
 });
 
 const mapDispatchToProps = (dispatch: Dispatch<ReduxActions>) => {
-  return {};
+  return {
+    setCustomer: (customer:Customer) => dispatch(setCustomer(customer)),
+    setDevice: (device:Device) => dispatch(setDevice(device)),
+    setApplications: (applications:Application[]) => dispatch(setApplications(applications))
+  };
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(ApplicationsList));
