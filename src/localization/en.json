@@ -53,6 +53,8 @@
   "file": "File",
   "page": "Page",
   "slideshow": "Slideshow",
+  "update": "Update",
+  "requiredField": "Required field",
   "intro": "Intro",
   "language": "Language",
   "menu": "Menu"
