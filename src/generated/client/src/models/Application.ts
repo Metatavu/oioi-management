@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 // tslint:disable
 // eslint-disable
 /**
