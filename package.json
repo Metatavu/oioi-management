@@ -26,7 +26,6 @@
     "redux-devtools-extension": "^2.13.8",
     "typescript": "3.6.4",
     "ts-form-validation": "^2.0.3",
-    "typescript": "3.6.4",
     "validator": "^12.2.0"
   },
   "scripts": {
