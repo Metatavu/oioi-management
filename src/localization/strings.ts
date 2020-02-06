@@ -51,6 +51,7 @@ export interface IStrings extends LocalizedStringsMethods {
   properties: string;
   pdf: string;
   text: string;
+  update: string;
   video: string;
   file: string;
   page: string;
@@ -58,6 +59,7 @@ export interface IStrings extends LocalizedStringsMethods {
   intro: string;
   language: string;
   menu: string;
+  requiredField: string;
 }
 
 const strings: IStrings = new LocalizedStrings({

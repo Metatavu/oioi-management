@@ -276,11 +276,13 @@ class DevicesList extends React.Component<Props, State> {
     if (!auth || !auth.token) {
       return;
     }
+
     const devicesApi = ApiUtils.getDevicesApi(auth.token);
     const newDevice = await devicesApi.createDevice({
       customer_id: customerId,
       device: device
     });
+
     const { devices } = this.state;
     devices.push(newDevice);
     this.setState({
@@ -301,6 +303,7 @@ class DevicesList extends React.Component<Props, State> {
     }
 
     const devicesApi = ApiUtils.getDevicesApi(auth.token);
+
     const updatedDevice = await devicesApi.updateDevice({
       device_id: id,
       customer_id: customerId,
@@ -342,7 +345,7 @@ class DevicesList extends React.Component<Props, State> {
    * TODO: handle prompt if unsaved
    */
   private onDialogCloseClick = () => {
-    this.setState({ editorDialogOpen: false });
+    this.setState({ editorDialogOpen: false, deviceInDialog: undefined });
   };
 
   /**
