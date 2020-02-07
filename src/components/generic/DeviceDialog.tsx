@@ -47,6 +47,9 @@ interface DeviceForm extends Partial<Device> {
   additionalinformation: any;
 }
 
+/**
+ * Specifies each fields validation rules
+ */
 const rules: FormValidationRules<DeviceForm> = {
   fields: {
     name: {
