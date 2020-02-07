@@ -20,6 +20,9 @@ import strings from "../../localization/strings";
 import { Resource, ResourceType } from "../../generated/client/src";
 import { FormValidationRules, validateForm, Form, initForm, MessageType } from "ts-form-validation";
 
+/**
+ * Component props
+ */
 interface Props extends WithStyles<typeof styles> {
   /**
    * Dialog open state
@@ -39,6 +42,9 @@ interface Props extends WithStyles<typeof styles> {
   handleClose(): void;
 }
 
+/**
+ * Form validation interface
+ */
 interface AddResourceForm extends Partial<Resource> {}
 
 const rules: FormValidationRules<AddResourceForm> = {
@@ -69,11 +75,17 @@ const rules: FormValidationRules<AddResourceForm> = {
   }
 };
 
+/**
+ * Component state
+ */
 interface State {
   form: Form<AddResourceForm>;
   resourceType: ResourceType;
 }
 
+/**
+ * Creates Add resource dialog
+ */
 class AddResourceDialog extends React.Component<Props, State> {
   /**
    * Constructor
