@@ -6,12 +6,15 @@ import strings from "../../localization/strings";
 import { Device } from "../../generated/client/src";
 import { DialogType } from "../../types";
 import { KeyValueProperty } from "../../generated/client/src/models/KeyValueProperty";
-import { FormValidationRules, MessageType, validateForm, initForm, Form, formHaveMessagesOfType } from "ts-form-validation";
-import validator from "validator";
+import { FormValidationRules, MessageType, validateForm, initForm, Form } from "ts-form-validation";
+import FileUpload from "../../utils/FileUpload";
 
+/**
+ * Component props
+ */
 interface Props extends WithStyles<typeof styles> {
   /**
-   * Dialog open state
+   * Dialog open
    */
   open: boolean;
 
@@ -35,12 +38,18 @@ interface Props extends WithStyles<typeof styles> {
   handleClose(): void;
 }
 
+/**
+ * Device form interface
+ */
 interface DeviceForm extends Partial<Device> {
   address: any;
   serialnumber: any;
   additionalinformation: any;
 }
 
+/**
+ * Specifies each fields validation rules
+ */
 const rules: FormValidationRules<DeviceForm> = {
   fields: {
     name: {
@@ -72,8 +81,12 @@ const rules: FormValidationRules<DeviceForm> = {
   }
 };
 
+/**
+ * Component state
+ */
 interface State {
   form: Form<DeviceForm>;
+  image_url?: string;
 }
 
 /**
@@ -97,7 +110,7 @@ class DeviceDialog extends React.Component<Props, State> {
           api_key: props.device ? props.device.api_key : "",
           address: deviceMeta["address"] || "",
           serialnumber: deviceMeta["serialnumber"] || "",
-          additionalinformation: deviceMeta["address"] || "",
+          additionalinformation: deviceMeta["additionalinformation"] || "",
           ...props.device
         },
         rules
@@ -118,7 +131,7 @@ class DeviceDialog extends React.Component<Props, State> {
           api_key: this.props.device ? this.props.device.api_key : "",
           address: deviceMeta["address"] || "",
           serialnumber: deviceMeta["serialnumber"] || "",
-          additionalinformation: deviceMeta["address"] || "",
+          additionalinformation: deviceMeta["additionalinformation"] || "",
           ...this.props.device
         },
         rules
@@ -172,7 +185,7 @@ class DeviceDialog extends React.Component<Props, State> {
                     dropzoneClass={classes.dropzone}
                     dropzoneParagraphClass={classes.dropzoneText}
                     dropzoneText={strings.dropFile}
-                    /* onChange={this.onImageChange} */
+                    onChange={this.onImageChange}
                   />
                 </>
               )}
@@ -243,6 +256,7 @@ class DeviceDialog extends React.Component<Props, State> {
    */
   private onSave = () => {
     const { saveClick, dialogType } = this.props;
+    const { image_url } = this.state;
     const { values } = this.state.form;
 
     const valuesTypeAny: any = { ...values };
@@ -258,7 +272,8 @@ class DeviceDialog extends React.Component<Props, State> {
       })
       .filter(meta => meta["value"].length !== 0);
 
-    const device = { ...values, metas } as Device;
+    const device = { ...values, metas, image_url } as Device;
+
     saveClick(device, dialogType);
 
     this.setState(
@@ -272,7 +287,8 @@ class DeviceDialog extends React.Component<Props, State> {
             additionalinformation: ""
           },
           rules
-        )
+        ),
+        image_url: undefined
       },
       () => this.props.handleClose()
     );
@@ -340,7 +356,8 @@ class DeviceDialog extends React.Component<Props, State> {
             additionalinformation: ""
           },
           rules
-        )
+        ),
+        image_url: undefined
       },
       () => this.props.handleClose()
     );
@@ -359,16 +376,14 @@ class DeviceDialog extends React.Component<Props, State> {
    * TODO: Handling device form image changes
    *
    */
-  /* private onImageChange = async (files: File[]) => {
+  private onImageChange = async (files: File[]) => {
     const file = files[0];
-    const response = await FileUpload.uploadFile(file, "customerImages");
-    const { deviceData } = this.state;
-    deviceData["imageUrl"] = response.uri;
+    const response = await FileUpload.uploadFile(file, "deviceImages");
 
     this.setState({
-      deviceData: deviceData
+      image_url: response.uri
     });
-  }; */
+  };
 }
 
 export default withStyles(styles)(DeviceDialog);
