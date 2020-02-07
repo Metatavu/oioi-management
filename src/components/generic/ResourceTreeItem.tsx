@@ -56,6 +56,14 @@ class ResourceTreeItemClass extends React.Component<Props, State> {
     };
   }
 
+  public componentDidUpdate(prevProps: Props, prevState: State) {
+    if (prevProps !== this.props) {
+      this.setState({
+        resource: this.props.resource
+      });
+    }
+  }
+
   /**
    * Component render method
    */
