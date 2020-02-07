@@ -9,6 +9,9 @@ import { KeyValueProperty } from "../../generated/client/src/models/KeyValueProp
 import { FormValidationRules, MessageType, validateForm, initForm, Form } from "ts-form-validation";
 import FileUpload from "../../utils/FileUpload";
 
+/**
+ * Component props
+ */
 interface Props extends WithStyles<typeof styles> {
   /**
    * Dialog open state
@@ -35,6 +38,9 @@ interface Props extends WithStyles<typeof styles> {
   handleClose(): void;
 }
 
+/**
+ * Device form interface
+ */
 interface DeviceForm extends Partial<Device> {
   address: any;
   serialnumber: any;
@@ -72,6 +78,9 @@ const rules: FormValidationRules<DeviceForm> = {
   }
 };
 
+/**
+ * Component state
+ */
 interface State {
   form: Form<DeviceForm>;
   image_url?: string;
