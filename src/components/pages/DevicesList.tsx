@@ -1,6 +1,5 @@
 import * as React from "react";
 import { Container, Typography, Grid, Card, withStyles, WithStyles, CardActionArea, Snackbar } from "@material-ui/core";
-import img from "../../resources/images/macmini.png";
 import AddIcon from "@material-ui/icons/AddCircle";
 import styles from "../../styles/card-item";
 import { History } from "history";
@@ -97,6 +96,7 @@ class DevicesList extends React.Component<Props, State> {
     const { classes } = this.props;
     const { customer, deviceInDialog, dialogType, editorDialogOpen, deleteDialogOpen, snackbarOpen } = this.state;
     const cards = this.state.devices.map((device: Device, index) => this.renderCard(device, `${index}${device.name}`));
+
     return (
       <Container maxWidth="xl" className="page-content">
         <Typography className={classes.heading} variant="h2">
@@ -137,7 +137,7 @@ class DevicesList extends React.Component<Props, State> {
       <Grid key={key} item>
         <CardItem
           title={device.name}
-          img={img}
+          img={device.image_url}
           editConfiguration={() => this.onEditDeviceConfigurationClick(device)}
           editClick={() => this.onEditDeviceClick(device)}
           detailsClick={() => this.onDeviceDetailsClick(device)}
