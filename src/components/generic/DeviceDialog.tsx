@@ -14,7 +14,7 @@ import FileUpload from "../../utils/FileUpload";
  */
 interface Props extends WithStyles<typeof styles> {
   /**
-   * Dialog open state
+   * Dialog open
    */
   open: boolean;
 
