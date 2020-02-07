@@ -47,6 +47,9 @@ interface Props extends WithStyles<typeof styles> {
  */
 interface AddResourceForm extends Partial<Resource> {}
 
+/**
+ * Specifies each field with validation rules
+ */
 const rules: FormValidationRules<AddResourceForm> = {
   fields: {
     name: {
