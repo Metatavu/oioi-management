@@ -334,6 +334,8 @@ class ApplicationEditor extends React.Component<Props, State> {
    */
   private onUpdateResource = async (resource: Resource) => {
     const { auth, customerId, deviceId, applicationId } = this.props;
+    const { rootResources } = this.state;
+
     const resourceId = resource.id;
 
     if (!auth || !auth.token || !resourceId) {
@@ -343,7 +345,12 @@ class ApplicationEditor extends React.Component<Props, State> {
     const resourcesApi = ApiUtils.getResourcesApi(auth.token);
     const updatedResource = await resourcesApi.updateResource({ resource: resource, customer_id: customerId, device_id: deviceId, application_id: applicationId, resource_id: resourceId });
 
+    
+    const updatedRootResourceList: Resource[] = [...rootResources].filter(rootResource => rootResource.id !== resource.id);
+    updatedRootResourceList.push(updatedResource);
+
     this.setState({
+      rootResources: updatedRootResourceList,
       openedResource: updatedResource
     });
   }

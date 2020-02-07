@@ -22,6 +22,9 @@ const addIconPath = (
   <path d="M13 7h-2v4H7v2h4v4h2v-4h4v-2h-4V7zm-1-5C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z" />
 );
 
+/**
+ * Component props
+ */
 interface Props extends WithStyles<typeof styles> {
   customerId: string;
   deviceId: string;
@@ -34,6 +37,9 @@ interface Props extends WithStyles<typeof styles> {
   onDelete: (resourceId: string) => void;
 }
 
+/**
+ * Component state
+ */
 interface State {
   open: boolean;
   resource: Resource;
@@ -54,6 +60,19 @@ class ResourceTreeItemClass extends React.Component<Props, State> {
       resource: this.props.resource,
       childResources: []
     };
+  }
+
+  /**
+   * Component did update
+   * @param prevProps
+   * @param prevState
+   */
+  public componentDidUpdate(prevProps: Props, prevState: State) {
+    if (prevProps !== this.props) {
+      this.setState({
+        resource: this.props.resource
+      });
+    }
   }
 
   /**
@@ -121,6 +140,9 @@ class ResourceTreeItemClass extends React.Component<Props, State> {
     }
   }
 
+  /**
+   * Child delete method
+   */
   private onChildDelete = (childResourceId: string) => {
     const { childResources } = this.state;
     this.setState({
@@ -128,6 +150,9 @@ class ResourceTreeItemClass extends React.Component<Props, State> {
     });
   };
 
+  /**
+   * Delete method
+   */
   private onDelete = async () => {
     const { auth, customerId, deviceId, applicationId, resource } = this.props;
     const resourceId = resource.id;
