@@ -56,12 +56,23 @@ class ResourceTreeItemClass extends React.Component<Props, State> {
     };
   }
 
+  public componentDidUpdate(prevProps: Props, prevState: State) {
+    if (prevProps !== this.props) {
+      this.setState({
+        resource: this.props.resource
+      });
+    }
+  }
+
   /**
    * Component render method
    */
   public render() {
     const { classes } = this.props;
     const { resource, childResources } = this.state;
+
+    console.log(resource);
+
     const treeItemStyles = {
       iconContainer: classes.treeIconContainer,
       group: classes.treeGroup,
@@ -83,24 +94,22 @@ class ResourceTreeItemClass extends React.Component<Props, State> {
 
     if (this.isAllowedChildren()) {
       return (
-        <div>
-          <TreeItem
-            classes={treeItemStyles}
-            TransitionComponent={TransitionComponent}
-            icon={icon}
-            nodeId={resource.id}
-            label={
-              <div>
-                {this.state.resource.name}
-                <DeleteIcon onClick={() => this.onDelete()} />
-              </div>
-            }
-            onClick={this.onTreeItemClick}
-          >
-            {this.state.childResources !== [] && childTreeItems}
-            {this.renderAdd()}
-          </TreeItem>
-        </div>
+        <TreeItem
+          classes={treeItemStyles}
+          TransitionComponent={TransitionComponent}
+          icon={icon}
+          nodeId={resource.id}
+          label={
+            <div>
+              {this.state.resource.name}
+              <DeleteIcon onClick={() => this.onDelete()} />
+            </div>
+          }
+          onClick={this.onTreeItemClick}
+        >
+          {this.state.childResources !== [] && childTreeItems}
+          {this.renderAdd()}
+        </TreeItem>
       );
     } else {
       return (
