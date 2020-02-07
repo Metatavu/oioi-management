@@ -115,6 +115,11 @@ const mapStateToProps = (state: ReduxState) => ({
   applications: state.applications
 });
 
+/**
+ * Function for declaring dispatch functions
+ * 
+ * @param dispatch
+ */
 const mapDispatchToProps = (dispatch: Dispatch<ReduxActions>) => {
   return {};
 };
