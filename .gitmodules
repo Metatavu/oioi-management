@@ -1,0 +1,3 @@
+[submodule "oioi-cm-api-spec"]
+	path = oioi-cm-api-spec
+	url = git@github.com:Metatavu/oioi-cm-api-spec.git

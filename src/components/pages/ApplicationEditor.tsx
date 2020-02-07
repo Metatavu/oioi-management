@@ -354,6 +354,8 @@ class ApplicationEditor extends React.Component<Props, State> {
    */
   private onUpdateResource = async (resource: Resource) => {
     const { auth, customerId, deviceId, applicationId, resources, updateResources } = this.props;
+    const { rootResources } = this.state;
+
     const resourceId = resource.id;
 
     if (!auth || !auth.token || !resourceId) {
@@ -369,12 +371,10 @@ class ApplicationEditor extends React.Component<Props, State> {
       resource_id: resourceId
     });
 
-    const resourceList: Resource[] = [...resources];
-    const foundDeprecatedResourceIndex = resources.findIndex(item => item.id === resource.id);
+    const updatedRootResourceList: Resource[] = [...resources].filter(rootResource => rootResource.id !== resource.id);
+    updatedRootResourceList.push(updatedResource);
 
-    resourceList[foundDeprecatedResourceIndex] = updatedResource;
-
-    updateResources(resourceList);
+    updateResources(updatedRootResourceList);
 
     this.setState({
       openedResource: updatedResource
