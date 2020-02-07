@@ -13,17 +13,17 @@ export type LOGOUT = typeof LOGOUT;
 /**
  * Customer action type
  */
-export const SETCUSTOMER = "SETCUSTOMER";
-export type SETCUSTOMER = typeof SETCUSTOMER;
+export const SET_CUSTOMER = "SET_CUSTOMER";
+export type SET_CUSTOMER = typeof SET_CUSTOMER;
 
 /**
  * Device action type
  */
-export const SETDEVICE = "SETDEVICE";
-export type SETDEVICE = typeof SETDEVICE;
+export const SET_DEVICE = "SET_DEVICE";
+export type SET_DEVICE = typeof SET_DEVICE;
 
 /**
  * Customer action type
  */
-export const SETAPPLICATIONS = "SETAPPLICATIONS";
-export type SETAPPLICATIONS = typeof SETAPPLICATIONS;
+export const SET_APPLICATIONS = "SET_APPLICATIONS";
+export type SET_APPLICATIONS = typeof SET_APPLICATIONS;

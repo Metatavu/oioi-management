@@ -7,7 +7,7 @@ import styles from "../../styles/card-item";
 import { History } from "history";
 import CardItem from "../generic/CardItem";
 import strings from "../../localization/strings";
-import { Customer, Device, Application, ResourcesApi } from "../../generated/client/src";
+import { Customer, Device, Application } from "../../generated/client/src";
 import { ReduxState, ReduxActions } from "../../store";
 import { Dispatch } from "redux";
 import { connect } from "react-redux";
@@ -91,7 +91,6 @@ class ApplicationsList extends React.Component<Props, State> {
   public render() {
     const { classes } = this.props;
     const { customer, device, applications, deleteDialogOpen, applicationInDialog, snackbarOpen } = this.state;
-    console.log(customer);
     const cards = applications.map((application, index) => this.renderCard(application, `${index}${application.name}`));
     return (
       <Container maxWidth="xl" className="page-content">

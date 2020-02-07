@@ -2,17 +2,32 @@ import * as React from "react";
 import { Dispatch } from "redux";
 import { connect } from "react-redux";
 import { History } from "history";
-import { AuthState, CustomerState } from "../../types";
+import { AuthState } from "../../types";
 import strings from "../../localization/strings";
 import { ReduxState, ReduxActions } from "../../store";
 import { Customer, Device, Application } from "../../generated/client/src";
 import { Breadcrumbs, Link, createStyles, Theme, WithStyles, withStyles } from "@material-ui/core";
 
 interface Props extends WithStyles<typeof styles> {
+  /**
+   * Url locations history
+   */
   history: History;
+  /**
+   * State of authentication
+   */
   auth: AuthState;
+  /**
+   * Currently selected customer
+   */
   customer: Customer;
+  /**
+   * Currently selected device
+   */
   device: Device;
+  /**
+   * Currently selected applications
+   */
   applications:Application[]
 }
 
@@ -77,12 +92,22 @@ class BreadCrumb extends React.Component<Props, State> {
     );
   }
 
+  /**
+   * Handles clicks on breadcrumb
+   * 
+   * @param event mouse event
+   */
   private handleClick = (event: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
     event.preventDefault();
     this.props.history.replace("/" + event.currentTarget.href.split("/").splice(3).join("/"));
   }
 }
 
+/**
+ * Maps redux state to props
+ * 
+ * @param state redux state
+ */
 const mapStateToProps = (state: ReduxState) => ({
   auth: state.auth,
   customer: state.customer,
