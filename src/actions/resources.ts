@@ -2,21 +2,21 @@ import { ActionCreator } from "redux";
 import { Resource } from "../generated/client/src/models/Resource";
 import * as actionTypes from "../constants/actionTypes";
 
-export interface OpenAction {
+export interface OpenResourceAction {
   type: actionTypes.OPEN_RESOURCE;
   payload: {
     resource: Resource;
   };
 }
 
-export interface UpdateAction {
+export interface UpdateResourcesAction {
   type: actionTypes.UPDATE_RESOURCES;
   payload: {
     resources: Resource[];
   };
 }
 
-export const openResource: ActionCreator<OpenAction> = (resource: Resource) => {
+export const openResource: ActionCreator<OpenResourceAction> = (resource: Resource) => {
   return {
     type: actionTypes.OPEN_RESOURCE,
     payload: {
@@ -25,7 +25,7 @@ export const openResource: ActionCreator<OpenAction> = (resource: Resource) => {
   };
 };
 
-export const updateResources: ActionCreator<UpdateAction> = (resources: Resource[]) => {
+export const updateResources: ActionCreator<UpdateResourcesAction> = (resources: Resource[]) => {
   return {
     type: actionTypes.UPDATE_RESOURCES,
     payload: {
@@ -34,4 +34,4 @@ export const updateResources: ActionCreator<UpdateAction> = (resources: Resource
   };
 };
 
-export type ResourceAction = OpenAction | UpdateAction;
+export type ResourceAction = OpenResourceAction | UpdateResourcesAction;

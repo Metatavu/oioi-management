@@ -4,12 +4,12 @@ import { Reducer } from "redux";
 import { OPEN_RESOURCE, UPDATE_RESOURCES } from "../constants/actionTypes";
 
 export interface ResourceState {
-  resource?: Resource;
+  resourceOpen?: Resource;
   resources: Resource[];
 }
 
 const initialState: ResourceState = {
-  resource: undefined,
+  resourceOpen: undefined,
   resources: []
 };
 
@@ -18,7 +18,7 @@ export const resourcesReducer: Reducer<ResourceState, ResourceAction> = (state =
     case OPEN_RESOURCE: {
       return {
         ...state,
-        resource: action.payload.resource
+        resourceOpen: action.payload.resource
       };
     }
 

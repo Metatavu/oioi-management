@@ -37,8 +37,7 @@ import { Customer, Device, Application, Resource } from "../../generated/client/
 import ResourceTreeItem from "../generic/ResourceTreeItem";
 import AddResourceDialog from "../generic/AddResourceDialog";
 import ResourceSettingsView from "../views/ResourceSettingsView";
-import { updateResources } from "../../actions/resources";
-import { ResourceState } from "../../reducers/resources";
+import { updateResources, openResource } from "../../actions/resources";
 
 const addIconPath = (
   <path d="M13 7h-2v4H7v2h4v4h2v-4h4v-2h-4V7zm-1-5C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z" />
@@ -51,7 +50,9 @@ interface Props extends WithStyles<typeof styles> {
   applicationId: string;
   auth: AuthState;
   resources: Resource[];
+  openedResource?: Resource;
   updateResources: typeof updateResources;
+  openResource: typeof openResource;
 }
 
 interface State {
@@ -146,8 +147,6 @@ class ApplicationEditor extends React.Component<Props, State> {
   private renderResponsiveDrawer = () => {
     const { classes } = this.props;
 
-    console.log("PLÄÄÄ");
-
     return (
       <nav className={classes.drawer} aria-label="mailbox folders">
         <Drawer
@@ -224,29 +223,14 @@ class ApplicationEditor extends React.Component<Props, State> {
     );
   };
 
-  private onChildDelete = (childResourceId: string) => {
-    const { rootResources } = this.state;
-    this.setState({
-      rootResources: rootResources.filter(c => c.id !== childResourceId)
-    });
-  };
-
-  private onChildAddClick = (parentResourceId: string, afterSave: (resource: Resource) => void) => {
-    this.setState({
-      afterResourceSave: afterSave,
-      addResourceDialogOpen: true,
-      parentResourceId: parentResourceId
-    });
-  };
-
   /**
    * Render editor method
    */
   private renderEditor = () => {
-    const { classes, customerId } = this.props;
-    const { openedResource, application } = this.state;
+    const { classes, customerId, openedResource } = this.props;
+    const { application } = this.state;
 
-    if (openedResource && openedResource != null) {
+    if (openedResource) {
       return (
         <main className={classes.content}>
           <ResourceSettingsView resource={openedResource} customerId={customerId} onUpdate={this.onUpdateResource} onDelete={this.onDeleteResource} />
@@ -285,6 +269,26 @@ class ApplicationEditor extends React.Component<Props, State> {
   };
 
   /**
+   * Child delete
+   */
+  private onChildDelete = (childResourceId: string) => {
+    const { resources, updateResources } = this.props;
+
+    updateResources(resources.filter(resource => resource.id !== childResourceId));
+  };
+
+  /**
+   * Child add click
+   */
+  private onChildAddClick = (parentResourceId: string, afterSave: (resource: Resource) => void) => {
+    this.setState({
+      afterResourceSave: afterSave,
+      addResourceDialogOpen: true,
+      parentResourceId: parentResourceId
+    });
+  };
+
+  /**
    * Toggle mobile drawer open/close
    */
   private handleDrawerToggle = () => {
@@ -305,22 +309,19 @@ class ApplicationEditor extends React.Component<Props, State> {
    * on open resource click method
    */
   private onOpenResourceClick = async (resource: Resource) => {
-    const { auth } = this.props;
+    const { auth, openResource } = this.props;
     if (!auth || !auth.token || !resource.id) {
       return;
     }
 
-    this.setState({
-      openedResource: resource
-    });
+    openResource(resource);
   };
 
   /**
    * on save new resource method
    */
   private onSaveNewResourceClick = async (resource: Resource) => {
-    const { auth, customerId, deviceId, applicationId } = this.props;
-    const { rootResources } = this.state;
+    const { auth, customerId, deviceId, applicationId, resources, updateResources } = this.props;
 
     if (!auth || !auth.token) {
       return;
@@ -337,13 +338,13 @@ class ApplicationEditor extends React.Component<Props, State> {
     if (this.state.afterResourceSave) {
       this.state.afterResourceSave(newResource);
     } else {
-      rootResources.push(newResource);
+      const updatedResourceList: Resource[] = [...resources, newResource];
+      updateResources(updatedResourceList);
     }
 
     this.setState({
       afterResourceSave: undefined,
-      addResourceDialogOpen: false,
-      rootResources: rootResources
+      addResourceDialogOpen: false
     });
   };
 
@@ -354,8 +355,6 @@ class ApplicationEditor extends React.Component<Props, State> {
    */
   private onUpdateResource = async (resource: Resource) => {
     const { auth, customerId, deviceId, applicationId, resources, updateResources } = this.props;
-    const { rootResources } = this.state;
-
     const resourceId = resource.id;
 
     if (!auth || !auth.token || !resourceId) {
@@ -375,10 +374,6 @@ class ApplicationEditor extends React.Component<Props, State> {
     updatedRootResourceList.push(updatedResource);
 
     updateResources(updatedRootResourceList);
-
-    this.setState({
-      openedResource: updatedResource
-    });
   };
 
   /**
@@ -447,12 +442,14 @@ class ApplicationEditor extends React.Component<Props, State> {
 
 const mapStateToProps = (state: ReduxState) => ({
   auth: state.auth,
-  resources: state.resource.resources
+  resources: state.resource.resources,
+  openedResource: state.resource.resourceOpen
 });
 
 const mapDispatchToProps = (dispatch: Dispatch<ReduxActions>) => {
   return {
-    updateResources: (resources: Resource[]) => dispatch(updateResources(resources))
+    updateResources: (resources: Resource[]) => dispatch(updateResources(resources)),
+    openResource: (resource: Resource) => dispatch(openResource(resource))
   };
 };
 
