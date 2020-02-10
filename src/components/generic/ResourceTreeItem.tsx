@@ -13,6 +13,7 @@ import DeleteIcon from "@material-ui/icons/Delete";
 import { Dispatch } from "redux";
 import { connect } from "react-redux";
 import strings from "../../localization/strings";
+import { openResource } from "../../actions/resources";
 
 const pageIconPath = <path d="M24 17H1.14441e-05V1.90735e-06H24V17ZM23 1H1V16H23V1Z" />;
 const folderIconPath = (
@@ -32,6 +33,8 @@ interface Props extends WithStyles<typeof styles> {
   resource: Resource;
   orderNumber: number;
   auth?: AuthState;
+  openedResource?: Resource;
+  openResource: typeof openResource;
   onAddClick: (parentResourceId: string, afterSave: (resource: Resource) => void) => void;
   onDelete: (resourceId: string) => void;
   onOpenResource(resource: Resource): void;
@@ -114,7 +117,7 @@ class ResourceTreeItemClass extends React.Component<Props, State> {
           label={
             <div>
               {this.state.resource.name}
-              <DeleteIcon onClick={() => this.onDelete()} />
+              <DeleteIcon onClick={() => this.onDeleteIconClick()} />
             </div>
           }
           onClick={this.onTreeItemClick}
@@ -133,7 +136,7 @@ class ResourceTreeItemClass extends React.Component<Props, State> {
           label={
             <div>
               {this.state.resource.name}
-              <DeleteIcon onClick={() => this.onDelete()} />
+              <DeleteIcon onClick={() => this.onDeleteIconClick()} />
             </div>
           }
           onClick={this.onTreeItemClick}
@@ -213,6 +216,12 @@ class ResourceTreeItemClass extends React.Component<Props, State> {
    */
   private onChildDelete = (childResourceId: string) => {
     const { childResources } = this.state;
+    const { openedResource, openResource } = this.props;
+
+    if (openedResource && openedResource.id === childResourceId) {
+      openResource(undefined);
+    }
+
     this.setState({
       childResources: childResources.filter(c => c.id !== childResourceId)
     });
@@ -221,7 +230,7 @@ class ResourceTreeItemClass extends React.Component<Props, State> {
   /**
    * Delete method
    */
-  private onDelete = async () => {
+  private onDeleteIconClick = async () => {
     const { auth, customerId, deviceId, applicationId, resource } = this.props;
     const resourceId = resource.id;
 
@@ -326,11 +335,14 @@ class ResourceTreeItemClass extends React.Component<Props, State> {
 }
 
 const mapStateToProps = (state: ReduxState) => ({
-  auth: state.auth
+  auth: state.auth,
+  openedResource: state.resource.resourceOpen
 });
 
 const mapDispatchToProps = (dispatch: Dispatch<ReduxActions>) => {
-  return {};
+  return {
+    openResource: (resource?: Resource) => dispatch(openResource(resource))
+  };
 };
 
 const ResourceTreeItem = connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(ResourceTreeItemClass));
