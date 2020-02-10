@@ -153,7 +153,13 @@ class DeviceDialog extends React.Component<Props, State> {
     const { isFormValid } = this.state.form;
 
     return (
-      <Dialog fullScreen={false} open={this.props.open} onClose={this.props.handleClose} aria-labelledby="dialog-title">
+      <Dialog
+        fullScreen={false}
+        open={this.props.open}
+        onClose={this.props.handleClose}
+        aria-labelledby="dialog-title"
+        onBackdropClick={this.onDeviceDialogBackDropClick}
+      >
         <DialogTitle id="dialog-title">
           <div>
             <Typography variant="h2">{this.renderDialogTitle(dialogType)}</Typography>
@@ -361,6 +367,22 @@ class DeviceDialog extends React.Component<Props, State> {
       },
       () => this.props.handleClose()
     );
+  };
+
+  private onDeviceDialogBackDropClick = () => {
+    this.setState({
+      form: initForm<DeviceForm>(
+        {
+          name: "",
+          api_key: "",
+          address: "",
+          serialnumber: "",
+          additionalinformation: ""
+        },
+        rules
+      ),
+      image_url: undefined
+    });
   };
 
   /**

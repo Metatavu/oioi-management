@@ -119,7 +119,13 @@ class AddResourceDialog extends React.Component<Props, State> {
     const { isFormValid } = this.state.form;
 
     return (
-      <Dialog fullScreen={false} open={this.props.open} onClose={this.props.handleClose} aria-labelledby="dialog-title">
+      <Dialog
+        fullScreen={false}
+        open={this.props.open}
+        onClose={this.props.handleClose}
+        aria-labelledby="dialog-title"
+        onBackdropClick={this.onAddResourceDialogBackDropClick}
+      >
         <DialogTitle id="dialog-title">
           <Typography variant="h2">{strings.addNewResource}</Typography>
         </DialogTitle>
@@ -246,6 +252,23 @@ class AddResourceDialog extends React.Component<Props, State> {
       },
       () => this.props.handleClose()
     );
+  };
+
+  /**
+   * Handles dialog back drop click
+   */
+  private onAddResourceDialogBackDropClick = () => {
+    this.setState({
+      form: initForm<AddResourceForm>(
+        {
+          name: undefined,
+          order_number: undefined,
+          slug: undefined
+        },
+        rules
+      ),
+      resourceType: ResourceType.INTRO
+    });
   };
 
   /**
