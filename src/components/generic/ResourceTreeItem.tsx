@@ -32,9 +32,9 @@ interface Props extends WithStyles<typeof styles> {
   resource: Resource;
   orderNumber: number;
   auth?: AuthState;
-  onOpenResource(resource: Resource): void;
   onAddClick: (parentResourceId: string, afterSave: (resource: Resource) => void) => void;
   onDelete: (resourceId: string) => void;
+  onOpenResource(resource: Resource): void;
 }
 
 /**
@@ -47,6 +47,9 @@ interface State {
   childResources: Resource[];
 }
 
+/**
+ * Creates tree item
+ */
 class ResourceTreeItemClass extends React.Component<Props, State> {
   /**
    * Constructor
@@ -81,13 +84,14 @@ class ResourceTreeItemClass extends React.Component<Props, State> {
   public render() {
     const { classes } = this.props;
     const { resource, childResources } = this.state;
+
     const treeItemStyles = {
       iconContainer: classes.treeIconContainer,
       group: classes.treeGroup,
       content: classes.treeContent,
       label: classes.treeLabel
     };
-    const icon = this.getIconComponentByResourceType(resource.type);
+    const icon = this.renderIconComponentByResourceType(resource.type);
     const childTreeItems = childResources
       ? childResources
           .map(resource => this.renderTreeItem(resource))
@@ -102,24 +106,22 @@ class ResourceTreeItemClass extends React.Component<Props, State> {
 
     if (this.isAllowedChildren()) {
       return (
-        <div>
-          <TreeItem
-            classes={treeItemStyles}
-            TransitionComponent={TransitionComponent}
-            icon={icon}
-            nodeId={resource.id}
-            label={
-              <div>
-                {this.state.resource.name}
-                <DeleteIcon onClick={() => this.onDelete()} />
-              </div>
-            }
-            onClick={this.onTreeItemClick}
-          >
-            {this.state.childResources !== [] && childTreeItems}
-            {this.renderAdd()}
-          </TreeItem>
-        </div>
+        <TreeItem
+          classes={treeItemStyles}
+          TransitionComponent={TransitionComponent}
+          icon={icon}
+          nodeId={resource.id}
+          label={
+            <div>
+              {this.state.resource.name}
+              <DeleteIcon onClick={() => this.onDelete()} />
+            </div>
+          }
+          onClick={this.onTreeItemClick}
+        >
+          {this.state.childResources !== [] && childTreeItems}
+          {this.renderAdd()}
+        </TreeItem>
       );
     } else {
       return (
@@ -139,6 +141,72 @@ class ResourceTreeItemClass extends React.Component<Props, State> {
       );
     }
   }
+
+  /**
+   * Render treeItem method
+   */
+  private renderTreeItem = (resource: Resource) => {
+    const { classes } = this.props;
+    const { customerId, deviceId, applicationId } = this.props;
+    const orderNumber = resource.order_number;
+
+    return (
+      <ResourceTreeItem
+        key={resource.id}
+        resource={resource}
+        orderNumber={orderNumber || 0}
+        customerId={customerId}
+        deviceId={deviceId}
+        applicationId={applicationId}
+        classes={classes}
+        onOpenResource={this.props.onOpenResource}
+        onAddClick={this.props.onAddClick}
+        onDelete={this.onChildDelete}
+      />
+    );
+  };
+
+  /**
+   * Render add resource treeItem method
+   */
+  private renderAdd = () => {
+    const resourceId = this.state.resource.id;
+    if (!resourceId) {
+      return;
+    }
+
+    return (
+      <TreeItem
+        TransitionComponent={TransitionComponent}
+        nodeId={resourceId + "add"}
+        icon={<SvgIcon fontSize="small">{addIconPath}</SvgIcon>}
+        onClick={this.onAddNewResourceClick}
+        label={strings.addNewResource}
+      />
+    );
+  };
+
+  /**
+   * get icon component by resource type method
+   *
+   * @param resourceType resource type
+   */
+  private renderIconComponentByResourceType = (resourceType: ResourceType) => {
+    switch (resourceType) {
+      case ResourceType.INTRO: {
+        return <SvgIcon fontSize="small">{pageIconPath}</SvgIcon>;
+      }
+      case ResourceType.LANGUAGE: {
+        return <LanguageIcon fontSize="small" />;
+      }
+      case ResourceType.MENU: {
+        return <SvgIcon fontSize="small">{folderIconPath}</SvgIcon>;
+      }
+      default: {
+        return <SvgIcon fontSize="small">{folderIconPath}</SvgIcon>;
+      }
+    }
+  };
 
   /**
    * Child delete method
@@ -216,50 +284,6 @@ class ResourceTreeItemClass extends React.Component<Props, State> {
   };
 
   /**
-   * Render treeItem method
-   */
-  private renderTreeItem = (resource: Resource) => {
-    const { classes } = this.props;
-    const { customerId, deviceId, applicationId } = this.props;
-    const orderNumber = resource.order_number;
-
-    return (
-      <ResourceTreeItem
-        key={resource.id}
-        resource={resource}
-        orderNumber={orderNumber || 0}
-        customerId={customerId}
-        deviceId={deviceId}
-        applicationId={applicationId}
-        classes={classes}
-        onOpenResource={this.props.onOpenResource}
-        onAddClick={this.props.onAddClick}
-        onDelete={this.onChildDelete}
-      />
-    );
-  };
-
-  /**
-   * Render add resource treeItem method
-   */
-  private renderAdd = () => {
-    const resourceId = this.state.resource.id;
-    if (!resourceId) {
-      return;
-    }
-
-    return (
-      <TreeItem
-        TransitionComponent={TransitionComponent}
-        nodeId={resourceId + "add"}
-        icon={<SvgIcon fontSize="small">{addIconPath}</SvgIcon>}
-        onClick={this.onAddNewResourceClick}
-        label={strings.addNewResource}
-      />
-    );
-  };
-
-  /**
    * On add new resource click method
    */
   private onAddNewResourceClick = () => {
@@ -284,28 +308,6 @@ class ResourceTreeItemClass extends React.Component<Props, State> {
     this.setState({
       childResources: [...childResources]
     });
-  };
-
-  /**
-   * get icon component by resource type method
-   *
-   * @param resourceType resource type
-   */
-  private getIconComponentByResourceType = (resourceType: ResourceType) => {
-    switch (resourceType) {
-      case ResourceType.INTRO: {
-        return <SvgIcon fontSize="small">{pageIconPath}</SvgIcon>;
-      }
-      case ResourceType.LANGUAGE: {
-        return <LanguageIcon fontSize="small" />;
-      }
-      case ResourceType.MENU: {
-        return <SvgIcon fontSize="small">{folderIconPath}</SvgIcon>;
-      }
-      default: {
-        return <SvgIcon fontSize="small">{folderIconPath}</SvgIcon>;
-      }
-    }
   };
 
   /**
