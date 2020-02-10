@@ -272,7 +272,11 @@ class ApplicationEditor extends React.Component<Props, State> {
    * Child delete
    */
   private onChildDelete = (childResourceId: string) => {
-    const { resources, updateResources } = this.props;
+    const { resources, openedResource, updateResources, openResource } = this.props;
+
+    if (openedResource && openedResource.id === childResourceId) {
+      openResource(undefined);
+    }
 
     updateResources(resources.filter(resource => resource.id !== childResourceId));
   };
@@ -380,7 +384,7 @@ class ApplicationEditor extends React.Component<Props, State> {
    * Delete resource method
    */
   private onDeleteResource = async (resource: Resource) => {
-    const { auth, customerId, deviceId, applicationId } = this.props;
+    const { auth, customerId, deviceId, applicationId, openResource } = this.props;
     const resourceId = resource.id;
 
     if (!auth || !auth.token || !resourceId) {
@@ -400,6 +404,8 @@ class ApplicationEditor extends React.Component<Props, State> {
      */
     if (window.confirm(`${strings.deleteResourceDialogDescription} ${resource.name} ${childResources && strings.andAllChildren}?`)) {
       await resourcesApi.deleteResource({ customer_id: customerId, device_id: deviceId, application_id: applicationId, resource_id: resourceId });
+
+      openResource(undefined);
 
       this.setState({
         openedResource: undefined
@@ -449,7 +455,7 @@ const mapStateToProps = (state: ReduxState) => ({
 const mapDispatchToProps = (dispatch: Dispatch<ReduxActions>) => {
   return {
     updateResources: (resources: Resource[]) => dispatch(updateResources(resources)),
-    openResource: (resource: Resource) => dispatch(openResource(resource))
+    openResource: (resource?: Resource) => dispatch(openResource(resource))
   };
 };
 
