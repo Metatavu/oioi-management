@@ -105,7 +105,13 @@ class CustomerDialog extends React.Component<Props, State> {
     const { isFormValid } = this.state.form;
 
     return (
-      <Dialog fullScreen={false} open={this.props.open} onClose={this.props.handleClose} aria-labelledby="dialog-title">
+      <Dialog
+        fullScreen={false}
+        open={this.props.open}
+        onClose={this.props.handleClose}
+        aria-labelledby="dialog-title"
+        onBackdropClick={this.onCustomerDialogBackDropClick}
+      >
         <DialogTitle id="dialog-title">
           <div>
             <Typography variant="h2">{this.renderDialogTitle(dialogType)}</Typography>
@@ -287,6 +293,17 @@ class CustomerDialog extends React.Component<Props, State> {
       },
       () => this.props.handleClose()
     );
+  };
+
+  private onCustomerDialogBackDropClick = () => {
+    this.setState({
+      form: initForm<CustomerForm>(
+        {
+          name: ""
+        },
+        rules
+      )
+    });
   };
 }
 
