@@ -167,8 +167,8 @@ class ApplicationEditor extends React.Component<Props, State> {
    * Render drawer method
    */
   private renderDrawer = () => {
-    const { classes, resources } = this.props;
-
+    const { classes, auth, resources } = this.props;
+    const { rootResources, parentResourceId, customer, device, application } = this.state;
     const treeItems = resources
       .map(resource => this.renderTreeItem(resource))
       .sort((a, b) => {
@@ -192,7 +192,12 @@ class ApplicationEditor extends React.Component<Props, State> {
         </TreeView>
         <AddResourceDialog
           open={this.state.addResourceDialogOpen}
-          parentResourceId={this.state.parentResourceId || ""}
+          auth={auth}
+          customer_id={customer ? customer.id : ""}
+          device_id={device ? device.id : ""}
+          application_id={application ? application.id : ""}
+          root_resource_id={application ? application.root_resource_id : ""}
+          parentResourceId={parentResourceId || ""}
           onSave={this.onSaveNewResourceClick}
           handleClose={this.onDialogCloseClick}
         />

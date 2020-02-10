@@ -19,11 +19,17 @@ import styles from "../../styles/dialog";
 import strings from "../../localization/strings";
 import { Resource, ResourceType } from "../../generated/client/src";
 import { FormValidationRules, validateForm, Form, initForm, MessageType } from "ts-form-validation";
+import { AuthState } from "../../types/index";
+import ApiUtils from "../../utils/ApiUtils";
 
 /**
  * Component props
  */
 interface Props extends WithStyles<typeof styles> {
+  /**
+   * Auth state
+   */
+  auth: AuthState;
   /**
    * Dialog open state
    */
@@ -32,6 +38,27 @@ interface Props extends WithStyles<typeof styles> {
    * Parent resource id
    */
   parentResourceId: string;
+
+  /**
+   * Customer id
+   */
+  customer_id?: string;
+
+  /**
+   * Device id
+   */
+  device_id?: string;
+
+  /**
+   * Application id
+   */
+  application_id?: string;
+
+  /**
+   * Root resource id
+   */
+  root_resource_id?: string;
+
   /**
    * Save button click
    */
@@ -112,6 +139,58 @@ class AddResourceDialog extends React.Component<Props, State> {
   }
 
   /**
+   * Component did update
+   *
+   * @param prevProps
+   * @param prevState
+   */
+  public componentDidUpdate = async (prevProps: Props, prevState: State) => {
+    if (prevProps !== this.props) {
+      const { customer_id, device_id, application_id, parentResourceId, auth } = this.props;
+
+      if (!auth || !auth.token) {
+        return;
+      }
+
+      const resourcesApi = ApiUtils.getResourcesApi(auth.token);
+      let childResources: Resource[] = [];
+
+      if (customer_id && device_id && application_id) {
+        childResources = await resourcesApi.listResources({
+          customer_id: customer_id,
+          device_id: device_id,
+          application_id: application_id,
+          parent_id: parentResourceId
+        });
+      }
+
+      let form = initForm<AddResourceForm>(
+        {
+          name: "",
+          order_number:
+            childResources.length > 0
+              ? Math.max.apply(
+                  Math,
+                  childResources.map((o: Resource) => {
+                    return (o.order_number || 0) + 1;
+                  })
+                )
+              : 1,
+          slug: ""
+        },
+        rules
+      );
+
+      form = validateForm(form);
+
+      this.setState({
+        form,
+        resourceType: ResourceType.INTRO
+      });
+    }
+  };
+
+  /**
    * Component render method
    */
   public render() {
@@ -133,7 +212,7 @@ class AddResourceDialog extends React.Component<Props, State> {
         <DialogContent>
           <Grid container spacing={2}>
             <Grid item className={classes.fullWidth}>
-              {this.renderField("name", strings.name)}
+              {this.renderField("name", strings.name, "text")}
             </Grid>
             <Grid item className={classes.fullWidth}>
               <InputLabel htmlFor="resourceType">{strings.resourceType}</InputLabel>
@@ -159,10 +238,10 @@ class AddResourceDialog extends React.Component<Props, State> {
               </Select>
             </Grid>
             <Grid item className={classes.fullWidth}>
-              {this.renderField("order_number", strings.orderNumber)}
+              {this.renderField("order_number", strings.orderNumber, "number")}
             </Grid>
             <Grid item className={classes.fullWidth}>
-              {this.renderField("slug", strings.slug)}
+              {this.renderField("slug", strings.slug, "text")}
             </Grid>
           </Grid>
         </DialogContent>
@@ -182,7 +261,7 @@ class AddResourceDialog extends React.Component<Props, State> {
   /**
    * Renders textfield
    */
-  private renderField = (key: keyof AddResourceForm, label: string) => {
+  private renderField = (key: keyof AddResourceForm, label: string, type: string) => {
     const {
       values,
       messages: { [key]: message }
@@ -191,9 +270,10 @@ class AddResourceDialog extends React.Component<Props, State> {
       <TextField
         multiline
         fullWidth
+        type={type}
         error={message && message.type === MessageType.ERROR}
         helperText={message && message.message}
-        value={values[key]}
+        value={values[key] || ""}
         onChange={this.onHandleChange(key)}
         onBlur={this.onHandleBlur(key)}
         name={key}
