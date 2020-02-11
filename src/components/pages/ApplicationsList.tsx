@@ -7,7 +7,7 @@ import styles from "../../styles/card-item";
 import { History } from "history";
 import CardItem from "../generic/CardItem";
 import strings from "../../localization/strings";
-import { Customer, Device, Application, ResourcesApi } from "../../generated/client/src";
+import { Customer, Device, Application } from "../../generated/client/src";
 import { ReduxState, ReduxActions } from "../../store";
 import { Dispatch } from "redux";
 import { connect } from "react-redux";
@@ -15,14 +15,26 @@ import { AuthState } from "../../types";
 import ApiUtils from "../../utils/ApiUtils";
 import DeleteDialog from "../generic/DeleteDialog";
 import { Alert } from "@material-ui/lab";
+import { setCustomer } from "../../actions/customer";
+import { setApplications } from "../../actions/applications";
+import { setDevice } from "../../actions/device";
 
+/**
+ * Component props
+ */
 interface Props extends WithStyles<typeof styles> {
   history: History;
   customerId: string;
   deviceId: string;
   auth: AuthState;
+  setCustomer: typeof setCustomer;
+  setDevice: typeof setDevice;
+  setApplications: typeof setApplications;
 }
 
+/**
+ * Component state
+ */
 interface State {
   customer?: Customer;
   device?: Device;
@@ -55,7 +67,7 @@ class ApplicationsList extends React.Component<Props, State> {
    * Component did mount
    */
   public componentDidMount = async () => {
-    const { auth, customerId, deviceId } = this.props;
+    const { auth, customerId, deviceId, setApplications, setDevice, setCustomer } = this.props;
     if (!auth || !auth.token) {
       return;
     }
@@ -74,6 +86,9 @@ class ApplicationsList extends React.Component<Props, State> {
       device: device,
       applications: applications
     });
+    setCustomer(customer);
+    setDevice(device);
+    setApplications([{} as Application]);
   };
 
   /**
@@ -234,12 +249,26 @@ class ApplicationsList extends React.Component<Props, State> {
   };
 }
 
+/**
+ * Maps redux state to props
+ * 
+ * @param state redux state
+ */
 const mapStateToProps = (state: ReduxState) => ({
-  auth: state.auth
+  auth: state.auth,
 });
 
+/**
+ * Function for declaring dispatch functions
+ * 
+ * @param dispatch
+ */
 const mapDispatchToProps = (dispatch: Dispatch<ReduxActions>) => {
-  return {};
+  return {
+    setCustomer: (customer:Customer) => dispatch(setCustomer(customer)),
+    setDevice: (device:Device) => dispatch(setDevice(device)),
+    setApplications: (applications:Application[]) => dispatch(setApplications(applications))
+  };
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(ApplicationsList));

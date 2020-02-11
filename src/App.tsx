@@ -4,13 +4,12 @@ import IndexPage from "./components/pages/IndexPage";
 import { ThemeProvider } from "@material-ui/styles";
 import { CssBaseline } from "@material-ui/core";
 import { Provider as ReduxProvider } from "react-redux";
-
+import { composeWithDevTools } from 'redux-devtools-extension';
 import "./styles/styles.scss";
 import theme from "./styles/theme";
 import { createStore } from "redux";
 import { ReduxState, ReduxActions, rootReducer } from "./store";
 import strings from "./localization/strings";
-import { composeWithDevTools } from "redux-devtools-extension";
 
 const composeEnhancers = composeWithDevTools();
 
