@@ -13,6 +13,7 @@ import DeleteIcon from "@material-ui/icons/Delete";
 import { Dispatch } from "redux";
 import { connect } from "react-redux";
 import strings from "../../localization/strings";
+import { openResource } from "../../actions/resources";
 
 const pageIconPath = <path d="M24 17H1.14441e-05V1.90735e-06H24V17ZM23 1H1V16H23V1Z" />;
 const folderIconPath = (
@@ -22,6 +23,9 @@ const addIconPath = (
   <path d="M13 7h-2v4H7v2h4v4h2v-4h4v-2h-4V7zm-1-5C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z" />
 );
 
+/**
+ * Component props
+ */
 interface Props extends WithStyles<typeof styles> {
   customerId: string;
   deviceId: string;
@@ -29,11 +33,16 @@ interface Props extends WithStyles<typeof styles> {
   resource: Resource;
   orderNumber: number;
   auth?: AuthState;
-  onOpenResource(resource: Resource): void;
+  openedResource?: Resource;
+  openResource: typeof openResource;
   onAddClick: (parentResourceId: string, afterSave: (resource: Resource) => void) => void;
   onDelete: (resourceId: string) => void;
+  onOpenResource(resource: Resource): void;
 }
 
+/**
+ * Component state
+ */
 interface State {
   open: boolean;
   resource: Resource;
@@ -41,6 +50,9 @@ interface State {
   childResources: Resource[];
 }
 
+/**
+ * Creates tree item
+ */
 class ResourceTreeItemClass extends React.Component<Props, State> {
   /**
    * Constructor
@@ -57,18 +69,32 @@ class ResourceTreeItemClass extends React.Component<Props, State> {
   }
 
   /**
+   * Component did update
+   * @param prevProps
+   * @param prevState
+   */
+  public componentDidUpdate(prevProps: Props, prevState: State) {
+    if (prevProps !== this.props) {
+      this.setState({
+        resource: this.props.resource
+      });
+    }
+  }
+
+  /**
    * Component render method
    */
   public render() {
     const { classes } = this.props;
     const { resource, childResources } = this.state;
+
     const treeItemStyles = {
       iconContainer: classes.treeIconContainer,
       group: classes.treeGroup,
       content: classes.treeContent,
       label: classes.treeLabel
     };
-    const icon = this.getIconComponentByResourceType(resource.type);
+    const icon = this.renderIconComponentByResourceType(resource.type);
     const childTreeItems = childResources
       ? childResources
           .map(resource => this.renderTreeItem(resource))
@@ -83,24 +109,22 @@ class ResourceTreeItemClass extends React.Component<Props, State> {
 
     if (this.isAllowedChildren()) {
       return (
-        <div>
-          <TreeItem
-            classes={treeItemStyles}
-            TransitionComponent={TransitionComponent}
-            icon={icon}
-            nodeId={resource.id}
-            label={
-              <div>
-                {this.state.resource.name}
-                <DeleteIcon onClick={() => this.onDelete()} />
-              </div>
-            }
-            onClick={this.onTreeItemClick}
-          >
-            {this.state.childResources !== [] && childTreeItems}
-            {this.renderAdd()}
-          </TreeItem>
-        </div>
+        <TreeItem
+          classes={treeItemStyles}
+          TransitionComponent={TransitionComponent}
+          icon={icon}
+          nodeId={resource.id}
+          label={
+            <div>
+              {this.state.resource.name}
+              <DeleteIcon onClick={() => this.onDeleteIconClick()} />
+            </div>
+          }
+          onClick={this.onTreeItemClick}
+        >
+          {this.state.childResources !== [] && childTreeItems}
+          {this.renderAdd()}
+        </TreeItem>
       );
     } else {
       return (
@@ -112,7 +136,7 @@ class ResourceTreeItemClass extends React.Component<Props, State> {
           label={
             <div>
               {this.state.resource.name}
-              <DeleteIcon onClick={() => this.onDelete()} />
+              <DeleteIcon onClick={() => this.onDeleteIconClick()} />
             </div>
           }
           onClick={this.onTreeItemClick}
@@ -121,14 +145,92 @@ class ResourceTreeItemClass extends React.Component<Props, State> {
     }
   }
 
+  /**
+   * Render treeItem method
+   */
+  private renderTreeItem = (resource: Resource) => {
+    const { classes } = this.props;
+    const { customerId, deviceId, applicationId } = this.props;
+    const orderNumber = resource.order_number;
+
+    return (
+      <ResourceTreeItem
+        key={resource.id}
+        resource={resource}
+        orderNumber={orderNumber || 0}
+        customerId={customerId}
+        deviceId={deviceId}
+        applicationId={applicationId}
+        classes={classes}
+        onOpenResource={this.props.onOpenResource}
+        onAddClick={this.props.onAddClick}
+        onDelete={this.onChildDelete}
+      />
+    );
+  };
+
+  /**
+   * Render add resource treeItem method
+   */
+  private renderAdd = () => {
+    const resourceId = this.state.resource.id;
+    if (!resourceId) {
+      return;
+    }
+
+    return (
+      <TreeItem
+        TransitionComponent={TransitionComponent}
+        nodeId={resourceId + "add"}
+        icon={<SvgIcon fontSize="small">{addIconPath}</SvgIcon>}
+        onClick={this.onAddNewResourceClick}
+        label={strings.addNewResource}
+      />
+    );
+  };
+
+  /**
+   * get icon component by resource type method
+   *
+   * @param resourceType resource type
+   */
+  private renderIconComponentByResourceType = (resourceType: ResourceType) => {
+    switch (resourceType) {
+      case ResourceType.INTRO: {
+        return <SvgIcon fontSize="small">{pageIconPath}</SvgIcon>;
+      }
+      case ResourceType.LANGUAGE: {
+        return <LanguageIcon fontSize="small" />;
+      }
+      case ResourceType.MENU: {
+        return <SvgIcon fontSize="small">{folderIconPath}</SvgIcon>;
+      }
+      default: {
+        return <SvgIcon fontSize="small">{folderIconPath}</SvgIcon>;
+      }
+    }
+  };
+
+  /**
+   * Child delete method
+   */
   private onChildDelete = (childResourceId: string) => {
     const { childResources } = this.state;
+    const { openedResource, openResource } = this.props;
+
+    if (openedResource && openedResource.id === childResourceId) {
+      openResource(undefined);
+    }
+
     this.setState({
       childResources: childResources.filter(c => c.id !== childResourceId)
     });
   };
 
-  private onDelete = async () => {
+  /**
+   * Delete method
+   */
+  private onDeleteIconClick = async () => {
     const { auth, customerId, deviceId, applicationId, resource } = this.props;
     const resourceId = resource.id;
 
@@ -191,50 +293,6 @@ class ResourceTreeItemClass extends React.Component<Props, State> {
   };
 
   /**
-   * Render treeItem method
-   */
-  private renderTreeItem = (resource: Resource) => {
-    const { classes } = this.props;
-    const { customerId, deviceId, applicationId } = this.props;
-    const orderNumber = resource.order_number;
-
-    return (
-      <ResourceTreeItem
-        key={resource.id}
-        resource={resource}
-        orderNumber={orderNumber || 0}
-        customerId={customerId}
-        deviceId={deviceId}
-        applicationId={applicationId}
-        classes={classes}
-        onOpenResource={this.props.onOpenResource}
-        onAddClick={this.props.onAddClick}
-        onDelete={this.onChildDelete}
-      />
-    );
-  };
-
-  /**
-   * Render add resource treeItem method
-   */
-  private renderAdd = () => {
-    const resourceId = this.state.resource.id;
-    if (!resourceId) {
-      return;
-    }
-
-    return (
-      <TreeItem
-        TransitionComponent={TransitionComponent}
-        nodeId={resourceId + "add"}
-        icon={<SvgIcon fontSize="small">{addIconPath}</SvgIcon>}
-        onClick={this.onAddNewResourceClick}
-        label={strings.addNewResource}
-      />
-    );
-  };
-
-  /**
    * On add new resource click method
    */
   private onAddNewResourceClick = () => {
@@ -262,28 +320,6 @@ class ResourceTreeItemClass extends React.Component<Props, State> {
   };
 
   /**
-   * get icon component by resource type method
-   *
-   * @param resourceType resource type
-   */
-  private getIconComponentByResourceType = (resourceType: ResourceType) => {
-    switch (resourceType) {
-      case ResourceType.INTRO: {
-        return <SvgIcon fontSize="small">{pageIconPath}</SvgIcon>;
-      }
-      case ResourceType.LANGUAGE: {
-        return <LanguageIcon fontSize="small" />;
-      }
-      case ResourceType.MENU: {
-        return <SvgIcon fontSize="small">{folderIconPath}</SvgIcon>;
-      }
-      default: {
-        return <SvgIcon fontSize="small">{folderIconPath}</SvgIcon>;
-      }
-    }
-  };
-
-  /**
    * check if resource is allowed to have children method
    */
   private isAllowedChildren = (): boolean => {
@@ -299,11 +335,14 @@ class ResourceTreeItemClass extends React.Component<Props, State> {
 }
 
 const mapStateToProps = (state: ReduxState) => ({
-  auth: state.auth
+  auth: state.auth,
+  openedResource: state.resource.resourceOpen
 });
 
 const mapDispatchToProps = (dispatch: Dispatch<ReduxActions>) => {
-  return {};
+  return {
+    openResource: (resource?: Resource) => dispatch(openResource(resource))
+  };
 };
 
 const ResourceTreeItem = connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(ResourceTreeItemClass));
