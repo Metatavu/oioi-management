@@ -37,6 +37,9 @@ interface Props extends WithStyles<typeof styles> {
   setApplications: typeof setApplications;
 }
 
+/**
+ * Component state
+ */
 interface State {
   editorDialogOpen: boolean;
   customers: Customer[];
