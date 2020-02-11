@@ -46,6 +46,9 @@ const addIconPath = (
   <path d="M13 7h-2v4H7v2h4v4h2v-4h4v-2h-4V7zm-1-5C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z" />
 );
 
+/**
+ * Component props
+ */
 interface Props extends WithStyles<typeof styles> {
   history: History,
   customerId: string,
@@ -88,6 +91,9 @@ class ApplicationEditor extends React.Component<Props, State> {
     };
   }
 
+  /**
+   * Component did mount
+   */
   public componentDidMount = async () => {
     const { auth, customerId, deviceId, applicationId, setCustomer, setDevice, setApplications, updateResources } = this.props;
 
@@ -461,12 +467,22 @@ class ApplicationEditor extends React.Component<Props, State> {
   };
 }
 
+/**
+ * Maps redux state to props
+ * 
+ * @param state redux state
+ */
 const mapStateToProps = (state: ReduxState) => ({
   auth: state.auth,
   resources: state.resource.resources,
   openedResource: state.resource.resourceOpen
 });
 
+/**
+ * Function for declaring dispatch functions
+ * 
+ * @param dispatch
+ */
 const mapDispatchToProps = (dispatch: Dispatch<ReduxActions>) => {
   return {
     setCustomer: (customer:Customer) => dispatch(setCustomer(customer)),

@@ -20,6 +20,9 @@ import { setCustomer } from "../../actions/customer";
 import { setDevice } from "../../actions/device";
 import { setApplications } from "../../actions/applications";
 
+/**
+ * Component props
+ */
 interface Props extends WithStyles<typeof styles> {
   /**
    * Props history
@@ -328,10 +331,20 @@ class CustomersList extends React.Component<Props, State> {
   };
 }
 
+/**
+ * Maps redux state to props
+ * 
+ * @param state redux state
+ */
 const mapStateToProps = (state: ReduxState) => ({
   auth: state.auth
 });
 
+/**
+ * Function for declaring dispatch functions
+ * 
+ * @param dispatch
+ */
 const mapDispatchToProps = (dispatch: Dispatch<ReduxActions>) => {
   return {
     setCustomer: (customer:Customer) => dispatch(setCustomer(customer)),

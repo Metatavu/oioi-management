@@ -356,10 +356,20 @@ class DevicesList extends React.Component<Props, State> {
   };
 }
 
+/**
+ * Maps redux state to props
+ * 
+ * @param state redux state
+ */
 const mapStateToProps = (state: ReduxState) => ({
   auth: state.auth
 });
 
+/**
+ * Function for declaring dispatch functions
+ * 
+ * @param dispatch
+ */
 const mapDispatchToProps = (dispatch: Dispatch<ReduxActions>) => {
   return {
     setCustomer: (customer:Customer) => dispatch(setCustomer(customer)),

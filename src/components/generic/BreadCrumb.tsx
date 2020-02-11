@@ -8,6 +8,9 @@ import { ReduxState, ReduxActions } from "../../store";
 import { Customer, Device, Application } from "../../generated/client/src";
 import { Breadcrumbs, Link, createStyles, Theme, WithStyles, withStyles } from "@material-ui/core";
 
+/**
+ * Component properties
+ */
 interface Props extends WithStyles<typeof styles> {
   /**
    * Url locations history
@@ -31,9 +34,17 @@ interface Props extends WithStyles<typeof styles> {
   applications:Application[]
 }
 
+/**
+ * Component state
+ */
 interface State {
 }
 
+/**
+ * Component styles
+ * 
+ * @param theme component theme
+ */
 const styles = (theme: Theme) =>
   createStyles({
     breadcrumb: {

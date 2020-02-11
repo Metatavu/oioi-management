@@ -19,6 +19,9 @@ import { setCustomer } from "../../actions/customer";
 import { setApplications } from "../../actions/applications";
 import { setDevice } from "../../actions/device";
 
+/**
+ * Component props
+ */
 interface Props extends WithStyles<typeof styles> {
   history: History;
   customerId: string;
@@ -29,6 +32,9 @@ interface Props extends WithStyles<typeof styles> {
   setApplications: typeof setApplications;
 }
 
+/**
+ * Component state
+ */
 interface State {
   customer?: Customer;
   device?: Device;
@@ -243,10 +249,20 @@ class ApplicationsList extends React.Component<Props, State> {
   };
 }
 
+/**
+ * Maps redux state to props
+ * 
+ * @param state redux state
+ */
 const mapStateToProps = (state: ReduxState) => ({
   auth: state.auth,
 });
 
+/**
+ * Function for declaring dispatch functions
+ * 
+ * @param dispatch
+ */
 const mapDispatchToProps = (dispatch: Dispatch<ReduxActions>) => {
   return {
     setCustomer: (customer:Customer) => dispatch(setCustomer(customer)),
