@@ -27,3 +27,15 @@ export type SET_DEVICE = typeof SET_DEVICE;
  */
 export const SET_APPLICATIONS = "SET_APPLICATIONS";
 export type SET_APPLICATIONS = typeof SET_APPLICATIONS;
+
+/**
+ * 
+ */
+export const UPDATE_RESOURCES = "UPDATE_RESOURCES";
+export type UPDATE_RESOURCES = typeof UPDATE_RESOURCES;
+
+/**
+ *
+ */
+export const OPEN_RESOURCE = "OPEN_RESOURCE";
+export type OPEN_RESOURCE = typeof OPEN_RESOURCE;

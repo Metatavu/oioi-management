@@ -2,6 +2,7 @@ import * as React from "react";
 import { Typography, Card, CardMedia, withStyles, WithStyles, CardActions, CardActionArea, Button } from "@material-ui/core";
 import styles from "../../styles/card-item";
 import strings from "../../localization/strings";
+import img from "../../resources/images/no-image-available-icon.jpg";
 
 interface Props extends WithStyles<typeof styles> {
   /**
@@ -11,7 +12,7 @@ interface Props extends WithStyles<typeof styles> {
   /**
    * Card image
    */
-  img: string;
+  img?: string;
 
   /**
    * Edit configuration button click
@@ -41,10 +42,7 @@ class CardItem extends React.Component<Props, State> {
    */
   constructor(props: Props) {
     super(props);
-    this.state = {
-      title: "title",
-      img: ""
-    };
+    this.state = {};
   }
 
   /**
@@ -55,7 +53,7 @@ class CardItem extends React.Component<Props, State> {
     return (
       <Card elevation={10} className={classes.card}>
         <CardActionArea className={classes.actionArea} onClick={this.props.editConfiguration}>
-          <CardMedia className={classes.media} image={this.props.img}></CardMedia>
+          <CardMedia className={classes.media} image={this.props.img || img}></CardMedia>
           <div className={classes.overlay}>
             <Typography variant="h3">{this.props.title}</Typography>
           </div>
