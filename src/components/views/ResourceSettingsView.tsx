@@ -62,6 +62,7 @@ interface State {
   form: Form<ResourceSettingsForm>;
   resourceId: string;
   resourceData: any;
+  updated: boolean;
 }
 
 class ResourceSettingsView extends React.Component<Props, State> {
@@ -84,7 +85,8 @@ class ResourceSettingsView extends React.Component<Props, State> {
       ),
 
       resourceId: "",
-      resourceData: {}
+      resourceData: {},
+      updated: false
     };
   }
 
@@ -129,6 +131,7 @@ class ResourceSettingsView extends React.Component<Props, State> {
       form = validateForm(form);
 
       this.setState({
+        updated: true,
         form,
         resourceData: ResourceToJSON(this.props.resource)
       });
@@ -139,8 +142,15 @@ class ResourceSettingsView extends React.Component<Props, State> {
    * Component render method
    */
   public render() {
-    const { resourceData } = this.state;
+    const { resourceData, updated } = this.state;
     const { isFormValid } = this.state.form;
+
+    if (updated) {
+      this.setState({
+        updated: false
+      });
+      return <div></div>;
+    }
 
     const localizedDataString = this.getLocalizedDataString();
     const dataField = this.renderDataField();
@@ -357,6 +367,7 @@ class ResourceSettingsView extends React.Component<Props, State> {
       if (fileData) {
         return (
           <DropzoneArea
+            key={this.props.resource.id}
             acceptedFiles={allowedFileTypes}
             filesLimit={1}
             dropzoneClass={classes.dropzone}
@@ -373,6 +384,7 @@ class ResourceSettingsView extends React.Component<Props, State> {
         return (
           <Grid item className={classes.fullWidth}>
             <DropzoneArea
+              key={this.props.resource.id}
               acceptedFiles={allowedFileTypes}
               filesLimit={1}
               dropzoneClass={classes.dropzone}

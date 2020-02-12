@@ -73,13 +73,28 @@ class ResourceTreeItemClass extends React.Component<Props, State> {
    * @param prevProps
    * @param prevState
    */
-  public componentDidUpdate(prevProps: Props, prevState: State) {
+  public componentDidUpdate = async (prevProps: Props, prevState: State) => {
     if (prevProps !== this.props) {
+      const { auth, customerId, deviceId, applicationId } = this.props;
+      if (!auth || !auth.token) {
+        return;
+      }
+
+      const resourcesApi = ApiUtils.getResourcesApi(auth.token);
+      const childResources = await resourcesApi.listResources({
+        customer_id: customerId,
+        device_id: deviceId,
+        application_id: applicationId,
+        parent_id: this.state.resource.id
+      });
+
       this.setState({
+        open: true,
+        childResources: childResources,
         resource: this.props.resource
       });
     }
-  }
+  };
 
   /**
    * Component render method
@@ -261,35 +276,9 @@ class ResourceTreeItemClass extends React.Component<Props, State> {
   private onTreeItemClick = async () => {
     this.props.onOpenResource(this.state.resource);
 
-    if (!this.state.open) {
-      if (this.state.childResources.length === 0 && this.isAllowedChildren) {
-        const { auth, customerId, deviceId, applicationId } = this.props;
-        if (!auth || !auth.token) {
-          return;
-        }
-
-        const resourcesApi = ApiUtils.getResourcesApi(auth.token);
-        const childResources = await resourcesApi.listResources({
-          customer_id: customerId,
-          device_id: deviceId,
-          application_id: applicationId,
-          parent_id: this.state.resource.id
-        });
-        this.setState({
-          open: true,
-          childResources: childResources
-        });
-
-        return;
-      }
-      this.setState({
-        open: true
-      });
-    } else {
-      this.setState({
-        open: false
-      });
-    }
+    this.setState((prevState: State) => ({
+      open: !prevState.open
+    }));
   };
 
   /**
