@@ -77,7 +77,7 @@ class DevicesList extends React.Component<Props, State> {
    * Component did mount
    */
   public componentDidMount = async () => {
-    const { auth, customerId, setDevice, setApplications, setCustomer } = this.props;
+    const { auth, customerId, setCustomer } = this.props;
     if (!auth || !auth.token) {
       return;
     }
@@ -94,8 +94,6 @@ class DevicesList extends React.Component<Props, State> {
       devices: devices
     });
     setCustomer(customer);
-    setDevice({} as Device);
-    setApplications([{} as Application]);
   };
 
   /**
@@ -358,7 +356,7 @@ class DevicesList extends React.Component<Props, State> {
 
 /**
  * Maps redux state to props
- * 
+ *
  * @param state redux state
  */
 const mapStateToProps = (state: ReduxState) => ({
@@ -367,14 +365,14 @@ const mapStateToProps = (state: ReduxState) => ({
 
 /**
  * Function for declaring dispatch functions
- * 
+ *
  * @param dispatch
  */
 const mapDispatchToProps = (dispatch: Dispatch<ReduxActions>) => {
   return {
-    setCustomer: (customer:Customer) => dispatch(setCustomer(customer)),
-    setDevice: (device:Device) => dispatch(setDevice(device)),
-    setApplications: (applications:Application[]) => dispatch(setApplications(applications))
+    setCustomer: (customer: Customer) => dispatch(setCustomer(customer)),
+    setDevice: (device: Device) => dispatch(setDevice(device)),
+    setApplications: (applications: Application[]) => dispatch(setApplications(applications))
   };
 };
 

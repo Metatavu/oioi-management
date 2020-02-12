@@ -1,7 +1,7 @@
 import { Resource } from "../generated/client/src/models/Resource";
 import { ResourceAction } from "../actions/resources";
 import { Reducer } from "redux";
-import { OPEN_RESOURCE, UPDATE_RESOURCES } from "../constants/actionTypes";
+import { OPEN_RESOURCE, UPDATE_RESOURCES, UPDATED_RESOURCE_VIEW } from "../constants/actionTypes";
 
 /**
  * Resource state
@@ -9,6 +9,7 @@ import { OPEN_RESOURCE, UPDATE_RESOURCES } from "../constants/actionTypes";
 export interface ResourceState {
   resourceOpen?: Resource;
   resources: Resource[];
+  resourceViewUpdated: number;
 }
 
 /**
@@ -16,7 +17,8 @@ export interface ResourceState {
  */
 const initialState: ResourceState = {
   resourceOpen: undefined,
-  resources: []
+  resources: [],
+  resourceViewUpdated: 0
 };
 
 /**
@@ -37,6 +39,13 @@ export const resourcesReducer: Reducer<ResourceState, ResourceAction> = (state =
       return {
         ...state,
         resources: action.payload.resources
+      };
+    }
+
+    case UPDATED_RESOURCE_VIEW: {
+      return {
+        ...state,
+        resourceViewUpdated: state.resourceViewUpdated + 1
       };
     }
 

@@ -29,7 +29,7 @@ export const SET_APPLICATIONS = "SET_APPLICATIONS";
 export type SET_APPLICATIONS = typeof SET_APPLICATIONS;
 
 /**
- * 
+ *
  */
 export const UPDATE_RESOURCES = "UPDATE_RESOURCES";
 export type UPDATE_RESOURCES = typeof UPDATE_RESOURCES;
@@ -39,3 +39,9 @@ export type UPDATE_RESOURCES = typeof UPDATE_RESOURCES;
  */
 export const OPEN_RESOURCE = "OPEN_RESOURCE";
 export type OPEN_RESOURCE = typeof OPEN_RESOURCE;
+
+/**
+ *
+ */
+export const UPDATED_RESOURCE_VIEW = "UPDATED_RESOURCE_VIEW";
+export type UPDATED_RESOURCE_VIEW = typeof UPDATED_RESOURCE_VIEW;
