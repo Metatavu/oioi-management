@@ -67,7 +67,7 @@ class ApplicationsList extends React.Component<Props, State> {
    * Component did mount
    */
   public componentDidMount = async () => {
-    const { auth, customerId, deviceId, setApplications, setDevice, setCustomer } = this.props;
+    const { auth, customerId, deviceId, setDevice, setCustomer } = this.props;
     if (!auth || !auth.token) {
       return;
     }
@@ -88,7 +88,6 @@ class ApplicationsList extends React.Component<Props, State> {
     });
     setCustomer(customer);
     setDevice(device);
-    setApplications([{} as Application]);
   };
 
   /**

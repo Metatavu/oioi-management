@@ -1,20 +1,31 @@
-import { CustomerAction } from '../actions/customer';
-import { SET_CUSTOMER } from '../constants/actionTypes';
-import { CustomerState } from '../types';
-import { Customer } from '../generated/client/src';
+import { CustomerAction } from "../actions/customer";
+import { SET_CUSTOMER } from "../constants/actionTypes";
+import { Customer } from "../generated/client/src";
 
-const initialState: CustomerState = {} as Customer;
+export interface CustomerState {
+  customer?: Customer;
+}
+
+const initialState: CustomerState = {
+  customer: undefined
+};
 
 /**
  * Redux reducer for customer
- * 
+ *
  * @param state state of the customer
  * @param action action of the customer
  */
-export function customerReducer(state: CustomerState = initialState, action: CustomerAction) {
+export const customerReducer = (state = initialState, action: CustomerAction) => {
   switch (action.type) {
-    case SET_CUSTOMER:
-      return action.customer;
+    case SET_CUSTOMER: {
+      return {
+        ...state,
+        customer: action.customer
+      };
+    }
+
+    default:
+      return state;
   }
-  return state
-}
+};
