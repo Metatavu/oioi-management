@@ -37,27 +37,27 @@ interface Props extends WithStyles<typeof styles> {
   /**
    * Parent resource id
    */
-  parentResourceId: string;
+  parentResourceId?: string;
 
   /**
    * Customer id
    */
-  customer_id?: string;
+  customerId?: string;
 
   /**
    * Device id
    */
-  device_id?: string;
+  deviceId?: string;
 
   /**
    * Application id
    */
-  application_id?: string;
+  applicationId?: string;
 
   /**
    * Root resource id
    */
-  root_resource_id?: string;
+  rootResourceId?: string;
 
   /**
    * Save button click
@@ -146,7 +146,7 @@ class AddResourceDialog extends React.Component<Props, State> {
    */
   public componentDidUpdate = async (prevProps: Props, prevState: State) => {
     if (prevProps !== this.props) {
-      const { customer_id, device_id, application_id, parentResourceId, auth } = this.props;
+      const { customerId, deviceId, applicationId, parentResourceId, auth } = this.props;
 
       if (!auth || !auth.token) {
         return;
@@ -155,11 +155,11 @@ class AddResourceDialog extends React.Component<Props, State> {
       const resourcesApi = ApiUtils.getResourcesApi(auth.token);
       let childResources: Resource[] = [];
 
-      if (customer_id && device_id && application_id) {
+      if (customerId && deviceId && applicationId && parentResourceId) {
         childResources = await resourcesApi.listResources({
-          customer_id: customer_id,
-          device_id: device_id,
-          application_id: application_id,
+          customer_id: customerId,
+          device_id: deviceId,
+          application_id: applicationId,
           parent_id: parentResourceId
         });
       }
@@ -206,7 +206,9 @@ class AddResourceDialog extends React.Component<Props, State> {
         onBackdropClick={this.onAddResourceDialogBackDropClick}
       >
         <DialogTitle id="dialog-title">
-          <Typography variant="h2">{strings.addNewResource}</Typography>
+          <div>
+            <Typography variant="h2">{strings.addNewResource}</Typography>
+          </div>
         </DialogTitle>
         <Divider />
         <DialogContent>
@@ -289,6 +291,10 @@ class AddResourceDialog extends React.Component<Props, State> {
   private onSaveNewResource = () => {
     const { onSave, parentResourceId } = this.props;
     const { form } = this.state;
+
+    if (!parentResourceId) {
+      return;
+    }
 
     const newResource = {
       ...form.values,

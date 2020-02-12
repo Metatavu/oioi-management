@@ -128,7 +128,7 @@ class ApplicationsList extends React.Component<Props, State> {
    */
   private renderCard(application: Application, key: string) {
     return (
-      <Grid item>
+      <Grid item key={key}>
         <CardItem
           title={application.name}
           img={img}
@@ -251,23 +251,23 @@ class ApplicationsList extends React.Component<Props, State> {
 
 /**
  * Maps redux state to props
- * 
+ *
  * @param state redux state
  */
 const mapStateToProps = (state: ReduxState) => ({
-  auth: state.auth,
+  auth: state.auth
 });
 
 /**
  * Function for declaring dispatch functions
- * 
+ *
  * @param dispatch
  */
 const mapDispatchToProps = (dispatch: Dispatch<ReduxActions>) => {
   return {
-    setCustomer: (customer:Customer) => dispatch(setCustomer(customer)),
-    setDevice: (device:Device) => dispatch(setDevice(device)),
-    setApplications: (applications:Application[]) => dispatch(setApplications(applications))
+    setCustomer: (customer: Customer) => dispatch(setCustomer(customer)),
+    setDevice: (device: Device) => dispatch(setDevice(device)),
+    setApplications: (applications: Application[]) => dispatch(setApplications(applications))
   };
 };
 

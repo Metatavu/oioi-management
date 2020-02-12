@@ -209,7 +209,18 @@ class CustomerDialog extends React.Component<Props, State> {
 
     await saveClick(customer, dialogType);
 
-    this.props.handleClose();
+    this.setState(
+      {
+        form: initForm<CustomerForm>(
+          {
+            name: "",
+            image_url: undefined
+          },
+          rules
+        )
+      },
+      () => this.props.handleClose()
+    );
   };
 
   /**
@@ -286,7 +297,8 @@ class CustomerDialog extends React.Component<Props, State> {
       {
         form: initForm<CustomerForm>(
           {
-            name: ""
+            name: "",
+            image_url: undefined
           },
           rules
         )
@@ -299,7 +311,8 @@ class CustomerDialog extends React.Component<Props, State> {
     this.setState({
       form: initForm<CustomerForm>(
         {
-          name: ""
+          name: "",
+          image_url: undefined
         },
         rules
       )
