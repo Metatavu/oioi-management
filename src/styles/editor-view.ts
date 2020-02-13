@@ -9,7 +9,7 @@ export default createStyles({
     display: "grid",
     gridTemplateColumns: "auto 1fr",
     gridTemplateRows: "auto auto 1fr",
-    gridTemplateAreas: "\"drawer appbar\" \"drawer content\" \"drawer content\"",
+    gridTemplateAreas: '"drawer appbar" "drawer content" "drawer content"',
     boxShadow: "0 0 20px rgba(0, 0, 0, 0.2)",
     height: "100%"
   },
@@ -18,8 +18,8 @@ export default createStyles({
     position: "relative",
     [theme.breakpoints.up("sm")]: {
       width: drawerWidth,
-      flexShrink: 0,
-    },
+      flexShrink: 0
+    }
   },
   appBar: {
     height: 65,
@@ -27,20 +27,19 @@ export default createStyles({
     color: "#000",
     gridArea: "appbar",
     borderBottomWidth: 0.5,
-    borderBottom: "1px solid rgba(0, 0, 0, 0.2)",
+    borderBottom: "1px solid rgba(0, 0, 0, 0.2)"
   },
   menuButton: {
     marginRight: theme.spacing(2),
     [theme.breakpoints.up("sm")]: {
-      display: "none",
-    },
+      display: "none"
+    }
   },
-  toolbar: theme.mixins.toolbar,
   drawerPaper: {
     backgroundColor: "#fff",
     position: "absolute",
     width: drawerWidth,
-    height: "100%",
+    height: "100%"
   },
   content: {
     gridArea: "content",
@@ -57,13 +56,13 @@ export default createStyles({
   treeIconContainer: {
     marginRight: 5,
     "& .close": {
-      opacity: 0.3,
-    },
+      opacity: 0.3
+    }
   },
   treeGroup: {
     marginLeft: 12,
     paddingLeft: 12,
-    borderLeft: `1px dashed ${fade(theme.palette.text.primary, 0.4)}`,
+    borderLeft: `1px dashed ${fade(theme.palette.text.primary, 0.4)}`
   },
   treeLabel: {
     whiteSpace: "nowrap",
@@ -77,9 +76,9 @@ export default createStyles({
     borderRadius: theme.shape.borderRadius,
     borderColor: "rgba(0, 0, 0, 0.8)",
     transition: "border-color 0.2s ease-out",
-     "& .MuiGrid-container": {
-       justifyContent: "center"
-     }
+    "& .MuiGrid-container": {
+      justifyContent: "center"
+    }
   },
   dropzoneText: {
     color: "rgba(0, 0, 0, 0.5)",

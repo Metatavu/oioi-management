@@ -1,12 +1,13 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import * as React from "react";
 import { withStyles, WithStyles, TextField, Divider, Typography, Grid, FormControl, InputLabel, Select, MenuItem, Button } from "@material-ui/core";
 import MaterialTable from "material-table";
-import AddIcon from '@material-ui/icons/AddBox';
-import DeleteIcon from '@material-ui/icons/Delete';
-import SaveIcon from '@material-ui/icons/Save';
-import CheckIcon from '@material-ui/icons/Check';
-import ClearIcon from '@material-ui/icons/Clear';
-import EditIcon from '@material-ui/icons/Edit';
+import AddIcon from "@material-ui/icons/AddBox";
+import DeleteIcon from "@material-ui/icons/Delete";
+import SaveIcon from "@material-ui/icons/Save";
+import CheckIcon from "@material-ui/icons/Check";
+import ClearIcon from "@material-ui/icons/Clear";
+import EditIcon from "@material-ui/icons/Edit";
 import styles from "../../styles/editor-view";
 import { DropzoneArea } from "material-ui-dropzone";
 import strings from "../../localization/strings";
@@ -14,21 +15,57 @@ import theme from "../../styles/theme";
 import { Resource, ResourceToJSON, ResourceFromJSON, ResourceType } from "../../generated/client/src";
 import FileUpload from "../../utils/FileUpload";
 import { forwardRef } from "react";
+import { FormValidationRules, MessageType, initForm, Form, validateForm } from "ts-form-validation";
 
 interface Props extends WithStyles<typeof styles> {
-  resource: Resource,
-  customerId: string,
-  onUpdate(resource: Resource): void,
-  onDelete(resource: Resource): void
+  resource: Resource;
+  customerId: string;
+  onUpdate(resource: Resource): void;
+  onDelete(resource: Resource): void;
 }
 
+interface ResourceSettingsForm extends Partial<Resource> {}
+
+const rules: FormValidationRules<ResourceSettingsForm> = {
+  fields: {
+    name: {
+      required: true,
+      trim: true,
+      requiredText: strings.requiredField
+    },
+    order_number: {
+      required: true,
+      trim: true,
+      requiredText: strings.requiredField
+    },
+    slug: {
+      required: true,
+      trim: true,
+      requiredText: strings.requiredField
+    },
+    data: {
+      required: false,
+      trim: true
+    }
+  },
+  validateForm: form => {
+    const messages = {};
+
+    return {
+      ...form,
+      messages
+    };
+  }
+};
+
 interface State {
-  resourceId: string,
-  resourceData: any
+  form: Form<ResourceSettingsForm>;
+  resourceId: string;
+  resourceData: any;
+  updated: boolean;
 }
 
 class ResourceSettingsView extends React.Component<Props, State> {
-
   /**
    * Constructor
    *
@@ -37,18 +74,42 @@ class ResourceSettingsView extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = {
+      form: initForm<ResourceSettingsForm>(
+        {
+          name: undefined,
+          order_number: undefined,
+          slug: undefined,
+          data: undefined
+        },
+        rules
+      ),
+
       resourceId: "",
-      resourceData: {}
-    }
+      resourceData: {},
+      updated: false
+    };
   }
 
+  /**
+   * Component did mount
+   */
   public componentDidMount() {
     const resourceId = this.props.resource.id;
     if (!resourceId) {
       return;
     }
 
+    let form = initForm<ResourceSettingsForm>(
+      {
+        ...this.props.resource
+      },
+      rules
+    );
+
+    form = validateForm(form);
+
     this.setState({
+      form,
       resourceId: resourceId,
       resourceData: ResourceToJSON(this.props.resource)
     });
@@ -57,16 +118,21 @@ class ResourceSettingsView extends React.Component<Props, State> {
   /**
    * Component did update method
    */
-  public componentDidUpdate(prevProps: any) {
-    const { resource } = this.props;
-    const resourceId = this.props.resource.id;
-    if (!resourceId) {
-      return;
-    }
+  public componentDidUpdate(prevProps: Props, prevState: State) {
+    if (prevProps.resource !== this.props.resource) {
+      const { resource } = this.props;
+      let form = initForm<ResourceSettingsForm>(
+        {
+          ...resource
+        },
+        rules
+      );
 
-    if (prevProps.resource !== resource) {
+      form = validateForm(form);
+
       this.setState({
-        resourceId: resourceId,
+        updated: true,
+        form,
         resourceData: ResourceToJSON(this.props.resource)
       });
     }
@@ -76,63 +142,54 @@ class ResourceSettingsView extends React.Component<Props, State> {
    * Component render method
    */
   public render() {
-    const { resourceData } = this.state;
+    const { resourceData, updated } = this.state;
+    const { isFormValid } = this.state.form;
+
+    if (updated) {
+      this.setState({
+        updated: false
+      });
+      return <div></div>;
+    }
+
     const localizedDataString = this.getLocalizedDataString();
     const dataField = this.renderDataField();
 
     return (
       <div>
-        <TextField
-          style={{ marginBottom: theme.spacing(3) }}
-          variant="outlined"
-          value={ this.state.resourceData["name"] }
-          onChange={ this.onDataChange }
-          name="name"
-          label={ strings.name }
-        />
-        <TextField
-          style={{ marginLeft: theme.spacing(3) }}
-          variant="outlined"
-          value={ this.state.resourceData["orderNumber"] }
-          onChange={ this.onDataChange }
-          name="orderNumber"
-          label={ strings.orderNumber }
-        />
-        <TextField
-          style={{ marginLeft: theme.spacing(3) }}
-          variant="outlined"
-          value={ this.state.resourceData["slug"] }
-          onChange={ this.onDataChange }
-          name="slug"
-          label={ strings.slug }
-        />
+        {this.renderField("name", strings.name, "text")}
+        {this.renderField("order_number", strings.orderNumber, "number")}
+        {this.renderField("slug", strings.slug, "text")}
         <Button
           style={{ marginLeft: theme.spacing(3), marginTop: theme.spacing(1) }}
           color="primary"
           variant="contained"
-          startIcon={ <SaveIcon /> }
-          onClick={ this.onUpdateResource }
+          startIcon={<SaveIcon />}
+          disabled={!isFormValid}
+          onClick={this.onUpdateResource}
         >
-          { strings.save }
+          {strings.save}
         </Button>
         <Divider style={{ marginBottom: theme.spacing(3) }} />
         <div>
-          <Typography variant="h3">{ localizedDataString }</Typography>
-          { dataField }
+          <Typography variant="h3">{localizedDataString}</Typography>
+          {dataField}
         </div>
         <Divider style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} />
         <div>
           <MaterialTable
-            icons={{ Add: forwardRef((props, ref) => <AddIcon {...props} ref={ref} />),
+            icons={{
+              Add: forwardRef((props, ref) => <AddIcon {...props} ref={ref} />),
               Delete: forwardRef((props, ref) => <DeleteIcon {...props} ref={ref} />),
               Check: forwardRef((props, ref) => <CheckIcon {...props} ref={ref} />),
               Clear: forwardRef((props, ref) => <ClearIcon {...props} ref={ref} />),
-              Edit: forwardRef((props, ref) => <EditIcon {...props} ref={ref} />) }}
+              Edit: forwardRef((props, ref) => <EditIcon {...props} ref={ref} />)
+            }}
             columns={[
               { title: strings.key, field: "key" },
               { title: strings.value, field: "value" }
             ]}
-            data={ resourceData["styles"] }
+            data={resourceData["styles"]}
             editable={{
               onRowAdd: newData =>
                 new Promise((resolve, reject) => {
@@ -170,7 +227,7 @@ class ResourceSettingsView extends React.Component<Props, State> {
                   resolve();
                 })
             }}
-            title={ strings.styles }
+            title={strings.styles}
             options={{
               grouping: false,
               search: false,
@@ -189,16 +246,18 @@ class ResourceSettingsView extends React.Component<Props, State> {
         <Divider style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} />
         <div>
           <MaterialTable
-            icons={{ Add: forwardRef((props, ref) => <AddIcon {...props} ref={ref} />),
+            icons={{
+              Add: forwardRef((props, ref) => <AddIcon {...props} ref={ref} />),
               Delete: forwardRef((props, ref) => <DeleteIcon {...props} ref={ref} />),
               Check: forwardRef((props, ref) => <CheckIcon {...props} ref={ref} />),
               Clear: forwardRef((props, ref) => <ClearIcon {...props} ref={ref} />),
-              Edit: forwardRef((props, ref) => <EditIcon {...props} ref={ref} />) }}
+              Edit: forwardRef((props, ref) => <EditIcon {...props} ref={ref} />)
+            }}
             columns={[
               { title: strings.key, field: "key" },
               { title: strings.value, field: "value" }
             ]}
-            data={ resourceData["properties"] }
+            data={resourceData["properties"]}
             editable={{
               onRowAdd: newData =>
                 new Promise((resolve, reject) => {
@@ -236,7 +295,7 @@ class ResourceSettingsView extends React.Component<Props, State> {
                   resolve();
                 })
             }}
-            title={ strings.properties }
+            title={strings.properties}
             options={{
               grouping: false,
               search: false,
@@ -257,20 +316,44 @@ class ResourceSettingsView extends React.Component<Props, State> {
   }
 
   /**
+   * Renders textfield
+   */
+  private renderField = (key: keyof ResourceSettingsForm, label: string, type: string) => {
+    const {
+      values,
+      messages: { [key]: message }
+    } = this.state.form;
+    return (
+      <TextField
+        style={{ marginLeft: theme.spacing(3) }}
+        type={type}
+        error={message && message.type === MessageType.ERROR}
+        helperText={message && message.message}
+        value={values[key] || ""}
+        onChange={this.onHandleChange(key)}
+        onBlur={this.onHandleBlur(key)}
+        name={key}
+        variant="outlined"
+        label={label}
+      />
+    );
+  };
+
+  /**
    * Render file drop zone method
    */
   private renderDataField = () => {
     const { classes, resource } = this.props;
     const resourceType = resource.type;
 
-    if (resourceType == ResourceType.TEXT) {
+    if (resourceType === ResourceType.TEXT) {
       return (
         <TextField
           fullWidth
           name="data"
-          value={ this.state.resourceData["data"] }
-          onChange={ this.onDataChange }
-          label={ strings.text }
+          value={this.state.form.values.data}
+          onChange={this.onDataChange}
+          label={strings.text}
           multiline
           rows="8"
           margin="normal"
@@ -279,80 +362,42 @@ class ResourceSettingsView extends React.Component<Props, State> {
       );
     } else {
       const allowedFileTypes = this.getAllowedFileTypes();
-      const fileData = resource.data;
+      const fileData = this.state.form.values.data;
 
       if (fileData) {
         return (
           <DropzoneArea
-            acceptedFiles={ allowedFileTypes }
-            filesLimit={ 1 }
-            dropzoneClass={ classes.dropzone }
-            dropzoneParagraphClass={ classes.dropzoneText }
-            dropzoneText={ strings.dropFile }
-            onChange={ this.onImageChange }
-            showPreviews={ true }
-            showPreviewsInDropzone={ false }
-            showFileNamesInPreview={ true }
-            initialFiles={ [fileData] }
+            key={this.props.resource.id}
+            acceptedFiles={allowedFileTypes}
+            filesLimit={1}
+            dropzoneClass={classes.dropzone}
+            dropzoneParagraphClass={classes.dropzoneText}
+            dropzoneText={strings.dropFile}
+            onChange={this.onImageChange}
+            showPreviews={true}
+            showPreviewsInDropzone={false}
+            showFileNamesInPreview={true}
+            initialFiles={[fileData]}
           />
         );
       } else {
         return (
-          <Grid item className={ classes.fullWidth }>
+          <Grid item className={classes.fullWidth}>
             <DropzoneArea
-              acceptedFiles={ allowedFileTypes }
-              filesLimit={ 1 }
-              dropzoneClass={ classes.dropzone }
-              dropzoneParagraphClass={ classes.dropzoneText }
-              dropzoneText={ strings.dropFile }
-              showFileNamesInPreview={ true }
-              onChange={ this.onImageChange }
+              key={this.props.resource.id}
+              acceptedFiles={allowedFileTypes}
+              filesLimit={1}
+              dropzoneClass={classes.dropzone}
+              dropzoneParagraphClass={classes.dropzoneText}
+              dropzoneText={strings.dropFile}
+              showFileNamesInPreview={true}
+              onChange={this.onImageChange}
             />
           </Grid>
         );
       }
     }
-  }
-
-  /**
-   * Handles image change
-   */
-  private onImageChange = async (files: File[]) => {
-    const { customerId } = this.props;
-    const file = files[0];
-    const response = await FileUpload.uploadFile(file, customerId);
-    const { resourceData } = this.state;
-    resourceData["data"] = response.uri;
-
-    this.setState({
-      resourceData: resourceData
-    });
-  }
-
-  /**
-   * Handles data change
-   */
-  private onDataChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { resourceData } = this.state;
-    resourceData[e.target.name] = e.target.value;
-    this.setState({
-      resourceData: resourceData
-    });
-  }
-
-  /**
-   * On update resource method
-   */
-  private onUpdateResource = () => {
-    const { onUpdate } = this.props;
-    const { resourceData, resourceId } = this.state;
-    resourceData["id"] = resourceId;
-    const resource = ResourceFromJSON(resourceData);
-    onUpdate(resource);
-    this.setState({
-      resourceData: resourceData
-    });
-  }
+  };
 
   /**
    * Get localized string for data type method
@@ -377,7 +422,7 @@ class ResourceSettingsView extends React.Component<Props, State> {
         return strings.file;
       }
     }
-  }
+  };
 
   /**
    * Get file types for resource type method
@@ -399,7 +444,109 @@ class ResourceSettingsView extends React.Component<Props, State> {
         return [];
       }
     }
-  }
+  };
+
+  /**
+   * Handles image change
+   */
+  private onImageChange = async (files: File[]) => {
+    const { customerId } = this.props;
+    const { resourceData } = this.state;
+
+    const file = files[0];
+
+    if (file) {
+      const response = await FileUpload.uploadFile(file, customerId);
+
+      resourceData["data"] = response.uri;
+    } else {
+      resourceData["data"] = undefined;
+    }
+
+    this.setState({
+      resourceData: resourceData
+    });
+  };
+
+  /**
+   * Handles data change
+   */
+  private onDataChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { resourceData } = this.state;
+    resourceData[e.target.name] = e.target.value;
+
+    this.setState({
+      resourceData: resourceData
+    });
+  };
+
+  /**
+   * On update resource method
+   */
+  private onUpdateResource = () => {
+    const { onUpdate } = this.props;
+    const { resourceData } = this.state;
+
+    const resource = {
+      ...this.state.form.values,
+      data: this.state.resourceData["data"],
+      styles: this.state.resourceData["styles"],
+      properties: this.state.resourceData["properties"]
+    } as Resource;
+
+    onUpdate(resource);
+
+    this.setState({
+      resourceData: resourceData
+    });
+  };
+
+  /**
+   * Handles textfields change events
+   * @param key
+   * @param event
+   */
+  private onHandleChange = (key: keyof ResourceSettingsForm) => (event: React.ChangeEvent<HTMLInputElement>) => {
+    const values = {
+      ...this.state.form.values,
+      [key]: event.target.value
+    };
+
+    const form = validateForm(
+      {
+        ...this.state.form,
+        values
+      },
+      {
+        usePreprocessor: false
+      }
+    );
+
+    this.setState({
+      form
+    });
+  };
+
+  /**
+   * Handles fields blur event
+   * @param key
+   */
+  private onHandleBlur = (key: keyof ResourceSettingsForm) => () => {
+    let form = { ...this.state.form };
+    const filled = {
+      ...form.filled,
+      [key]: true
+    };
+
+    form = validateForm({
+      ...this.state.form,
+      filled
+    });
+
+    this.setState({
+      form
+    });
+  };
 }
 
 export default withStyles(styles)(ResourceSettingsView);

@@ -1,33 +1,61 @@
 import * as React from "react";
-import { Container, Typography, Grid, Card, withStyles, WithStyles, CardActionArea } from "@material-ui/core";
-import img from "../../resources/images/macmini.png";
+import { Container, Typography, Grid, Card, withStyles, WithStyles, CardActionArea, Snackbar } from "@material-ui/core";
 import AddIcon from "@material-ui/icons/AddCircle";
 import styles from "../../styles/card-item";
 import { History } from "history";
 import CardItem from "../generic/CardItem";
-import AddDeviceDialog from "../generic/AddDeviceDialog";
+import DeviceDialog from "../generic/DeviceDialog";
 import strings from "../../localization/strings";
-import { Device, Customer } from "../../generated/client/src";
+import { Device, Customer, Application } from "../../generated/client/src";
 import ApiUtils from "../../utils/ApiUtils";
-import { AuthState } from "../../types";
+import { AuthState, DialogType } from "../../types";
 import { ReduxState, ReduxActions } from "../../store";
 import { Dispatch } from "redux";
 import { connect } from "react-redux";
+import DeleteDialog from "../generic/DeleteDialog";
+import { Alert } from "@material-ui/lab";
+import { setDevice } from "../../actions/device";
+import { setApplications } from "../../actions/applications";
+import { setCustomer } from "../../actions/customer";
 
+/**
+ * Component props
+ */
 interface Props extends WithStyles<typeof styles> {
-  history: History
-  customerId: string
-  auth: AuthState
+  /**
+   * Router history
+   */
+  history: History;
+  /**
+   * Customer id
+   */
+  customerId: string;
+  /**
+   * Auth
+   */
+  auth: AuthState;
+  setCustomer: typeof setCustomer;
+  setDevice: typeof setDevice;
+  setApplications: typeof setApplications;
 }
 
+/**
+ * Component state
+ */
 interface State {
-  editorDialogOpen: boolean,
-  devices: Device[],
-  customer?: Customer
+  editorDialogOpen: boolean;
+  dialogType: DialogType;
+  deleteDialogOpen: boolean;
+  snackbarOpen: boolean;
+  deviceInDialog?: Device;
+  devices: Device[];
+  customer?: Customer;
 }
 
+/**
+ * Creates list of devices
+ */
 class DevicesList extends React.Component<Props, State> {
-
   /**
    * Constructor
    *
@@ -37,12 +65,19 @@ class DevicesList extends React.Component<Props, State> {
     super(props);
     this.state = {
       editorDialogOpen: false,
-      devices: []
+      devices: [],
+      dialogType: "new",
+      deviceInDialog: undefined,
+      deleteDialogOpen: false,
+      snackbarOpen: false
     };
   }
 
+  /**
+   * Component did mount
+   */
   public componentDidMount = async () => {
-    const { auth, customerId } = this.props;
+    const { auth, customerId, setCustomer } = this.props;
     if (!auth || !auth.token) {
       return;
     }
@@ -58,31 +93,45 @@ class DevicesList extends React.Component<Props, State> {
       customer: customer,
       devices: devices
     });
-  }
+    setCustomer(customer);
+  };
 
   /**
    * Component render method
    */
   public render() {
     const { classes } = this.props;
-    const { customer } = this.state;
-    const cards = this.state.devices.map((device: Device) => this.renderCard(device));
+    const { customer, deviceInDialog, dialogType, editorDialogOpen, deleteDialogOpen, snackbarOpen } = this.state;
+    const cards = this.state.devices.map((device: Device, index) => this.renderCard(device, `${index}${device.name}`));
+
     return (
       <Container maxWidth="xl" className="page-content">
-        <Typography className={ classes.heading } variant="h2">{ customer ? customer.name : strings.loading } / { strings.devices }</Typography>
-        <Grid container spacing={ 5 } direction="row">
-          {
-            cards
-          }
-          {
-            this.renderAdd()
-          }
+        <Typography className={classes.heading} variant="h2">
+          {customer ? customer.name : strings.loading} / {strings.devices}
+        </Typography>
+        <Grid container spacing={5} direction="row">
+          {cards}
+          {this.renderAdd()}
         </Grid>
-        <AddDeviceDialog
-          open={ this.state.editorDialogOpen }
-          saveClick={ this.onSaveDeviceClick }
-          handleClose={ this.onDialogCloseClick }
+        <DeviceDialog
+          open={editorDialogOpen}
+          device={deviceInDialog}
+          dialogType={dialogType}
+          saveClick={this.onSaveOrUpdateDeviceClick}
+          handleClose={this.onDialogCloseClick}
         />
+        <DeleteDialog
+          open={deleteDialogOpen}
+          deleteClick={this.onDeleteDeviceClick}
+          itemToDelete={deviceInDialog || undefined}
+          handleClose={this.onDeleteDialogCloseClick}
+          title={strings.deleteConfirmation}
+        />
+        <Snackbar open={snackbarOpen} autoHideDuration={6000} onClose={this.onSnackbarClose}>
+          <Alert onClose={this.onSnackbarClose} severity="success">
+            {strings.deleteSuccess}
+          </Alert>
+        </Snackbar>
       </Container>
     );
   }
@@ -90,16 +139,17 @@ class DevicesList extends React.Component<Props, State> {
   /**
    * Card render method
    */
-  private renderCard(device: Device) {
+  private renderCard(device: Device, key: string) {
     return (
-      <Grid item>
+      <Grid key={key} item>
         <CardItem
-          title={ device.name }
-          img={ img }
-          editClick={ () => this.onEditDeviceClick(device) }
-          detailsClick={ () => this.onDeviceDetailsClick(device) }
-          deleteClick={ () => this.onDeleteDeviceClick(device) }>
-        </CardItem>
+          title={device.name}
+          img={device.image_url}
+          editConfiguration={() => this.onEditDeviceConfigurationClick(device)}
+          editClick={() => this.onEditDeviceClick(device)}
+          detailsClick={() => this.onDeviceDetailsClick(device)}
+          deleteClick={() => this.onDeleteOpenModalClick(device)}
+        ></CardItem>
       </Grid>
     );
   }
@@ -111,9 +161,9 @@ class DevicesList extends React.Component<Props, State> {
     const { classes } = this.props;
     return (
       <Grid item>
-        <Card elevation={ 0 } className={ classes.addCard }>
-          <CardActionArea className={ classes.add } onClick={ this.onAddDeviceClick }>
-            <AddIcon className={ classes.addIcon } />
+        <Card elevation={0} className={classes.addCard}>
+          <CardActionArea className={classes.add} onClick={this.onAddDeviceClick}>
+            <AddIcon className={classes.addIcon} />
           </CardActionArea>
         </Card>
       </Grid>
@@ -121,20 +171,59 @@ class DevicesList extends React.Component<Props, State> {
   }
 
   /**
-   * Edit device method
+   * Edit device configuration method
+   * @param device
    */
-  private onEditDeviceClick = (device: Device) => {
+  private onEditDeviceConfigurationClick = (device: Device) => {
     const { customerId } = this.props;
     this.props.history.push(`/${customerId}/devices/${device.id}/applications`);
-  }
+  };
+
+  /**
+   * Edit device method
+   * @param device
+   */
+  private onEditDeviceClick = (device: Device) => {
+    this.setState({
+      dialogType: "edit",
+      editorDialogOpen: true,
+      deviceInDialog: device
+    });
+  };
+
   /**
    * Show device details method
+   * @param device
    */
   private onDeviceDetailsClick = (device: Device) => {
-    alert("Show device details!");
-  }
+    this.setState({
+      dialogType: "show",
+      editorDialogOpen: true,
+      deviceInDialog: device
+    });
+  };
+
+  /**
+   * Add device method
+   */
+  private onAddDeviceClick = () => {
+    this.setState({ dialogType: "new", editorDialogOpen: true, deviceInDialog: undefined });
+  };
+
+  /**
+   * Delete open modal click
+   * @param device
+   */
+  private onDeleteOpenModalClick = (device: Device) => {
+    this.setState({
+      deleteDialogOpen: true,
+      deviceInDialog: device
+    });
+  };
+
   /**
    * Delete device method
+   * @param device
    */
   private onDeleteDeviceClick = async (device: Device) => {
     const { auth, customerId } = this.props;
@@ -149,21 +238,38 @@ class DevicesList extends React.Component<Props, State> {
     });
     const { devices } = this.state;
     this.setState({
-      devices: devices.filter((c => c.id !== device.id))
+      snackbarOpen: true,
+      deleteDialogOpen: false,
+      devices: devices.filter(c => c.id !== device.id)
     });
-  }
-  /**
-   * Add device method
-   */
-  private onAddDeviceClick = () => {
-    this.setState({ editorDialogOpen: true });
-  }
+  };
+
   /**
    * Save device method
-   *
-   * TODO: handle saving
+   * @param device
+   * @param dialogType
    */
-  private onSaveDeviceClick = async (device: Device) => {
+  private onSaveOrUpdateDeviceClick = async (device: Device, dialogType: DialogType) => {
+    switch (dialogType) {
+      case "new":
+        this.saveNewDevice(device);
+        break;
+
+      case "edit":
+        if (device.id) {
+          this.updateDevice(device, device.id);
+        }
+        break;
+      default:
+        break;
+    }
+  };
+
+  /**
+   * Save new device method
+   * @param device
+   */
+  private saveNewDevice = async (device: Device) => {
     const { auth, customerId } = this.props;
     if (!auth || !auth.token) {
       return;
@@ -174,29 +280,100 @@ class DevicesList extends React.Component<Props, State> {
       customer_id: customerId,
       device: device
     });
+
     const { devices } = this.state;
     devices.push(newDevice);
     this.setState({
       devices: devices,
       editorDialogOpen: false
     });
-  }
+  };
+
+  /**
+   * Updates device
+   * @param device
+   * @param id
+   */
+  private updateDevice = async (device: Device, id: string) => {
+    const { auth, customerId } = this.props;
+    if (!auth || !auth.token) {
+      return;
+    }
+
+    const devicesApi = ApiUtils.getDevicesApi(auth.token);
+
+    const updatedDevice = await devicesApi.updateDevice({
+      device_id: id,
+      customer_id: customerId,
+      device: device
+    });
+
+    const { devices } = this.state;
+
+    /**
+     * Creates updated list by removing old device from list and pushing updated device to list in stead
+     */
+    const updateDeviceList = [...devices].filter(dev => dev.id !== id);
+    updateDeviceList.push(updatedDevice);
+
+    this.setState({
+      devices: updateDeviceList,
+      editorDialogOpen: false
+    });
+  };
+
+  /**
+   * Snack bar close click
+   * @param event
+   * @param reason
+   */
+  private onSnackbarClose = (event?: React.SyntheticEvent, reason?: string) => {
+    if (reason === "clickaway") {
+      return;
+    }
+
+    this.setState({
+      snackbarOpen: false
+    });
+  };
+
   /**
    * Close dialog method
    *
    * TODO: handle prompt if unsaved
    */
   private onDialogCloseClick = () => {
-    this.setState({ editorDialogOpen: false });
-  }
+    this.setState({ editorDialogOpen: false, deviceInDialog: undefined });
+  };
+
+  /**
+   * Delete dialog close click
+   */
+  private onDeleteDialogCloseClick = () => {
+    this.setState({ deleteDialogOpen: false });
+  };
 }
 
+/**
+ * Maps redux state to props
+ *
+ * @param state redux state
+ */
 const mapStateToProps = (state: ReduxState) => ({
   auth: state.auth
 });
 
+/**
+ * Function for declaring dispatch functions
+ *
+ * @param dispatch
+ */
 const mapDispatchToProps = (dispatch: Dispatch<ReduxActions>) => {
-  return {};
-}
+  return {
+    setCustomer: (customer: Customer) => dispatch(setCustomer(customer)),
+    setDevice: (device: Device) => dispatch(setDevice(device)),
+    setApplications: (applications: Application[]) => dispatch(setApplications(applications))
+  };
+};
 
 export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(DevicesList));

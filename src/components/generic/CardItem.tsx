@@ -2,36 +2,39 @@ import * as React from "react";
 import { Typography, Card, CardMedia, withStyles, WithStyles, CardActions, CardActionArea, Button } from "@material-ui/core";
 import styles from "../../styles/card-item";
 import strings from "../../localization/strings";
+import img from "../../resources/images/no-image-available-icon.jpg";
 
 interface Props extends WithStyles<typeof styles> {
   /**
    * Card title
    */
-  title: string
+  title: string;
   /**
    * Card image
    */
-  img: string
+  img?: string;
+
+  /**
+   * Edit configuration button click
+   */
+  editConfiguration(): void;
   /**
    * Edit button click
    */
-  editClick(): void
+  editClick(): void;
   /**
    * Details button click
    */
-  detailsClick(): void
+  detailsClick(): void;
   /**
    * Delete button click
    */
-  deleteClick(): void
+  deleteClick(): void;
 }
 
-interface State {
-
-}
+interface State {}
 
 class CardItem extends React.Component<Props, State> {
-
   /**
    * Constructor
    *
@@ -39,10 +42,7 @@ class CardItem extends React.Component<Props, State> {
    */
   constructor(props: Props) {
     super(props);
-    this.state = {
-      title: "title",
-      img: "",
-    };
+    this.state = {};
   }
 
   /**
@@ -51,24 +51,22 @@ class CardItem extends React.Component<Props, State> {
   public render() {
     const { classes } = this.props;
     return (
-      <Card elevation={10} className={ classes.card }>
-        <CardActionArea className={ classes.actionArea } onClick={ this.props.editClick }>
-          <CardMedia className={ classes.media } image={ this.props.img }></CardMedia>
-          <div className={ classes.overlay }>
-            <Typography variant="h3">
-              { this.props.title }
-            </Typography>
+      <Card elevation={10} className={classes.card}>
+        <CardActionArea className={classes.actionArea} onClick={this.props.editConfiguration}>
+          <CardMedia className={classes.media} image={this.props.img || img}></CardMedia>
+          <div className={classes.overlay}>
+            <Typography variant="h3">{this.props.title}</Typography>
           </div>
         </CardActionArea>
-        <CardActions className={ classes.cardActions }>
-          <Button size="small" className={ classes.edit } onClick={ this.props.editClick }>
-          { strings.edit }
+        <CardActions className={classes.cardActions}>
+          <Button size="small" className={classes.edit} onClick={this.props.editClick}>
+            {strings.edit}
           </Button>
-          <Button size="small" className={ classes.details } onClick={ this.props.detailsClick }>
-          { strings.details }
+          <Button size="small" className={classes.details} onClick={this.props.detailsClick}>
+            {strings.details}
           </Button>
-          <Button size="small" className={ classes.delete } onClick={ this.props.deleteClick }>
-          { strings.delete }
+          <Button size="small" className={classes.delete} onClick={this.props.deleteClick}>
+            {strings.delete}
           </Button>
         </CardActions>
       </Card>

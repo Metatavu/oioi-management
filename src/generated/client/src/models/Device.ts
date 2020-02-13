@@ -43,6 +43,12 @@ export interface Device {
      * @type {string}
      * @memberof Device
      */
+    image_url?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof Device
+     */
     api_key: string;
     /**
      * 
@@ -88,6 +94,7 @@ export function DeviceFromJSONTyped(json: any, ignoreDiscriminator: boolean): De
         
         'id': !exists(json, 'id') ? undefined : json['id'],
         'name': json['name'],
+        'image_url': !exists(json, 'imageUrl') ? undefined : json['imageUrl'],
         'api_key': json['apiKey'],
         'metas': !exists(json, 'metas') ? undefined : (json['metas'] as Array<any>).map(KeyValuePropertyFromJSON),
         'created_at': !exists(json, 'createdAt') ? undefined : new Date(json['createdAt']),
@@ -107,6 +114,7 @@ export function DeviceToJSON(value?: Device | null): any {
     return {
         
         'name': value.name,
+        'imageUrl': value.image_url,
         'apiKey': value.api_key,
         'metas': value.metas == null ? undefined : (value.metas as Array<any>).map(KeyValuePropertyToJSON),
         'creatorId': value.creator_id,

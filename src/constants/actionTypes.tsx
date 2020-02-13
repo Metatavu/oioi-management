@@ -9,3 +9,39 @@ export type LOGIN = typeof LOGIN;
  */
 export const LOGOUT = "LOGOUT";
 export type LOGOUT = typeof LOGOUT;
+
+/**
+ * Customer action type
+ */
+export const SET_CUSTOMER = "SET_CUSTOMER";
+export type SET_CUSTOMER = typeof SET_CUSTOMER;
+
+/**
+ * Device action type
+ */
+export const SET_DEVICE = "SET_DEVICE";
+export type SET_DEVICE = typeof SET_DEVICE;
+
+/**
+ * Customer action type
+ */
+export const SET_APPLICATIONS = "SET_APPLICATIONS";
+export type SET_APPLICATIONS = typeof SET_APPLICATIONS;
+
+/**
+ *
+ */
+export const UPDATE_RESOURCES = "UPDATE_RESOURCES";
+export type UPDATE_RESOURCES = typeof UPDATE_RESOURCES;
+
+/**
+ *
+ */
+export const OPEN_RESOURCE = "OPEN_RESOURCE";
+export type OPEN_RESOURCE = typeof OPEN_RESOURCE;
+
+/**
+ *
+ */
+export const UPDATED_RESOURCE_VIEW = "UPDATED_RESOURCE_VIEW";
+export type UPDATED_RESOURCE_VIEW = typeof UPDATED_RESOURCE_VIEW;
