@@ -12,7 +12,7 @@ import styles from "../../styles/editor-view";
 import { DropzoneArea } from "material-ui-dropzone";
 import strings from "../../localization/strings";
 import theme from "../../styles/theme";
-import { Resource, ResourceToJSON, ResourceFromJSON, ResourceType } from "../../generated/client/src";
+import { Resource, ResourceToJSON, ResourceFromJSON, ResourceType, KeyValuePropertyFromJSON, KeyValueProperty } from "../../generated/client/src";
 import FileUpload from "../../utils/FileUpload";
 import { forwardRef } from "react";
 import { FormValidationRules, MessageType, initForm, Form, validateForm } from "ts-form-validation";
@@ -24,7 +24,11 @@ interface Props extends WithStyles<typeof styles> {
   onDelete(resource: Resource): void;
 }
 
-interface ResourceSettingsForm extends Partial<Resource> {}
+interface ResourceSettingsForm extends Partial<Resource> {
+  nameText?: string,
+  title?: string,
+  content?: string
+}
 
 const rules: FormValidationRules<ResourceSettingsForm> = {
   fields: {
@@ -46,6 +50,18 @@ const rules: FormValidationRules<ResourceSettingsForm> = {
     data: {
       required: false,
       trim: true
+    },
+    nameText: {
+      required: false,
+      trim: true
+    },
+    title: {
+      required: false,
+      trim: true
+    },
+    content: {
+      required: false,
+      trim: true
     }
   },
   validateForm: form => {
@@ -65,7 +81,7 @@ interface State {
   updated: boolean;
 }
 
-class ResourceSettingsView extends React.Component<Props, State> {
+class MenuResourceSettingsView extends React.Component<Props, State> {
   /**
    * Constructor
    *
@@ -79,7 +95,10 @@ class ResourceSettingsView extends React.Component<Props, State> {
           name: undefined,
           order_number: undefined,
           slug: undefined,
-          data: undefined
+          data: undefined,
+          nameText: undefined,
+          title: undefined,
+          content: undefined
         },
         rules
       ),
@@ -99,9 +118,17 @@ class ResourceSettingsView extends React.Component<Props, State> {
       return;
     }
 
+    const properties = this.props.resource.properties || [];
+    const titleProperty = properties.find(p => p.key == "title");
+    const contentProperty = properties.find(p => p.key == "content");
+    const nameTextProperty = properties.find(p => p.key == "nameText");
+
     let form = initForm<ResourceSettingsForm>(
       {
-        ...this.props.resource
+        ...this.props.resource,
+        nameText: nameTextProperty ? nameTextProperty.value : undefined,
+        content: contentProperty ? contentProperty.value : undefined,
+        title: titleProperty ? titleProperty.value : undefined
       },
       rules
     );
@@ -121,9 +148,16 @@ class ResourceSettingsView extends React.Component<Props, State> {
   public componentDidUpdate(prevProps: Props, prevState: State) {
     if (prevProps.resource !== this.props.resource) {
       const { resource } = this.props;
+      const properties = resource.properties || [];
+      const titleProperty = properties.find(p => p.key == "title");
+      const contentProperty = properties.find(p => p.key == "content");
+      const nameTextProperty = properties.find(p => p.key == "nameText");
       let form = initForm<ResourceSettingsForm>(
         {
-          ...resource
+          ...resource,
+          nameText: nameTextProperty ? nameTextProperty.value : undefined,
+          content: contentProperty ? contentProperty.value : undefined,
+          title: titleProperty ? titleProperty.value : undefined
         },
         rules
       );
@@ -152,14 +186,18 @@ class ResourceSettingsView extends React.Component<Props, State> {
       return <div></div>;
     }
 
-    const localizedDataString = this.getLocalizedDataString();
-    const dataField = this.renderDataField();
+    const backgroundField = this.renderPropertyFileField("background");
+    const menuImgField = this.renderPropertyFileField("menuImg");
 
     return (
       <div>
         {this.renderField("name", strings.name, "text")}
+        {this.renderField("nameText", "nameText", "textarea")}
+        {this.renderField("title", "title", "text")}
+        {this.renderField("content", "content", "textarea")}
         {this.renderField("order_number", strings.orderNumber, "number")}
         {this.renderField("slug", strings.slug, "text")}
+        
         <Button
           style={{ marginLeft: theme.spacing(3), marginTop: theme.spacing(1) }}
           color="primary"
@@ -172,8 +210,14 @@ class ResourceSettingsView extends React.Component<Props, State> {
         </Button>
         <Divider style={{ marginBottom: theme.spacing(3) }} />
         <div>
-          <Typography variant="h3">{localizedDataString}</Typography>
-          {dataField}
+          <Typography variant="h3">Taustakuva</Typography>
+          {backgroundField}
+        </div>
+        <Divider style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} />
+        <Divider style={{ marginBottom: theme.spacing(3) }} />
+        <div>
+          <Typography variant="h3">Valikkokuva</Typography>
+          {menuImgField}
         </div>
         <Divider style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} />
         <div>
@@ -323,9 +367,27 @@ class ResourceSettingsView extends React.Component<Props, State> {
       values,
       messages: { [key]: message }
     } = this.state.form;
+    if (type == "textarea") {
+      return ( <TextField
+        fullWidth
+        multiline
+        rows={8}
+        style={{ margin: theme.spacing(3) }}
+        type={type}
+        error={message && message.type === MessageType.ERROR}
+        helperText={message && message.message}
+        value={values[key] || ""}
+        onChange={this.onHandleChange(key)}
+        onBlur={this.onHandleBlur(key)}
+        name={key}
+        variant="outlined"
+        label={label}
+      /> );
+    }
     return (
       <TextField
-        style={{ marginLeft: theme.spacing(3) }}
+        fullWidth
+        style={{ margin: theme.spacing(3) }}
         type={type}
         error={message && message.type === MessageType.ERROR}
         helperText={message && message.message}
@@ -342,143 +404,75 @@ class ResourceSettingsView extends React.Component<Props, State> {
   /**
    * Render file drop zone method
    */
-  private renderDataField = () => {
+  private renderPropertyFileField = (key: string) => {
     const { classes, resource } = this.props;
-    const resourceType = resource.type;
+    const { resourceData } = this.state;
+    const allowedFileTypes = ["image/*", "video/*"];
+    const property = (resourceData.properties || []).find((p: KeyValueProperty) => p.key === key);
 
-    if (resourceType === ResourceType.TEXT) {
+    const fileData = property ? property.value : undefined;
+
+    if (fileData) {
       return (
-        <TextField
-          fullWidth
-          name="data"
-          value={this.state.form.values.data}
-          onChange={this.onDataChange}
-          label={strings.text}
-          multiline
-          rows="8"
-          margin="normal"
-          variant="outlined"
+        <DropzoneArea
+          key={resource.id}
+          acceptedFiles={allowedFileTypes}
+          filesLimit={1}
+          maxFileSize={30000000}
+          dropzoneClass={classes.dropzone}
+          dropzoneParagraphClass={classes.dropzoneText}
+          dropzoneText={strings.dropFile}
+          onChange={(files) => this.onPropertyFileChange(files, key)}
+          showPreviews={true}
+          showPreviewsInDropzone={false}
+          showFileNamesInPreview={true}
+          initialFiles={[fileData]}
         />
       );
     } else {
-      const allowedFileTypes = this.getAllowedFileTypes();
-      const fileData = this.state.form.values.data;
-
-      if (fileData) {
-        return (
+      return (
+        <Grid item className={classes.fullWidth}>
           <DropzoneArea
-            key={this.props.resource.id}
+            key={resource.id}
             acceptedFiles={allowedFileTypes}
             filesLimit={1}
             maxFileSize={30000000}
             dropzoneClass={classes.dropzone}
             dropzoneParagraphClass={classes.dropzoneText}
             dropzoneText={strings.dropFile}
-            onChange={this.onImageChange}
-            showPreviews={true}
-            showPreviewsInDropzone={false}
             showFileNamesInPreview={true}
-            initialFiles={[fileData]}
+            onChange={(files) => this.onPropertyFileChange(files, key)}
           />
-        );
-      } else {
-        return (
-          <Grid item className={classes.fullWidth}>
-            <DropzoneArea
-              key={this.props.resource.id}
-              acceptedFiles={allowedFileTypes}
-              filesLimit={1}
-              maxFileSize={30000000}
-              dropzoneClass={classes.dropzone}
-              dropzoneParagraphClass={classes.dropzoneText}
-              dropzoneText={strings.dropFile}
-              showFileNamesInPreview={true}
-              onChange={this.onImageChange}
-            />
-          </Grid>
-        );
-      }
-    }
-  };
-
-  /**
-   * Get localized string for data type method
-   */
-  private getLocalizedDataString = (): string => {
-    const { resource } = this.props;
-    const resourceType = resource.type;
-    switch (resourceType) {
-      case ResourceType.IMAGE: {
-        return strings.image;
-      }
-      case ResourceType.PDF: {
-        return strings.pdf;
-      }
-      case ResourceType.TEXT: {
-        return strings.text;
-      }
-      case ResourceType.VIDEO: {
-        return strings.video;
-      }
-      default: {
-        return strings.file;
-      }
-    }
-  };
-
-  /**
-   * Get file types for resource type method
-   */
-  private getAllowedFileTypes = (): string[] => {
-    const { resource } = this.props;
-    const resourceType = resource.type;
-    switch (resourceType) {
-      case ResourceType.IMAGE: {
-        return ["image/*"];
-      }
-      case ResourceType.PDF: {
-        return ["application/pdf"];
-      }
-      case ResourceType.VIDEO: {
-        return ["video/*"];
-      }
-      default: {
-        return [];
-      }
+        </Grid>
+      );
     }
   };
 
   /**
    * Handles image change
    */
-  private onImageChange = async (files: File[]) => {
+  private onPropertyFileChange = async (files: File[], key: string) => {
     const { customerId } = this.props;
     const { resourceData } = this.state;
-
+    const properties = resourceData.properties ? [...resourceData.properties] : [];
+    const property = { key: key, value: undefined };
     const file = files[0];
 
     if (file) {
       const response = await FileUpload.uploadFile(file, customerId);
-
-      resourceData["data"] = response.uri;
-    } else {
-      resourceData["data"] = undefined;
+      property.value = response.uri;
     }
 
-    this.setState({
-      resourceData: resourceData
-    });
-  };
+    const propertyIndex = properties.findIndex((p: KeyValueProperty) => p.key === key)
+    if (propertyIndex > -1) {
+      properties[propertyIndex] = property;
+    } else {
+      properties.push(property);
+    }
 
-  /**
-   * Handles data change
-   */
-  private onDataChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { resourceData } = this.state;
-    resourceData[e.target.name] = e.target.value;
-
+    resourceData.properties = properties;
     this.setState({
-      resourceData: resourceData
+      resourceData: { ...resourceData }
     });
   };
 
@@ -487,13 +481,39 @@ class ResourceSettingsView extends React.Component<Props, State> {
    */
   private onUpdateResource = () => {
     const { onUpdate } = this.props;
-    const { resourceData } = this.state;
+    const { resourceData, form } = this.state;
+    const properties = resourceData.properties ? [...resourceData.properties] : [];
+    const titleIndex = properties.findIndex((p: KeyValueProperty) => p.key === "title");
+    const nameTextIndex = properties.findIndex((p: KeyValueProperty) => p.key === "nameText");
+    const contentIndex = properties.findIndex((p: KeyValueProperty) => p.key === "content");
+    if (titleIndex > -1) {
+      properties[titleIndex] = { key: "title", value: form.values.title }
+    } else {
+      properties.push({ key: "title", value: form.values.title });
+    }
+
+    if (nameTextIndex > -1) {
+      properties[nameTextIndex] = { key: "nameText", value: form.values.nameText }
+    } else {
+      properties.push({ key: "nameText", value: form.values.nameText });
+    }
+
+    if (contentIndex > -1) {
+      properties[contentIndex] = { key: "content", value: form.values.content }
+    } else {
+      properties.push({ key: "content", value: form.values.content });
+    }
 
     const resource = {
-      ...this.state.form.values,
-      data: this.state.resourceData["data"],
-      styles: this.state.resourceData["styles"],
-      properties: this.state.resourceData["properties"]
+      name: form.values.name,
+      order_number: form.values.order_number,
+      slug: form.values.slug,
+      parent_id: form.values.parent_id,
+      type: form.values.type,
+      id: form.values.id,
+      data: resourceData["data"],
+      styles: resourceData["styles"],
+      properties: properties
     } as Resource;
 
     onUpdate(resource);
@@ -551,4 +571,4 @@ class ResourceSettingsView extends React.Component<Props, State> {
   };
 }
 
-export default withStyles(styles)(ResourceSettingsView);
+export default withStyles(styles)(MenuResourceSettingsView);
