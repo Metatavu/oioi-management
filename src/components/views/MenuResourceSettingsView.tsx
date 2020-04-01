@@ -486,6 +486,7 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
     const titleIndex = properties.findIndex((p: KeyValueProperty) => p.key === "title");
     const nameTextIndex = properties.findIndex((p: KeyValueProperty) => p.key === "nameText");
     const contentIndex = properties.findIndex((p: KeyValueProperty) => p.key === "content");
+    
     if (titleIndex > -1) {
       properties[titleIndex] = { key: "title", value: form.values.title }
     } else {
@@ -513,7 +514,7 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
       id: form.values.id,
       data: resourceData["data"],
       styles: resourceData["styles"],
-      properties: properties
+      properties: properties.filter(p => !!p.value)
     } as Resource;
 
     onUpdate(resource);
