@@ -2,7 +2,7 @@ import { createStyles } from "@material-ui/core";
 import theme from "../styles/theme";
 import { fade } from "@material-ui/core/styles";
 
-const drawerWidth = 240;
+const drawerWidth = 500;
 
 export default createStyles({
   root: {
