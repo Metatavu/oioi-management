@@ -1,19 +1,25 @@
-import * as actionTypes from '../constants/actionTypes';
-import { Application } from '../generated/client/src';
+import * as actionTypes from "../constants/actionTypes";
+import { Application } from "../generated/client/src";
+import { ActionCreator } from "redux";
 
 /**
  * Interface for customer action type
  */
 export interface SetApplicationsAction {
-  type: actionTypes.SETAPPLICATIONS,
-  applications: Application[],
+  type: actionTypes.SET_APPLICATIONS;
+  applications: Application[];
 }
 
-export function setApplications(applications: Application[]): SetApplicationsAction {
+/**
+ * Function for dispatching applications
+ *
+ * @param applications array of applications being dispatched
+ */
+export const setApplications: ActionCreator<SetApplicationsAction> = (applications: Application[]) => {
   return {
-    type: actionTypes.SETAPPLICATIONS,
-    applications: applications,
-  }
-}
+    type: actionTypes.SET_APPLICATIONS,
+    applications: applications
+  };
+};
 
 export type ApplicationsAction = SetApplicationsAction;

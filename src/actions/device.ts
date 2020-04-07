@@ -1,19 +1,25 @@
-import * as actionTypes from '../constants/actionTypes';
-import { Device } from '../generated/client/src';
+import * as actionTypes from "../constants/actionTypes";
+import { Device } from "../generated/client/src";
+import { ActionCreator } from "redux";
 
 /**
  * Interface for device action type
  */
 export interface SetDeviceAction {
-  type: actionTypes.SETDEVICE,
-  device: Device,
+  type: actionTypes.SET_DEVICE;
+  device: Device;
 }
 
-export function setDevice(device: Device): SetDeviceAction {
+/**
+ * Function for dispatching customers
+ *
+ * @param device device being dispatched
+ */
+export const setDevice: ActionCreator<SetDeviceAction> = (device: Device) => {
   return {
-    type: actionTypes.SETDEVICE,
-    device: device,
-  }
-}
+    type: actionTypes.SET_DEVICE,
+    device: device
+  };
+};
 
 export type DeviceAction = SetDeviceAction;

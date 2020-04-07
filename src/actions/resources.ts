@@ -22,6 +22,10 @@ export interface UpdateResourcesAction {
   };
 }
 
+export interface UpdatedResourceViewAction {
+  type: actionTypes.UPDATED_RESOURCE_VIEW;
+}
+
 /**
  * Open resource
  * @param resource
@@ -48,7 +52,13 @@ export const updateResources: ActionCreator<UpdateResourcesAction> = (resources:
   };
 };
 
+export const updatedResourceView: ActionCreator<UpdatedResourceViewAction> = () => {
+  return {
+    type: actionTypes.UPDATED_RESOURCE_VIEW
+  };
+};
+
 /**
  * Resource actions
  */
-export type ResourceAction = OpenResourceAction | UpdateResourcesAction;
+export type ResourceAction = OpenResourceAction | UpdateResourcesAction | UpdatedResourceViewAction;

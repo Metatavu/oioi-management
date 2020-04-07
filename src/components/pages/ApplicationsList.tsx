@@ -7,7 +7,7 @@ import styles from "../../styles/card-item";
 import { History } from "history";
 import CardItem from "../generic/CardItem";
 import strings from "../../localization/strings";
-import { Customer, Device, Application, ResourcesApi } from "../../generated/client/src";
+import { Customer, Device, Application } from "../../generated/client/src";
 import { ReduxState, ReduxActions } from "../../store";
 import { Dispatch } from "redux";
 import { connect } from "react-redux";
@@ -19,6 +19,9 @@ import { setCustomer } from "../../actions/customer";
 import { setApplications } from "../../actions/applications";
 import { setDevice } from "../../actions/device";
 
+/**
+ * Component props
+ */
 interface Props extends WithStyles<typeof styles> {
   history: History;
   customerId: string;
@@ -29,6 +32,9 @@ interface Props extends WithStyles<typeof styles> {
   setApplications: typeof setApplications;
 }
 
+/**
+ * Component state
+ */
 interface State {
   customer?: Customer;
   device?: Device;
@@ -61,7 +67,7 @@ class ApplicationsList extends React.Component<Props, State> {
    * Component did mount
    */
   public componentDidMount = async () => {
-    const { auth, customerId, deviceId, setApplications, setDevice, setCustomer } = this.props;
+    const { auth, customerId, deviceId, setDevice, setCustomer } = this.props;
     if (!auth || !auth.token) {
       return;
     }
@@ -82,7 +88,6 @@ class ApplicationsList extends React.Component<Props, State> {
     });
     setCustomer(customer);
     setDevice(device);
-    setApplications([{} as Application]);
   };
 
   /**
@@ -91,7 +96,6 @@ class ApplicationsList extends React.Component<Props, State> {
   public render() {
     const { classes } = this.props;
     const { customer, device, applications, deleteDialogOpen, applicationInDialog, snackbarOpen } = this.state;
-    console.log(customer);
     const cards = applications.map((application, index) => this.renderCard(application, `${index}${application.name}`));
     return (
       <Container maxWidth="xl" className="page-content">
@@ -123,7 +127,7 @@ class ApplicationsList extends React.Component<Props, State> {
    */
   private renderCard(application: Application, key: string) {
     return (
-      <Grid item>
+      <Grid item key={key}>
         <CardItem
           title={application.name}
           img={img}
@@ -244,15 +248,25 @@ class ApplicationsList extends React.Component<Props, State> {
   };
 }
 
+/**
+ * Maps redux state to props
+ *
+ * @param state redux state
+ */
 const mapStateToProps = (state: ReduxState) => ({
-  auth: state.auth,
+  auth: state.auth
 });
 
+/**
+ * Function for declaring dispatch functions
+ *
+ * @param dispatch
+ */
 const mapDispatchToProps = (dispatch: Dispatch<ReduxActions>) => {
   return {
-    setCustomer: (customer:Customer) => dispatch(setCustomer(customer)),
-    setDevice: (device:Device) => dispatch(setDevice(device)),
-    setApplications: (applications:Application[]) => dispatch(setApplications(applications))
+    setCustomer: (customer: Customer) => dispatch(setCustomer(customer)),
+    setDevice: (device: Device) => dispatch(setDevice(device)),
+    setApplications: (applications: Application[]) => dispatch(setApplications(applications))
   };
 };
 

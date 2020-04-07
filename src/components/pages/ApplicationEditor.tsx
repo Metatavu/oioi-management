@@ -40,25 +40,30 @@ import ResourceSettingsView from "../views/ResourceSettingsView";
 import { setCustomer } from "../../actions/customer";
 import { setDevice } from "../../actions/device";
 import { setApplications } from "../../actions/applications";
-import { updateResources, openResource } from "../../actions/resources";
+import { updateResources, openResource, updatedResourceView } from "../../actions/resources";
 
 const addIconPath = (
   <path d="M13 7h-2v4H7v2h4v4h2v-4h4v-2h-4V7zm-1-5C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z" />
 );
 
+/**
+ * Component props
+ */
 interface Props extends WithStyles<typeof styles> {
-  history: History,
-  customerId: string,
-  deviceId: string,
-  applicationId: string,
-  auth: AuthState,
-  setCustomer: typeof setCustomer,
-  setDevice: typeof setDevice,
-  setApplications: typeof setApplications,
+  history: History;
+  customerId: string;
+  deviceId: string;
+  applicationId: string;
+  auth: AuthState;
+  setCustomer: typeof setCustomer;
+  setDevice: typeof setDevice;
+  setApplications: typeof setApplications;
   resources: Resource[];
   openedResource?: Resource;
+  resourceViewUpdated: number;
   updateResources: typeof updateResources;
   openResource: typeof openResource;
+  updatedResourceView: typeof updatedResourceView;
 }
 
 interface State {
@@ -68,7 +73,6 @@ interface State {
   customer?: Customer;
   device?: Device;
   application?: Application;
-  rootResources: Resource[];
   openedResource?: Resource;
   afterResourceSave?: (resource: Resource) => void;
 }
@@ -83,46 +87,21 @@ class ApplicationEditor extends React.Component<Props, State> {
     super(props);
     this.state = {
       addResourceDialogOpen: false,
-      mobileOpen: false,
-      rootResources: []
+      mobileOpen: false
     };
   }
 
+  /**
+   * Component did mount
+   */
   public componentDidMount = async () => {
-    const { auth, customerId, deviceId, applicationId, setCustomer, setDevice, setApplications, updateResources } = this.props;
+    await this.fetchResourceData();
+  };
 
-    if (!auth || !auth.token) {
-      return;
+  public componentDidUpdate = async (prevProps: Props, prevState: State) => {
+    if (prevProps.resourceViewUpdated !== this.props.resourceViewUpdated) {
+      await this.fetchResourceData();
     }
-
-    const customersApi = ApiUtils.getCustomersApi(auth.token);
-    const devicesApi = ApiUtils.getDevicesApi(auth.token);
-    const applicationsApi = ApiUtils.getApplicationsApi(auth.token);
-    const resourcesApi = ApiUtils.getResourcesApi(auth.token);
-
-    const [customer, device, application] = await Promise.all([
-      customersApi.findCustomer({ customer_id: customerId }),
-      devicesApi.findDevice({ customer_id: customerId, device_id: deviceId }),
-      applicationsApi.findApplication({ customer_id: customerId, device_id: deviceId, application_id: applicationId })
-    ]);
-
-    const rootResources = await resourcesApi.listResources({
-      customer_id: customerId,
-      device_id: deviceId,
-      application_id: applicationId,
-      parent_id: application.root_resource_id
-    });
-
-    updateResources(rootResources);
-
-    this.setState({
-      customer: customer,
-      device: device,
-      application: application
-    });
-    setCustomer(customer);
-    setDevice(device);
-    setApplications([application]);
   };
 
   /**
@@ -177,7 +156,7 @@ class ApplicationEditor extends React.Component<Props, State> {
    */
   private renderDrawer = () => {
     const { classes, auth, resources } = this.props;
-    const { rootResources, parentResourceId, customer, device, application } = this.state;
+    const { parentResourceId, customer, device, application } = this.state;
     const treeItems = resources
       .map(resource => this.renderTreeItem(resource))
       .sort((a, b) => {
@@ -202,10 +181,10 @@ class ApplicationEditor extends React.Component<Props, State> {
         <AddResourceDialog
           open={this.state.addResourceDialogOpen}
           auth={auth}
-          customer_id={customer ? customer.id : ""}
-          device_id={device ? device.id : ""}
-          application_id={application ? application.id : ""}
-          root_resource_id={application ? application.root_resource_id : ""}
+          customerId={customer ? customer.id : ""}
+          deviceId={device ? device.id : ""}
+          applicationId={application ? application.id : ""}
+          rootResourceId={application ? application.root_resource_id : ""}
           parentResourceId={parentResourceId || ""}
           onSave={this.onSaveNewResourceClick}
           handleClose={this.onDialogCloseClick}
@@ -283,16 +262,57 @@ class ApplicationEditor extends React.Component<Props, State> {
   };
 
   /**
+   * Fetches resource data
+   */
+  private fetchResourceData = async () => {
+    const { auth, customerId, deviceId, applicationId, setCustomer, setDevice, setApplications, updateResources } = this.props;
+
+    if (!auth || !auth.token) {
+      return;
+    }
+
+    const customersApi = ApiUtils.getCustomersApi(auth.token);
+    const devicesApi = ApiUtils.getDevicesApi(auth.token);
+    const applicationsApi = ApiUtils.getApplicationsApi(auth.token);
+    const resourcesApi = ApiUtils.getResourcesApi(auth.token);
+
+    const [customer, device, application] = await Promise.all([
+      customersApi.findCustomer({ customer_id: customerId }),
+      devicesApi.findDevice({ customer_id: customerId, device_id: deviceId }),
+      applicationsApi.findApplication({ customer_id: customerId, device_id: deviceId, application_id: applicationId })
+    ]);
+
+    const rootResources = await resourcesApi.listResources({
+      customer_id: customerId,
+      device_id: deviceId,
+      application_id: applicationId,
+      parent_id: application.root_resource_id
+    });
+
+    updateResources(rootResources);
+
+    this.setState({
+      customer: customer,
+      device: device,
+      application: application
+    });
+
+    setCustomer(customer);
+    setDevice(device);
+    setApplications([application]);
+  };
+
+  /**
    * Child delete
    */
   private onChildDelete = (childResourceId: string) => {
-    const { resources, openedResource, updateResources, openResource } = this.props;
+    const { openedResource, updatedResourceView, openResource } = this.props;
 
     if (openedResource && openedResource.id === childResourceId) {
       openResource(undefined);
     }
 
-    updateResources(resources.filter(resource => resource.id !== childResourceId));
+    updatedResourceView();
   };
 
   /**
@@ -327,10 +347,7 @@ class ApplicationEditor extends React.Component<Props, State> {
    * on open resource click method
    */
   private onOpenResourceClick = async (resource: Resource) => {
-    const { auth, openResource } = this.props;
-    if (!auth || !auth.token || !resource.id) {
-      return;
-    }
+    const { openResource } = this.props;
 
     openResource(resource);
   };
@@ -339,7 +356,7 @@ class ApplicationEditor extends React.Component<Props, State> {
    * on save new resource method
    */
   private onSaveNewResourceClick = async (resource: Resource) => {
-    const { auth, customerId, deviceId, applicationId, resources, updateResources } = this.props;
+    const { auth, customerId, deviceId, applicationId, updatedResourceView } = this.props;
 
     if (!auth || !auth.token) {
       return;
@@ -356,8 +373,7 @@ class ApplicationEditor extends React.Component<Props, State> {
     if (this.state.afterResourceSave) {
       this.state.afterResourceSave(newResource);
     } else {
-      const updatedResourceList: Resource[] = [...resources, newResource];
-      updateResources(updatedResourceList);
+      updatedResourceView();
     }
 
     this.setState({
@@ -372,7 +388,7 @@ class ApplicationEditor extends React.Component<Props, State> {
    * TODO: handle error if resourceId was undefined
    */
   private onUpdateResource = async (resource: Resource) => {
-    const { auth, customerId, deviceId, applicationId, resources, updateResources } = this.props;
+    const { auth, customerId, deviceId, applicationId, updatedResourceView, openResource } = this.props;
     const resourceId = resource.id;
 
     if (!auth || !auth.token || !resourceId) {
@@ -388,10 +404,8 @@ class ApplicationEditor extends React.Component<Props, State> {
       resource_id: resourceId
     });
 
-    const updatedRootResourceList: Resource[] = [...resources].filter(rootResource => rootResource.id !== resource.id);
-    updatedRootResourceList.push(updatedResource);
-
-    updateResources(updatedRootResourceList);
+    openResource(updatedResource);
+    updatedResourceView();
   };
 
   /**
@@ -460,18 +474,30 @@ class ApplicationEditor extends React.Component<Props, State> {
   };
 }
 
+/**
+ * Maps redux state to props
+ *
+ * @param state redux state
+ */
 const mapStateToProps = (state: ReduxState) => ({
   auth: state.auth,
   resources: state.resource.resources,
-  openedResource: state.resource.resourceOpen
+  openedResource: state.resource.resourceOpen,
+  resourceViewUpdated: state.resource.resourceViewUpdated
 });
 
+/**
+ * Function for declaring dispatch functions
+ *
+ * @param dispatch
+ */
 const mapDispatchToProps = (dispatch: Dispatch<ReduxActions>) => {
   return {
-    setCustomer: (customer:Customer) => dispatch(setCustomer(customer)),
-    setDevice: (device:Device) => dispatch(setDevice(device)),
-    setApplications: (applications:Application[]) => dispatch(setApplications(applications)),
+    setCustomer: (customer: Customer) => dispatch(setCustomer(customer)),
+    setDevice: (device: Device) => dispatch(setDevice(device)),
+    setApplications: (applications: Application[]) => dispatch(setApplications(applications)),
     updateResources: (resources: Resource[]) => dispatch(updateResources(resources)),
+    updatedResourceView: () => dispatch(updatedResourceView()),
     openResource: (resource?: Resource) => dispatch(openResource(resource))
   };
 };

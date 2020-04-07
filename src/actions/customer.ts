@@ -1,19 +1,25 @@
-import * as actionTypes from '../constants/actionTypes';
-import { Customer } from '../generated/client/src';
+import * as actionTypes from "../constants/actionTypes";
+import { Customer } from "../generated/client/src";
+import { ActionCreator } from "redux";
 
 /**
  * Interface for customer action type
  */
 export interface SetCustomerAction {
-  type: actionTypes.SETCUSTOMER,
-  customer: Customer,
+  type: actionTypes.SET_CUSTOMER;
+  customer: Customer;
 }
 
-export function setCustomer(customer: Customer): SetCustomerAction {
+/**
+ * Function for dispatching customers
+ *
+ * @param customer customer being dispatched
+ */
+export const setCustomer: ActionCreator<SetCustomerAction> = (customer: Customer) => {
   return {
-    type: actionTypes.SETCUSTOMER,
-    customer: customer,
-  }
-}
+    type: actionTypes.SET_CUSTOMER,
+    customer: customer
+  };
+};
 
 export type CustomerAction = SetCustomerAction;

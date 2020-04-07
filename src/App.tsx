@@ -9,7 +9,6 @@ import theme from "./styles/theme";
 import { createStore } from "redux";
 import { ReduxState, ReduxActions, rootReducer } from "./store";
 import strings from "./localization/strings";
-import { composeWithDevTools } from "redux-devtools-extension";
 
 const composeEnhancers = composeWithDevTools();
 
