@@ -57,5 +57,6 @@
   "requiredField": "Vaadittu kenttä",
   "intro": "Intro",
   "language": "Kieli",
+  "languageMenu": "Kielivalikko",
   "menu": "Valikko"
 }

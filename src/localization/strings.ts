@@ -58,6 +58,7 @@ export interface IStrings extends LocalizedStringsMethods {
   slideshow: string;
   intro: string;
   language: string;
+  languageMenu: string;
   menu: string;
   requiredField: string;
 }
