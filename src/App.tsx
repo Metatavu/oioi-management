@@ -10,14 +10,14 @@ import { createStore } from "redux";
 import { ReduxState, ReduxActions, rootReducer } from "./store";
 import strings from "./localization/strings";
 
-const composeEnhancers = composeWithDevTools();
+//const composeEnhancers = composeWithDevTools();
 
 const store = createStore<ReduxState, ReduxActions, any, any>(
   rootReducer,
   {
     auth: null
   },
-  composeEnhancers
+  //composeEnhancers
 );
 
 const App: React.FC = () => {
