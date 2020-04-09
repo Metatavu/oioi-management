@@ -20,14 +20,20 @@ export const resolver = (type: ResourceType): ResourceTypeObject[] => ({
       value: ResourceType.INTRO,
       localization: strings.intro
     }, {
-      value: ResourceType.LANGUAGE,
-      localization: strings.language
+      value: ResourceType.LANGUAGEMENU,
+      localization: strings.languageMenu
     }
   ],
   [ResourceType.INTRO]: [
     {
       value: ResourceType.PAGE,
       localization: strings.page
+    }
+  ],
+  [ResourceType.LANGUAGEMENU] : [
+    {
+      value: ResourceType.LANGUAGE,
+      localization: strings.language
     }
   ],
   [ResourceType.LANGUAGE] : [
