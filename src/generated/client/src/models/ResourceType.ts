@@ -20,6 +20,7 @@
 export enum ResourceType {
     ROOT = 'ROOT',
     INTRO = 'INTRO',
+    LANGUAGEMENU = 'LANGUAGE_MENU',
     LANGUAGE = 'LANGUAGE',
     SLIDESHOW = 'SLIDESHOW',
     MENU = 'MENU',

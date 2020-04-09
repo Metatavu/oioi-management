@@ -21,6 +21,9 @@ import { Resource, ResourceType } from "../../generated/client/src";
 import { FormValidationRules, validateForm, Form, initForm, MessageType } from "ts-form-validation";
 import { AuthState } from "../../types/index";
 import ApiUtils from "../../utils/ApiUtils";
+import { ResourceTypeObject, resolver } from "../../commons/resourceTypeHelper";
+
+import slugify from "slugify"
 
 /**
  * Component props
@@ -111,6 +114,7 @@ const rules: FormValidationRules<AddResourceForm> = {
 interface State {
   form: Form<AddResourceForm>;
   resourceType: ResourceType;
+  parentResourceType?: ResourceType
 }
 
 /**
@@ -183,6 +187,7 @@ class AddResourceDialog extends React.Component<Props, State> {
 
       form = validateForm(form);
 
+      this.getResourceType()
       this.setState({
         form,
         resourceType: ResourceType.INTRO
@@ -218,26 +223,7 @@ class AddResourceDialog extends React.Component<Props, State> {
             </Grid>
             <Grid item className={classes.fullWidth}>
               <InputLabel htmlFor="resourceType">{strings.resourceType}</InputLabel>
-              <Select
-                fullWidth
-                variant="outlined"
-                value={this.state.resourceType}
-                inputProps={{
-                  id: "resourceType"
-                }}
-                onChange={this.onSelectChange}
-                name="type"
-              >
-                <MenuItem value={ResourceType.INTRO}>{strings.intro}</MenuItem>
-                <MenuItem value={ResourceType.LANGUAGE}>{strings.language}</MenuItem>
-                <MenuItem value={ResourceType.MENU}>{strings.menu}</MenuItem>
-                <MenuItem value={ResourceType.SLIDESHOW}>{strings.slideshow}</MenuItem>
-                <MenuItem value={ResourceType.PAGE}>{strings.page}</MenuItem>
-                <MenuItem value={ResourceType.PDF}>{strings.pdf}</MenuItem>
-                <MenuItem value={ResourceType.IMAGE}>{strings.image}</MenuItem>
-                <MenuItem value={ResourceType.TEXT}>{strings.text}</MenuItem>
-                <MenuItem value={ResourceType.VIDEO}>{strings.video}</MenuItem>
-              </Select>
+              { this.renderSelect() }
             </Grid>
             <Grid item className={classes.fullWidth}>
               {this.renderField("order_number", strings.orderNumber, "number")}
@@ -258,6 +244,61 @@ class AddResourceDialog extends React.Component<Props, State> {
         </DialogActions>
       </Dialog>
     );
+  }
+
+  private renderSelect = () => {
+    return <>
+      <Select
+        fullWidth
+        variant="outlined"
+        value={ this.state.resourceType }
+        inputProps={{
+          id: "resourceType"
+        }}
+        onChange={ this.onSelectChange }
+        name="type"
+      >
+        { this.state.parentResourceType && this.renderMenuItems() } 
+      </Select>
+    </>
+  }
+
+
+
+  private renderMenuItems = () => {
+    const { parentResourceType } = this.state;
+    const menuItems: JSX.Element[] = [];
+
+    if (parentResourceType) {
+      const foundTypes:ResourceTypeObject[] = resolver(parentResourceType)
+      if (foundTypes && foundTypes.length > 0) {
+        foundTypes.map(item => {
+          const menuItem = <MenuItem value={ item.value } key={ item.value }>{item.localization}</MenuItem>
+          return menuItems.push(menuItem)
+        })
+      }
+    }
+
+    return menuItems
+  }
+
+  private getResourceType = async () => {
+    const { auth, customerId, deviceId, applicationId, parentResourceId } = this.props
+
+    if (auth && auth.token && applicationId && customerId && deviceId && parentResourceId) {
+      const api = ApiUtils.getResourcesApi(auth.token)
+      const found = await api.findResource({
+          application_id: applicationId,
+          customer_id: customerId,
+          device_id: deviceId,
+          resource_id: parentResourceId
+        })
+      if (found) {
+        this.setState({
+          parentResourceType : found.type
+        })
+      }
+    }
   }
 
   /**
@@ -407,15 +448,29 @@ class AddResourceDialog extends React.Component<Props, State> {
       [key]: true
     };
 
+    /**
+     * If name changes slugify the name value and put it to url value
+     */
+    if (key === "name" && form.values.name) {
+      const nameValue = form.values.name
+      form.values.slug = slugify(nameValue, {
+        replacement: "",
+        remove: /[^A-Za-z0-9]+/g,
+        lower: true
+      });
+    }
+
     form = validateForm({
       ...this.state.form,
       filled
     });
-
     this.setState({
       form
     });
   };
 }
+
+
+
 
 export default withStyles(styles)(AddResourceDialog);
