@@ -21,7 +21,7 @@ import { Resource, ResourceType } from "../../generated/client/src";
 import { FormValidationRules, validateForm, Form, initForm, MessageType } from "ts-form-validation";
 import { AuthState } from "../../types/index";
 import ApiUtils from "../../utils/ApiUtils";
-import { ResourceTypeObject, resolver } from "../../commons/resourceTypeHelper";
+import { ResourceTypeObject, resolveChildResourceTypes } from "../../commons/resourceTypeHelper";
 
 import slugify from "slugify"
 
@@ -270,10 +270,10 @@ class AddResourceDialog extends React.Component<Props, State> {
     const menuItems: JSX.Element[] = [];
 
     if (parentResourceType) {
-      const foundTypes:ResourceTypeObject[] = resolver(parentResourceType)
+      const foundTypes:ResourceTypeObject[] = resolveChildResourceTypes(parentResourceType)
       if (foundTypes && foundTypes.length > 0) {
         foundTypes.map(item => {
-          const menuItem = <MenuItem value={ item.value } key={ item.value }>{item.localization}</MenuItem>
+          const menuItem = <MenuItem value={ item.value } key={ item.value }>{item.childResourceLocal}</MenuItem>
           return menuItems.push(menuItem)
         })
       }

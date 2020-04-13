@@ -61,6 +61,18 @@ export interface IStrings extends LocalizedStringsMethods {
   languageMenu: string;
   menu: string;
   requiredField: string;
+  fileUpload: {
+    addFile: string;
+    changeFile: string;
+    addImage: string;
+    changeImage: string;
+    addVideo: string;
+    changeVideo: string;
+    addPDF: string;
+    changePDF: string;
+    upload: string;
+    cancel: string;
+  }
 }
 
 const strings: IStrings = new LocalizedStrings({

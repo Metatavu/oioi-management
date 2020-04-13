@@ -222,7 +222,6 @@ class ApplicationEditor extends React.Component<Props, State> {
   private renderEditor = () => {
     const { classes, customerId, openedResource } = this.props;
     const { application } = this.state;
-
     if (openedResource) {
       return (
         <main className={classes.content}>

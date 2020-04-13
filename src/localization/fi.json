@@ -58,5 +58,17 @@
   "intro": "Intro",
   "language": "Kieli",
   "languageMenu": "Kielivalikko",
-  "menu": "Valikko"
+  "menu": "Valikko",
+  "fileUpload": {
+    "addImage": "Lisää kuva",
+    "changeImage": "Vaihda kuvaa",
+    "addFile": "Lisää tiedosto",
+    "changeFile": "Vaihda tiedostoa",
+    "addVideo": "Lisää video",
+    "changeVideo": "Vaihda videota",
+    "addPDF": "Lisää PDF-tiedosto",
+    "changePDF": "Vaihda PDF-tiedostoa",
+    "upload": "Lähetä",
+    "cancel": "Peruuta"
+  }
 }
