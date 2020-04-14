@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import * as React from "react";
-import { withStyles, WithStyles, TextField, Divider, Typography, Grid, FormControl, InputLabel, Select, MenuItem, Button } from "@material-ui/core";
+import { withStyles, WithStyles, TextField, Divider, Typography, Button } from "@material-ui/core";
 import MaterialTable from "material-table";
 import AddIcon from "@material-ui/icons/AddBox";
 import DeleteIcon from "@material-ui/icons/Delete";
@@ -9,14 +9,17 @@ import CheckIcon from "@material-ui/icons/Check";
 import ClearIcon from "@material-ui/icons/Clear";
 import EditIcon from "@material-ui/icons/Edit";
 import styles from "../../styles/editor-view";
-import { DropzoneArea } from "material-ui-dropzone";
 import strings from "../../localization/strings";
 import theme from "../../styles/theme";
-import { Resource, ResourceToJSON, ResourceFromJSON, ResourceType } from "../../generated/client/src";
+import { Resource, ResourceToJSON, ResourceType } from "../../generated/client/src";
 import FileUpload from "../../utils/FileUpload";
 import { forwardRef } from "react";
 import { FormValidationRules, MessageType, initForm, Form, validateForm } from "ts-form-validation";
+import FileUploader from "../generic/FileUploader"
+import logo from "../../resources/svg/oioi-logo.svg";
 
+import GridList from '@material-ui/core/GridList';
+import GridListTile from '@material-ui/core/GridListTile';
 interface Props extends WithStyles<typeof styles> {
   resource: Resource;
   customerId: string;
@@ -107,7 +110,6 @@ class ResourceSettingsView extends React.Component<Props, State> {
     );
 
     form = validateForm(form);
-
     this.setState({
       form,
       resourceId: resourceId,
@@ -129,7 +131,6 @@ class ResourceSettingsView extends React.Component<Props, State> {
       );
 
       form = validateForm(form);
-
       this.setState({
         updated: true,
         form,
@@ -363,41 +364,38 @@ class ResourceSettingsView extends React.Component<Props, State> {
     } else {
       const allowedFileTypes = this.getAllowedFileTypes();
       const fileData = this.state.form.values.data;
-
-      if (fileData) {
-        return (
-          <DropzoneArea
-            key={this.props.resource.id}
-            acceptedFiles={allowedFileTypes}
-            filesLimit={1}
-            dropzoneClass={classes.dropzone}
-            dropzoneParagraphClass={classes.dropzoneText}
-            dropzoneText={strings.dropFile}
-            onChange={this.onImageChange}
-            showPreviews={true}
-            showPreviewsInDropzone={false}
-            showFileNamesInPreview={true}
-            initialFiles={[fileData]}
-          />
-        );
-      } else {
-        return (
-          <Grid item className={classes.fullWidth}>
-            <DropzoneArea
-              key={this.props.resource.id}
-              acceptedFiles={allowedFileTypes}
-              filesLimit={1}
-              dropzoneClass={classes.dropzone}
-              dropzoneParagraphClass={classes.dropzoneText}
-              dropzoneText={strings.dropFile}
-              showFileNamesInPreview={true}
-              onChange={this.onImageChange}
-            />
-          </Grid>
-        );
-      }
+      
+      return <>
+        <FileUploader resource={ this.props.resource } allowedFileTypes={ allowedFileTypes } onSave={ this.onFileChange }/>
+        { fileData && this.renderPreview() }
+      </>
     }
   };
+
+  private renderPreview = () => {
+    const { resource } = this.props;
+    const resourceType = resource.type;
+    let uri = this.state.form.values.data;
+
+    /**
+     * TODO: Add some default icon for other file types (Tuomas). OR find some library that can show a preview of a file
+     */
+    if (resourceType !== ResourceType.VIDEO && resourceType !== ResourceType.IMAGE) {
+      uri = logo
+    }
+
+    return <>
+      <div style={{ marginTop: theme.spacing(2) }}>
+        <GridList cellHeight={ 400 } cols={ 5 }>
+          <GridListTile key={ uri }>
+            <img src={ uri } alt="File"/>
+          </GridListTile>
+        </GridList>
+      </div>
+    </>
+
+
+  }
 
   /**
    * Get localized string for data type method
@@ -447,25 +445,27 @@ class ResourceSettingsView extends React.Component<Props, State> {
   };
 
   /**
-   * Handles image change
+   * Handles file change
+   * @param files files to change
    */
-  private onImageChange = async (files: File[]) => {
+  private onFileChange = async (files: File[]) => {
     const { customerId } = this.props;
     const { resourceData } = this.state;
 
     const file = files[0];
-
     if (file) {
       const response = await FileUpload.uploadFile(file, customerId);
-
       resourceData["data"] = response.uri;
     } else {
       resourceData["data"] = undefined;
     }
-
     this.setState({
       resourceData: resourceData
     });
+
+    this.onUpdateResource()
+    //TODO: Handle possible error cases
+    return 200
   };
 
   /**
