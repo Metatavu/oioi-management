@@ -366,7 +366,7 @@ class ResourceSettingsView extends React.Component<Props, State> {
       const fileData = this.state.form.values.data;
       
       return <>
-        <FileUploader resource={ this.props.resource } allowedFileTypes={ allowedFileTypes } onSave={ this.onImageChange }/>
+        <FileUploader resource={ this.props.resource } allowedFileTypes={ allowedFileTypes } onSave={ this.onFileChange }/>
         { fileData && this.renderPreview() }
       </>
     }
@@ -445,9 +445,10 @@ class ResourceSettingsView extends React.Component<Props, State> {
   };
 
   /**
-   * Handles image change
+   * Handles file change
+   * @param files files to change
    */
-  private onImageChange = async (files: File[]) => {
+  private onFileChange = async (files: File[]) => {
     const { customerId } = this.props;
     const { resourceData } = this.state;
 

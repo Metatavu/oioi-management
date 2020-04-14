@@ -1,5 +1,5 @@
 import * as React from "react";
-import { withStyles, WithStyles, Button } from "@material-ui/core";
+import { withStyles, WithStyles, Button, CircularProgress } from "@material-ui/core";
 import styles from "../../styles/dialog";
 import { DropzoneDialog } from 'material-ui-dropzone';
 import { Resource } from "../../generated/client/src";
@@ -15,6 +15,7 @@ interface Props extends WithStyles<typeof styles> {
 
 interface State {
   dialogOpen: boolean;
+  uploading: boolean;
 }
 
 /**
@@ -29,7 +30,8 @@ class FileUploader extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = {
-      dialogOpen: false
+      dialogOpen: false,
+      uploading: false
     };
   }
 
@@ -44,10 +46,17 @@ class FileUploader extends React.Component<Props, State> {
    * Component render method
    */
   public render() {
-    const { resource } = this.props;
+    const { resource, classes } = this.props;
     let localStrings = resolveUploadLocalizationString(resource.type);
     if (!localStrings.fileUploadLocal) {
       localStrings.fileUploadLocal = [strings.fileUpload.addFile, strings.fileUpload.changeFile];
+    }
+    if (this.state.uploading) {
+      return (
+        <div style={{ display: "flex", height: "1vh", justifyContent: "center" }}>
+          <CircularProgress color="secondary" style={{ alignSelf: "center" }}></CircularProgress>
+        </div>
+      )
     }
     /**
      * TODO: Add custom icons to resolveLocalizationString
@@ -56,6 +65,7 @@ class FileUploader extends React.Component<Props, State> {
       <Button startIcon={ <AddIcon /> } variant="outlined" color="secondary" onClick={() => this.openDialog() }>
         { !resource.data ? localStrings.fileUploadLocal[0] : localStrings.fileUploadLocal[1]}
       </Button>
+
       { this.renderUploadDialog() }
     </>
   }
@@ -101,12 +111,14 @@ class FileUploader extends React.Component<Props, State> {
   }
 
   /**
-   * Handle save/upload. Await for response from FileUpload.uploadFile before closing dialog
+   * Handle save/upload
    * TODO: Add some kind of progress indicator
    */
   private handleSave = async (files: File[]) => {
-    await this.props.onSave(files)
+    this.setState({ uploading: true })
     this.closeDialog()
+    await this.props.onSave(files)
+    this.setState({ uploading: false })
   }
 }
 
