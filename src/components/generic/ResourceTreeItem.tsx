@@ -131,8 +131,9 @@ class ResourceTreeItemClass extends React.Component<Props, State> {
           nodeId={resource.id}
           label={
             <div>
-              {this.state.resource.name}
-              <DeleteIcon onClick={() => this.onDeleteIconClick()} />
+              <div style={{ display: "inline-block" }} onClick={ () => { this.props.onOpenResource(this.state.resource) } }>{ this.state.resource.name }</div>
+              <DeleteIcon onClick={ () => this.onDeleteIconClick() } />
+              <div style={{ display: "inline-block" }} onClick={ this.onAddNewResourceClick }>Lisää</div>
             </div>
           }
           onClick={this.onTreeItemClick}
@@ -266,7 +267,7 @@ class ResourceTreeItemClass extends React.Component<Props, State> {
      */
     if (window.confirm(`${strings.deleteResourceDialogDescription} ${resource.name} ${childResources && strings.andAllChildren}?`)) {
       await resourcesApi.deleteResource({ customer_id: customerId, device_id: deviceId, application_id: applicationId, resource_id: resourceId });
-      this.props.onDelete(resourceId);
+      await this.props.onDelete(resourceId);
     }
   };
 
@@ -275,7 +276,6 @@ class ResourceTreeItemClass extends React.Component<Props, State> {
    */
   private onTreeItemClick = async () => {
     this.props.onOpenResource(this.state.resource);
-
     this.setState((prevState: State) => ({
       open: !prevState.open
     }));

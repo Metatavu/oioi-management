@@ -20,7 +20,6 @@ import {
   Dialog
 } from "@material-ui/core";
 import { History } from "history";
-import TreeView from "@material-ui/lab/TreeView";
 import SettingsIcon from "@material-ui/icons/Settings";
 import MenuIcon from "@material-ui/icons/Menu";
 import TreeItem from "@material-ui/lab/TreeItem";
@@ -41,6 +40,8 @@ import { setCustomer } from "../../actions/customer";
 import { setDevice } from "../../actions/device";
 import { setApplications } from "../../actions/applications";
 import { updateResources, openResource, updatedResourceView } from "../../actions/resources";
+import SortableTree, { TreeItem as TreeItemSortable, NodeData, FullTree, OnMovePreviousAndNextLocation } from 'react-sortable-tree';
+import FileExplorerTheme from 'react-sortable-tree-theme-file-explorer';
 
 const addIconPath = (
   <path d="M13 7h-2v4H7v2h4v4h2v-4h4v-2h-4V7zm-1-5C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z" />
@@ -74,7 +75,13 @@ interface State {
   device?: Device;
   application?: Application;
   openedResource?: Resource;
+  treeData?: ResourceTreeItem[];
   afterResourceSave?: (resource: Resource) => void;
+}
+
+interface ResourceTreeItem extends TreeItemSortable {
+  id?: string;
+  resource: Resource;
 }
 
 class ApplicationEditor extends React.Component<Props, State> {
@@ -87,7 +94,7 @@ class ApplicationEditor extends React.Component<Props, State> {
     super(props);
     this.state = {
       addResourceDialogOpen: false,
-      mobileOpen: false
+      mobileOpen: false,
     };
   }
 
@@ -96,6 +103,7 @@ class ApplicationEditor extends React.Component<Props, State> {
    */
   public componentDidMount = async () => {
     await this.fetchResourceData();
+    await this.loadTree();
   };
 
   public componentDidUpdate = async (prevProps: Props, prevState: State) => {
@@ -123,7 +131,7 @@ class ApplicationEditor extends React.Component<Props, State> {
             </Typography>
           </Toolbar>
         </AppBar>
-        {this.renderResponsiveDrawer()}
+        { this.renderResponsiveDrawer()}
         {this.renderEditor()}
       </div>
     );
@@ -145,7 +153,7 @@ class ApplicationEditor extends React.Component<Props, State> {
           anchor="left"
           open
         >
-          {this.renderDrawer()}
+          { this.renderDrawer() }
         </Drawer>
       </nav>
     );
@@ -155,14 +163,9 @@ class ApplicationEditor extends React.Component<Props, State> {
    * Render drawer method
    */
   private renderDrawer = () => {
-    const { classes, auth, resources } = this.props;
+    const { auth } = this.props;
     const { parentResourceId, customer, device, application } = this.state;
-    const treeItems = resources
-      .map(resource => this.renderTreeItem(resource))
-      .sort((a, b) => {
-        return a.props.orderNumber - b.props.orderNumber;
-      });
-
+    let { treeData } = this.state;
     return (
       <div>
         <List>
@@ -174,10 +177,16 @@ class ApplicationEditor extends React.Component<Props, State> {
           </ListItem>
         </List>
         <Divider />
-        <TreeView classes={{ root: classes.treeRoot }}>
-          {treeItems}
-          {this.renderAdd()}
-        </TreeView>
+        { treeData &&
+          <SortableTree 
+          style={{ height: 700, padding: 3 }}
+          rowHeight={ 30 }
+          treeData={ treeData }
+          onChange={ this.setTreeData }
+          onMoveNode={ this.moveResource }
+          theme={ FileExplorerTheme }
+          />
+        }
         <AddResourceDialog
           open={this.state.addResourceDialogOpen}
           auth={auth}
@@ -192,6 +201,94 @@ class ApplicationEditor extends React.Component<Props, State> {
       </div>
     );
   };
+
+  /**
+   * Loads entire tree
+   */
+  private loadTree = async () => {
+    const treeData: ResourceTreeItem[] = await Promise.all(
+      this.props.resources.map( async (resource) => {
+        return await {
+          title: this.renderTreeItem(resource),
+          children: await this.loadTreeChildren(resource.id || ""),
+          resource: resource
+        }
+      })
+    );
+    this.setState({
+      treeData: treeData
+    });
+  }
+
+  /**
+   * Loads all children of the parent
+   * 
+   * @param parent_id id of tree item parent
+   */
+  private loadTreeChildren = async (parent_id: string): Promise<ResourceTreeItem[]> => {
+    const { auth, customerId, deviceId, applicationId } = this.props;
+    const data: ResourceTreeItem[] = [];
+    if (!auth || !auth.token) {
+      return data;
+    }
+    let childResources: Resource[] = [];
+    const resourcesApi = ApiUtils.getResourcesApi(auth.token);
+    try {
+      childResources = await resourcesApi.listResources({
+        customer_id: customerId,
+        device_id: deviceId,
+        application_id: applicationId,
+        parent_id: parent_id
+      });
+    } catch (error) {
+      // no children found
+    }
+
+    const childResourcePromises = childResources.map(async (resource) => {
+      return {
+        title: this.renderTreeItem(resource),
+        children: await this.loadTreeChildren(resource.id || ""),
+        resource: resource
+      } as ResourceTreeItem
+    });
+
+    return await Promise.all(childResourcePromises);
+  }
+
+  /**
+   * Sets tree data
+   * 
+   * @param data updated tree data object
+   */
+  private setTreeData = (data: ResourceTreeItem[]) => {
+    this.setState({
+      treeData: data
+    });
+  }
+
+  /**
+   * Moves resource under new parent
+   * 
+   * @param data tree data change info object
+   */
+  private moveResource = async (data: NodeData & FullTree & OnMovePreviousAndNextLocation) => {
+    const { resources, updateResources, auth, customerId, deviceId, applicationId } = this.props;
+    if (!auth || !auth.token) {
+      return null;
+    }
+    const { application } = this.state;
+    const index = resources.findIndex(resource => resource.id === data.node.resource.id);
+    resources[index] = {...resources[index], parent_id: data.nextParentNode ? data.nextParentNode.resource.id : application!.root_resource_id}
+    const resourcesApi = ApiUtils.getResourcesApi(auth.token);
+    await resourcesApi.updateResource({
+      resource: resources[index],
+      customer_id: customerId,
+      device_id: deviceId,
+      application_id: applicationId,
+      resource_id: resources[index].id || ""
+    });
+    updateResources(resources);
+  }
 
   /**
    * Render treeItem method
@@ -307,13 +404,30 @@ class ApplicationEditor extends React.Component<Props, State> {
    */
   private onChildDelete = (childResourceId: string) => {
     const { openedResource, updatedResourceView, openResource } = this.props;
+    const { treeData } = this.state;
 
     if (openedResource && openedResource.id === childResourceId) {
       openResource(undefined);
     }
 
     updatedResourceView();
+
+    this.setState({
+      treeData: this.treeDataDelete(childResourceId, treeData || [])
+    });
   };
+
+  /**
+   * Deletes item and all of it's children from the tree
+   * 
+   * @param id id of the deleted item
+   * @param data array of current search level
+   */
+  private treeDataDelete = (id: string, data: ResourceTreeItem[]): ResourceTreeItem[] => {
+    return data.filter(item => item.resource.id !== id).map((item) => {
+      return {...item, children: this.treeDataDelete(id, item.children as ResourceTreeItem[] )}
+    });
+  }
 
   /**
    * Child add click
@@ -348,7 +462,6 @@ class ApplicationEditor extends React.Component<Props, State> {
    */
   private onOpenResourceClick = async (resource: Resource) => {
     const { openResource } = this.props;
-
     openResource(resource);
   };
 
@@ -378,9 +491,35 @@ class ApplicationEditor extends React.Component<Props, State> {
 
     this.setState({
       afterResourceSave: undefined,
-      addResourceDialogOpen: false
+      addResourceDialogOpen: false,
+      treeData: this.treeDataAdd(this.treeItemFromResource(newResource), this.state.treeData || [])
     });
   };
+
+  /**
+   * Changes resource to resource tree item
+   * 
+   * @param resource resource to be converted
+   */
+  private treeItemFromResource = (resource: Resource) => {
+    return {
+      title: this.renderTreeItem(resource),
+      children: [],
+      resource: resource
+    }
+  }
+
+  /**
+   * Adds item under the parent element
+   * 
+   * @param newItem item to be added
+   * @param data array of current search level
+   */
+  private treeDataAdd = (newItem: ResourceTreeItem, data: ResourceTreeItem[]): ResourceTreeItem[] => {
+    return data.map((item) => {
+      return {...item, children: item.resource.id === newItem.resource.parent_id ? [...item.children as ResourceTreeItem[], newItem] as ResourceTreeItem[] : this.treeDataAdd(newItem, item.children as ResourceTreeItem[])}
+    });
+  }
 
   /**
    * Update resource method
