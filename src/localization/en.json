@@ -58,5 +58,17 @@
   "intro": "Intro",
   "language": "Language",
   "languageMenu": "Language menu",
-  "menu": "Menu"
+  "menu": "Menu",
+  "fileUpload": {
+    "addImage": "Add image",
+    "changeImage": "Change image",
+    "addFile": "Add file",
+    "changeFile": "Change file",
+    "addVideo": "Add video",
+    "changeVideo": "Change video",
+    "addPDF": "Add PDF file",
+    "changePDF": "Change PDF file",
+    "upload": "Upload",
+    "cancel": "Cancel"
+  }
 }

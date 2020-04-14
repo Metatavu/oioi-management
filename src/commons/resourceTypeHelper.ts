@@ -2,8 +2,9 @@ import { ResourceType } from "../generated/client/src";
 import strings from "../localization/strings";
 
 export interface ResourceTypeObject{
-    value?: ResourceType
-    localization?: String
+    value?: ResourceType;
+    childResourceLocal?: String;
+    fileUploadLocal? : String[];
 }
 
 /**
@@ -14,65 +15,65 @@ export interface ResourceTypeObject{
  * 
  * @param type Given ResourceType
  */
-export const resolver = (type: ResourceType): ResourceTypeObject[] => ({
+export const resolveChildResourceTypes = (type: ResourceType): ResourceTypeObject[] => ({
   [ResourceType.ROOT] : [
     {
       value: ResourceType.INTRO,
-      localization: strings.intro
+      childResourceLocal: strings.intro
     }, {
       value: ResourceType.LANGUAGEMENU,
-      localization: strings.languageMenu
+      childResourceLocal: strings.languageMenu
     }
   ],
   [ResourceType.INTRO]: [
     {
       value: ResourceType.PAGE,
-      localization: strings.page
+      childResourceLocal: strings.page
     }
   ],
   [ResourceType.LANGUAGEMENU] : [
     {
       value: ResourceType.LANGUAGE,
-      localization: strings.language
+      childResourceLocal: strings.language
     }
   ],
   [ResourceType.LANGUAGE] : [
     {
       value: ResourceType.MENU,
-      localization: strings.menu
+      childResourceLocal: strings.menu
     }, {
       value: ResourceType.SLIDESHOW,
-      localization: strings.slideshow
+      childResourceLocal: strings.slideshow
     }
   ],
   [ResourceType.MENU]: [
     {
       value: ResourceType.SLIDESHOW,
-      localization: strings.slideshow
+      childResourceLocal: strings.slideshow
     }, {
       value: ResourceType.MENU,
-      localization: strings.menu
+      childResourceLocal: strings.menu
     }
   ],
   [ResourceType.SLIDESHOW] : [
     {
       value: ResourceType.PAGE,
-      localization: strings.page
+      childResourceLocal: strings.page
     }
   ],
   [ResourceType.PAGE]: [
     {
       value: ResourceType.VIDEO,
-      localization: strings.video
+      childResourceLocal: strings.video
     }, {
       value: ResourceType.TEXT,
-      localization: strings.text
+      childResourceLocal: strings.text
     },{
       value: ResourceType.IMAGE,
-      localization: strings.image
+      childResourceLocal: strings.image
     }, {
       value: ResourceType.PDF,
-      localization: strings.pdf
+      childResourceLocal: strings.pdf
     }
   ],
   // These resources won't act as a parent but are required for the object literal
@@ -80,4 +81,38 @@ export const resolver = (type: ResourceType): ResourceTypeObject[] => ({
   [ResourceType.IMAGE] : [],
   [ResourceType.TEXT]: [],
   [ResourceType.VIDEO]: []
+})[type]
+
+/**
+ * Get correct localization names based on the given resource type.
+ * TODO: Add also custom icons
+ * @param type 
+ */
+export const resolveUploadLocalizationString = (type: ResourceType): ResourceTypeObject => ({
+  [ResourceType.ROOT] : {},
+  [ResourceType.INTRO]: {},
+  [ResourceType.LANGUAGEMENU] : {},
+  [ResourceType.LANGUAGE] : {},
+  [ResourceType.MENU]: {},
+  [ResourceType.SLIDESHOW] : {},
+  [ResourceType.PAGE]: {},
+  [ResourceType.PDF]: {
+    fileUploadLocal : [
+      strings.fileUpload.addPDF,
+      strings.fileUpload.changePDF
+    ]
+  },
+  [ResourceType.IMAGE] : {
+    fileUploadLocal : [
+      strings.fileUpload.addImage,
+      strings.fileUpload.changeImage
+    ]
+  },
+  [ResourceType.TEXT]: {},
+  [ResourceType.VIDEO]: {
+    fileUploadLocal : [
+      strings.fileUpload.addVideo,
+      strings.fileUpload.changeVideo
+    ]
+  },
 })[type]
