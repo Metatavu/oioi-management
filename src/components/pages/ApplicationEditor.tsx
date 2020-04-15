@@ -40,7 +40,7 @@ import { setCustomer } from "../../actions/customer";
 import { setDevice } from "../../actions/device";
 import { setApplications } from "../../actions/applications";
 import { updateResources, openResource, updatedResourceView } from "../../actions/resources";
-import SortableTree, { TreeItem as TreeItemSortable, NodeData, FullTree, OnMovePreviousAndNextLocation } from 'react-sortable-tree';
+import SortableTree, { TreeItem as TreeItemSortable, NodeData, FullTree, OnMovePreviousAndNextLocation, ExtendedNodeData, changeNodeAtPath } from 'react-sortable-tree';
 import FileExplorerTheme from 'react-sortable-tree-theme-file-explorer';
 
 const addIconPath = (
@@ -76,7 +76,6 @@ interface State {
   application?: Application;
   openedResource?: Resource;
   treeData?: ResourceTreeItem[];
-  afterResourceSave?: (resource: Resource) => void;
 }
 
 interface ResourceTreeItem extends TreeItemSortable {
@@ -184,6 +183,7 @@ class ApplicationEditor extends React.Component<Props, State> {
           treeData={ treeData }
           onChange={ this.setTreeData }
           onMoveNode={ this.moveResource }
+          canDrag={ this.canDrag }
           theme={ FileExplorerTheme }
           />
         }
@@ -206,6 +206,7 @@ class ApplicationEditor extends React.Component<Props, State> {
    * Loads entire tree
    */
   private loadTree = async () => {
+    const { application } = this.state;
     const treeData: ResourceTreeItem[] = await Promise.all(
       this.props.resources.map( async (resource) => {
         return await {
@@ -215,6 +216,9 @@ class ApplicationEditor extends React.Component<Props, State> {
         }
       })
     );
+    treeData.push({
+      title: this.renderAdd(application!.root_resource_id || "")
+    } as ResourceTreeItem);
     this.setState({
       treeData: treeData
     });
@@ -249,8 +253,16 @@ class ApplicationEditor extends React.Component<Props, State> {
         title: this.renderTreeItem(resource),
         children: await this.loadTreeChildren(resource.id || ""),
         resource: resource
-      } as ResourceTreeItem
+      } as ResourceTreeItem;
     });
+
+    const addNewChild = new Promise<ResourceTreeItem>((resolve, reject) => {
+      resolve({
+        title: this.renderAdd(parent_id)
+      } as ResourceTreeItem);
+    });
+
+    childResourcePromises.push(addNewChild);
 
     return await Promise.all(childResourcePromises);
   }
@@ -291,24 +303,34 @@ class ApplicationEditor extends React.Component<Props, State> {
   }
 
   /**
+   * Returns boolean value based on check whether item can be dragged
+   * 
+   * @param data tree data object
+   */
+  private canDrag = (data: ExtendedNodeData) => {
+    if (data.node.resource) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  /**
    * Render treeItem method
    */
   private renderTreeItem = (resource: Resource) => {
     const { classes, customerId, deviceId, applicationId } = this.props;
-    const orderNumber = resource.order_number;
 
     return (
       <ResourceTreeItem
         key={resource.id}
         resource={resource}
-        orderNumber={orderNumber || 0}
         customerId={customerId}
         deviceId={deviceId}
         applicationId={applicationId}
         classes={classes}
         onOpenResource={this.onOpenResourceClick}
         onDelete={this.onChildDelete}
-        onAddClick={this.onChildAddClick}
       />
     );
   };
@@ -339,19 +361,17 @@ class ApplicationEditor extends React.Component<Props, State> {
   /**
    * Render add resource treeItem method
    */
-  private renderAdd = () => {
-    const parentResourceId = this.state.application && this.state.application.root_resource_id;
-
-    if (!parentResourceId) {
+  private renderAdd = (parent_id?: string) => {
+    if (!parent_id) {
       return <TreeItem nodeId={"loading"} label={strings.loading} />;
     }
 
     return (
       <TreeItem
         TransitionComponent={TransitionComponent}
-        nodeId={parentResourceId + "add"}
+        nodeId={parent_id + "add"}
         icon={<SvgIcon fontSize="small">{addIconPath}</SvgIcon>}
-        onClick={() => this.onAddNewResourceClick(parentResourceId)}
+        onClick={ () => this.onAddNewResourceClick(parent_id) }
         label={strings.addNewResource}
       />
     );
@@ -431,9 +451,8 @@ class ApplicationEditor extends React.Component<Props, State> {
   /**
    * Child add click
    */
-  private onChildAddClick = (parentResourceId: string, afterSave: (resource: Resource) => void) => {
+  private onChildAddClick = (parentResourceId: string) => {
     this.setState({
-      afterResourceSave: afterSave,
       addResourceDialogOpen: true,
       parentResourceId: parentResourceId
     });
@@ -450,6 +469,7 @@ class ApplicationEditor extends React.Component<Props, State> {
    * on add resource click method
    */
   private onAddNewResourceClick = (parentResourceId: string) => {
+    console.log("moi");
     this.setState({
       addResourceDialogOpen: true,
       parentResourceId: parentResourceId
@@ -482,14 +502,9 @@ class ApplicationEditor extends React.Component<Props, State> {
       resource: resource
     });
 
-    if (this.state.afterResourceSave) {
-      this.state.afterResourceSave(newResource);
-    } else {
-      updatedResourceView();
-    }
+    updatedResourceView();
 
     this.setState({
-      afterResourceSave: undefined,
       addResourceDialogOpen: false,
       treeData: this.treeDataAdd(this.treeItemFromResource(newResource), this.state.treeData || [])
     });
