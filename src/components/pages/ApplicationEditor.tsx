@@ -293,14 +293,16 @@ class ApplicationEditor extends React.Component<Props, State> {
       if (data.nextParentNode && data.nextParentNode.children && Array.isArray(data.nextParentNode.children)) {
         data.nextParentNode.children.forEach( async (child, index) => {
           const resource = child.resource;
-          resource.order_number = index + 1;
-          await resourcesApi.updateResource({
-            resource: resource,
-            customer_id: customerId,
-            device_id: deviceId,
-            application_id: applicationId,
-            resource_id: resource.id || ""
-          });
+          if (resource) {
+            resource.order_number = index + 1;
+            await resourcesApi.updateResource({
+              resource: resource,
+              customer_id: customerId,
+              device_id: deviceId,
+              application_id: applicationId,
+              resource_id: resource.id || ""
+            });
+          }
         });
       }
       updateResources(resources);
@@ -378,7 +380,7 @@ class ApplicationEditor extends React.Component<Props, State> {
         TransitionComponent={TransitionComponent}
         nodeId={parent_id + "add"}
         icon={<SvgIcon fontSize="small">{addIconPath}</SvgIcon>}
-        onClick={ () => this.onAddNewResourceClick(parent_id) }
+        onMouseUp={ () => this.onAddNewResourceClick(parent_id) }
         label={strings.addNewResource}
       />
     );
@@ -450,8 +452,9 @@ class ApplicationEditor extends React.Component<Props, State> {
    * @param data array of current search level
    */
   private treeDataDelete = (id: string, data: ResourceTreeItem[]): ResourceTreeItem[] => {
-    return data.filter(item => item.resource.id !== id).map((item) => {
-      return {...item, children: this.treeDataDelete(id, item.children as ResourceTreeItem[] )}
+    return  data.filter(item => !item.resource || (item.resource.id !== id))
+    .map((item) => {
+      return {...item, children: (item.children) ? this.treeDataDelete(id, item.children as ResourceTreeItem[]) : [] }
     });
   }
 
@@ -537,8 +540,16 @@ class ApplicationEditor extends React.Component<Props, State> {
    * @param data array of current search level
    */
   private treeDataAdd = (newItem: ResourceTreeItem, data: ResourceTreeItem[]): ResourceTreeItem[] => {
+    const { application } = this.state;
+    if (newItem.resource.parent_id === application!.root_resource_id) {
+      return [...data, {...newItem, children: [{ title: this.renderAdd(newItem.resource.id)} as ResourceTreeItem ]}];
+    }
     return data.map((item) => {
-      return {...item, children: item.resource.id === newItem.resource.parent_id ? [...item.children as ResourceTreeItem[], newItem] as ResourceTreeItem[] : this.treeDataAdd(newItem, item.children as ResourceTreeItem[])}
+      if (item.resource) {
+        return {...item, children: item.resource.id === newItem.resource.parent_id ? [...item.children as ResourceTreeItem[], newItem] as ResourceTreeItem[] : this.treeDataAdd(newItem, item.children as ResourceTreeItem[])};
+      } else {
+        return item;
+      }
     });
   }
 
