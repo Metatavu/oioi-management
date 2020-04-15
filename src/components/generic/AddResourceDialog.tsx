@@ -283,9 +283,6 @@ class AddResourceDialog extends React.Component<Props, State> {
         if (resources.findIndex(resource => resource.type === ResourceType.LANGUAGEMENU) !== -1) {
           foundTypes = foundTypes.filter(type => type.value !== ResourceType.LANGUAGEMENU);
         }
-        if (resources.findIndex(resource => resource.type === ResourceType.MENU) !== -1) {
-          foundTypes = foundTypes.filter(type => type.value !== ResourceType.MENU);
-        }
         foundTypes.map(item => {
           const menuItem = <MenuItem value={ item.value } key={ item.value }>{item.childResourceLocal}</MenuItem>;
           return menuItems.push(menuItem);
