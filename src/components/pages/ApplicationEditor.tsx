@@ -40,7 +40,7 @@ import { setCustomer } from "../../actions/customer";
 import { setDevice } from "../../actions/device";
 import { setApplications } from "../../actions/applications";
 import { updateResources, openResource, updatedResourceView } from "../../actions/resources";
-import SortableTree, { TreeItem as TreeItemSortable, NodeData, FullTree, OnMovePreviousAndNextLocation } from 'react-sortable-tree';
+import SortableTree, { TreeItem as TreeItemSortable, NodeData, FullTree, OnMovePreviousAndNextLocation, ExtendedNodeData, changeNodeAtPath, OnDragPreviousAndNextLocation } from 'react-sortable-tree';
 import FileExplorerTheme from 'react-sortable-tree-theme-file-explorer';
 import MenuResourceSettingsView from "../views/MenuResourceSettingsView";
 
@@ -77,7 +77,6 @@ interface State {
   application?: Application;
   openedResource?: Resource;
   treeData?: ResourceTreeItem[];
-  afterResourceSave?: (resource: Resource) => void;
 }
 
 interface ResourceTreeItem extends TreeItemSortable {
@@ -185,6 +184,9 @@ class ApplicationEditor extends React.Component<Props, State> {
           treeData={ treeData }
           onChange={ this.setTreeData }
           onMoveNode={ this.moveResource }
+          canDrop={ this.canDrop }
+          canDrag={ this.canDrag }
+          canNodeHaveChildren={ this.canHaveChildren }
           theme={ FileExplorerTheme }
           />
         }
@@ -207,15 +209,19 @@ class ApplicationEditor extends React.Component<Props, State> {
    * Loads entire tree
    */
   private loadTree = async () => {
+    const { application } = this.state;
     const treeData: ResourceTreeItem[] = await Promise.all(
       this.props.resources.map( async (resource) => {
         return await {
           title: this.renderTreeItem(resource),
-          children: await this.loadTreeChildren(resource.id || ""),
+          children: await this.loadTreeChildren(resource.id || "", resource),
           resource: resource
         }
       })
     );
+    treeData.push({
+      title: this.renderAdd(application!.root_resource_id || "")
+    } as ResourceTreeItem);
     this.setState({
       treeData: treeData
     });
@@ -226,7 +232,7 @@ class ApplicationEditor extends React.Component<Props, State> {
    * 
    * @param parent_id id of tree item parent
    */
-  private loadTreeChildren = async (parent_id: string): Promise<ResourceTreeItem[]> => {
+  private loadTreeChildren = async (parent_id: string, parent:Resource): Promise<ResourceTreeItem[]> => {
     const { auth, customerId, deviceId, applicationId } = this.props;
     const data: ResourceTreeItem[] = [];
     if (!auth || !auth.token) {
@@ -248,11 +254,21 @@ class ApplicationEditor extends React.Component<Props, State> {
     const childResourcePromises = childResources.map(async (resource) => {
       return {
         title: this.renderTreeItem(resource),
-        children: await this.loadTreeChildren(resource.id || ""),
+        children: await this.loadTreeChildren(resource.id || "", resource),
         resource: resource
-      } as ResourceTreeItem
+      } as ResourceTreeItem;
     });
 
+    const addNewChild = new Promise<ResourceTreeItem>((resolve, reject) => {
+      resolve({
+        title: this.renderAdd(parent_id)
+      } as ResourceTreeItem);
+    });
+
+    if (this.canHaveChildren({ title: "", resource: parent })) {
+      childResourcePromises.push(addNewChild);
+    }
+    
     return await Promise.all(childResourcePromises);
   }
 
@@ -282,14 +298,16 @@ class ApplicationEditor extends React.Component<Props, State> {
       if (data.nextParentNode && data.nextParentNode.children && Array.isArray(data.nextParentNode.children)) {
         data.nextParentNode.children.forEach( async (child, index) => {
           const resource = child.resource;
-          resource.order_number = index + 1;
-          await resourcesApi.updateResource({
-            resource: resource,
-            customer_id: customerId,
-            device_id: deviceId,
-            application_id: applicationId,
-            resource_id: resource.id || ""
-          });
+          if (resource) {
+            resource.order_number = index + 1;
+            await resourcesApi.updateResource({
+              resource: resource,
+              customer_id: customerId,
+              device_id: deviceId,
+              application_id: applicationId,
+              resource_id: resource.id || ""
+            });
+          }
         });
       }
       updateResources(resources);
@@ -299,24 +317,57 @@ class ApplicationEditor extends React.Component<Props, State> {
   }
 
   /**
+   * Returns boolean value based on check whether item can be dragged
+   * 
+   * @param data tree data object
+   */
+  private canDrag = (data: ExtendedNodeData) => {
+    if (data.node.resource) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  /**
+   * Returns boolean value based on check whether item can be dropped
+   */
+  private canDrop = (data: OnDragPreviousAndNextLocation & NodeData) => {
+    if ((data.nextParent && !this.canHaveChildren(data.nextParent)) || (data.nextParent && data.nextParent.children && Array.isArray(data.nextParent.children) && data.nextParent.children[data.nextParent.children.length - 1] === data.node) || (!data.nextParent && data.nextTreeIndex === this.props.resources.length)) {
+      return false;
+    }
+    return true;
+  }
+
+  /**
+   * Returns boolean value based on check whether item can have children
+   * 
+   * @param node node to check
+   */
+  private canHaveChildren = (node: TreeItemSortable) => {
+    if (node.resource && node.resource.type !== ResourceType.IMAGE && node.resource.type !== ResourceType.PDF && node.resource.type !== ResourceType.TEXT && node.resource.type !== ResourceType.VIDEO) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  /**
    * Render treeItem method
    */
   private renderTreeItem = (resource: Resource) => {
     const { classes, customerId, deviceId, applicationId } = this.props;
-    const orderNumber = resource.order_number;
 
     return (
       <ResourceTreeItem
         key={resource.id}
         resource={resource}
-        orderNumber={orderNumber || 0}
         customerId={customerId}
         deviceId={deviceId}
         applicationId={applicationId}
         classes={classes}
         onOpenResource={this.onOpenResourceClick}
         onDelete={this.onChildDelete}
-        onAddClick={this.onChildAddClick}
       />
     );
   };
@@ -360,19 +411,17 @@ class ApplicationEditor extends React.Component<Props, State> {
   /**
    * Render add resource treeItem method
    */
-  private renderAdd = () => {
-    const parentResourceId = this.state.application && this.state.application.root_resource_id;
-
-    if (!parentResourceId) {
+  private renderAdd = (parent_id?: string) => {
+    if (!parent_id) {
       return <TreeItem nodeId={"loading"} label={strings.loading} />;
     }
 
     return (
       <TreeItem
         TransitionComponent={TransitionComponent}
-        nodeId={parentResourceId + "add"}
+        nodeId={parent_id + "add"}
         icon={<SvgIcon fontSize="small">{addIconPath}</SvgIcon>}
-        onClick={() => this.onAddNewResourceClick(parentResourceId)}
+        onMouseUp={ () => this.onAddNewResourceClick(parent_id) }
         label={strings.addNewResource}
       />
     );
@@ -444,17 +493,17 @@ class ApplicationEditor extends React.Component<Props, State> {
    * @param data array of current search level
    */
   private treeDataDelete = (id: string, data: ResourceTreeItem[]): ResourceTreeItem[] => {
-    return data.filter(item => item.resource.id !== id).map((item) => {
-      return {...item, children: this.treeDataDelete(id, item.children as ResourceTreeItem[] )}
+    return  data.filter(item => !item.resource || (item.resource.id !== id))
+    .map((item) => {
+      return {...item, children: (item.children) ? this.treeDataDelete(id, item.children as ResourceTreeItem[]) : [] }
     });
   }
 
   /**
    * Child add click
    */
-  private onChildAddClick = (parentResourceId: string, afterSave: (resource: Resource) => void) => {
+  private onChildAddClick = (parentResourceId: string) => {
     this.setState({
-      afterResourceSave: afterSave,
       addResourceDialogOpen: true,
       parentResourceId: parentResourceId
     });
@@ -503,14 +552,9 @@ class ApplicationEditor extends React.Component<Props, State> {
       resource: resource
     });
 
-    if (this.state.afterResourceSave) {
-      this.state.afterResourceSave(newResource);
-    } else {
-      updatedResourceView();
-    }
+    updatedResourceView();
 
     this.setState({
-      afterResourceSave: undefined,
       addResourceDialogOpen: false,
       treeData: this.treeDataAdd(this.treeItemFromResource(newResource), this.state.treeData || [])
     });
@@ -536,8 +580,17 @@ class ApplicationEditor extends React.Component<Props, State> {
    * @param data array of current search level
    */
   private treeDataAdd = (newItem: ResourceTreeItem, data: ResourceTreeItem[]): ResourceTreeItem[] => {
+    const { application } = this.state;
+    const newItemWithAddButton = this.canHaveChildren(newItem as TreeItemSortable) ? {...newItem, children: [{ title: this.renderAdd(newItem.resource.id)} as ResourceTreeItem ]} : newItem;
+    if (newItem.resource.parent_id === application!.root_resource_id) {
+      return [...data.filter(item => item.resource), newItemWithAddButton, { title: this.renderAdd(newItemWithAddButton.resource.parent_id) } as ResourceTreeItem];
+    }
     return data.map((item) => {
-      return {...item, children: item.resource.id === newItem.resource.parent_id ? [...item.children as ResourceTreeItem[], newItem] as ResourceTreeItem[] : this.treeDataAdd(newItem, item.children as ResourceTreeItem[])}
+      if (item.resource && item.children && Array.isArray(item.children)) {
+        return {...item, children: item.resource.id === newItem.resource.parent_id ? [...item.children.filter(item => item.resource) as ResourceTreeItem[], newItemWithAddButton, { title: this.renderAdd(newItem.resource.id)} as ResourceTreeItem] as ResourceTreeItem[] : this.treeDataAdd(newItem, item.children as ResourceTreeItem[])};
+      } else {
+        return item;
+      }
     });
   }
 

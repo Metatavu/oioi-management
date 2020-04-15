@@ -113,7 +113,7 @@ const rules: FormValidationRules<AddResourceForm> = {
  */
 interface State {
   form: Form<AddResourceForm>;
-  resourceType: ResourceType;
+  resourceType?: ResourceType;
   parentResourceType?: ResourceType
 }
 
@@ -138,7 +138,7 @@ class AddResourceDialog extends React.Component<Props, State> {
         },
         rules
       ),
-      resourceType: ResourceType.INTRO
+      resourceType: undefined
     };
   }
 
@@ -190,7 +190,7 @@ class AddResourceDialog extends React.Component<Props, State> {
       this.getResourceType()
       this.setState({
         form,
-        resourceType: ResourceType.INTRO
+        resourceType: undefined
       });
     }
   };
@@ -339,7 +339,7 @@ class AddResourceDialog extends React.Component<Props, State> {
 
     const newResource = {
       ...form.values,
-      type: this.state.resourceType || ResourceType.INTRO,
+      type: this.state.resourceType,
       parent_id: parentResourceId
     } as Resource;
 
@@ -355,7 +355,7 @@ class AddResourceDialog extends React.Component<Props, State> {
           },
           rules
         ),
-        resourceType: ResourceType.INTRO
+        resourceType: undefined
       },
       () => this.props.handleClose()
     );
@@ -375,7 +375,7 @@ class AddResourceDialog extends React.Component<Props, State> {
           },
           rules
         ),
-        resourceType: ResourceType.INTRO
+        resourceType: undefined
       },
       () => this.props.handleClose()
     );
@@ -394,7 +394,7 @@ class AddResourceDialog extends React.Component<Props, State> {
         },
         rules
       ),
-      resourceType: ResourceType.INTRO
+      resourceType: undefined
     });
   };
 

@@ -31,11 +31,9 @@ interface Props extends WithStyles<typeof styles> {
   deviceId: string;
   applicationId: string;
   resource: Resource;
-  orderNumber: number;
   auth?: AuthState;
   openedResource?: Resource;
   openResource: typeof openResource;
-  onAddClick: (parentResourceId: string, afterSave: (resource: Resource) => void) => void;
   onDelete: (resourceId: string) => void;
   onOpenResource(resource: Resource): void;
 }
@@ -44,10 +42,8 @@ interface Props extends WithStyles<typeof styles> {
  * Component state
  */
 interface State {
-  open: boolean;
   resource: Resource;
   parentResourceId?: string;
-  childResources: Resource[];
 }
 
 /**
@@ -62,9 +58,7 @@ class ResourceTreeItemClass extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = {
-      open: false,
       resource: this.props.resource,
-      childResources: []
     };
   }
 
@@ -74,26 +68,7 @@ class ResourceTreeItemClass extends React.Component<Props, State> {
    * @param prevState
    */
   public componentDidUpdate = async (prevProps: Props, prevState: State) => {
-    if (prevProps !== this.props) {
-      const { auth, customerId, deviceId, applicationId } = this.props;
-      if (!auth || !auth.token) {
-        return;
-      }
 
-      const resourcesApi = ApiUtils.getResourcesApi(auth.token);
-      const childResources = await resourcesApi.listResources({
-        customer_id: customerId,
-        device_id: deviceId,
-        application_id: applicationId,
-        parent_id: this.state.resource.id
-      });
-
-      this.setState({
-        open: true,
-        childResources: childResources,
-        resource: this.props.resource
-      });
-    }
   };
 
   /**
@@ -101,7 +76,7 @@ class ResourceTreeItemClass extends React.Component<Props, State> {
    */
   public render() {
     const { classes } = this.props;
-    const { resource, childResources } = this.state;
+    const { resource } = this.state;
 
     const treeItemStyles = {
       iconContainer: classes.treeIconContainer,
@@ -109,14 +84,8 @@ class ResourceTreeItemClass extends React.Component<Props, State> {
       content: classes.treeContent,
       label: classes.treeLabel
     };
+
     const icon = this.renderIconComponentByResourceType(resource.type);
-    const childTreeItems = childResources
-      ? childResources
-          .map(resource => this.renderTreeItem(resource))
-          .sort((a, b) => {
-            return a.props.orderNumber - b.props.orderNumber;
-          })
-      : [];
 
     if (!resource.id) {
       return;
@@ -131,14 +100,12 @@ class ResourceTreeItemClass extends React.Component<Props, State> {
           nodeId={resource.id}
           label={
             <div>
-              <div style={{ display: "inline-block" }} onClick={ () => { this.props.onOpenResource(this.state.resource) } }>{ this.state.resource.name }</div>
+              <div style={{ display: "inline-block" }} onClick={ this.onTreeItemClick }>{ this.state.resource.name }</div>
               <DeleteIcon onClick={ () => this.onDeleteIconClick() } />
-              <div style={{ display: "inline-block" }} onClick={ this.onAddNewResourceClick }>Lisää</div>
             </div>
           }
           onClick={this.onTreeItemClick}
         >
-          {this.state.childResources !== [] && childTreeItems}
           {this.renderAdd()}
         </TreeItem>
       );
@@ -162,30 +129,6 @@ class ResourceTreeItemClass extends React.Component<Props, State> {
   }
 
   /**
-   * Render treeItem method
-   */
-  private renderTreeItem = (resource: Resource) => {
-    const { classes } = this.props;
-    const { customerId, deviceId, applicationId } = this.props;
-    const orderNumber = resource.order_number;
-
-    return (
-      <ResourceTreeItem
-        key={resource.id}
-        resource={resource}
-        orderNumber={orderNumber || 0}
-        customerId={customerId}
-        deviceId={deviceId}
-        applicationId={applicationId}
-        classes={classes}
-        onOpenResource={this.props.onOpenResource}
-        onAddClick={this.props.onAddClick}
-        onDelete={this.onChildDelete}
-      />
-    );
-  };
-
-  /**
    * Render add resource treeItem method
    */
   private renderAdd = () => {
@@ -199,7 +142,6 @@ class ResourceTreeItemClass extends React.Component<Props, State> {
         TransitionComponent={TransitionComponent}
         nodeId={resourceId + "add"}
         icon={<SvgIcon fontSize="small">{addIconPath}</SvgIcon>}
-        onClick={this.onAddNewResourceClick}
         label={strings.addNewResource}
       />
     );
@@ -225,22 +167,6 @@ class ResourceTreeItemClass extends React.Component<Props, State> {
         return <SvgIcon fontSize="small">{folderIconPath}</SvgIcon>;
       }
     }
-  };
-
-  /**
-   * Child delete method
-   */
-  private onChildDelete = (childResourceId: string) => {
-    const { childResources } = this.state;
-    const { openedResource, openResource } = this.props;
-
-    if (openedResource && openedResource.id === childResourceId) {
-      openResource(undefined);
-    }
-
-    this.setState({
-      childResources: childResources.filter(c => c.id !== childResourceId)
-    });
   };
 
   /**
@@ -276,36 +202,6 @@ class ResourceTreeItemClass extends React.Component<Props, State> {
    */
   private onTreeItemClick = async () => {
     this.props.onOpenResource(this.state.resource);
-    this.setState((prevState: State) => ({
-      open: !prevState.open
-    }));
-  };
-
-  /**
-   * On add new resource click method
-   */
-  private onAddNewResourceClick = () => {
-    const parentResourceId = this.props.resource && this.props.resource.id;
-
-    if (!parentResourceId) {
-      return;
-    }
-
-    this.props.onAddClick(parentResourceId, (resource: Resource) => {
-      this.onSaveNewResource(resource);
-    });
-  };
-
-  /**
-   * On save new resource click method
-   */
-  private onSaveNewResource = async (resource: Resource) => {
-    const { childResources } = this.state;
-    childResources.push(resource);
-
-    this.setState({
-      childResources: [...childResources]
-    });
   };
 
   /**
