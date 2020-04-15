@@ -8,9 +8,10 @@ import AddIcon from '@material-ui/icons/AddOutlined';
 import { resolveUploadLocalizationString } from "../../commons/resourceTypeHelper";
 
 interface Props extends WithStyles<typeof styles> {
+  uploadKey?: string;
   resource: Resource;
   allowedFileTypes: string[];
-  onSave(files: File[]): Promise<Number>;
+  onSave(files: File[], key?: string): Promise<Number>;
 }
 
 interface State {
@@ -117,7 +118,7 @@ class FileUploader extends React.Component<Props, State> {
   private handleSave = async (files: File[]) => {
     this.setState({ uploading: true })
     this.closeDialog()
-    await this.props.onSave(files)
+    await this.props.onSave(files, this.props.uploadKey)
     this.setState({ uploading: false })
   }
 }

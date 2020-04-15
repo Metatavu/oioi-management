@@ -3,7 +3,7 @@ import strings from "../localization/strings";
 
 export interface ResourceTypeObject{
     value?: ResourceType;
-    childResourceLocal?: String;
+    resourceLocal?: String;
     fileUploadLocal? : String[];
 }
 
@@ -19,61 +19,65 @@ export const resolveChildResourceTypes = (type: ResourceType): ResourceTypeObjec
   [ResourceType.ROOT] : [
     {
       value: ResourceType.INTRO,
-      childResourceLocal: strings.intro
+      resourceLocal: strings.resourceTypes.intro
     }, {
       value: ResourceType.LANGUAGEMENU,
-      childResourceLocal: strings.languageMenu
+      resourceLocal: strings.resourceTypes.languageMenu
+    },
+    {
+      value: ResourceType.MENU,
+      resourceLocal: strings.resourceTypes.menu
     }
   ],
   [ResourceType.INTRO]: [
     {
       value: ResourceType.PAGE,
-      childResourceLocal: strings.page
+      resourceLocal: strings.resourceTypes.page
     }
   ],
   [ResourceType.LANGUAGEMENU] : [
     {
       value: ResourceType.LANGUAGE,
-      childResourceLocal: strings.language
+      resourceLocal: strings.resourceTypes.language
     }
   ],
   [ResourceType.LANGUAGE] : [
     {
       value: ResourceType.MENU,
-      childResourceLocal: strings.menu
+      resourceLocal: strings.resourceTypes.menu
     }, {
       value: ResourceType.SLIDESHOW,
-      childResourceLocal: strings.slideshow
+      resourceLocal: strings.resourceTypes.slideshow
     }
   ],
   [ResourceType.MENU]: [
     {
       value: ResourceType.SLIDESHOW,
-      childResourceLocal: strings.slideshow
+      resourceLocal: strings.resourceTypes.slideshow
     }, {
       value: ResourceType.MENU,
-      childResourceLocal: strings.menu
+      resourceLocal: strings.resourceTypes.menu
     }
   ],
   [ResourceType.SLIDESHOW] : [
     {
       value: ResourceType.PAGE,
-      childResourceLocal: strings.page
+      resourceLocal: strings.resourceTypes.page
     }
   ],
   [ResourceType.PAGE]: [
     {
       value: ResourceType.VIDEO,
-      childResourceLocal: strings.video
+      resourceLocal: strings.resourceTypes.video
     }, {
       value: ResourceType.TEXT,
-      childResourceLocal: strings.text
+      resourceLocal: strings.resourceTypes.text
     },{
       value: ResourceType.IMAGE,
-      childResourceLocal: strings.image
+      resourceLocal: strings.resourceTypes.image
     }, {
       value: ResourceType.PDF,
-      childResourceLocal: strings.pdf
+      resourceLocal: strings.resourceTypes.pdf
     }
   ],
   // These resources won't act as a parent but are required for the object literal
@@ -115,4 +119,43 @@ export const resolveUploadLocalizationString = (type: ResourceType): ResourceTyp
       strings.fileUpload.changeVideo
     ]
   },
+})[type]
+
+/**
+ * Get allowed filetype for file uploader
+ * @param type 
+ */
+export const getAllowedFileTypes = (type: ResourceType): string[] => {
+  switch (type) {
+    case ResourceType.IMAGE: {
+      return ["image/*"];
+    }
+    case ResourceType.PDF: {
+      return ["application/pdf"];
+    }
+    case ResourceType.VIDEO: {
+      return ["video/*"];
+    }
+    default: {
+      return [];
+    }
+  }
+};
+
+/**
+ * Get localized string for each resource type
+ * @param type 
+ */
+export const getLocalizedTypeString = (type: ResourceType): ResourceTypeObject => ({
+  [ResourceType.ROOT] : { resourceLocal: strings.resourceTypes.root },
+  [ResourceType.INTRO]: { resourceLocal: strings.resourceTypes.intro },
+  [ResourceType.LANGUAGEMENU] : { resourceLocal: strings.resourceTypes.languageMenu },
+  [ResourceType.LANGUAGE] : { resourceLocal: strings.resourceTypes.language },
+  [ResourceType.MENU]: { resourceLocal: strings.resourceTypes.menu },
+  [ResourceType.SLIDESHOW] : { resourceLocal: strings.resourceTypes.slideshow },
+  [ResourceType.PAGE]: { resourceLocal: strings.resourceTypes.page },
+  [ResourceType.PDF]: { resourceLocal: strings.resourceTypes.pdf },
+  [ResourceType.IMAGE] : { resourceLocal: strings.resourceTypes.image },
+  [ResourceType.TEXT]: { resourceLocal: strings.resourceTypes.text },
+  [ResourceType.VIDEO]: { resourceLocal: strings.resourceTypes.video },
 })[type]

@@ -273,7 +273,7 @@ class AddResourceDialog extends React.Component<Props, State> {
       const foundTypes:ResourceTypeObject[] = resolveChildResourceTypes(parentResourceType)
       if (foundTypes && foundTypes.length > 0) {
         foundTypes.map(item => {
-          const menuItem = <MenuItem value={ item.value } key={ item.value }>{item.childResourceLocal}</MenuItem>
+          const menuItem = <MenuItem value={ item.value } key={ item.value }>{item.resourceLocal}</MenuItem>
           return menuItems.push(menuItem)
         })
       }

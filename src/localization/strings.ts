@@ -26,11 +26,16 @@ export interface IStrings extends LocalizedStringsMethods {
   deleteConfirmation: string;
   deleteSuccess: string;
   home: string;
-  image: string;
   informationOptional: string;
   languageVersions: string;
   mainNavigationIcons: string;
   name: string;
+  nameText: string;
+  title: string;
+  content: string;
+  backgroundMedia: string;
+  backgroundImage: string;
+  menuImage: string;
   normal: string;
   save: string;
   selectLanguage: string;
@@ -49,17 +54,8 @@ export interface IStrings extends LocalizedStringsMethods {
   value: string;
   styles: string;
   properties: string;
-  pdf: string;
-  text: string;
   update: string;
-  video: string;
   file: string;
-  page: string;
-  slideshow: string;
-  intro: string;
-  language: string;
-  languageMenu: string;
-  menu: string;
   requiredField: string;
   fileUpload: {
     addFile: string;
@@ -73,6 +69,20 @@ export interface IStrings extends LocalizedStringsMethods {
     upload: string;
     cancel: string;
   }
+  resourceTypes: {
+    root: string;
+    video: string;
+    page: string;
+    slideshow: string;
+    intro: string;
+    languageMenu: string;
+    language: string;
+    menu: string;
+    pdf: string;
+    text: string;
+    image: string;
+  }
+  childResources:string;
 }
 
 const strings: IStrings = new LocalizedStrings({

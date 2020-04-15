@@ -29,6 +29,12 @@
   "languageVersions": "Kieliversiot",
   "mainNavigationIcons": "Ylimmän tason navigaatioikonit",
   "name": "Nimi",
+  "nameText": "Ingressi",
+  "title": "Otsikko",
+  "content": "Kuvaus",
+  "backgroundMedia": "Taustamedia",
+  "backgroundImage": "Taustakuva",
+  "menuImage": "Valikon kuva",
   "normal": "Normaali",
   "save": "Tallenna",
   "selectLanguage": "Valitse kieli",
@@ -47,18 +53,9 @@
   "value": "Arvo",
   "styles": "Tyylit",
   "properties": "Ominaisuudet",
-  "pdf": "PDF",
-  "text": "Teksti",
-  "video": "Video",
   "file": "Tiedosto",
-  "page": "Sivu",
-  "slideshow": "Slideshow",
   "update": "Päivitä",
   "requiredField": "Vaadittu kenttä",
-  "intro": "Intro",
-  "language": "Kieli",
-  "languageMenu": "Kielivalikko",
-  "menu": "Valikko",
   "fileUpload": {
     "addImage": "Lisää kuva",
     "changeImage": "Vaihda kuvaa",
@@ -70,5 +67,18 @@
     "changePDF": "Vaihda PDF-tiedostoa",
     "upload": "Lähetä",
     "cancel": "Peruuta"
-  }
+  },
+  "resourceTypes": {
+    "root": "Root",
+    "page": "Sivu",
+    "slideshow": "Slideshow",
+    "intro": "Intro",
+    "language": "Kieli",
+    "languageMenu": "Kielivalikko",
+    "menu": "Valikko",
+    "pdf": "PDF",
+    "text": "Teksti",
+    "video": "Video"
+  },
+  "childResources": "Alisivut"
 }
