@@ -520,7 +520,6 @@ class ApplicationEditor extends React.Component<Props, State> {
    * on add resource click method
    */
   private onAddNewResourceClick = (parentResourceId: string) => {
-    console.log("moi");
     this.setState({
       addResourceDialogOpen: true,
       parentResourceId: parentResourceId
