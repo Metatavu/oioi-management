@@ -38,6 +38,10 @@ interface Props extends WithStyles<typeof styles> {
    */
   open: boolean;
   /**
+   * Current resources under root resource
+   */
+  resources: Resource[];
+  /**
    * Parent resource id
    */
   parentResourceId?: string;
@@ -263,15 +267,23 @@ class AddResourceDialog extends React.Component<Props, State> {
     </>
   }
 
-
-
+  /**
+   * Render menu items
+   */
   private renderMenuItems = () => {
+    const { resources } = this.props;
     const { parentResourceType } = this.state;
     const menuItems: JSX.Element[] = [];
 
     if (parentResourceType) {
-      const foundTypes:ResourceTypeObject[] = resolveChildResourceTypes(parentResourceType)
+      let foundTypes:ResourceTypeObject[] = resolveChildResourceTypes(parentResourceType);
       if (foundTypes && foundTypes.length > 0) {
+        if (resources.findIndex(resource => resource.type === ResourceType.INTRO) !== -1) {
+          foundTypes = foundTypes.filter(type => type.value !== ResourceType.INTRO);
+        }
+        if (resources.findIndex(resource => resource.type === ResourceType.LANGUAGEMENU) !== -1) {
+          foundTypes = foundTypes.filter(type => type.value !== ResourceType.LANGUAGEMENU);
+        }
         foundTypes.map(item => {
           const menuItem = <MenuItem value={ item.value } key={ item.value }>{item.resourceLocal}</MenuItem>
           return menuItems.push(menuItem)

@@ -163,7 +163,7 @@ class ApplicationEditor extends React.Component<Props, State> {
    * Render drawer method
    */
   private renderDrawer = () => {
-    const { auth } = this.props;
+    const { auth, resources } = this.props;
     const { parentResourceId, customer, device, application } = this.state;
     let { treeData } = this.state;
     return (
@@ -193,6 +193,7 @@ class ApplicationEditor extends React.Component<Props, State> {
         <AddResourceDialog
           open={this.state.addResourceDialogOpen}
           auth={auth}
+          resources={ resources }
           customerId={customer ? customer.id : ""}
           deviceId={device ? device.id : ""}
           applicationId={application ? application.id : ""}
@@ -597,7 +598,7 @@ class ApplicationEditor extends React.Component<Props, State> {
     }
     return data.map((item) => {
       if (item.resource && item.children && Array.isArray(item.children)) {
-        return {...item, children: item.resource.id === newItem.resource.parent_id ? [...item.children.filter(item => item.resource) as ResourceTreeItem[], newItemWithAddButton, { title: this.renderAdd(newItem.resource.id)} as ResourceTreeItem] as ResourceTreeItem[] : this.treeDataAdd(newItem, item.children as ResourceTreeItem[])};
+        return {...item, children: item.resource.id === newItem.resource.parent_id ? [...item.children.filter(item => item.resource) as ResourceTreeItem[], newItemWithAddButton, { title: this.renderAdd(newItem.resource.parent_id)} as ResourceTreeItem] as ResourceTreeItem[] : this.treeDataAdd(newItem, item.children as ResourceTreeItem[])};
       } else {
         return item;
       }
