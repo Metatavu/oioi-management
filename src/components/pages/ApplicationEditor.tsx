@@ -32,7 +32,7 @@ import { Dispatch } from "redux";
 import { connect } from "react-redux";
 import { AuthState } from "../../types";
 import ApiUtils from "../../utils/ApiUtils";
-import { Customer, Device, Application, Resource } from "../../generated/client/src";
+import { Customer, Device, Application, Resource, ResourceType } from "../../generated/client/src";
 import ResourceTreeItem from "../generic/ResourceTreeItem";
 import AddResourceDialog from "../generic/AddResourceDialog";
 import ResourceSettingsView from "../views/ResourceSettingsView";
@@ -42,6 +42,7 @@ import { setApplications } from "../../actions/applications";
 import { updateResources, openResource, updatedResourceView } from "../../actions/resources";
 import SortableTree, { TreeItem as TreeItemSortable, NodeData, FullTree, OnMovePreviousAndNextLocation, ExtendedNodeData, changeNodeAtPath } from 'react-sortable-tree';
 import FileExplorerTheme from 'react-sortable-tree-theme-file-explorer';
+import MenuResourceSettingsView from "../views/MenuResourceSettingsView";
 
 const addIconPath = (
   <path d="M13 7h-2v4H7v2h4v4h2v-4h4v-2h-4V7zm-1-5C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z" />
@@ -353,7 +354,7 @@ class ApplicationEditor extends React.Component<Props, State> {
     if (openedResource) {
       return (
         <main className={classes.content}>
-          <ResourceSettingsView resource={openedResource} customerId={customerId} onUpdate={this.onUpdateResource} onDelete={this.onDeleteResource} />
+          { this.renderResourceSettingsView(openedResource, customerId) }
         </main>
       );
     } else if (application && application != null) {
@@ -366,6 +367,19 @@ class ApplicationEditor extends React.Component<Props, State> {
       return <main className={classes.content}></main>;
     }
   };
+
+  private renderResourceSettingsView = (resource: Resource, customerId: string) => {
+    switch (resource.type) {
+      case ResourceType.MENU:
+      case ResourceType.LANGUAGE:
+      case ResourceType.SLIDESHOW:
+      case ResourceType.INTRO:
+        return <MenuResourceSettingsView resource={resource} customerId={customerId} onUpdate={this.onUpdateResource} onDelete={this.onDeleteResource} />;
+      default:
+        return <ResourceSettingsView resource={resource} customerId={customerId} onUpdate={this.onUpdateResource} onDelete={this.onDeleteResource} />;
+
+    }
+  }
 
   /**
    * Render add resource treeItem method
