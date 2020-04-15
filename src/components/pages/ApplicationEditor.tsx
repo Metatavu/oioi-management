@@ -40,7 +40,7 @@ import { setCustomer } from "../../actions/customer";
 import { setDevice } from "../../actions/device";
 import { setApplications } from "../../actions/applications";
 import { updateResources, openResource, updatedResourceView } from "../../actions/resources";
-import SortableTree, { TreeItem as TreeItemSortable, NodeData, FullTree, OnMovePreviousAndNextLocation, ExtendedNodeData, changeNodeAtPath } from 'react-sortable-tree';
+import SortableTree, { TreeItem as TreeItemSortable, NodeData, FullTree, OnMovePreviousAndNextLocation, ExtendedNodeData, changeNodeAtPath, OnDragPreviousAndNextLocation } from 'react-sortable-tree';
 import FileExplorerTheme from 'react-sortable-tree-theme-file-explorer';
 import MenuResourceSettingsView from "../views/MenuResourceSettingsView";
 
@@ -184,7 +184,9 @@ class ApplicationEditor extends React.Component<Props, State> {
           treeData={ treeData }
           onChange={ this.setTreeData }
           onMoveNode={ this.moveResource }
+          canDrop={ this.canDrop }
           canDrag={ this.canDrag }
+          canNodeHaveChildren={ this.canHaveChildren }
           theme={ FileExplorerTheme }
           />
         }
@@ -212,7 +214,7 @@ class ApplicationEditor extends React.Component<Props, State> {
       this.props.resources.map( async (resource) => {
         return await {
           title: this.renderTreeItem(resource),
-          children: await this.loadTreeChildren(resource.id || ""),
+          children: await this.loadTreeChildren(resource.id || "", resource),
           resource: resource
         }
       })
@@ -230,7 +232,7 @@ class ApplicationEditor extends React.Component<Props, State> {
    * 
    * @param parent_id id of tree item parent
    */
-  private loadTreeChildren = async (parent_id: string): Promise<ResourceTreeItem[]> => {
+  private loadTreeChildren = async (parent_id: string, parent:Resource): Promise<ResourceTreeItem[]> => {
     const { auth, customerId, deviceId, applicationId } = this.props;
     const data: ResourceTreeItem[] = [];
     if (!auth || !auth.token) {
@@ -252,7 +254,7 @@ class ApplicationEditor extends React.Component<Props, State> {
     const childResourcePromises = childResources.map(async (resource) => {
       return {
         title: this.renderTreeItem(resource),
-        children: await this.loadTreeChildren(resource.id || ""),
+        children: await this.loadTreeChildren(resource.id || "", resource),
         resource: resource
       } as ResourceTreeItem;
     });
@@ -263,8 +265,10 @@ class ApplicationEditor extends React.Component<Props, State> {
       } as ResourceTreeItem);
     });
 
-    childResourcePromises.push(addNewChild);
-
+    if (this.canHaveChildren({ title: "", resource: parent })) {
+      childResourcePromises.push(addNewChild);
+    }
+    
     return await Promise.all(childResourcePromises);
   }
 
@@ -319,6 +323,29 @@ class ApplicationEditor extends React.Component<Props, State> {
    */
   private canDrag = (data: ExtendedNodeData) => {
     if (data.node.resource) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  /**
+   * Returns boolean value based on check whether item can be dropped
+   */
+  private canDrop = (data: OnDragPreviousAndNextLocation & NodeData) => {
+    if ((data.nextParent && !this.canHaveChildren(data.nextParent)) || (data.nextParent && data.nextParent.children && Array.isArray(data.nextParent.children) && data.nextParent.children[data.nextParent.children.length - 1] === data.node) || (!data.nextParent && data.nextTreeIndex === this.props.resources.length)) {
+      return false;
+    }
+    return true;
+  }
+
+  /**
+   * Returns boolean value based on check whether item can have children
+   * 
+   * @param node node to check
+   */
+  private canHaveChildren = (node: TreeItemSortable) => {
+    if (node.resource && node.resource.type !== ResourceType.IMAGE && node.resource.type !== ResourceType.PDF && node.resource.type !== ResourceType.TEXT && node.resource.type !== ResourceType.VIDEO) {
       return true;
     } else {
       return false;
@@ -555,12 +582,13 @@ class ApplicationEditor extends React.Component<Props, State> {
    */
   private treeDataAdd = (newItem: ResourceTreeItem, data: ResourceTreeItem[]): ResourceTreeItem[] => {
     const { application } = this.state;
+    const newItemWithAddButton = this.canHaveChildren(newItem as TreeItemSortable) ? {...newItem, children: [{ title: this.renderAdd(newItem.resource.id)} as ResourceTreeItem ]} : newItem;
     if (newItem.resource.parent_id === application!.root_resource_id) {
-      return [...data, {...newItem, children: [{ title: this.renderAdd(newItem.resource.id)} as ResourceTreeItem ]}];
+      return [...data.filter(item => item.resource), newItemWithAddButton, { title: this.renderAdd(newItemWithAddButton.resource.parent_id) } as ResourceTreeItem];
     }
     return data.map((item) => {
-      if (item.resource) {
-        return {...item, children: item.resource.id === newItem.resource.parent_id ? [...item.children as ResourceTreeItem[], newItem] as ResourceTreeItem[] : this.treeDataAdd(newItem, item.children as ResourceTreeItem[])};
+      if (item.resource && item.children && Array.isArray(item.children)) {
+        return {...item, children: item.resource.id === newItem.resource.parent_id ? [...item.children.filter(item => item.resource) as ResourceTreeItem[], newItemWithAddButton, { title: this.renderAdd(newItem.resource.id)} as ResourceTreeItem] as ResourceTreeItem[] : this.treeDataAdd(newItem, item.children as ResourceTreeItem[])};
       } else {
         return item;
       }
