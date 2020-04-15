@@ -288,18 +288,25 @@ class ApplicationEditor extends React.Component<Props, State> {
     if (!auth || !auth.token) {
       return null;
     }
-    const { application } = this.state;
-    const index = resources.findIndex(resource => resource.id === data.node.resource.id);
-    resources[index] = {...resources[index], parent_id: data.nextParentNode ? data.nextParentNode.resource.id : application!.root_resource_id}
-    const resourcesApi = ApiUtils.getResourcesApi(auth.token);
-    await resourcesApi.updateResource({
-      resource: resources[index],
-      customer_id: customerId,
-      device_id: deviceId,
-      application_id: applicationId,
-      resource_id: resources[index].id || ""
-    });
-    updateResources(resources);
+    try {
+      const resourcesApi = ApiUtils.getResourcesApi(auth.token);
+      if (data.nextParentNode && data.nextParentNode.children && Array.isArray(data.nextParentNode.children)) {
+        data.nextParentNode.children.forEach( async (child, index) => {
+          const resource = child.resource;
+          resource.order_number = index + 1;
+          await resourcesApi.updateResource({
+            resource: resource,
+            customer_id: customerId,
+            device_id: deviceId,
+            application_id: applicationId,
+            resource_id: resource.id || ""
+          });
+        });
+      }
+      updateResources(resources);
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   /**
