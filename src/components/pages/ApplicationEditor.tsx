@@ -108,7 +108,7 @@ class ApplicationEditor extends React.Component<Props, State> {
 
   public componentDidUpdate = async (prevProps: Props, prevState: State) => {
     if (prevProps.resourceViewUpdated !== this.props.resourceViewUpdated) {
-      await this.fetchResourceData();
+      //await this.fetchResourceData();
     }
   };
 
@@ -563,7 +563,7 @@ class ApplicationEditor extends React.Component<Props, State> {
       resource: resource
     });
 
-    updatedResourceView();
+    //updatedResourceView();
 
     this.setState({
       addResourceDialogOpen: false,
