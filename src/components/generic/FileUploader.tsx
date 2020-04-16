@@ -11,7 +11,7 @@ interface Props extends WithStyles<typeof styles> {
   uploadKey?: string;
   resource: Resource;
   allowedFileTypes: string[];
-  onSave(files: File[], key?: string): Promise<Number>;
+  onSave(files: File[], key?: string): Promise<number>;
 }
 
 interface State {

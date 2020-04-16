@@ -42,9 +42,9 @@ interface Props extends WithStyles<typeof styles> {
 }
 
 interface ResourceSettingsForm extends Partial<Resource> {
-  nameText?: string,
-  title?: string,
-  content?: string
+  nameText?: string;
+  title?: string;
+  content?: string;
 }
 
 const rules: FormValidationRules<ResourceSettingsForm> = {
@@ -282,21 +282,21 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
    */
   private renderFields = () => {
     return<>
-      <Grid container spacing={3} direction="row">
+      <Grid container spacing={ 3 } direction="row">
         <Typography variant="h3">{ strings.title }</Typography>
-        {this.renderField("title", strings.title, "text")}
+        { this.renderField("title", strings.title, "text") }
 
         <Typography variant="h3">{ strings.nameText }</Typography>
-        {this.renderField("nameText", strings.nameText, "textarea")}
+        { this.renderField("nameText", strings.nameText, "textarea") }
 
         <Typography variant="h3">{ strings.content }</Typography>
-        {this.renderField("content", strings.content, "textarea")}
+        { this.renderField("content", strings.content, "textarea") }
 
-        {this.renderField("name", strings.name, "text")}
-        {this.renderField("order_number", strings.orderNumber, "number")}
-        {this.renderField("slug", strings.slug, "text")}
+        { this.renderField("name", strings.name, "text") }
+        { this.renderField("order_number", strings.orderNumber, "number") }
+        { this.renderField("slug", strings.slug, "text") }
       </Grid>
-    </>
+    </>;
   }
 
   /**
@@ -547,7 +547,7 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
     const properties = this.state.form.values.properties;
     let previewItem;
     if (properties) {
-      previewItem = this.findImage(properties, uploadKey)
+      previewItem = this.findImage(properties, uploadKey);
     }
 
     return <>
@@ -562,7 +562,7 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
     </>
   };
 
-    /**
+  /**
    * Render preview view
    * TODO: Render preview should be own generic component that would show some stock image
    * when data contains something else then image/video 
@@ -583,12 +583,12 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
 
   private findImage = (properties: KeyValueProperty[], propertyKey: string) => {
 
-    const foundItem = properties.find((p: KeyValueProperty) => p.key === propertyKey)
+    const foundItem = properties.find((p: KeyValueProperty) => p.key === propertyKey);
 
     if (foundItem) {
       return foundItem.value;
     }
-    return
+    return;
   }
 
   /**
@@ -618,9 +618,9 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
     this.setState({
       resourceData: { ...resourceData }
     });
-    
+
     this.onUpdateResource();
-    //TODO: Handle error cases
+    // TODO: Handle error cases
     return 200;
   };
 
@@ -634,7 +634,7 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
     const titleIndex = properties.findIndex((p: KeyValueProperty) => p.key === "title");
     const nameTextIndex = properties.findIndex((p: KeyValueProperty) => p.key === "nameText");
     const contentIndex = properties.findIndex((p: KeyValueProperty) => p.key === "content");
-    
+
     if (titleIndex > -1) {
       properties[titleIndex] = { key: "title", value: form.values.title }
     } else {

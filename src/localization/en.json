@@ -6,6 +6,7 @@
   "addNewDevice": "Add a new device",
   "applications": "Applications",
   "applicationSettings": "Application settings",
+  "applicationName": "Application name",
   "back": "Back",
   "cancel": "Cancel",
   "confirm": "Confirm",
@@ -80,5 +81,6 @@
     "text": "Text",
     "video": "Video"
   },
-  "childResources": "Sub resources"
+  "childResources": "Sub resources",
+  "teaserText": "Teaser text"
 }

@@ -5,7 +5,7 @@
   "addNewCustomer": "Lisää uusi asiakas",
   "addNewDevice": "Lisää uusi laite",
   "applications": "Sovellukset",
-  "applicationSettings": "Sovellusasetukset",
+  "applicationName": "Sovelluksen nimi",
   "back": "Takaisin",
   "cancel": "Peruuta",
   "confirm": "Hyväksy",
@@ -80,5 +80,10 @@
     "text": "Teksti",
     "video": "Video"
   },
-  "childResources": "Alisivut"
+  "childResources": "Alisivut",
+  "applicationSettings": {
+    "settings": "Sovellusasetukset",
+    "teaserText": "Teaserteksti",
+    "background": "Sovelluksen taustakuva"
+  }
 }

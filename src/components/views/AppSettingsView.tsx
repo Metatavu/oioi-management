@@ -1,24 +1,35 @@
 import * as React from "react";
-import { withStyles, WithStyles, TextField, Button } from "@material-ui/core";
+import { withStyles, WithStyles, TextField, Button, Typography, Grid, Divider } from "@material-ui/core";
 import styles from "../../styles/editor-view";
 import strings from "../../localization/strings";
 import theme from "../../styles/theme";
 import SaveIcon from "@material-ui/icons/Save";
-import { Application, ApplicationToJSON, ApplicationFromJSON } from "../../generated/client/src";
+import { Application, ApplicationToJSON, ApplicationFromJSON, KeyValueProperty, Resource } from "../../generated/client/src";
 import { FormValidationRules, Form, initForm, validateForm, MessageType } from "ts-form-validation";
+import FileUploader from "../generic/FileUploader";
+import FileUpload from "../../utils/FileUpload";
 
 /**
  * Component Props
  */
 interface Props extends WithStyles<typeof styles> {
   application: Application;
-  onUpdate: (application: Application) => void;
+  customerId: string;
+  rootResource: Resource;
+  onUpdateApplication: (application: Application) => void;
+  onUpdateRootResource(resource: Resource): void;
 }
 
 /**
- * Application form
+ * Application applicationForm
  */
 interface ApplicationForm extends Partial<Application> {}
+
+interface ResourceSettingsForm extends Partial<Resource> {
+  applicationImage?: string;
+  applicationIcons?: string[];
+  teaserText?: string;
+}
 
 /**
  * Form validation rules
@@ -31,11 +42,43 @@ const rules: FormValidationRules<ApplicationForm> = {
       requiredText: strings.requiredField
     }
   },
-  validateForm: form => {
+  validateForm: applicationForm => {
     const messages = {};
 
     return {
-      ...form,
+      ...applicationForm,
+      messages
+    };
+  }
+};
+
+const resourceRules: FormValidationRules<ResourceSettingsForm> = {
+  fields: {
+    name: {
+      required: true,
+      trim: true,
+      requiredText: strings.requiredField
+    },
+    order_number: {
+      required: true,
+      trim: true,
+      requiredText: strings.requiredField
+    },
+    slug: {
+      required: true,
+      trim: true,
+      requiredText: strings.requiredField
+    },
+    data: {
+      required: false,
+      trim: true
+    }
+  },
+  validateForm: resourceForm => {
+    const messages = {};
+
+    return {
+      ...resourceForm,
       messages
     };
   }
@@ -45,7 +88,8 @@ const rules: FormValidationRules<ApplicationForm> = {
  * Component state
  */
 interface State {
-  form: Form<ApplicationForm>;
+  applicationForm: Form<ApplicationForm>;
+  resourceForm: Form<ResourceSettingsForm>;
 }
 
 /**
@@ -60,11 +104,21 @@ class AppSettingsView extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = {
-      form: initForm<ApplicationForm>(
+      applicationForm: initForm<ApplicationForm>(
         {
-          name: ""
+          name: "",
         },
-        rules
+        rules,
+      ),
+      resourceForm: initForm<ResourceSettingsForm>(
+        {
+          name: undefined,
+          order_number: undefined,
+          slug: undefined,
+          data: undefined,
+          teaserText: undefined
+        },
+        resourceRules
       )
     };
   }
@@ -73,19 +127,33 @@ class AppSettingsView extends React.Component<Props, State> {
    * Component did mount
    */
   public componentDidMount() {
-    const { application } = this.props;
+    const { application, rootResource } = this.props;
+    console.log(rootResource)
 
-    let form = initForm<ApplicationForm>(
+    let applicationForm = initForm<ApplicationForm>(
       {
         name: application.name
       },
       rules
     );
 
-    form = validateForm(form);
+    const properties = rootResource.properties || [];
+    const teaserTextProperty = properties.find(p => p.key === "teaserText");
+
+    let resourceForm = initForm<ResourceSettingsForm>(
+      {
+        ...rootResource,
+        teaserText: teaserTextProperty ? teaserTextProperty.value : undefined
+      },
+      resourceRules
+    );
+
+    applicationForm = validateForm(applicationForm);
+    resourceForm = validateForm(resourceForm);
 
     this.setState({
-      form
+      applicationForm: applicationForm,
+      resourceForm: resourceForm
     });
   }
 
@@ -93,60 +161,211 @@ class AppSettingsView extends React.Component<Props, State> {
    * Component render method
    */
   public render() {
-    const { isFormValid } = this.state.form;
+    const { isFormValid } = this.state.applicationForm;
 
     return (
       <div>
-        {this.renderField("name", strings.name)}
-        <Button
-          disabled={!isFormValid}
-          style={{ marginLeft: theme.spacing(3) }}
-          color="primary"
-          variant="contained"
-          startIcon={<SaveIcon />}
-          onClick={this.onUpdateApplication}
-        >
-          {strings.save}
-        </Button>
+        <Grid>
+          <Button
+            style={{ marginLeft: theme.spacing(3), marginTop: theme.spacing(1) }}
+            color="primary"
+            variant="contained"
+            startIcon={ <SaveIcon /> }
+            disabled={ !isFormValid }
+            onClick={ this.onUpdateApplication }
+          >
+            { strings.save }
+          </Button>
+        </Grid>
+        <Divider style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} />
+        { this.renderFields() }
+        <Typography variant="h3">{ strings.applicationSettings.background }</Typography>
+        <FileUploader
+          allowedFileTypes={ [] }
+          onSave={ this.onApplicationFileChange }
+          resource={ this.props.rootResource }
+          uploadKey="applicationBackground"
+        />
       </div>
     );
   }
 
   /**
+   * Render all fields
+   */
+  private renderFields = () => {
+
+    return<>
+    <Grid container spacing={ 3 } direction="row">
+      <Typography variant="h3">{ strings.title }</Typography>
+      { this.renderApplicationField(strings.applicationName, "text", "name") }
+      { this.renderTest("teaserText", strings.applicationSettings.teaserText, "textarea") }
+    </Grid>
+  </>;
+  };
+
+  /**
    * Renders textfield
    */
-  private renderField = (key: keyof ApplicationForm, label: string) => {
+  private renderApplicationField = (label: string, type: string, applicationKey: keyof ApplicationForm) => {
+    if (type === "textarea") {
+      return (this.renderTextArea(applicationKey, label, type));
+    }
+    return (this.renderTextField(applicationKey, label, type));
+  };
+
+  private renderTest = (key: keyof ResourceSettingsForm, label: string, type: string) => {
     const {
       values,
       messages: { [key]: message }
-    } = this.state.form;
-    return (
-      <TextField
-        style={{ marginBottom: theme.spacing(3) }}
-        type="text"
-        error={message && message.type === MessageType.ERROR}
-        helperText={message && message.message}
-        value={values[key] || ""}
-        onChange={this.onHandleChange(key)}
-        onBlur={this.onHandleBlur(key)}
-        name={key}
-        variant="outlined"
-        label={label}
-      />
-    );
+    } = this.state.resourceForm;
+    console.log(values);
+    return <TextField
+      fullWidth
+      multiline
+      rows={ 8 }
+      style={{ margin: theme.spacing(3) }}
+      type={ type }
+      error={ message && message.type === MessageType.ERROR }
+      helperText={ message && message.message }
+      value={ values[key] || "" }
+      onChange={ this.onHandleResourceChange(key) }
+      onBlur={ this.onHandleResourceBlur(key) }
+      name={ key }
+      variant="outlined"
+      label={ label }
+    />;
+  }
+
+  private renderTextArea = (key: keyof ApplicationForm, label: string, type: string) => {
+    const {
+      values,
+      messages: { [key]: message }
+    } = this.state.applicationForm;
+    return <TextField
+      fullWidth
+      multiline
+      rows={ 8 }
+      style={{ margin: theme.spacing(3) }}
+      type={ type }
+      error={ message && message.type === MessageType.ERROR }
+      helperText={ message && message.message }
+      value={ values[key] || "" }
+      onChange={ this.onHandleChange(key) }
+      onBlur={ this.onHandleBlur(key) }
+      name={ key }
+      variant="outlined"
+      label={ label }
+    />;
+  }
+
+  private renderTextField = (key: keyof ApplicationForm, label: string, type: string) => {
+    const {
+      values,
+      messages: { [key]: message }
+    } = this.state.applicationForm;
+    return <TextField
+      fullWidth
+      multiline
+      rows={ 8 }
+      style={{ margin: theme.spacing(3) }}
+      type={ type }
+      error={ message && message.type === MessageType.ERROR }
+      helperText={ message && message.message }
+      value={ values[key] || "" }
+      onChange={ this.onHandleChange(key) }
+      onBlur={ this.onHandleBlur(key) }
+      name={ key }
+      variant="outlined"
+      label={ label }
+    />;
+  }
+
+  /**
+   * Handles image change
+   */
+  private onApplicationFileChange = async (files: File[], key?: string) => {
+    const { rootResource, customerId } = this.props;
+
+    if (!key) {
+      return 400;
+    }
+
+    const properties = rootResource.properties ? [...rootResource.properties] : [];
+    const property = { key: key, value: "" };
+    const file = files[0];
+
+    if (file) {
+      const response = await FileUpload.uploadFile(file, customerId);
+      property.value = response.uri;
+    }
+
+    const propertyIndex = properties.findIndex((p: KeyValueProperty) => p.key === key);
+    if (propertyIndex > -1) {
+      properties[propertyIndex] = property;
+    } else {
+      properties.push(property);
+    }
+    console.log(properties);
+
+    // this.onUpdateResource();
+    // TODO: Handle error cases
+    return 200;
   };
 
   /**
    * Handles update application
    */
   private onUpdateApplication = () => {
-    const { onUpdate } = this.props;
+    const { onUpdateApplication } = this.props;
 
+    // TODO: Add teaser text to update
     const application = {
-      ...this.state.form.values
+      ...this.state.applicationForm.values
     } as Application;
 
-    onUpdate(application);
+    this.onUpdateResource();
+    onUpdateApplication(application);
+  };
+
+    /**
+   * On update resource method
+   */
+  private onUpdateResource = () => {
+    const { onUpdateRootResource } = this.props;
+    const { resourceForm } = this.state;
+    const properties = resourceForm.values.properties ? [...resourceForm.values.properties] : [];
+    const teaserIndex = properties.findIndex((p: KeyValueProperty) => p.key === "teaserText");
+    const applicationImageIndex = properties.findIndex((p: KeyValueProperty) => p.key === "applicationImage");
+    const applicationIconIndex = properties.findIndex((p: KeyValueProperty) => p.key === "applicationIcon");
+
+    if (teaserIndex > -1) {
+      properties[teaserIndex] = { key: "teaserText", value: resourceForm.values.teaserText! }
+    } else {
+      properties.push({ key: "teaserText", value: resourceForm.values.teaserText! });
+    }
+
+    // if (applicationImageIndex > -1) {
+    //   properties[applicationImageIndex] = { key: "applicationImage", value: resourceForm.values.applicationImage }
+    // } else {
+    //   properties.push({ key: "applicationImage", value: resourceForm.values.applicationImage });
+    // }
+
+    // if (applicationIconIndex > -1) {
+    //   properties[applicationIconIndex] = { key: "applicationIcon", value: resourceForm.values.applicationIcon }
+    // } else {
+    //   properties.push({ key: "applicationIcon", value: resourceForm.values.applicationIcon });
+    // }
+
+    const resource = {
+      ...this.props.rootResource,
+      parent_id: this.props.rootResource.id,
+      properties: properties.filter(p => !!p.value)
+    } as Resource;
+
+    onUpdateRootResource(resource);
+    console.log(resource);
+
   };
 
   /**
@@ -156,13 +375,13 @@ class AppSettingsView extends React.Component<Props, State> {
    */
   private onHandleChange = (key: keyof ApplicationForm) => (event: React.ChangeEvent<HTMLInputElement>) => {
     const values = {
-      ...this.state.form.values,
+      ...this.state.applicationForm.values,
       [key]: event.target.value
     };
 
-    const form = validateForm(
+    const applicationForm = validateForm(
       {
-        ...this.state.form,
+        ...this.state.applicationForm,
         values
       },
       {
@@ -171,7 +390,33 @@ class AppSettingsView extends React.Component<Props, State> {
     );
 
     this.setState({
-      form
+      applicationForm
+    });
+  };
+
+  /**
+   * Handles textfields change events
+   * @param key
+   * @param event
+   */
+  private onHandleResourceChange = (key: keyof ResourceSettingsForm) => (event: React.ChangeEvent<HTMLInputElement>) => {
+    const values = {
+      ...this.state.resourceForm.values,
+      [key]: event.target.value
+    };
+
+    const resourceForm = validateForm(
+      {
+        ...this.state.resourceForm,
+        values
+      },
+      {
+        usePreprocessor: false
+      }
+    );
+
+    this.setState({
+      resourceForm
     });
   };
 
@@ -180,19 +425,40 @@ class AppSettingsView extends React.Component<Props, State> {
    * @param key
    */
   private onHandleBlur = (key: keyof ApplicationForm) => () => {
-    let form = { ...this.state.form };
+    let applicationForm = { ...this.state.applicationForm };
     const filled = {
-      ...form.filled,
+      ...applicationForm.filled,
       [key]: true
     };
 
-    form = validateForm({
-      ...this.state.form,
+    applicationForm = validateForm({
+      ...this.state.applicationForm,
       filled
     });
 
     this.setState({
-      form
+      applicationForm
+    });
+  };
+
+    /**
+   * Handles fields blur event
+   * @param key
+   */
+  private onHandleResourceBlur = (key: keyof ResourceSettingsForm) => () => {
+    let resourceForm = { ...this.state.resourceForm };
+    const filled = {
+      ...resourceForm.filled,
+      [key]: true
+    };
+
+    resourceForm = validateForm({
+      ...this.state.resourceForm,
+      filled
+    });
+
+    this.setState({
+      resourceForm
     });
   };
 }

@@ -76,6 +76,7 @@ interface State {
   device?: Device;
   application?: Application;
   openedResource?: Resource;
+  rootResource?: Resource;
   treeData?: ResourceTreeItem[];
 }
 
@@ -94,7 +95,7 @@ class ApplicationEditor extends React.Component<Props, State> {
     super(props);
     this.state = {
       addResourceDialogOpen: false,
-      mobileOpen: false,
+      mobileOpen: false
     };
   }
 
@@ -119,20 +120,20 @@ class ApplicationEditor extends React.Component<Props, State> {
     const { classes } = this.props;
 
     return (
-      <div className={classes.root}>
-        <AppBar elevation={0} position="relative" className={classes.appBar}>
+      <div className={ classes.root }>
+        <AppBar elevation={ 0 } position="relative" className={classes.appBar}>
           <Toolbar>
-            <IconButton color="inherit" aria-label="open drawer" edge="start" onClick={this.handleDrawerToggle} className={classes.menuButton}>
+            <IconButton color="inherit" aria-label="open drawer" edge="start" onClick={ this.handleDrawerToggle } className={ classes.menuButton }>
               <MenuIcon />
             </IconButton>
             <Typography variant="h3" noWrap>
-              {!this.state.openedResource && this.state.application && this.state.application.name + " " + strings.applicationSettings}
-              {this.state.openedResource && this.state.openedResource.name + " " + strings.resourceSettings}
+              { !this.state.openedResource && this.state.application && this.state.application.name + " " + strings.applicationSettings.settings }
+              { this.state.openedResource && this.state.openedResource.name + " " + strings.resourceSettings }
             </Typography>
           </Toolbar>
         </AppBar>
-        { this.renderResponsiveDrawer()}
-        {this.renderEditor()}
+        { this.renderResponsiveDrawer() }
+        { this.renderEditor() }
       </div>
     );
   }
@@ -165,20 +166,20 @@ class ApplicationEditor extends React.Component<Props, State> {
   private renderDrawer = () => {
     const { auth, resources } = this.props;
     const { parentResourceId, customer, device, application } = this.state;
-    let { treeData } = this.state;
+    const { treeData } = this.state;
     return (
       <div>
         <List>
-          <ListItem button onClick={() => this.setState({ openedResource: undefined })}>
+          <ListItem button onClick={ () => this.props.openResource(undefined) }>
             <ListItemIcon>
               <SettingsIcon color="primary" />
             </ListItemIcon>
-            <ListItemText primary={strings.applicationSettings} />
+            <ListItemText primary={ strings.applicationSettings.settings } />
           </ListItem>
         </List>
         <Divider />
         { treeData &&
-          <SortableTree 
+          <SortableTree
           style={{ height: 700, padding: 3 }}
           rowHeight={ 30 }
           treeData={ treeData }
@@ -191,16 +192,16 @@ class ApplicationEditor extends React.Component<Props, State> {
           />
         }
         <AddResourceDialog
-          open={this.state.addResourceDialogOpen}
-          auth={auth}
+          open={ this.state.addResourceDialogOpen }
+          auth={ auth}
           resources={ resources }
-          customerId={customer ? customer.id : ""}
-          deviceId={device ? device.id : ""}
-          applicationId={application ? application.id : ""}
-          rootResourceId={application ? application.root_resource_id : ""}
-          parentResourceId={parentResourceId || ""}
-          onSave={this.onSaveNewResourceClick}
-          handleClose={this.onDialogCloseClick}
+          customerId={ customer ? customer.id : "" }
+          deviceId={ device ? device.id : "" }
+          applicationId={ application ? application.id : "" }
+          rootResourceId={ application ? application.root_resource_id : "" }
+          parentResourceId={ parentResourceId || "" }
+          onSave={ this.onSaveNewResourceClick }
+          handleClose={ this.onDialogCloseClick }
         />
       </div>
     );
@@ -231,9 +232,9 @@ class ApplicationEditor extends React.Component<Props, State> {
   /**
    * Loads all children of the parent
    * 
-   * @param parent_id id of tree item parent
+   * @param parentId id of tree item parent
    */
-  private loadTreeChildren = async (parent_id: string, parent:Resource): Promise<ResourceTreeItem[]> => {
+  private loadTreeChildren = async (parentId: string, parent: Resource): Promise<ResourceTreeItem[]> => {
     const { auth, customerId, deviceId, applicationId } = this.props;
     const data: ResourceTreeItem[] = [];
     if (!auth || !auth.token) {
@@ -246,7 +247,7 @@ class ApplicationEditor extends React.Component<Props, State> {
         customer_id: customerId,
         device_id: deviceId,
         application_id: applicationId,
-        parent_id: parent_id
+        parent_id: parentId
       });
     } catch (error) {
       // no children found
@@ -262,7 +263,7 @@ class ApplicationEditor extends React.Component<Props, State> {
 
     const addNewChild = new Promise<ResourceTreeItem>((resolve, reject) => {
       resolve({
-        title: this.renderAdd(parent_id)
+        title: this.renderAdd(parentId)
       } as ResourceTreeItem);
     });
 
@@ -378,21 +379,26 @@ class ApplicationEditor extends React.Component<Props, State> {
    */
   private renderEditor = () => {
     const { classes, customerId, openedResource } = this.props;
-    const { application } = this.state;
+    const { application, rootResource } = this.state;
     if (openedResource) {
       return (
-        <main className={classes.content}>
+        <main className={ classes.content }>
           { this.renderResourceSettingsView(openedResource, customerId) }
         </main>
       );
-    } else if (application && application != null) {
+    } else if (application) {
       return (
-        <main className={classes.content}>
-          <AppSettingsView application={application} onUpdate={this.onUpdateApplication} />
+        <main className={ classes.content }>
+          <AppSettingsView
+            application={ application }
+            onUpdateApplication={ this.onUpdateApplication }
+            onUpdateRootResource={ this.onUpdateResource }
+            rootResource={ rootResource! }
+            customerId={ customerId } />
         </main>
       );
     } else {
-      return <main className={classes.content}></main>;
+      return <main className={ classes.content }></main>;
     }
   };
 
@@ -404,7 +410,7 @@ class ApplicationEditor extends React.Component<Props, State> {
       case ResourceType.LANGUAGE:
       case ResourceType.SLIDESHOW:
       case ResourceType.INTRO:
-        return <MenuResourceSettingsView 
+        return <MenuResourceSettingsView
             resource={ resource }
             customerId={ customerId }
             onUpdate={ this.onUpdateResource }
@@ -468,10 +474,22 @@ class ApplicationEditor extends React.Component<Props, State> {
 
     updateResources(rootResources);
 
+    if (!application.root_resource_id) {
+      return;
+    }
+
+    const rootResource = await resourcesApi.findResource({
+      customer_id: customerId,
+      device_id: deviceId,
+      application_id: applicationId,
+      resource_id: application.root_resource_id
+    })
+
     this.setState({
       customer: customer,
       device: device,
-      application: application
+      application: application,
+      rootResource: rootResource
     });
 
     setCustomer(customer);
@@ -613,11 +631,11 @@ class ApplicationEditor extends React.Component<Props, State> {
   private onUpdateResource = async (resource: Resource) => {
     const { auth, customerId, deviceId, applicationId, updatedResourceView, openResource } = this.props;
     const resourceId = resource.id;
-
+    console.log(resource)
     if (!auth || !auth.token || !resourceId) {
       return;
     }
-
+    console.log(resource)
     const resourcesApi = ApiUtils.getResourcesApi(auth.token);
     const updatedResource = await resourcesApi.updateResource({
       resource: resource,
@@ -626,7 +644,8 @@ class ApplicationEditor extends React.Component<Props, State> {
       application_id: applicationId,
       resource_id: resourceId
     });
-
+    
+    
     openResource(updatedResource);
     updatedResourceView();
   };

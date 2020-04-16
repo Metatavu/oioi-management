@@ -7,7 +7,7 @@ export interface IStrings extends LocalizedStringsMethods {
   addNewCustomer: string;
   addNewDevice: string;
   applications: string;
-  applicationSettings: string;
+  applicationName: string;
   back: string;
   cancel: string;
   confirm: string;
@@ -68,7 +68,7 @@ export interface IStrings extends LocalizedStringsMethods {
     changePDF: string;
     upload: string;
     cancel: string;
-  }
+  };
   resourceTypes: {
     root: string;
     video: string;
@@ -81,8 +81,13 @@ export interface IStrings extends LocalizedStringsMethods {
     pdf: string;
     text: string;
     image: string;
-  }
-  childResources:string;
+  };
+  childResources: string;
+  applicationSettings: {
+    teaserText: string;
+    settings: string;
+    background: string;
+  };
 }
 
 const strings: IStrings = new LocalizedStrings({
