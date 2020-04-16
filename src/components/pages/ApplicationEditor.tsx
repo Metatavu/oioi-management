@@ -397,12 +397,22 @@ class ApplicationEditor extends React.Component<Props, State> {
   };
 
   private renderResourceSettingsView = (resource: Resource, customerId: string) => {
+    const { auth, deviceId, applicationId } = this.props;
+
     switch (resource.type) {
       case ResourceType.MENU:
       case ResourceType.LANGUAGE:
       case ResourceType.SLIDESHOW:
       case ResourceType.INTRO:
-        return <MenuResourceSettingsView resource={resource} customerId={customerId} onUpdate={this.onUpdateResource} onDelete={this.onDeleteResource} />;
+        return <MenuResourceSettingsView 
+            resource={ resource }
+            customerId={ customerId }
+            onUpdate={ this.onUpdateResource }
+            onDelete={ this.onDeleteResource }
+            auth={ auth }
+            deviceId={ deviceId }
+            applicationId={ applicationId }
+          />;
       default:
         return <ResourceSettingsView resource={resource} customerId={customerId} onUpdate={this.onUpdateResource} onDelete={this.onDeleteResource} />;
 

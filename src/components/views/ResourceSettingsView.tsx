@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import * as React from "react";
-import { withStyles, WithStyles, TextField, Divider, Typography, Button } from "@material-ui/core";
+import { withStyles, WithStyles, TextField, Divider, Typography, Button, Grid } from "@material-ui/core";
 import MaterialTable from "material-table";
 import AddIcon from "@material-ui/icons/AddBox";
 import DeleteIcon from "@material-ui/icons/Delete";
@@ -20,6 +20,11 @@ import logo from "../../resources/svg/oioi-logo.svg";
 
 import GridList from '@material-ui/core/GridList';
 import GridListTile from '@material-ui/core/GridListTile';
+import { getAllowedFileTypes, getLocalizedTypeString } from "../../commons/resourceTypeHelper";
+
+/**
+ * Component props
+ */
 interface Props extends WithStyles<typeof styles> {
   resource: Resource;
   customerId: string;
@@ -27,7 +32,14 @@ interface Props extends WithStyles<typeof styles> {
   onDelete(resource: Resource): void;
 }
 
-interface ResourceSettingsForm extends Partial<Resource> {}
+/**
+ * Resource settings form
+ */
+interface ResourceSettingsForm extends Partial<Resource> {
+  nameText?: string,
+  title?: string,
+  content?: string
+}
 
 const rules: FormValidationRules<ResourceSettingsForm> = {
   fields: {
@@ -61,6 +73,9 @@ const rules: FormValidationRules<ResourceSettingsForm> = {
   }
 };
 
+/**
+ * Component state
+ */
 interface State {
   form: Form<ResourceSettingsForm>;
   resourceId: string;
@@ -143,8 +158,7 @@ class ResourceSettingsView extends React.Component<Props, State> {
    * Component render method
    */
   public render() {
-    const { resourceData, updated } = this.state;
-    const { isFormValid } = this.state.form;
+    const { updated } = this.state;
 
     if (updated) {
       this.setState({
@@ -156,21 +170,26 @@ class ResourceSettingsView extends React.Component<Props, State> {
     const localizedDataString = this.getLocalizedDataString();
     const dataField = this.renderDataField();
 
+    const { isFormValid } = this.state.form;
+    const resourceTypeObject = getLocalizedTypeString(this.props.resource.type);
+
     return (
       <div>
-        {this.renderField("name", strings.name, "text")}
-        {this.renderField("order_number", strings.orderNumber, "number")}
-        {this.renderField("slug", strings.slug, "text")}
-        <Button
-          style={{ marginLeft: theme.spacing(3), marginTop: theme.spacing(1) }}
-          color="primary"
-          variant="contained"
-          startIcon={<SaveIcon />}
-          disabled={!isFormValid}
-          onClick={this.onUpdateResource}
-        >
-          {strings.save}
-        </Button>
+        <Grid>
+          <Typography variant="h3">{ resourceTypeObject.resourceLocal }</Typography>
+          <Button
+            style={{ marginLeft: theme.spacing(3), marginTop: theme.spacing(1) }}
+            color="primary"
+            variant="contained"
+            startIcon={ <SaveIcon /> }
+            disabled={ !isFormValid }
+            onClick={ this.onUpdateResource }
+          >
+            { strings.save }
+          </Button>
+        </Grid>
+        <Divider style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} />
+        { this.renderFields() }
         <Divider style={{ marginBottom: theme.spacing(3) }} />
         <div>
           <Typography variant="h3">{localizedDataString}</Typography>
@@ -178,166 +197,232 @@ class ResourceSettingsView extends React.Component<Props, State> {
         </div>
         <Divider style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} />
         <div>
-          <MaterialTable
-            icons={{
-              Add: forwardRef((props, ref) => <AddIcon {...props} ref={ref} />),
-              Delete: forwardRef((props, ref) => <DeleteIcon {...props} ref={ref} />),
-              Check: forwardRef((props, ref) => <CheckIcon {...props} ref={ref} />),
-              Clear: forwardRef((props, ref) => <ClearIcon {...props} ref={ref} />),
-              Edit: forwardRef((props, ref) => <EditIcon {...props} ref={ref} />)
-            }}
-            columns={[
-              { title: strings.key, field: "key" },
-              { title: strings.value, field: "value" }
-            ]}
-            data={resourceData["styles"]}
-            editable={{
-              onRowAdd: newData =>
-                new Promise((resolve, reject) => {
-                  {
-                    const { resourceData } = this.state;
-                    const styles = resourceData["styles"];
-                    styles.push(newData);
-                    resourceData["styles"] = styles;
-                    this.setState({ resourceData: resourceData }, () => resolve());
-                  }
-                  resolve();
-                }),
-              onRowUpdate: (newData, oldData) =>
-                new Promise((resolve, reject) => {
-                  {
-                    const { resourceData } = this.state;
-                    const styles = resourceData["styles"];
-                    const index = styles.indexOf(oldData);
-                    styles[index] = newData;
-                    resourceData["styles"] = styles;
-                    this.setState({ resourceData: resourceData }, () => resolve());
-                  }
-                  resolve();
-                }),
-              onRowDelete: oldData =>
-                new Promise((resolve, reject) => {
-                  {
-                    const { resourceData } = this.state;
-                    const styles = resourceData["styles"];
-                    const index = styles.indexOf(oldData);
-                    styles.splice(index, 1);
-                    resourceData["styles"] = styles;
-                    this.setState({ resourceData: resourceData }, () => resolve());
-                  }
-                  resolve();
-                })
-            }}
-            title={strings.styles}
-            options={{
-              grouping: false,
-              search: false,
-              selection: false,
-              sorting: false,
-              draggable: false,
-              exportButton: false,
-              filtering: false,
-              paging: false,
-              showTextRowsSelected: false,
-              showFirstLastPageButtons: false,
-              showSelectAllCheckbox: false
-            }}
-          />
+          { this.renderStyleTable() }
         </div>
         <Divider style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} />
+
         <div>
-          <MaterialTable
-            icons={{
-              Add: forwardRef((props, ref) => <AddIcon {...props} ref={ref} />),
-              Delete: forwardRef((props, ref) => <DeleteIcon {...props} ref={ref} />),
-              Check: forwardRef((props, ref) => <CheckIcon {...props} ref={ref} />),
-              Clear: forwardRef((props, ref) => <ClearIcon {...props} ref={ref} />),
-              Edit: forwardRef((props, ref) => <EditIcon {...props} ref={ref} />)
-            }}
-            columns={[
-              { title: strings.key, field: "key" },
-              { title: strings.value, field: "value" }
-            ]}
-            data={resourceData["properties"]}
-            editable={{
-              onRowAdd: newData =>
-                new Promise((resolve, reject) => {
-                  {
-                    const { resourceData } = this.state;
-                    const properties = resourceData["properties"];
-                    properties.push(newData);
-                    resourceData["properties"] = properties;
-                    this.setState({ resourceData: resourceData }, () => resolve());
-                  }
-                  resolve();
-                }),
-              onRowUpdate: (newData, oldData) =>
-                new Promise((resolve, reject) => {
-                  {
-                    const { resourceData } = this.state;
-                    const properties = resourceData["properties"];
-                    const index = properties.indexOf(oldData);
-                    properties[index] = newData;
-                    resourceData["properties"] = properties;
-                    this.setState({ resourceData: resourceData }, () => resolve());
-                  }
-                  resolve();
-                }),
-              onRowDelete: oldData =>
-                new Promise((resolve, reject) => {
-                  {
-                    const { resourceData } = this.state;
-                    const properties = resourceData["properties"];
-                    const index = properties.indexOf(oldData);
-                    properties.splice(index, 1);
-                    resourceData["properties"] = properties;
-                    this.setState({ resourceData: resourceData }, () => resolve());
-                  }
-                  resolve();
-                })
-            }}
-            title={strings.properties}
-            options={{
-              grouping: false,
-              search: false,
-              selection: false,
-              sorting: false,
-              draggable: false,
-              exportButton: false,
-              filtering: false,
-              paging: false,
-              showTextRowsSelected: false,
-              showFirstLastPageButtons: false,
-              showSelectAllCheckbox: false
-            }}
-          />
+          { this.renderPropertiesTable() }
         </div>
       </div>
     );
   }
 
   /**
+   * Render text fields
+   */
+  private renderFields = () => {
+    return<>
+      <Grid container spacing={ 3 } direction="row">
+        <Typography variant="h3">{ strings.title }</Typography>
+        { this.renderField("title", strings.title, "text") }
+
+        <Typography variant="h3">{ strings.nameText }</Typography>
+        { this.renderField("nameText", strings.nameText, "textarea") }
+
+        <Typography variant="h3">{ strings.content }</Typography>
+        { this.renderField("content", strings.content, "textarea") }
+
+        { this.renderField("name", strings.name, "text") }
+        { this.renderField("order_number", strings.orderNumber, "number") }
+        { this.renderField("slug", strings.slug, "text") }
+      </Grid>
+    </>
+  }
+
+  /**
    * Renders textfield
+   * @param key to look for
+   * @param label label to be shown
+   * @param type text field type
    */
   private renderField = (key: keyof ResourceSettingsForm, label: string, type: string) => {
     const {
       values,
       messages: { [key]: message }
     } = this.state.form;
+    if (type == "textarea") {
+      return ( <TextField
+        fullWidth
+        multiline
+        rows={ 8 }
+        style={{ margin: theme.spacing(3) }}
+        type={ type }
+        error={ message && message.type === MessageType.ERROR} 
+        helperText={ message && message.message} 
+        value={ values[key] || "" }
+        onChange={ this.onHandleChange(key) }
+        onBlur={ this.onHandleBlur(key) }
+        name={ key }
+        variant="outlined"
+        label={ label }
+      /> );
+    }
     return (
       <TextField
-        style={{ marginLeft: theme.spacing(3) }}
-        type={type}
-        error={message && message.type === MessageType.ERROR}
-        helperText={message && message.message}
-        value={values[key] || ""}
-        onChange={this.onHandleChange(key)}
-        onBlur={this.onHandleBlur(key)}
-        name={key}
+        fullWidth
+        style={{ margin: theme.spacing(3) }}
+        type={ type }
+        error={ message && message.type === MessageType.ERROR }
+        helperText={ message && message.message }
+        value={ values[key] || "" }
+        onChange={ this.onHandleChange(key) }
+        onBlur={ this.onHandleBlur(key) }
+        name={ key }
         variant="outlined"
-        label={label}
+        label={ label }
       />
     );
+  };
+
+  /**
+   * Render table that contains style data
+   */
+  private renderStyleTable = () => {
+    const { resourceData } = this.state;
+
+    return (
+      <MaterialTable
+        icons={{
+          Add: forwardRef((props, ref) => <AddIcon { ...props } ref={ ref } />),
+          Delete: forwardRef((props, ref) => <DeleteIcon { ...props } ref={ ref } />),
+          Check: forwardRef((props, ref) => <CheckIcon { ...props } ref={ ref } />),
+          Clear: forwardRef((props, ref) => <ClearIcon { ...props } ref={ ref } />),
+          Edit: forwardRef((props, ref) => <EditIcon { ...props } ref={ ref } />)
+        }}
+        columns={[
+          { title: strings.key, field: "key" },
+          { title: strings.value, field: "value" }
+        ]}
+        data={ resourceData["styles"] }
+        editable={{
+          onRowAdd: newData =>
+            new Promise((resolve, reject) => {
+              {
+                const { resourceData } = this.state;
+                const styles = resourceData["styles"];
+                styles.push(newData);
+                resourceData["styles"] = styles;
+                this.setState({ resourceData: resourceData }, () => resolve());
+              }
+              resolve();
+            }),
+          onRowUpdate: (newData, oldData) =>
+            new Promise((resolve, reject) => {
+              {
+                const { resourceData } = this.state;
+                const styles = resourceData["styles"];
+                const index = styles.indexOf(oldData);
+                styles[index] = newData;
+                resourceData["styles"] = styles;
+                this.setState({ resourceData: resourceData }, () => resolve());
+              }
+              resolve();
+            }),
+          onRowDelete: oldData =>
+            new Promise((resolve, reject) => {
+              {
+                const { resourceData } = this.state;
+                const styles = resourceData["styles"];
+                const index = styles.indexOf(oldData);
+                styles.splice(index, 1);
+                resourceData["styles"] = styles;
+                this.setState({ resourceData: resourceData }, () => resolve());
+              }
+              resolve();
+            })
+        }}
+        title={ strings.styles }
+        options={{
+          grouping: false,
+          search: false,
+          selection: false,
+          sorting: false,
+          draggable: false,
+          exportButton: false,
+          filtering: false,
+          paging: false,
+          showTextRowsSelected: false,
+          showFirstLastPageButtons: false,
+          showSelectAllCheckbox: false
+        }}
+      />
+    );
+  };
+
+  /**
+   * Render table that constain properties data
+   */
+  private renderPropertiesTable = () => {
+    const { resourceData } = this.state;
+
+    return (
+      <MaterialTable
+        icons={{
+          Add: forwardRef((props, ref) => <AddIcon { ...props } ref={ ref } />),
+          Delete: forwardRef((props, ref) => <DeleteIcon { ...props } ref={ ref } />),
+          Check: forwardRef((props, ref) => <CheckIcon { ...props } ref={ ref } />),
+          Clear: forwardRef((props, ref) => <ClearIcon { ...props } ref={ ref } />),
+          Edit: forwardRef((props, ref) => <EditIcon { ...props } ref={ ref } />)
+        }}
+        columns={[
+          { title: strings.key, field: "key" },
+          { title: strings.value, field: "value" }
+        ]}
+        data={resourceData["properties"]}
+        editable={{
+          onRowAdd: newData =>
+            new Promise((resolve, reject) => {
+              {
+                const { resourceData } = this.state;
+                const properties = resourceData["properties"];
+                properties.push(newData);
+                resourceData["properties"] = properties;
+                this.setState({ resourceData: resourceData }, () => resolve());
+              }
+              resolve();
+            }),
+          onRowUpdate: (newData, oldData) =>
+            new Promise((resolve, reject) => {
+              {
+                const { resourceData } = this.state;
+                const properties = resourceData["properties"];
+                const index = properties.indexOf(oldData);
+                properties[index] = newData;
+                resourceData["properties"] = properties;
+                this.setState({ resourceData: resourceData }, () => resolve());
+              }
+              resolve();
+            }),
+          onRowDelete: oldData =>
+            new Promise((resolve, reject) => {
+              {
+                const { resourceData } = this.state;
+                const properties = resourceData["properties"];
+                const index = properties.indexOf(oldData);
+                properties.splice(index, 1);
+                resourceData["properties"] = properties;
+                this.setState({ resourceData: resourceData }, () => resolve());
+              }
+              resolve();
+            })
+        }}
+        title={ strings.properties }
+        options={{
+          grouping: false,
+          search: false,
+          selection: false,
+          sorting: false,
+          draggable: false,
+          exportButton: false,
+          filtering: false,
+          paging: false,
+          showTextRowsSelected: false,
+          showFirstLastPageButtons: false,
+          showSelectAllCheckbox: false
+        }}
+      />
+    )
   };
 
   /**
@@ -352,9 +437,9 @@ class ResourceSettingsView extends React.Component<Props, State> {
         <TextField
           fullWidth
           name="data"
-          value={this.state.form.values.data}
-          onChange={this.onDataChange}
-          label={strings.text}
+          value={ this.state.form.values.data }
+          onChange={ this.onDataChange }
+          label={ strings.resourceTypes.text }
           multiline
           rows="8"
           margin="normal"
@@ -362,7 +447,7 @@ class ResourceSettingsView extends React.Component<Props, State> {
         />
       );
     } else {
-      const allowedFileTypes = this.getAllowedFileTypes();
+      const allowedFileTypes = getAllowedFileTypes(resource.type);
       const fileData = this.state.form.values.data;
       
       return <>
@@ -372,6 +457,11 @@ class ResourceSettingsView extends React.Component<Props, State> {
     }
   };
 
+    /**
+   * Render preview view
+   * TODO: Render preview should be own generic component that would show some stock image
+   * when data contains something else then image/video 
+   */
   private renderPreview = () => {
     const { resource } = this.props;
     const resourceType = resource.type;
@@ -393,8 +483,6 @@ class ResourceSettingsView extends React.Component<Props, State> {
         </GridList>
       </div>
     </>
-
-
   }
 
   /**
@@ -405,41 +493,19 @@ class ResourceSettingsView extends React.Component<Props, State> {
     const resourceType = resource.type;
     switch (resourceType) {
       case ResourceType.IMAGE: {
-        return strings.image;
+        return strings.resourceTypes.image;
       }
       case ResourceType.PDF: {
-        return strings.pdf;
+        return strings.resourceTypes.pdf;
       }
       case ResourceType.TEXT: {
-        return strings.text;
+        return strings.resourceTypes.text;
       }
       case ResourceType.VIDEO: {
-        return strings.video;
+        return strings.resourceTypes.video;
       }
       default: {
         return strings.file;
-      }
-    }
-  };
-
-  /**
-   * Get file types for resource type method
-   */
-  private getAllowedFileTypes = (): string[] => {
-    const { resource } = this.props;
-    const resourceType = resource.type;
-    switch (resourceType) {
-      case ResourceType.IMAGE: {
-        return ["image/*"];
-      }
-      case ResourceType.PDF: {
-        return ["application/pdf"];
-      }
-      case ResourceType.VIDEO: {
-        return ["video/*"];
-      }
-      default: {
-        return [];
       }
     }
   };

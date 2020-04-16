@@ -29,6 +29,12 @@
   "languageVersions": "Language versions",
   "mainNavigationIcons": "Main navigation icons",
   "name": "Name",
+  "nameText": "...",
+  "title": "Title",
+  "content": "Content",
+  "backgroundMedia": "Background media",
+  "backgroundImage": "Background image",
+  "menuImage": "Menu image",
   "normal": "Normal",
   "save": "Save",
   "selectLanguage": "Select language",
@@ -47,18 +53,9 @@
   "value": "Value",
   "styles": "Styles",
   "properties": "Properties",
-  "pdf": "PDF",
-  "text": "Text",
-  "video": "Video",
   "file": "File",
-  "page": "Page",
-  "slideshow": "Slideshow",
   "update": "Update",
   "requiredField": "Required field",
-  "intro": "Intro",
-  "language": "Language",
-  "languageMenu": "Language menu",
-  "menu": "Menu",
   "fileUpload": {
     "addImage": "Add image",
     "changeImage": "Change image",
@@ -70,5 +67,18 @@
     "changePDF": "Change PDF file",
     "upload": "Upload",
     "cancel": "Cancel"
-  }
+  },
+  "resourceTypes": {
+    "root": "Root",
+    "page": "Page",
+    "slideshow": "Slideshow",
+    "intro": "Intro",
+    "language": "Language",
+    "languageMenu": "Language menu",
+    "menu": "Menu",
+    "pdf": "PDF",
+    "text": "Text",
+    "video": "Video"
+  },
+  "childResources": "Sub resources"
 }
