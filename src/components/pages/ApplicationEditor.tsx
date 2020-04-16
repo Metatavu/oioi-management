@@ -405,10 +405,10 @@ class ApplicationEditor extends React.Component<Props, State> {
       case ResourceType.SLIDESHOW:
       case ResourceType.INTRO:
         return <MenuResourceSettingsView 
-            resource={resource}
-            customerId={customerId}
-            onUpdate={this.onUpdateResource}
-            onDelete={this.onDeleteResource}
+            resource={ resource }
+            customerId={ customerId }
+            onUpdate={ this.onUpdateResource }
+            onDelete={ this.onDeleteResource }
             auth={ auth }
             deviceId={ deviceId }
             applicationId={ applicationId }

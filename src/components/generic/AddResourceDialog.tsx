@@ -118,7 +118,7 @@ const rules: FormValidationRules<AddResourceForm> = {
 interface State {
   form: Form<AddResourceForm>;
   resourceType?: ResourceType;
-  parentResourceType?: ResourceType
+  parentResourceType?: ResourceType;
 }
 
 /**
@@ -191,7 +191,7 @@ class AddResourceDialog extends React.Component<Props, State> {
 
       form = validateForm(form);
 
-      this.getResourceType()
+      this.getResourceType();
       this.setState({
         form,
         resourceType: undefined
@@ -262,9 +262,9 @@ class AddResourceDialog extends React.Component<Props, State> {
         onChange={ this.onSelectChange }
         name="type"
       >
-        { this.state.parentResourceType && this.renderMenuItems() } 
+        { this.state.parentResourceType && this.renderMenuItems() }
       </Select>
-    </>
+    </>;
   }
 
   /**
@@ -276,7 +276,7 @@ class AddResourceDialog extends React.Component<Props, State> {
     const menuItems: JSX.Element[] = [];
 
     if (parentResourceType) {
-      let foundTypes:ResourceTypeObject[] = resolveChildResourceTypes(parentResourceType);
+      let foundTypes: ResourceTypeObject[] = resolveChildResourceTypes(parentResourceType);
       if (foundTypes && foundTypes.length > 0) {
         if (resources.findIndex(resource => resource.type === ResourceType.INTRO) !== -1) {
           foundTypes = foundTypes.filter(type => type.value !== ResourceType.INTRO);
@@ -284,32 +284,32 @@ class AddResourceDialog extends React.Component<Props, State> {
         if (resources.findIndex(resource => resource.type === ResourceType.LANGUAGEMENU) !== -1) {
           foundTypes = foundTypes.filter(type => type.value !== ResourceType.LANGUAGEMENU);
         }
-        
+
         foundTypes.map(item => {
-          const menuItem = <MenuItem value={ item.value } key={ item.value }>{item.resourceLocal}</MenuItem>
-          return menuItems.push(menuItem)
-        })
+          const menuItem = <MenuItem value={ item.value } key={ item.value }>{ item.resourceLocal }</MenuItem>;
+          return menuItems.push(menuItem);
+        });
       }
     }
 
-    return menuItems
+    return menuItems;
   }
 
   private getResourceType = async () => {
-    const { auth, customerId, deviceId, applicationId, parentResourceId } = this.props
+    const { auth, customerId, deviceId, applicationId, parentResourceId } = this.props;
 
     if (auth && auth.token && applicationId && customerId && deviceId && parentResourceId) {
-      const api = ApiUtils.getResourcesApi(auth.token)
+      const api = ApiUtils.getResourcesApi(auth.token);
       const found = await api.findResource({
           application_id: applicationId,
           customer_id: customerId,
           device_id: deviceId,
           resource_id: parentResourceId
-        })
+        });
       if (found) {
         this.setState({
           parentResourceType : found.type
-        })
+        });
       }
     }
   }

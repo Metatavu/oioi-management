@@ -186,7 +186,7 @@ class DeviceDialog extends React.Component<Props, State> {
             <Grid item className={classes.fullWidth}>
               {dialogType !== "show" && (
                 <>
-                  <Typography variant="subtitle1">{strings.resourceTypes.image}</Typography>
+                  <Typography variant="subtitle1">{ strings.resourceTypes.image }</Typography>
                   <DropzoneArea
                     dropzoneClass={classes.dropzone}
                     dropzoneParagraphClass={classes.dropzoneText}

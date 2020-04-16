@@ -32,6 +32,9 @@ interface Props extends WithStyles<typeof styles> {
   onDelete(resource: Resource): void;
 }
 
+/**
+ * Resource settings form
+ */
 interface ResourceSettingsForm extends Partial<Resource> {
   nameText?: string,
   title?: string,
@@ -168,7 +171,7 @@ class ResourceSettingsView extends React.Component<Props, State> {
     const dataField = this.renderDataField();
 
     const { isFormValid } = this.state.form;
-    const resourceTypeObject = getLocalizedTypeString(this.props.resource.type)
+    const resourceTypeObject = getLocalizedTypeString(this.props.resource.type);
 
     return (
       <div>
@@ -178,11 +181,11 @@ class ResourceSettingsView extends React.Component<Props, State> {
             style={{ marginLeft: theme.spacing(3), marginTop: theme.spacing(1) }}
             color="primary"
             variant="contained"
-            startIcon={<SaveIcon />}
-            disabled={!isFormValid}
-            onClick={this.onUpdateResource}
+            startIcon={ <SaveIcon /> }
+            disabled={ !isFormValid }
+            onClick={ this.onUpdateResource }
           >
-            {strings.save}
+            { strings.save }
           </Button>
         </Grid>
         <Divider style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} />
@@ -210,19 +213,19 @@ class ResourceSettingsView extends React.Component<Props, State> {
    */
   private renderFields = () => {
     return<>
-      <Grid container spacing={3} direction="row">
+      <Grid container spacing={ 3 } direction="row">
         <Typography variant="h3">{ strings.title }</Typography>
-        {this.renderField("title", strings.title, "text")}
+        { this.renderField("title", strings.title, "text") }
 
         <Typography variant="h3">{ strings.nameText }</Typography>
-        {this.renderField("nameText", strings.nameText, "textarea")}
+        { this.renderField("nameText", strings.nameText, "textarea") }
 
         <Typography variant="h3">{ strings.content }</Typography>
-        {this.renderField("content", strings.content, "textarea")}
+        { this.renderField("content", strings.content, "textarea") }
 
-        {this.renderField("name", strings.name, "text")}
-        {this.renderField("order_number", strings.orderNumber, "number")}
-        {this.renderField("slug", strings.slug, "text")}
+        { this.renderField("name", strings.name, "text") }
+        { this.renderField("order_number", strings.orderNumber, "number") }
+        { this.renderField("slug", strings.slug, "text") }
       </Grid>
     </>
   }
@@ -242,32 +245,32 @@ class ResourceSettingsView extends React.Component<Props, State> {
       return ( <TextField
         fullWidth
         multiline
-        rows={8}
+        rows={ 8 }
         style={{ margin: theme.spacing(3) }}
-        type={type}
-        error={message && message.type === MessageType.ERROR}
-        helperText={message && message.message}
-        value={values[key] || ""}
-        onChange={this.onHandleChange(key)}
-        onBlur={this.onHandleBlur(key)}
-        name={key}
+        type={ type }
+        error={ message && message.type === MessageType.ERROR} 
+        helperText={ message && message.message} 
+        value={ values[key] || "" }
+        onChange={ this.onHandleChange(key) }
+        onBlur={ this.onHandleBlur(key) }
+        name={ key }
         variant="outlined"
-        label={label}
+        label={ label }
       /> );
     }
     return (
       <TextField
         fullWidth
         style={{ margin: theme.spacing(3) }}
-        type={type}
-        error={message && message.type === MessageType.ERROR}
-        helperText={message && message.message}
-        value={values[key] || ""}
-        onChange={this.onHandleChange(key)}
-        onBlur={this.onHandleBlur(key)}
-        name={key}
+        type={ type }
+        error={ message && message.type === MessageType.ERROR }
+        helperText={ message && message.message }
+        value={ values[key] || "" }
+        onChange={ this.onHandleChange(key) }
+        onBlur={ this.onHandleBlur(key) }
+        name={ key }
         variant="outlined"
-        label={label}
+        label={ label }
       />
     );
   };
@@ -281,17 +284,17 @@ class ResourceSettingsView extends React.Component<Props, State> {
     return (
       <MaterialTable
         icons={{
-          Add: forwardRef((props, ref) => <AddIcon {...props} ref={ref} />),
-          Delete: forwardRef((props, ref) => <DeleteIcon {...props} ref={ref} />),
-          Check: forwardRef((props, ref) => <CheckIcon {...props} ref={ref} />),
-          Clear: forwardRef((props, ref) => <ClearIcon {...props} ref={ref} />),
-          Edit: forwardRef((props, ref) => <EditIcon {...props} ref={ref} />)
+          Add: forwardRef((props, ref) => <AddIcon { ...props } ref={ ref } />),
+          Delete: forwardRef((props, ref) => <DeleteIcon { ...props } ref={ ref } />),
+          Check: forwardRef((props, ref) => <CheckIcon { ...props } ref={ ref } />),
+          Clear: forwardRef((props, ref) => <ClearIcon { ...props } ref={ ref } />),
+          Edit: forwardRef((props, ref) => <EditIcon { ...props } ref={ ref } />)
         }}
         columns={[
           { title: strings.key, field: "key" },
           { title: strings.value, field: "value" }
         ]}
-        data={resourceData["styles"]}
+        data={ resourceData["styles"] }
         editable={{
           onRowAdd: newData =>
             new Promise((resolve, reject) => {
@@ -329,7 +332,7 @@ class ResourceSettingsView extends React.Component<Props, State> {
               resolve();
             })
         }}
-        title={strings.styles}
+        title={ strings.styles }
         options={{
           grouping: false,
           search: false,
@@ -356,11 +359,11 @@ class ResourceSettingsView extends React.Component<Props, State> {
     return (
       <MaterialTable
         icons={{
-          Add: forwardRef((props, ref) => <AddIcon {...props} ref={ref} />),
-          Delete: forwardRef((props, ref) => <DeleteIcon {...props} ref={ref} />),
-          Check: forwardRef((props, ref) => <CheckIcon {...props} ref={ref} />),
-          Clear: forwardRef((props, ref) => <ClearIcon {...props} ref={ref} />),
-          Edit: forwardRef((props, ref) => <EditIcon {...props} ref={ref} />)
+          Add: forwardRef((props, ref) => <AddIcon { ...props } ref={ ref } />),
+          Delete: forwardRef((props, ref) => <DeleteIcon { ...props } ref={ ref } />),
+          Check: forwardRef((props, ref) => <CheckIcon { ...props } ref={ ref } />),
+          Clear: forwardRef((props, ref) => <ClearIcon { ...props } ref={ ref } />),
+          Edit: forwardRef((props, ref) => <EditIcon { ...props } ref={ ref } />)
         }}
         columns={[
           { title: strings.key, field: "key" },
@@ -404,7 +407,7 @@ class ResourceSettingsView extends React.Component<Props, State> {
               resolve();
             })
         }}
-        title={strings.properties}
+        title={ strings.properties }
         options={{
           grouping: false,
           search: false,
@@ -434,9 +437,9 @@ class ResourceSettingsView extends React.Component<Props, State> {
         <TextField
           fullWidth
           name="data"
-          value={this.state.form.values.data}
-          onChange={this.onDataChange}
-          label={strings.resourceTypes.text}
+          value={ this.state.form.values.data }
+          onChange={ this.onDataChange }
+          label={ strings.resourceTypes.text }
           multiline
           rows="8"
           margin="normal"

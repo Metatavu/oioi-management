@@ -234,7 +234,7 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
     }
 
     const { isFormValid } = this.state.form;
-    const resourceTypeObject = getLocalizedTypeString(this.props.resource.type)
+    const resourceTypeObject = getLocalizedTypeString(this.props.resource.type);
 
     return (
       <div>
@@ -244,11 +244,11 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
             style={{ marginLeft: theme.spacing(3), marginTop: theme.spacing(1) }}
             color="primary"
             variant="contained"
-            startIcon={<SaveIcon />}
-            disabled={!isFormValid}
-            onClick={this.onUpdateResource}
+            startIcon={ <SaveIcon /> }
+            disabled={ !isFormValid }
+            onClick={ this.onUpdateResource }
           >
-            {strings.save}
+            { strings.save }
           </Button>
         </Grid>
         <Divider style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} />
@@ -353,11 +353,11 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
     return (
       <MaterialTable
         icons={{
-          Add: forwardRef((props, ref) => <AddIcon {...props} ref={ref} />),
-          Delete: forwardRef((props, ref) => <DeleteIcon {...props} ref={ref} />),
-          Check: forwardRef((props, ref) => <CheckIcon {...props} ref={ref} />),
-          Clear: forwardRef((props, ref) => <ClearIcon {...props} ref={ref} />),
-          Edit: forwardRef((props, ref) => <EditIcon {...props} ref={ref} />)
+          Add: forwardRef((props, ref) => <AddIcon { ...props } ref={ ref } />),
+          Delete: forwardRef((props, ref) => <DeleteIcon { ...props } ref={ ref } />),
+          Check: forwardRef((props, ref) => <CheckIcon { ...props } ref={ ref } />),
+          Clear: forwardRef((props, ref) => <ClearIcon { ...props } ref={ ref } />),
+          Edit: forwardRef((props, ref) => <EditIcon { ...props } ref={ ref } />)
         }}
         columns={[
           { title: strings.key, field: "key" },
@@ -401,7 +401,7 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
               resolve();
             })
         }}
-        title={strings.styles}
+        title={ strings.styles }
         options={{
           grouping: false,
           search: false,
@@ -428,11 +428,11 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
     return (
       <MaterialTable
         icons={{
-          Add: forwardRef((props, ref) => <AddIcon {...props} ref={ref} />),
-          Delete: forwardRef((props, ref) => <DeleteIcon {...props} ref={ref} />),
-          Check: forwardRef((props, ref) => <CheckIcon {...props} ref={ref} />),
-          Clear: forwardRef((props, ref) => <ClearIcon {...props} ref={ref} />),
-          Edit: forwardRef((props, ref) => <EditIcon {...props} ref={ref} />)
+          Add: forwardRef((props, ref) => <AddIcon { ...props } ref={ ref } />),
+          Delete: forwardRef((props, ref) => <DeleteIcon { ...props } ref={ ref } />),
+          Check: forwardRef((props, ref) => <CheckIcon { ...props } ref={ ref } />),
+          Clear: forwardRef((props, ref) => <ClearIcon { ...props } ref={ ref } />),
+          Edit: forwardRef((props, ref) => <EditIcon { ...props } ref={ ref } />)
         }}
         columns={[
           { title: strings.key, field: "key" },
@@ -476,7 +476,7 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
               resolve();
             })
         }}
-        title={strings.properties}
+        title={ strings.properties }
         options={{
           grouping: false,
           search: false,
@@ -619,9 +619,9 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
       resourceData: { ...resourceData }
     });
     
-    this.onUpdateResource()
+    this.onUpdateResource();
     //TODO: Handle error cases
-    return 200
+    return 200;
   };
 
   /**
