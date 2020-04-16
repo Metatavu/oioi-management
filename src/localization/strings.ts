@@ -3,6 +3,7 @@ import LocalizedStrings, { LocalizedStringsMethods } from "localized-strings";
 export interface IStrings extends LocalizedStringsMethods {
   active: string;
   address: string;
+  addNew: string;
   addLanguage: string;
   addNewCustomer: string;
   addNewDevice: string;
