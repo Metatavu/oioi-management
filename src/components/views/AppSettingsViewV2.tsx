@@ -276,7 +276,6 @@ class AppSettingsViewV2 extends React.Component<Props, State> {
     } else {
       properties.push(property);
     }
-    console.log(properties);
 
     this.onUpdateResource();
     // TODO: Handle error cases
@@ -298,7 +297,7 @@ class AppSettingsViewV2 extends React.Component<Props, State> {
     onUpdateApplication(application);
   };
 
-    /**
+  /**
    * On update resource method
    */
   private onUpdateResource = () => {
@@ -332,10 +331,7 @@ class AppSettingsViewV2 extends React.Component<Props, State> {
       parent_id: this.props.rootResource.id,
       properties: properties.filter(p => !!p.value)
     } as Resource;
-    console.log(resource);
     onUpdateRootResource(resource);
-    
-
   };
 
   /**

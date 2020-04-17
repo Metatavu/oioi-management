@@ -7,9 +7,6 @@ export interface ResourceSettingsForm extends Partial<Resource> {
   nameText?: string;
   title?: string;
   content?: string;
-}
-
-export interface CombinedForm extends Partial<Application>, Partial<Resource> {
   applicationImage?: string;
   applicationIcon?: string;
   applicationIcons?: string[];
@@ -17,36 +14,31 @@ export interface CombinedForm extends Partial<Application>, Partial<Resource> {
   returnDelay?: string;
 }
 
-export const combinedRules: FormValidationRules<CombinedForm> = {
-    fields: {
-      name: {
-        required: true,
-        trim: true,
-        requiredText: strings.requiredField
-      },
-      order_number: {
-        required: true,
-        trim: true,
-        requiredText: strings.requiredField
-      },
-      slug: {
-        required: true,
-        trim: true,
-        requiredText: strings.requiredField
-      },
-      data: {
-        required: false,
-        trim: true
-      }
-    },
-    validateForm: form => {
-      const messages = {};
-      return {
-        ...form,
-        messages
-      };
+/**
+ * Application form
+ */
+export interface ApplicationForm extends Partial<Application> {}
+
+/**
+ * Form validation rules
+ */
+export const applicationRules: FormValidationRules<ApplicationForm> = {
+  fields: {
+    name: {
+      required: true,
+      trim: true,
+      requiredText: strings.requiredField
     }
-  };
+  },
+  validateForm: form => {
+    const messages = {};
+
+    return {
+      ...form,
+      messages
+    };
+  }
+};
 
 export const resourceRules: FormValidationRules<ResourceSettingsForm> = {
   fields: {

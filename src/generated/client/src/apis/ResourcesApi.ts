@@ -313,7 +313,6 @@ export class ResourcesApi extends runtime.BaseAPI {
                 headerParameters["Authorization"] = `Bearer ${tokenString}`;
             }
         }
-        console.log(queryParameters)
         const response = await this.request({
             path: `/customers/{customerId}/devices/{deviceId}/applications/{applicationId}/resources/{resourceId}`.replace(`{${"customerId"}}`, encodeURIComponent(String(requestParameters.customer_id))).replace(`{${"deviceId"}}`, encodeURIComponent(String(requestParameters.device_id))).replace(`{${"applicationId"}}`, encodeURIComponent(String(requestParameters.application_id))).replace(`{${"resourceId"}}`, encodeURIComponent(String(requestParameters.resource_id))),
             method: 'PUT',

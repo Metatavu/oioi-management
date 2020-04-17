@@ -569,7 +569,7 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
    * @param image image url
    */
   private renderPreview = (image: string) => {
-
+    console.log(image)
     return (
       <div style={{ marginTop: theme.spacing(2) }}>
         <GridList cellHeight={ 100 } cols={ 10 }>

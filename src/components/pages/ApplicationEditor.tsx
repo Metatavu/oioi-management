@@ -162,7 +162,7 @@ class ApplicationEditor extends React.Component<Props, State> {
     return (
       <>
         <List>
-          <ListItem button onClick={ () => this.setState({ openedResource: undefined }) }>
+          <ListItem button onClick={ () => this.props.openResource(undefined) }>
             <Typography variant="h4">{ strings.applicationSettings.settings }</Typography>
           </ListItem>
         </List>
@@ -202,7 +202,6 @@ class ApplicationEditor extends React.Component<Props, State> {
   private loadTree = async () => {
     const { application } = this.state;
     const { resources } = this.props;
-    console.log(resources)
     const treeData: ResourceTreeItem[] = await Promise.all(
       resources.map( async resource => {
         return await {
@@ -225,7 +224,7 @@ class ApplicationEditor extends React.Component<Props, State> {
    * 
    * @param parentId id of tree item parent
    */
-  private loadTreeChildren = async (parentId: string, parent: Resource): Promise<ResourceTreeItem[]> => {
+  private loadTreeChildren = async (parent_id: string, parent:Resource): Promise<ResourceTreeItem[]> => {
     const { auth, customerId, deviceId, applicationId } = this.props;
     const data: ResourceTreeItem[] = [];
     if (!auth || !auth.token) {
@@ -238,7 +237,7 @@ class ApplicationEditor extends React.Component<Props, State> {
         customer_id: customerId,
         device_id: deviceId,
         application_id: applicationId,
-        parent_id: parentId
+        parent_id: parent_id
       });
     } catch (error) {
       // no children found
@@ -254,7 +253,7 @@ class ApplicationEditor extends React.Component<Props, State> {
 
     const addNewChild = new Promise<ResourceTreeItem>((resolve, reject) => {
       resolve({
-        title: this.renderAdd(parentId)
+        title: this.renderAdd(parent_id)
       } as ResourceTreeItem);
     });
 
@@ -371,7 +370,6 @@ class ApplicationEditor extends React.Component<Props, State> {
   private renderEditor = () => {
     const { classes, customerId, openedResource } = this.props;
     const { application, rootResource } = this.state;
-    console.log(openedResource)
     if (openedResource) {
       return (
         <main className={ classes.content }>
@@ -383,10 +381,10 @@ class ApplicationEditor extends React.Component<Props, State> {
         <main className={ classes.content }>
           <AppSettingsView
             application={ application }
-            onUpdateApplication={ this.onUpdateApplication }
-            onUpdateRootResource={ this.onUpdateResource }
+            onUpdate={ this.onUpdateApplication }
             rootResource={ rootResource! }
-            customerId={ customerId } />
+            customerId={ customerId }
+          />
         </main>
       );
     } else {
@@ -463,7 +461,6 @@ class ApplicationEditor extends React.Component<Props, State> {
       application_id: applicationId,
       parent_id: application.root_resource_id
     });
-
     updateResources(rootResources);
 
     if (!application.root_resource_id) {
@@ -476,14 +473,12 @@ class ApplicationEditor extends React.Component<Props, State> {
       application_id: applicationId,
       resource_id: application.root_resource_id
     })
-
     this.setState({
       customer: customer,
       device: device,
       application: application,
       rootResource: rootResource
     });
-
     setCustomer(customer);
     setDevice(device);
     setApplications([application]);
@@ -552,7 +547,6 @@ class ApplicationEditor extends React.Component<Props, State> {
    */
   private onOpenResourceClick = async (resource: Resource) => {
     const { openResource } = this.props;
-    console.log(resource)
     openResource(resource);
   };
 
@@ -624,11 +618,9 @@ class ApplicationEditor extends React.Component<Props, State> {
   private onUpdateResource = async (resource: Resource) => {
     const { auth, customerId, deviceId, applicationId, updatedResourceView, openResource } = this.props;
     const resourceId = resource.id;
-    console.log(resource)
     if (!auth || !auth.token || !resourceId) {
       return;
     }
-    console.log(resource)
     const resourcesApi = ApiUtils.getResourcesApi(auth.token);
     const updatedResource = await resourcesApi.updateResource({
       resource: resource,
@@ -680,23 +672,23 @@ class ApplicationEditor extends React.Component<Props, State> {
    * Update application method
    */
   private onUpdateApplication = async (application: Application) => {
-    const { auth, customerId, deviceId, applicationId } = this.props;
+    // const { auth, customerId, deviceId, applicationId } = this.props;
 
-    if (!auth || !auth.token) {
-      return;
-    }
+    // if (!auth || !auth.token) {
+    //   return;
+    // }
 
-    const applicationsApi = ApiUtils.getApplicationsApi(auth.token);
-    const updatedApplication = await applicationsApi.updateApplication({
-      application: application,
-      customer_id: customerId,
-      device_id: deviceId,
-      application_id: applicationId
-    });
+    // const applicationsApi = ApiUtils.getApplicationsApi(auth.token);
+    // const updatedApplication = await applicationsApi.updateApplication({
+    //   application: application,
+    //   customer_id: customerId,
+    //   device_id: deviceId,
+    //   application_id: applicationId
+    // });
 
-    this.setState({
-      application: updatedApplication
-    });
+    // this.setState({
+    //   application: updatedApplication
+    // });
   };
 
   /**
