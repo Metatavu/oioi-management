@@ -58,6 +58,8 @@
   "update": "Päivitä",
   "requiredField": "Vaadittu kenttä",
   "fileUpload": {
+    "addMedia": "Lisää media",
+    "changeMedia": "Vaihda media",
     "addImage": "Lisää kuva",
     "changeImage": "Vaihda kuvaa",
     "addFile": "Lisää tiedosto",
@@ -86,7 +88,10 @@
     "settings": "Sovellusasetukset",
     "teaserText": "Teaserteksti",
     "background": "Sovelluksen taustakuva",
+    "icon": "Sovelluksen kuvake",
+    "icons": "Sovelluksen ikonit",
     "returnDelay": "Alkutilan paluuviive minuutteina",
-    "id": "Sovelluksen id"
+    "id": "Sovelluksen id",
+    "addIcon": "Lisää ikoni"
   }
 }

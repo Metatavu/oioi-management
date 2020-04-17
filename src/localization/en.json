@@ -58,6 +58,8 @@
   "update": "Update",
   "requiredField": "Required field",
   "fileUpload": {
+    "addMedia": "Add media",
+    "changeMedia": "Change media",
     "addImage": "Add image",
     "changeImage": "Change image",
     "addFile": "Add file",
@@ -86,7 +88,10 @@
     "settings": "Basic application settings",
     "teaserText": "Teaser text",
     "background": "Application background image",
+    "icon": "Application icon",
+    "icons": "Application icons",
     "returnDelay": "Reset delay",
-    "id": "Application id"
+    "id": "Application id",
+    "addIcon": "Add icon"
   }
 }

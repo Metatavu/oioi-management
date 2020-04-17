@@ -203,7 +203,7 @@ class ResourceTreeItemClass extends React.Component<Props, State> {
      */
     if (window.confirm(`${strings.deleteResourceDialogDescription} ${resource.name} ${childResources && strings.andAllChildren}?`)) {
       await resourcesApi.deleteResource({ customer_id: customerId, device_id: deviceId, application_id: applicationId, resource_id: resourceId });
-      await this.props.onDelete(resourceId);
+      this.props.onDelete(resourceId);
     }
   };
 

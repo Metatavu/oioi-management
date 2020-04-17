@@ -1,26 +1,20 @@
 import * as React from "react";
-import { withStyles, WithStyles, TextField, Button, Divider, Typography, Grid } from "@material-ui/core";
+import { withStyles, WithStyles, TextField, Button, Divider, Typography, Grid, Dialog, DialogTitle, DialogContent, DialogActions, } from "@material-ui/core";
 import styles from "../../styles/editor-view";
 import strings from "../../localization/strings";
 import theme from "../../styles/theme";
 import SaveIcon from "@material-ui/icons/Save";
-import { Application, ApplicationToJSON, ApplicationFromJSON, Resource, KeyValueProperty } from "../../generated/client/src";
+import { Application, Resource, KeyValueProperty } from "../../generated/client/src";
 import { Form, initForm, validateForm, MessageType } from "ts-form-validation";
 import { ApplicationForm, applicationRules, ResourceSettingsForm, resourceRules } from "../../commons/formRules";
 
 import GridList from '@material-ui/core/GridList';
 import GridListTile from '@material-ui/core/GridListTile';
-import { AuthState } from "../../types";
-import ApiUtils from "../../utils/ApiUtils";
-
-import IconButton from '@material-ui/core/IconButton';
-import List from '@material-ui/core/List';
-import ListItem from '@material-ui/core/ListItem';
-import ListItemText from '@material-ui/core/ListItemText';
-import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
-import { title } from "process";
 import FileUploader from "../generic/FileUploader";
 import FileUpload from "../../utils/FileUpload";
+import logo from "../../resources/svg/oioi-logo.svg";
+import AddIconDialog from "../generic/AddIconDialog";
+
 
 /**
  * Component Props
@@ -29,7 +23,8 @@ interface Props extends WithStyles<typeof styles> {
   application: Application;
   customerId: string;
   rootResource: Resource;
-  onUpdate: (application: Application) => void;
+  onUpdateApplication: (application: Application) => void;
+  onUpdateRootResource: (rootResource: Resource) => void;
 }
 
 /**
@@ -37,9 +32,9 @@ interface Props extends WithStyles<typeof styles> {
  */
 interface State {
   applicationForm: Form<ApplicationForm>;
-  rootResourceForm: Form<ResourceSettingsForm>;
+  resourceMap: Map<string, string>;
+  iconDialogOpen: boolean;
 }
-
 /**
  * Creates Application setting view component
  */
@@ -58,12 +53,8 @@ class AppSettingsView extends React.Component<Props, State> {
         },
         applicationRules
       ),
-      rootResourceForm: initForm<ResourceSettingsForm>(
-        {
-          name: "",
-        },
-        resourceRules
-      )
+      resourceMap: new Map(),
+      iconDialogOpen: false
     };
   }
 
@@ -80,19 +71,18 @@ class AppSettingsView extends React.Component<Props, State> {
       applicationRules
     );
 
-    let rootResourceForm = initForm<ResourceSettingsForm>(
-      {
-        properties: rootResource.properties
-      },
-      applicationRules
-    );
-
     applicationForm = validateForm(applicationForm);
-    rootResourceForm = validateForm(rootResourceForm);
+    const initMap = new Map<string, string>();
+    const props = rootResource.properties;
+    if (props) {
+      props.map(p => {
+        initMap.set(p.key, p.value);
+      });
+    }
 
     this.setState({
       applicationForm: applicationForm,
-      rootResourceForm: rootResourceForm
+      resourceMap: initMap
     });
   }
 
@@ -101,20 +91,16 @@ class AppSettingsView extends React.Component<Props, State> {
    */
   public render() {
     const { isFormValid } = this.state.applicationForm;
-    console.log(this.props.application);
-    console.log(this.props.rootResource);
-    console.log(this.state.rootResourceForm)
     return (
       <div>
         <Grid>
-          <Typography variant="h3">{ strings.applicationSettings.settings }</Typography>
           <Button
             style={{ marginLeft: theme.spacing(3), marginTop: theme.spacing(1) }}
             color="primary"
             variant="contained"
             startIcon={ <SaveIcon /> }
             disabled={ !isFormValid }
-            // onClick={ this.onUpdateResource }
+            onClick={ this.onUpdateApplication }
           >
             { strings.save }
           </Button>
@@ -122,7 +108,24 @@ class AppSettingsView extends React.Component<Props, State> {
         <Divider style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} />
         { this.renderFields() }
         <Divider style={{ marginBottom: theme.spacing(3) }} />
-        { this.renderMedia() }
+
+        <Typography variant="h4">{ strings.applicationSettings.background }</Typography>
+        { this.renderMedia("applicationImage") }
+        <Divider style={{ marginBottom: theme.spacing(3) }} />
+
+        <Typography variant="h4">{ strings.applicationSettings.icon }</Typography>
+        { this.renderMedia("applicationIcon") }
+        <Divider style={{ marginBottom: theme.spacing(3) }} />
+
+        <Typography variant="h4">{ strings.applicationSettings.icons }</Typography>
+        { this.renderIconList() }
+        <Divider style={{ marginBottom: theme.spacing(3) }} />
+        <AddIconDialog
+          resource={ this.props.rootResource }
+          onSave={ this.onPropertyFileChange }
+          onToggle={ this.toggleDialog }
+          open={ this.state.iconDialogOpen }
+        />
       </div>
     );
   }
@@ -131,24 +134,17 @@ class AppSettingsView extends React.Component<Props, State> {
    * Render text fields
    */
   private renderFields = () => {
+
     return<>
     <Grid container spacing={ 3 } direction="row">
-      <Typography variant="h3">{ strings.applicationSettings.settings }</Typography>
-      { this.renderField(strings.applicationName, "text", "name") }
-      { this.renderField(strings.applicationSettings.teaserText, "textarea", undefined, "teaserText") }
+      { this.renderTextField(strings.applicationName, "text", "name") }
+      { this.renderTextField(strings.applicationSettings.teaserText, "textarea", undefined, "teaserText") }
 
-      { this.renderField(strings.applicationSettings.returnDelay, "text", undefined, "returnDelay") }
-      { this.renderField(strings.applicationSettings.id, "text", undefined, "slug") }
+      { this.renderTextField(strings.applicationSettings.returnDelay, "text", undefined, "returnDelay") }
+      { this.renderTextField(strings.applicationSettings.id, "text", undefined, "applicationId") }
     </Grid>
     </>;
   }
-
-  /**
-   * Renders application field
-   */
-  private renderField = (label: string, type: string, appKey?: keyof ApplicationForm, resourceKey?: keyof ResourceSettingsForm) => {
-    return (this.renderTextField(label, type, appKey, resourceKey));
-  };
 
   private renderTextField = (label: string, type: string, appKey?: keyof ApplicationForm, resourceKey?: keyof ResourceSettingsForm) => {
     if (appKey) {
@@ -171,20 +167,14 @@ class AppSettingsView extends React.Component<Props, State> {
         label={ label }
       />;
     } else if (resourceKey) {
-      const values = this.state.rootResourceForm.values;
-      const { messages: { [resourceKey]: message } } = this.state.rootResourceForm;
-
       return <TextField
         fullWidth
         multiline
         rows={ 8 }
         style={{ margin: theme.spacing(3) }}
         type={ type }
-        error={ message && message.type === MessageType.ERROR }
-        helperText={ message && message.message }
-        value={ values[resourceKey] || "" }
+        value={ this.state.resourceMap.get(resourceKey) || "" }
         onChange={ this.onHandleResourceChange(resourceKey) }
-        onBlur={ this.onHandleResourceBlur(resourceKey) }
         name={ resourceKey }
         variant="outlined"
         label={ label }
@@ -195,70 +185,98 @@ class AppSettingsView extends React.Component<Props, State> {
   /**
    * Render media elements
    */
-  private renderMedia = () => {
-    const { properties } = this.props.rootResource;
+  private renderMedia = (key: string) => {
 
-    console.log(properties)
-
-    if (!properties) {
-      return <div/>;
-    }
-
-    const previewItems = properties.map(prop =>{
-      let previewItem: string;
-      previewItem = this.findImage(prop.key);
-
-      if (!previewItem || !isURL(previewItem)) {
-        return;
-      }
-      return (
-        <div style={{ marginTop: theme.spacing(2) }}>
-          <GridList cellHeight={ 100 } cols={ 10 }>
-            <GridListTile key={ previewItem }>
-              <img src={ previewItem } alt="File"/>
-            </GridListTile>
-          </GridList>
-        </div>
-      );
-    });
+    let previewItem: string;
+    previewItem = this.state.resourceMap.get(key) || logo;
 
     return <>
-      <Typography variant="h4">{ strings.applicationSettings.background }</Typography>
-      { previewItems }
+      <div style={{ marginTop: theme.spacing(2) }}>
+        <GridList cellHeight={ 100 } cols={ 10 }>
+          <GridListTile key={ previewItem }>
+            <img src={ previewItem } alt="File"/>
+          </GridListTile>
+        </GridList>
+      </div>
+
       <FileUploader
         resource={ this.props.rootResource }
         allowedFileTypes={ [] }
         onSave={ this.onPropertyFileChange }
-        uploadKey={ "applicationImage" }
+        uploadKey={ key }
       />
     </>;
-
   }
 
-  private findImage = (propertyKey: string): string => {
-    const { properties } = this.props.rootResource;
-    if (!properties) {
-      return "";
-    }
-    const foundItem = properties.find((p: KeyValueProperty) => p.key === propertyKey);
+  /**
+   * Render media elements
+   * TODO: Add remove/modify buttons (Tuomas)
+   */
+  private renderIconList = () => {
+    const { resourceMap } = this.state;
+    const icons: JSX.Element[] = [];
+    resourceMap.forEach((value: string, key: string) => {
+      if (key.includes("applicationIcon_")) {
+        const preview = (
+          <div style={{ marginTop: theme.spacing(2) }}>
+            <GridList cellHeight={ 100 } cols={ 10 }>
+              <GridListTile key={ value }>
+                <img src={ value } alt="File"/>
+              </GridListTile>
+            </GridList>
+          </div>
+        );
+        icons.push(preview);
+      }
+    });
+    return <>
+      { icons }
+      <Button
+        style={{ marginLeft: theme.spacing(3), marginTop: theme.spacing(1) }}
+        color="primary"
+        variant="contained"
+        onClick={ this.toggleDialog }
+      >
+        { strings.applicationSettings.addIcon }
+      </Button>
+    </>;
+  }
 
-    if (foundItem) {
-      return foundItem.value;
-    }
-    return "";
+  /**
+   * Toggle dialog
+   */
+  private toggleDialog = () => {
+    const open = !this.state.iconDialogOpen;
+    this.setState({iconDialogOpen: open});
   }
 
   /**
    * Handles update application
    */
   private onUpdateApplication = () => {
-    const { onUpdate } = this.props;
+    const { onUpdateApplication } = this.props;
 
     const application = {
       ...this.state.applicationForm.values
     } as Application;
+    this.onUpdateResource();
+    onUpdateApplication(application);
+  };
 
-    // onUpdate(application);
+  /**
+   * Handle resource update
+   */
+  private onUpdateResource = () => {
+    const { onUpdateRootResource } = this.props;
+    const properties: KeyValueProperty[] = [];
+    this.getPropertiesToUpdate(properties);
+
+    const resource = {
+      ...this.props.rootResource,
+      properties: properties.filter(p => !!p.value)
+    } as Resource;
+    onUpdateRootResource(resource);
+
   };
 
   /**
@@ -293,23 +311,11 @@ class AppSettingsView extends React.Component<Props, State> {
    * @param event
    */
   private onHandleResourceChange = (key: keyof ResourceSettingsForm) => (event: React.ChangeEvent<HTMLInputElement>) => {
-    const values = {
-      ...this.state.rootResourceForm.values,
-      [key]: event.target.value
-    };
-
-    const rootResourceForm = validateForm(
-      {
-        ...this.state.rootResourceForm,
-        values
-      },
-      {
-        usePreprocessor: false
-      }
-    );
+    const copy = this.state.resourceMap;
+    copy.set(key, event.target.value);
 
     this.setState({
-      rootResourceForm
+      resourceMap: copy
     });
   };
 
@@ -335,67 +341,50 @@ class AppSettingsView extends React.Component<Props, State> {
   };
 
   /**
-   * Handles fields blur event
-   * @param key
-   */
-  private onHandleResourceBlur = (key: keyof ResourceSettingsForm) => () => {
-    let rootResourceForm = { ...this.state.rootResourceForm };
-    const filled = {
-      ...rootResourceForm.filled,
-      [key]: true
-    };
-
-    rootResourceForm = validateForm({
-      ...this.state.rootResourceForm,
-      filled
-    });
-
-    this.setState({
-      rootResourceForm
-    });
-  };
-
-    /**
    * Handles image change
    */
   private onPropertyFileChange = async (files: File[], key: string) => {
-    console.log(files)
-    console.log(key)
     const { customerId, rootResource } = this.props;
 
     if (!rootResource) {
       return 400;
     }
-    const properties = rootResource.properties ? [...rootResource.properties] : [];
-    const property = { key: key, value: "" };
+    
+    let newUri = "";
     const file = files[0];
 
     if (file) {
       const response = await FileUpload.uploadFile(file, customerId);
-      property.value = response.uri;
+      newUri = response.uri;
     }
 
-    const propertyIndex = properties.findIndex((p: KeyValueProperty) => p.key === key)
-    if (propertyIndex > -1) {
-      properties[propertyIndex] = property;
-    } else {
-      properties.push(property);
-    }
-    console.log(properties)
-    // resourceData.properties = properties;
-    // this.setState({
-    //   resourceData: { ...resourceData }
-    // });
+    const tempMap = this.state.resourceMap;
+    tempMap.set(key, newUri);
+    this.setState({
+      resourceMap: tempMap
+    });
 
-    // this.onUpdateResource();
+    this.onUpdateResource();
     // // TODO: Handle error cases
     return 200;
   };
-}
 
-function isURL(str: string) {
-  const pattern = new RegExp("/(http|https):\/\/(\w+:{0,1}\w*)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%!\-\/]))?/"); // fragment locator
-  return pattern.test(str);
+  /**
+   * Push all property key value pairs from state map to properties array
+   * @param properties 
+   */
+  private getPropertiesToUpdate(properties: KeyValueProperty[]) {
+    const { resourceMap } = this.state;
+
+    resourceMap.forEach((value: string, key: string) => {
+      const index = properties.findIndex((p: KeyValueProperty) => p.key === key);
+      if (index > -1) {
+        properties[index] = { key: key, value: value || "" };
+      } else {
+        properties.push({ key: key, value: value || "" });
+      }
+    });
+  }
 }
 
 export default withStyles(styles)(AppSettingsView);

@@ -7,11 +7,13 @@ export interface ResourceSettingsForm extends Partial<Resource> {
   nameText?: string;
   title?: string;
   content?: string;
+  applicationId?: string;
   applicationImage?: string;
   applicationIcon?: string;
-  applicationIcons?: string[];
+  applicationIcons?: string;
   teaserText?: string;
   returnDelay?: string;
+
 }
 
 /**

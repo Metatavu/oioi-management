@@ -381,7 +381,8 @@ class ApplicationEditor extends React.Component<Props, State> {
         <main className={ classes.content }>
           <AppSettingsView
             application={ application }
-            onUpdate={ this.onUpdateApplication }
+            onUpdateApplication={ this.onUpdateApplication }
+            onUpdateRootResource={ this.onUpdateResource }
             rootResource={ rootResource! }
             customerId={ customerId }
           />
@@ -618,6 +619,7 @@ class ApplicationEditor extends React.Component<Props, State> {
   private onUpdateResource = async (resource: Resource) => {
     const { auth, customerId, deviceId, applicationId, updatedResourceView, openResource } = this.props;
     const resourceId = resource.id;
+
     if (!auth || !auth.token || !resourceId) {
       return;
     }
@@ -629,8 +631,6 @@ class ApplicationEditor extends React.Component<Props, State> {
       application_id: applicationId,
       resource_id: resourceId
     });
-    
-    
     openResource(updatedResource);
     updatedResourceView();
   };
@@ -672,23 +672,23 @@ class ApplicationEditor extends React.Component<Props, State> {
    * Update application method
    */
   private onUpdateApplication = async (application: Application) => {
-    // const { auth, customerId, deviceId, applicationId } = this.props;
+    const { auth, customerId, deviceId, applicationId } = this.props;
 
-    // if (!auth || !auth.token) {
-    //   return;
-    // }
+    if (!auth || !auth.token) {
+      return;
+    }
 
-    // const applicationsApi = ApiUtils.getApplicationsApi(auth.token);
-    // const updatedApplication = await applicationsApi.updateApplication({
-    //   application: application,
-    //   customer_id: customerId,
-    //   device_id: deviceId,
-    //   application_id: applicationId
-    // });
+    const applicationsApi = ApiUtils.getApplicationsApi(auth.token);
+    const updatedApplication = await applicationsApi.updateApplication({
+      application: application,
+      customer_id: customerId,
+      device_id: deviceId,
+      application_id: applicationId
+    });
 
-    // this.setState({
-    //   application: updatedApplication
-    // });
+    this.setState({
+      application: updatedApplication
+    });
   };
 
   /**

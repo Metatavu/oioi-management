@@ -59,6 +59,8 @@ export interface IStrings extends LocalizedStringsMethods {
   file: string;
   requiredField: string;
   fileUpload: {
+    addMedia: string;
+    changeMedia: string;
     addFile: string;
     changeFile: string;
     addImage: string;
@@ -88,8 +90,11 @@ export interface IStrings extends LocalizedStringsMethods {
     teaserText: string;
     settings: string;
     background: string;
+    icon: string;
+    icons: string;
     returnDelay: string;
     id: string;
+    addIcon: string;
   };
 }
 

@@ -93,7 +93,12 @@ export const resolveChildResourceTypes = (type: ResourceType): ResourceTypeObjec
  * @param type 
  */
 export const resolveUploadLocalizationString = (type: ResourceType): ResourceTypeObject => ({
-  [ResourceType.ROOT] : {},
+  [ResourceType.ROOT] : {
+    fileUploadLocal : [
+      strings.fileUpload.addMedia,
+      strings.fileUpload.changeMedia
+    ]
+  },
   [ResourceType.INTRO]: {},
   [ResourceType.LANGUAGEMENU] : {},
   [ResourceType.LANGUAGE] : {},
