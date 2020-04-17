@@ -6,7 +6,7 @@ import {
   ResourcesApi
 } from "../generated/client/src";
 
-const API_BASE_PATH = "https://oioi-api.metatavu.io/v1"
+const API_BASE_PATH = "https://staging-oioi-api.metatavu.io/v1"
 
 /**
  * Utility class for loading api with predefined configuration
