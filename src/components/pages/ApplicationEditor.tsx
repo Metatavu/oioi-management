@@ -371,6 +371,7 @@ class ApplicationEditor extends React.Component<Props, State> {
   private renderEditor = () => {
     const { classes, customerId, openedResource } = this.props;
     const { application, rootResource } = this.state;
+    console.log(openedResource)
     if (openedResource) {
       return (
         <main className={ classes.content }>
@@ -551,6 +552,7 @@ class ApplicationEditor extends React.Component<Props, State> {
    */
   private onOpenResourceClick = async (resource: Resource) => {
     const { openResource } = this.props;
+    console.log(resource)
     openResource(resource);
   };
 

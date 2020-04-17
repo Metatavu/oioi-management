@@ -11,7 +11,6 @@ import FileUpload from "../../utils/FileUpload";
 
 import GridList from '@material-ui/core/GridList';
 import GridListTile from '@material-ui/core/GridListTile';
-import { combinedRules, CombinedForm } from "../../commons/formRules";
 
 /**
  * Component Props
@@ -24,17 +23,57 @@ interface Props extends WithStyles<typeof styles> {
   onUpdateRootResource(resource: Resource): void;
 }
 
+interface ResourceSettingsForm extends Partial<Application>, Partial<Resource> {
+  applicationImage?: string;
+  applicationIcon?: string;
+  applicationIcons?: string[];
+  teaserText?: string;
+  returnDelay?: string;
+}
+
+const rules: FormValidationRules<ResourceSettingsForm> = {
+  fields: {
+    name: {
+      required: true,
+      trim: true,
+      requiredText: strings.requiredField
+    },
+    order_number: {
+      required: true,
+      trim: true,
+      requiredText: strings.requiredField
+    },
+    slug: {
+      required: true,
+      trim: true,
+      requiredText: strings.requiredField
+    },
+    data: {
+      required: false,
+      trim: true
+    }
+  },
+  validateForm: form => {
+    const messages = {};
+
+    return {
+      ...form,
+      messages
+    };
+  }
+};
+
 /**
  * Component state
  */
 interface State {
-  form: Form<CombinedForm>;
+  form: Form<ResourceSettingsForm>;
 }
 
 /**
  * Creates Application setting view component
  */
-class AppSettingsView extends React.Component<Props, State> {
+class AppSettingsViewV2 extends React.Component<Props, State> {
   /**
    * Constructor
    *
@@ -43,11 +82,11 @@ class AppSettingsView extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = {
-      form: initForm<CombinedForm>(
+      form: initForm<ResourceSettingsForm>(
         {
           name: "",
         },
-        combinedRules
+        rules,
       ),
     };
   }
@@ -63,14 +102,14 @@ class AppSettingsView extends React.Component<Props, State> {
     const applicationImageProperty = properties.find(p => p.key === "applicationImage");
     const applicationIconProperty = properties.find(p => p.key === "applicationIcon");
 
-    let form = initForm<CombinedForm>(
+    let form = initForm<ResourceSettingsForm>(
       {
         ...rootResource,
         teaserText: teaserTextProperty ? teaserTextProperty.value : undefined,
         applicationImage: applicationImageProperty ? applicationImageProperty.value : undefined,
         applicationIcon: applicationIconProperty ? applicationIconProperty.value : undefined
       },
-      combinedRules
+      rules
     );
 
     form = validateForm(form);
@@ -135,14 +174,14 @@ class AppSettingsView extends React.Component<Props, State> {
   /**
    * Renders application field
    */
-  private renderField = (applicationKey: keyof CombinedForm, label: string, type: string) => {
+  private renderField = (applicationKey: keyof ResourceSettingsForm, label: string, type: string) => {
     if (type === "textarea") {
       return (this.renderTextArea(applicationKey, label, type));
     }
     return (this.renderTextField(applicationKey, label, type));
   };
 
-  private renderTextArea = (key: keyof CombinedForm, label: string, type: string) => {
+  private renderTextArea = (key: keyof ResourceSettingsForm, label: string, type: string) => {
     const {
       values,
       messages: { [key]: message }
@@ -164,7 +203,7 @@ class AppSettingsView extends React.Component<Props, State> {
     />;
   }
 
-  private renderTextField = (key: keyof CombinedForm, label: string, type: string) => {
+  private renderTextField = (key: keyof ResourceSettingsForm, label: string, type: string) => {
     const {
       values,
       messages: { [key]: message }
@@ -237,6 +276,7 @@ class AppSettingsView extends React.Component<Props, State> {
     } else {
       properties.push(property);
     }
+    console.log(properties);
 
     this.onUpdateResource();
     // TODO: Handle error cases
@@ -258,7 +298,7 @@ class AppSettingsView extends React.Component<Props, State> {
     onUpdateApplication(application);
   };
 
-  /**
+    /**
    * On update resource method
    */
   private onUpdateResource = () => {
@@ -294,6 +334,8 @@ class AppSettingsView extends React.Component<Props, State> {
     } as Resource;
     console.log(resource);
     onUpdateRootResource(resource);
+    
+
   };
 
   /**
@@ -301,7 +343,33 @@ class AppSettingsView extends React.Component<Props, State> {
    * @param key
    * @param event
    */
-  private onHandleChange = (key: keyof CombinedForm) => (event: React.ChangeEvent<HTMLInputElement>) => {
+  private onHandleChange = (key: keyof ResourceSettingsForm) => (event: React.ChangeEvent<HTMLInputElement>) => {
+    const values = {
+      ...this.state.form.values,
+      [key]: event.target.value
+    };
+
+    const form = validateForm(
+      {
+        ...this.state.form,
+        values
+      },
+      {
+        usePreprocessor: false
+      }
+    );
+
+    this.setState({
+      form
+    });
+  };
+
+  /**
+   * Handles textfields change events
+   * @param key
+   * @param event
+   */
+  private onHandleResourceChange = (key: keyof ResourceSettingsForm) => (event: React.ChangeEvent<HTMLInputElement>) => {
     const values = {
       ...this.state.form.values,
       [key]: event.target.value
@@ -326,7 +394,28 @@ class AppSettingsView extends React.Component<Props, State> {
    * Handles fields blur event
    * @param key
    */
-  private onHandleBlur = (key: keyof CombinedForm) => () => {
+  private onHandleBlur = (key: keyof ResourceSettingsForm) => () => {
+    let form = { ...this.state.form };
+    const filled = {
+      ...form.filled,
+      [key]: true
+    };
+
+    form = validateForm({
+      ...this.state.form,
+      filled
+    });
+
+    this.setState({
+      form
+    });
+  };
+
+    /**
+   * Handles fields blur event
+   * @param key
+   */
+  private onHandleResourceBlur = (key: keyof ResourceSettingsForm) => () => {
     let form = { ...this.state.form };
     const filled = {
       ...form.filled,
@@ -344,4 +433,4 @@ class AppSettingsView extends React.Component<Props, State> {
   };
 }
 
-export default withStyles(styles)(AppSettingsView);
+export default withStyles(styles)(AppSettingsViewV2);
