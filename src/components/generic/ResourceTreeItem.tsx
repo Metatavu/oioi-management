@@ -1,27 +1,28 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import * as React from "react";
 import styles from "../../styles/editor-view";
-import { withStyles, WithStyles, SvgIcon, Icon } from "@material-ui/core";
-import LanguageIcon from "@material-ui/icons/Language";
+import { withStyles, WithStyles, Typography } from "@material-ui/core";
 import TreeItem from "@material-ui/lab/TreeItem";
 import TransitionComponent from "../generic/TransitionComponent";
 import { Resource, ResourceType } from "../../generated/client/src";
 import ApiUtils from "../../utils/ApiUtils";
 import { AuthState } from "../../types";
 import { ReduxState, ReduxActions } from "../../store";
-import DeleteIcon from "@material-ui/icons/Delete";
 import { Dispatch } from "redux";
 import { connect } from "react-redux";
 import strings from "../../localization/strings";
 import { openResource } from "../../actions/resources";
 
-const pageIconPath = <path d="M24 17H1.14441e-05V1.90735e-06H24V17ZM23 1H1V16H23V1Z" />;
-const folderIconPath = (
-  <path d="M17.9999 18H-0.000127792V6H17.9999V18ZM20.9998 15H19.9998V4H2.99982V3H20.9998V15ZM0.999872 7H16.9999V17H0.999872V7ZM24 12H23V0.999998H6V-1.90735e-06H24V12Z" />
-);
-const addIconPath = (
-  <path d="M13 7h-2v4H7v2h4v4h2v-4h4v-2h-4V7zm-1-5C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z" />
-);
+import LanguageIcon from "@material-ui/icons/Language";
+import AddIcon from "@material-ui/icons/AddCircle";
+import PageIcon from "@material-ui/icons/CropLandscapeOutlined";
+import IntroIcon from "@material-ui/icons/VideoLibraryOutlined";
+import MenuIcon from "@material-ui/icons/Menu";
+import SlideshowIcon from "@material-ui/icons/SlideshowOutlined";
+import UnknownIcon from "@material-ui/icons/HelpOutlineOutlined";
+import VideoIcon from "@material-ui/icons/PlayCircleOutlineOutlined";
+import TextIcon from "@material-ui/icons/TitleOutlined";
+import PDFIcon from "@material-ui/icons/PictureAsPdfOutlined";
 
 /**
  * Component props
@@ -67,9 +68,7 @@ class ResourceTreeItemClass extends React.Component<Props, State> {
    * @param prevProps
    * @param prevState
    */
-  public componentDidUpdate = async (prevProps: Props, prevState: State) => {
-
-  };
+  public componentDidUpdate = async (prevProps: Props, prevState: State) => {};
 
   /**
    * Component render method
@@ -94,35 +93,29 @@ class ResourceTreeItemClass extends React.Component<Props, State> {
     if (this.isAllowedChildren()) {
       return (
         <TreeItem
-          classes={treeItemStyles}
-          TransitionComponent={TransitionComponent}
-          icon={icon}
-          nodeId={resource.id}
-          label={
-            <div>
-              <div style={{ display: "inline-block" }} onClick={ this.onTreeItemClick }>{ this.state.resource.name }</div>
-              <DeleteIcon onClick={ () => this.onDeleteIconClick() } />
-            </div>
-          }
+          classes={ treeItemStyles }
+          TransitionComponent={ TransitionComponent }
+          icon={ icon }
+          nodeId={ resource.id }
+          label={ this.state.resource.name }
           onClick={this.onTreeItemClick}
         >
-          {this.renderAdd()}
+          { this.renderAdd() }
         </TreeItem>
       );
     } else {
       return (
         <TreeItem
-          classes={treeItemStyles}
-          TransitionComponent={TransitionComponent}
-          icon={icon}
-          nodeId={resource.id}
+          classes={ treeItemStyles }
+          TransitionComponent={ TransitionComponent }
+          icon={ icon }
+          nodeId={ resource.id }
           label={
             <div>
-              {this.state.resource.name}
-              <DeleteIcon onClick={() => this.onDeleteIconClick()} />
+              { this.state.resource.name }
             </div>
           }
-          onClick={this.onTreeItemClick}
+          onClick={ this.onTreeItemClick }
         />
       );
     }
@@ -139,10 +132,10 @@ class ResourceTreeItemClass extends React.Component<Props, State> {
 
     return (
       <TreeItem
-        TransitionComponent={TransitionComponent}
-        nodeId={resourceId + "add"}
-        icon={<SvgIcon fontSize="small">{addIconPath}</SvgIcon>}
-        label={strings.addNewResource}
+        TransitionComponent={ TransitionComponent }
+        nodeId={ resourceId + "add" }
+        icon={ <AddIcon /> }
+        label={ <Typography variant="h6">{ strings.addNew }</Typography> }
       />
     );
   };
@@ -155,16 +148,31 @@ class ResourceTreeItemClass extends React.Component<Props, State> {
   private renderIconComponentByResourceType = (resourceType: ResourceType) => {
     switch (resourceType) {
       case ResourceType.INTRO: {
-        return <SvgIcon fontSize="small">{pageIconPath}</SvgIcon>;
+        return <IntroIcon />;
+      }
+      case ResourceType.PAGE: {
+        return <PageIcon />;
+      }
+      case ResourceType.VIDEO: {
+        return <VideoIcon />;
+      }
+      case ResourceType.TEXT: {
+        return <TextIcon />;
+      }
+      case ResourceType.PDF: {
+        return <PDFIcon />;
       }
       case ResourceType.LANGUAGE: {
-        return <LanguageIcon fontSize="small" />;
+        return <LanguageIcon />;
       }
       case ResourceType.MENU: {
-        return <SvgIcon fontSize="small">{folderIconPath}</SvgIcon>;
+        return <MenuIcon />;
+      }
+      case ResourceType.SLIDESHOW : {
+        return <SlideshowIcon />;
       }
       default: {
-        return <SvgIcon fontSize="small">{folderIconPath}</SvgIcon>;
+        return <UnknownIcon />;
       }
     }
   };

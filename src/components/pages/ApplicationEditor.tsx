@@ -6,21 +6,14 @@ import {
   Divider,
   List,
   ListItem,
-  ListItemIcon,
-  ListItemText,
-  Hidden,
   AppBar,
   Toolbar,
   IconButton,
   WithStyles,
   withStyles,
   Drawer,
-  SvgIcon,
-  Button,
-  Dialog
 } from "@material-ui/core";
 import { History } from "history";
-import SettingsIcon from "@material-ui/icons/Settings";
 import MenuIcon from "@material-ui/icons/Menu";
 import TreeItem from "@material-ui/lab/TreeItem";
 import TransitionComponent from "../generic/TransitionComponent";
@@ -43,10 +36,9 @@ import { updateResources, openResource, updatedResourceView } from "../../action
 import SortableTree, { TreeItem as TreeItemSortable, NodeData, FullTree, OnMovePreviousAndNextLocation, ExtendedNodeData, changeNodeAtPath, OnDragPreviousAndNextLocation } from 'react-sortable-tree';
 import FileExplorerTheme from 'react-sortable-tree-theme-file-explorer';
 import MenuResourceSettingsView from "../views/MenuResourceSettingsView";
-
-const addIconPath = (
-  <path d="M13 7h-2v4H7v2h4v4h2v-4h4v-2h-4V7zm-1-5C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z" />
-);
+import AddIcon from "@material-ui/icons/AddCircle";
+import ArrowRight from "@material-ui/icons/ArrowRight";
+import ArrowDown from "@material-ui/icons/ArrowDropDown";
 
 /**
  * Component props
@@ -121,8 +113,8 @@ class ApplicationEditor extends React.Component<Props, State> {
 
     return (
       <div className={ classes.root }>
-        <AppBar elevation={ 0 } position="relative" className={classes.appBar}>
-          <Toolbar>
+        <AppBar elevation={ 0 } position="relative" className={ classes.appBar }>
+          <div className={ classes.toolbar }>
             <IconButton color="inherit" aria-label="open drawer" edge="start" onClick={ this.handleDrawerToggle } className={ classes.menuButton }>
               <MenuIcon />
             </IconButton>
@@ -130,7 +122,7 @@ class ApplicationEditor extends React.Component<Props, State> {
               { !this.state.openedResource && this.state.application && this.state.application.name + " " + strings.applicationSettings.settings }
               { this.state.openedResource && this.state.openedResource.name + " " + strings.resourceSettings }
             </Typography>
-          </Toolbar>
+          </div>
         </AppBar>
         { this.renderResponsiveDrawer() }
         { this.renderEditor() }
@@ -164,31 +156,28 @@ class ApplicationEditor extends React.Component<Props, State> {
    * Render drawer method
    */
   private renderDrawer = () => {
-    const { auth, resources } = this.props;
+    const { auth, resources, classes } = this.props;
     const { parentResourceId, customer, device, application } = this.state;
     const { treeData } = this.state;
     return (
-      <div>
+      <>
         <List>
-          <ListItem button onClick={ () => this.props.openResource(undefined) }>
-            <ListItemIcon>
-              <SettingsIcon color="primary" />
-            </ListItemIcon>
-            <ListItemText primary={ strings.applicationSettings.settings } />
+          <ListItem button onClick={ () => this.setState({ openedResource: undefined }) }>
+            <Typography variant="h4">{ strings.applicationSettings.settings }</Typography>
           </ListItem>
         </List>
         <Divider />
         { treeData &&
           <SortableTree
-          style={{ height: 700, padding: 3 }}
-          rowHeight={ 30 }
-          treeData={ treeData }
-          onChange={ this.setTreeData }
-          onMoveNode={ this.moveResource }
-          canDrop={ this.canDrop }
-          canDrag={ this.canDrag }
-          canNodeHaveChildren={ this.canHaveChildren }
-          theme={ FileExplorerTheme }
+            className={ classes.treeWrapper }
+            rowHeight={ 40 }
+            treeData={ treeData }
+            onChange={ this.setTreeData }
+            onMoveNode={ this.moveResource }
+            canDrop={ this.canDrop }
+            canDrag={ this.canDrag }
+            canNodeHaveChildren={ this.canHaveChildren }
+            theme={ FileExplorerTheme }
           />
         }
         <AddResourceDialog
@@ -203,7 +192,7 @@ class ApplicationEditor extends React.Component<Props, State> {
           onSave={ this.onSaveNewResourceClick }
           handleClose={ this.onDialogCloseClick }
         />
-      </div>
+      </>
     );
   };
 
@@ -272,7 +261,7 @@ class ApplicationEditor extends React.Component<Props, State> {
     if (this.canHaveChildren({ title: "", resource: parent })) {
       childResourcePromises.push(addNewChild);
     }
-    
+
     return await Promise.all(childResourcePromises);
   }
 
@@ -422,7 +411,7 @@ class ApplicationEditor extends React.Component<Props, State> {
             applicationId={ applicationId }
           />;
       default:
-        return <ResourceSettingsView resource={resource} customerId={customerId} onUpdate={this.onUpdateResource} onDelete={this.onDeleteResource} />;
+        return <ResourceSettingsView resource={ resource } customerId={ customerId } onUpdate={ this.onUpdateResource } onDelete={ this.onDeleteResource } />;
 
     }
   }
@@ -437,11 +426,11 @@ class ApplicationEditor extends React.Component<Props, State> {
 
     return (
       <TreeItem
-        TransitionComponent={TransitionComponent}
-        nodeId={parent_id + "add"}
-        icon={<SvgIcon fontSize="small">{addIconPath}</SvgIcon>}
+        TransitionComponent={ TransitionComponent }
+        nodeId={ parent_id + "add" }
+        icon={ <AddIcon /> }
         onMouseUp={ () => this.onAddNewResourceClick(parent_id) }
-        label={strings.addNewResource}
+        label={ <Typography variant="h6">{ strings.addNew }</Typography> }
       />
     );
   };

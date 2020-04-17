@@ -38,6 +38,21 @@ export default createMuiTheme({
       fontSize: 21,
       fontWeight: "normal",
     },
+    h4: {
+      fontFamily: "TTNorms-Bold",
+      fontSize: 18,
+      fontWeight: "normal",
+    },
+    h5: {
+      fontFamily: "TTNorms-Bold",
+      fontSize: 16,
+      fontWeight: "normal",
+    },
+    h6: {
+      fontFamily: "TTNorms-Bold",
+      fontSize: 14,
+      fontWeight: "normal",
+    },
     body1: {
       fontSize: 16,
       fontWeight: "normal",
@@ -56,6 +71,7 @@ export default createMuiTheme({
   overrides: {
     MuiInputBase: {
       root: {
+        backgroundColor: "#fff",
         minWidth: "100%",
         [theme.breakpoints.up("sm")]: {
           minWidth: 340
