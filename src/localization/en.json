@@ -5,7 +5,6 @@
   "addNewCustomer": "Add a new customer",
   "addNewDevice": "Add a new device",
   "applications": "Applications",
-  "applicationSettings": "Application settings",
   "applicationName": "Application name",
   "back": "Back",
   "cancel": "Cancel",
@@ -82,5 +81,11 @@
     "video": "Video"
   },
   "childResources": "Sub resources",
-  "teaserText": "Teaser text"
+  "applicationSettings": {
+    "settings": "Basic application settings",
+    "teaserText": "Teaser text",
+    "background": "Application background image",
+    "returnDelay": "Reset delay",
+    "id": "Application id"
+  }
 }

@@ -87,6 +87,8 @@ export interface IStrings extends LocalizedStringsMethods {
     teaserText: string;
     settings: string;
     background: string;
+    returnDelay: string;
+    id: string;
   };
 }
 

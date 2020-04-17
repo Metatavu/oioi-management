@@ -212,8 +212,10 @@ class ApplicationEditor extends React.Component<Props, State> {
    */
   private loadTree = async () => {
     const { application } = this.state;
+    const { resources } = this.props;
+    console.log(resources)
     const treeData: ResourceTreeItem[] = await Promise.all(
-      this.props.resources.map( async (resource) => {
+      resources.map( async resource => {
         return await {
           title: this.renderTreeItem(resource),
           children: await this.loadTreeChildren(resource.id || "", resource),

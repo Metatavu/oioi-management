@@ -84,6 +84,8 @@
   "applicationSettings": {
     "settings": "Sovellusasetukset",
     "teaserText": "Teaserteksti",
-    "background": "Sovelluksen taustakuva"
+    "background": "Sovelluksen taustakuva",
+    "returnDelay": "Alkutilan paluuviive minuutteina",
+    "id": "Sovelluksen id"
   }
 }

@@ -457,7 +457,7 @@ class ResourceSettingsView extends React.Component<Props, State> {
     }
   };
 
-    /**
+  /**
    * Render preview view
    * TODO: Render preview should be own generic component that would show some stock image
    * when data contains something else then image/video 

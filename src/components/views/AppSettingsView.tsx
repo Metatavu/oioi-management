@@ -9,6 +9,9 @@ import { FormValidationRules, Form, initForm, validateForm, MessageType } from "
 import FileUploader from "../generic/FileUploader";
 import FileUpload from "../../utils/FileUpload";
 
+import GridList from '@material-ui/core/GridList';
+import GridListTile from '@material-ui/core/GridListTile';
+
 /**
  * Component Props
  */
@@ -20,39 +23,15 @@ interface Props extends WithStyles<typeof styles> {
   onUpdateRootResource(resource: Resource): void;
 }
 
-/**
- * Application applicationForm
- */
-interface ApplicationForm extends Partial<Application> {}
-
-interface ResourceSettingsForm extends Partial<Resource> {
+interface ResourceSettingsForm extends Partial<Application>, Partial<Resource> {
   applicationImage?: string;
+  applicationIcon?: string;
   applicationIcons?: string[];
   teaserText?: string;
+  returnDelay?: string;
 }
 
-/**
- * Form validation rules
- */
-const rules: FormValidationRules<ApplicationForm> = {
-  fields: {
-    name: {
-      required: true,
-      trim: true,
-      requiredText: strings.requiredField
-    }
-  },
-  validateForm: applicationForm => {
-    const messages = {};
-
-    return {
-      ...applicationForm,
-      messages
-    };
-  }
-};
-
-const resourceRules: FormValidationRules<ResourceSettingsForm> = {
+const rules: FormValidationRules<ResourceSettingsForm> = {
   fields: {
     name: {
       required: true,
@@ -74,11 +53,11 @@ const resourceRules: FormValidationRules<ResourceSettingsForm> = {
       trim: true
     }
   },
-  validateForm: resourceForm => {
+  validateForm: form => {
     const messages = {};
 
     return {
-      ...resourceForm,
+      ...form,
       messages
     };
   }
@@ -88,8 +67,7 @@ const resourceRules: FormValidationRules<ResourceSettingsForm> = {
  * Component state
  */
 interface State {
-  applicationForm: Form<ApplicationForm>;
-  resourceForm: Form<ResourceSettingsForm>;
+  form: Form<ResourceSettingsForm>;
 }
 
 /**
@@ -104,22 +82,12 @@ class AppSettingsView extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = {
-      applicationForm: initForm<ApplicationForm>(
+      form: initForm<ResourceSettingsForm>(
         {
           name: "",
         },
         rules,
       ),
-      resourceForm: initForm<ResourceSettingsForm>(
-        {
-          name: undefined,
-          order_number: undefined,
-          slug: undefined,
-          data: undefined,
-          teaserText: undefined
-        },
-        resourceRules
-      )
     };
   }
 
@@ -127,33 +95,27 @@ class AppSettingsView extends React.Component<Props, State> {
    * Component did mount
    */
   public componentDidMount() {
-    const { application, rootResource } = this.props;
-    console.log(rootResource)
+    const { rootResource } = this.props;
 
-    let applicationForm = initForm<ApplicationForm>(
+    const properties = rootResource.properties || [];
+    const teaserTextProperty = properties.find(p => p.key === "teaserText");
+    const applicationImageProperty = properties.find(p => p.key === "applicationImage");
+    const applicationIconProperty = properties.find(p => p.key === "applicationIcon");
+
+    let form = initForm<ResourceSettingsForm>(
       {
-        name: application.name
+        ...rootResource,
+        teaserText: teaserTextProperty ? teaserTextProperty.value : undefined,
+        applicationImage: applicationImageProperty ? applicationImageProperty.value : undefined,
+        applicationIcon: applicationIconProperty ? applicationIconProperty.value : undefined
       },
       rules
     );
 
-    const properties = rootResource.properties || [];
-    const teaserTextProperty = properties.find(p => p.key === "teaserText");
-
-    let resourceForm = initForm<ResourceSettingsForm>(
-      {
-        ...rootResource,
-        teaserText: teaserTextProperty ? teaserTextProperty.value : undefined
-      },
-      resourceRules
-    );
-
-    applicationForm = validateForm(applicationForm);
-    resourceForm = validateForm(resourceForm);
+    form = validateForm(form);
 
     this.setState({
-      applicationForm: applicationForm,
-      resourceForm: resourceForm
+      form
     });
   }
 
@@ -161,7 +123,8 @@ class AppSettingsView extends React.Component<Props, State> {
    * Component render method
    */
   public render() {
-    const { isFormValid } = this.state.applicationForm;
+    const { isFormValid } = this.state.form;
+    const { rootResource } = this.props;
 
     return (
       <div>
@@ -183,9 +146,10 @@ class AppSettingsView extends React.Component<Props, State> {
         <FileUploader
           allowedFileTypes={ [] }
           onSave={ this.onApplicationFileChange }
-          resource={ this.props.rootResource }
-          uploadKey="applicationBackground"
+          resource={ rootResource }
+          uploadKey="applicationImage"
         />
+        { this.renderPreview() }
       </div>
     );
   }
@@ -197,51 +161,31 @@ class AppSettingsView extends React.Component<Props, State> {
 
     return<>
     <Grid container spacing={ 3 } direction="row">
-      <Typography variant="h3">{ strings.title }</Typography>
-      { this.renderApplicationField(strings.applicationName, "text", "name") }
-      { this.renderTest("teaserText", strings.applicationSettings.teaserText, "textarea") }
+      <Typography variant="h3">{ strings.applicationSettings.settings }</Typography>
+      { this.renderField("name", strings.applicationName, "text") }
+      { this.renderField("teaserText", strings.applicationSettings.teaserText, "textarea") }
+
+      { this.renderField("returnDelay", strings.applicationSettings.returnDelay, "text") }
+      { this.renderField("slug", strings.applicationSettings.id, "text") }
     </Grid>
   </>;
   };
 
   /**
-   * Renders textfield
+   * Renders application field
    */
-  private renderApplicationField = (label: string, type: string, applicationKey: keyof ApplicationForm) => {
+  private renderField = (applicationKey: keyof ResourceSettingsForm, label: string, type: string) => {
     if (type === "textarea") {
       return (this.renderTextArea(applicationKey, label, type));
     }
     return (this.renderTextField(applicationKey, label, type));
   };
 
-  private renderTest = (key: keyof ResourceSettingsForm, label: string, type: string) => {
+  private renderTextArea = (key: keyof ResourceSettingsForm, label: string, type: string) => {
     const {
       values,
       messages: { [key]: message }
-    } = this.state.resourceForm;
-    console.log(values);
-    return <TextField
-      fullWidth
-      multiline
-      rows={ 8 }
-      style={{ margin: theme.spacing(3) }}
-      type={ type }
-      error={ message && message.type === MessageType.ERROR }
-      helperText={ message && message.message }
-      value={ values[key] || "" }
-      onChange={ this.onHandleResourceChange(key) }
-      onBlur={ this.onHandleResourceBlur(key) }
-      name={ key }
-      variant="outlined"
-      label={ label }
-    />;
-  }
-
-  private renderTextArea = (key: keyof ApplicationForm, label: string, type: string) => {
-    const {
-      values,
-      messages: { [key]: message }
-    } = this.state.applicationForm;
+    } = this.state.form;
     return <TextField
       fullWidth
       multiline
@@ -259,11 +203,11 @@ class AppSettingsView extends React.Component<Props, State> {
     />;
   }
 
-  private renderTextField = (key: keyof ApplicationForm, label: string, type: string) => {
+  private renderTextField = (key: keyof ResourceSettingsForm, label: string, type: string) => {
     const {
       values,
       messages: { [key]: message }
-    } = this.state.applicationForm;
+    } = this.state.form;
     return <TextField
       fullWidth
       multiline
@@ -279,6 +223,32 @@ class AppSettingsView extends React.Component<Props, State> {
       variant="outlined"
       label={ label }
     />;
+  }
+
+  /**
+   * Render preview view
+   * TODO: Render preview should be own generic component that would show some stock image
+   * when data contains something else then image/video 
+   */
+  private renderPreview = () => {
+    const { rootResource } = this.props;
+    if (!rootResource.properties) {
+      return;
+    }
+
+    const image = rootResource.properties.find(p => p.key === "applicationImage");
+    if (!image) {
+      return;
+    }
+    return <>
+      <div style={{ marginTop: theme.spacing(2) }}>
+        <GridList cellHeight={ 400 } cols={ 5 }>
+          <GridListTile key={ image.value }>
+            <img src={ image.value } alt="File"/>
+          </GridListTile>
+        </GridList>
+      </div>
+    </>;
   }
 
   /**
@@ -308,7 +278,7 @@ class AppSettingsView extends React.Component<Props, State> {
     }
     console.log(properties);
 
-    // this.onUpdateResource();
+    this.onUpdateResource();
     // TODO: Handle error cases
     return 200;
   };
@@ -321,7 +291,7 @@ class AppSettingsView extends React.Component<Props, State> {
 
     // TODO: Add teaser text to update
     const application = {
-      ...this.state.applicationForm.values
+      ...this.state.form.values
     } as Application;
 
     this.onUpdateResource();
@@ -333,38 +303,38 @@ class AppSettingsView extends React.Component<Props, State> {
    */
   private onUpdateResource = () => {
     const { onUpdateRootResource } = this.props;
-    const { resourceForm } = this.state;
-    const properties = resourceForm.values.properties ? [...resourceForm.values.properties] : [];
+    const { form } = this.state;
+    const properties = form.values.properties ? [...form.values.properties] : [];
     const teaserIndex = properties.findIndex((p: KeyValueProperty) => p.key === "teaserText");
     const applicationImageIndex = properties.findIndex((p: KeyValueProperty) => p.key === "applicationImage");
     const applicationIconIndex = properties.findIndex((p: KeyValueProperty) => p.key === "applicationIcon");
 
     if (teaserIndex > -1) {
-      properties[teaserIndex] = { key: "teaserText", value: resourceForm.values.teaserText! }
+      properties[teaserIndex] = { key: "teaserText", value: form.values.teaserText || "" };
     } else {
-      properties.push({ key: "teaserText", value: resourceForm.values.teaserText! });
+      properties.push({ key: "teaserText", value: form.values.teaserText || ""});
     }
 
-    // if (applicationImageIndex > -1) {
-    //   properties[applicationImageIndex] = { key: "applicationImage", value: resourceForm.values.applicationImage }
-    // } else {
-    //   properties.push({ key: "applicationImage", value: resourceForm.values.applicationImage });
-    // }
+    if (applicationImageIndex > -1) {
+      properties[applicationImageIndex] = { key: "applicationImage", value: form.values.applicationImage || "" };
+    } else {
+      properties.push({ key: "applicationImage", value: form.values.applicationImage || "" });
+    }
 
-    // if (applicationIconIndex > -1) {
-    //   properties[applicationIconIndex] = { key: "applicationIcon", value: resourceForm.values.applicationIcon }
-    // } else {
-    //   properties.push({ key: "applicationIcon", value: resourceForm.values.applicationIcon });
-    // }
+    if (applicationIconIndex > -1) {
+      properties[applicationIconIndex] = { key: "applicationIcon", value: form.values.applicationIcon || "" };
+    } else {
+      properties.push({ key: "applicationIcon", value: form.values.applicationIcon || "" });
+    }
 
     const resource = {
       ...this.props.rootResource,
       parent_id: this.props.rootResource.id,
       properties: properties.filter(p => !!p.value)
     } as Resource;
-
-    onUpdateRootResource(resource);
     console.log(resource);
+    onUpdateRootResource(resource);
+    
 
   };
 
@@ -373,15 +343,15 @@ class AppSettingsView extends React.Component<Props, State> {
    * @param key
    * @param event
    */
-  private onHandleChange = (key: keyof ApplicationForm) => (event: React.ChangeEvent<HTMLInputElement>) => {
+  private onHandleChange = (key: keyof ResourceSettingsForm) => (event: React.ChangeEvent<HTMLInputElement>) => {
     const values = {
-      ...this.state.applicationForm.values,
+      ...this.state.form.values,
       [key]: event.target.value
     };
 
-    const applicationForm = validateForm(
+    const form = validateForm(
       {
-        ...this.state.applicationForm,
+        ...this.state.form,
         values
       },
       {
@@ -390,7 +360,7 @@ class AppSettingsView extends React.Component<Props, State> {
     );
 
     this.setState({
-      applicationForm
+      form
     });
   };
 
@@ -401,13 +371,13 @@ class AppSettingsView extends React.Component<Props, State> {
    */
   private onHandleResourceChange = (key: keyof ResourceSettingsForm) => (event: React.ChangeEvent<HTMLInputElement>) => {
     const values = {
-      ...this.state.resourceForm.values,
+      ...this.state.form.values,
       [key]: event.target.value
     };
 
-    const resourceForm = validateForm(
+    const form = validateForm(
       {
-        ...this.state.resourceForm,
+        ...this.state.form,
         values
       },
       {
@@ -416,7 +386,7 @@ class AppSettingsView extends React.Component<Props, State> {
     );
 
     this.setState({
-      resourceForm
+      form
     });
   };
 
@@ -424,20 +394,20 @@ class AppSettingsView extends React.Component<Props, State> {
    * Handles fields blur event
    * @param key
    */
-  private onHandleBlur = (key: keyof ApplicationForm) => () => {
-    let applicationForm = { ...this.state.applicationForm };
+  private onHandleBlur = (key: keyof ResourceSettingsForm) => () => {
+    let form = { ...this.state.form };
     const filled = {
-      ...applicationForm.filled,
+      ...form.filled,
       [key]: true
     };
 
-    applicationForm = validateForm({
-      ...this.state.applicationForm,
+    form = validateForm({
+      ...this.state.form,
       filled
     });
 
     this.setState({
-      applicationForm
+      form
     });
   };
 
@@ -446,19 +416,19 @@ class AppSettingsView extends React.Component<Props, State> {
    * @param key
    */
   private onHandleResourceBlur = (key: keyof ResourceSettingsForm) => () => {
-    let resourceForm = { ...this.state.resourceForm };
+    let form = { ...this.state.form };
     const filled = {
-      ...resourceForm.filled,
+      ...form.filled,
       [key]: true
     };
 
-    resourceForm = validateForm({
-      ...this.state.resourceForm,
+    form = validateForm({
+      ...this.state.form,
       filled
     });
 
     this.setState({
-      resourceForm
+      form
     });
   };
 }
