@@ -70,6 +70,7 @@ interface State {
   openedResource?: Resource;
   rootResource?: Resource;
   treeData?: ResourceTreeItem[];
+  loading: boolean;
 }
 
 interface ResourceTreeItem extends TreeItemSortable {
@@ -87,7 +88,8 @@ class ApplicationEditor extends React.Component<Props, State> {
     super(props);
     this.state = {
       addResourceDialogOpen: false,
-      mobileOpen: false
+      mobileOpen: false,
+      loading: false
     };
   }
 
@@ -157,7 +159,7 @@ class ApplicationEditor extends React.Component<Props, State> {
    */
   private renderDrawer = () => {
     const { auth, resources, classes } = this.props;
-    const { parentResourceId, customer, device, application } = this.state;
+    const { parentResourceId, customer, device, application, loading } = this.state;
     const { treeData } = this.state;
     return (
       <>
@@ -167,7 +169,7 @@ class ApplicationEditor extends React.Component<Props, State> {
           </ListItem>
         </List>
         <Divider />
-        { treeData &&
+        { treeData && !loading &&
           <SortableTree
             className={ classes.treeWrapper }
             rowHeight={ 40 }
@@ -548,7 +550,15 @@ class ApplicationEditor extends React.Component<Props, State> {
    */
   private onOpenResourceClick = async (resource: Resource) => {
     const { openResource } = this.props;
-    openResource(resource);
+    console.log("A")
+    this.setState({
+      loading: true
+    });
+    await openResource(resource);
+    this.setState({
+      loading: false
+    });
+    console.log("B")
   };
 
   /**

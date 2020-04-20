@@ -36,7 +36,7 @@ interface Props extends WithStyles<typeof styles> {
   openedResource?: Resource;
   openResource: typeof openResource;
   onDelete: (resourceId: string) => void;
-  onOpenResource(resource: Resource): void;
+  onOpenResource: (resource: Resource) => void;
 }
 
 /**
@@ -103,7 +103,6 @@ class ResourceTreeItemClass extends React.Component<Props, State> {
             </div>
           }
         >
-          { this.renderAdd() }
         </TreeItem>
       );
     } else {
