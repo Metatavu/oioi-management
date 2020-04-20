@@ -3,11 +3,12 @@ import LocalizedStrings, { LocalizedStringsMethods } from "localized-strings";
 export interface IStrings extends LocalizedStringsMethods {
   active: string;
   address: string;
+  addNew: string;
   addLanguage: string;
   addNewCustomer: string;
   addNewDevice: string;
   applications: string;
-  applicationSettings: string;
+  applicationName: string;
   back: string;
   cancel: string;
   confirm: string;
@@ -58,6 +59,8 @@ export interface IStrings extends LocalizedStringsMethods {
   file: string;
   requiredField: string;
   fileUpload: {
+    addMedia: string;
+    changeMedia: string;
     addFile: string;
     changeFile: string;
     addImage: string;
@@ -68,7 +71,7 @@ export interface IStrings extends LocalizedStringsMethods {
     changePDF: string;
     upload: string;
     cancel: string;
-  }
+  };
   resourceTypes: {
     root: string;
     video: string;
@@ -81,8 +84,18 @@ export interface IStrings extends LocalizedStringsMethods {
     pdf: string;
     text: string;
     image: string;
-  }
-  childResources:string;
+  };
+  childResources: string;
+  applicationSettings: {
+    teaserText: string;
+    settings: string;
+    background: string;
+    icon: string;
+    icons: string;
+    returnDelay: string;
+    id: string;
+    addIcon: string;
+  };
 }
 
 const strings: IStrings = new LocalizedStrings({

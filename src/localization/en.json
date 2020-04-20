@@ -1,11 +1,12 @@
 {
   "active": "Active",
   "address": "Address",
+  "addNew": "Add..",
   "addLanguage": "Add language",
   "addNewCustomer": "Add a new customer",
   "addNewDevice": "Add a new device",
   "applications": "Applications",
-  "applicationSettings": "Application settings",
+  "applicationName": "Application name",
   "back": "Back",
   "cancel": "Cancel",
   "confirm": "Confirm",
@@ -57,6 +58,8 @@
   "update": "Update",
   "requiredField": "Required field",
   "fileUpload": {
+    "addMedia": "Add media",
+    "changeMedia": "Change media",
     "addImage": "Add image",
     "changeImage": "Change image",
     "addFile": "Add file",
@@ -80,5 +83,15 @@
     "text": "Text",
     "video": "Video"
   },
-  "childResources": "Sub resources"
+  "childResources": "Sub resources",
+  "applicationSettings": {
+    "settings": "Basic application settings",
+    "teaserText": "Teaser text",
+    "background": "Application background image",
+    "icon": "Application icon",
+    "icons": "Application icons",
+    "returnDelay": "Reset delay",
+    "id": "Application id",
+    "addIcon": "Add icon"
+  }
 }

@@ -10,8 +10,9 @@ export default createStyles({
     gridTemplateColumns: "auto 1fr",
     gridTemplateRows: "auto auto 1fr",
     gridTemplateAreas: '"drawer appbar" "drawer content" "drawer content"',
-    boxShadow: "0 0 20px rgba(0, 0, 0, 0.2)",
-    height: "100%"
+    borderTop: "1px solid #ddd",
+    height: "100%",
+    overflowY: "auto",
   },
   drawer: {
     gridArea: "drawer",
@@ -22,19 +23,29 @@ export default createStyles({
     }
   },
   appBar: {
-    height: 65,
+    height: 55,
     backgroundColor: "#F6F6F6",
     color: "#000",
     gridArea: "appbar",
     borderBottomWidth: 0.5,
     borderBottom: "1px solid rgba(0, 0, 0, 0.2)"
   },
+
+  toolbar: {
+    height: 55,
+    display: "flex",
+    alignItems: "center",
+    padding: "0 16px",
+    boxShadow: "0 0 30px rgba(0,0,0,0.2)"
+  },
+
   menuButton: {
     marginRight: theme.spacing(2),
     [theme.breakpoints.up("sm")]: {
       display: "none"
     }
   },
+
   drawerPaper: {
     backgroundColor: "#fff",
     position: "absolute",
@@ -43,10 +54,20 @@ export default createStyles({
   },
   content: {
     gridArea: "content",
-    flexGrow: 1,
     padding: theme.spacing(3),
-    background: "#F6F6F6"
+    background: "#F6F6F6",
+    overflowY: "auto"
   },
+
+  treeWrapper: {
+    height: "100%",
+    padding: theme.spacing(4),
+    overflowY: "auto",
+    "& > div:focus": {
+      outline: "none"
+    }
+  },
+
   treeRoot: {
     margin: 10
   },

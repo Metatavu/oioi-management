@@ -18,9 +18,10 @@ import { FormValidationRules, MessageType, initForm, Form, validateForm } from "
 import FileUploader from "../generic/FileUploader"
 import logo from "../../resources/svg/oioi-logo.svg";
 
-import GridList from '@material-ui/core/GridList';
-import GridListTile from '@material-ui/core/GridListTile';
+import GridList from "@material-ui/core/GridList";
+import GridListTile from "@material-ui/core/GridListTile";
 import { getAllowedFileTypes, getLocalizedTypeString } from "../../commons/resourceTypeHelper";
+import { ResourceSettingsForm, resourceRules } from "../../commons/formRules";
 
 /**
  * Component props
@@ -31,47 +32,6 @@ interface Props extends WithStyles<typeof styles> {
   onUpdate(resource: Resource): void;
   onDelete(resource: Resource): void;
 }
-
-/**
- * Resource settings form
- */
-interface ResourceSettingsForm extends Partial<Resource> {
-  nameText?: string,
-  title?: string,
-  content?: string
-}
-
-const rules: FormValidationRules<ResourceSettingsForm> = {
-  fields: {
-    name: {
-      required: true,
-      trim: true,
-      requiredText: strings.requiredField
-    },
-    order_number: {
-      required: true,
-      trim: true,
-      requiredText: strings.requiredField
-    },
-    slug: {
-      required: true,
-      trim: true,
-      requiredText: strings.requiredField
-    },
-    data: {
-      required: false,
-      trim: true
-    }
-  },
-  validateForm: form => {
-    const messages = {};
-
-    return {
-      ...form,
-      messages
-    };
-  }
-};
 
 /**
  * Component state
@@ -99,7 +59,7 @@ class ResourceSettingsView extends React.Component<Props, State> {
           slug: undefined,
           data: undefined
         },
-        rules
+        resourceRules
       ),
 
       resourceId: "",
@@ -121,7 +81,7 @@ class ResourceSettingsView extends React.Component<Props, State> {
       {
         ...this.props.resource
       },
-      rules
+      resourceRules
     );
 
     form = validateForm(form);
@@ -142,7 +102,7 @@ class ResourceSettingsView extends React.Component<Props, State> {
         {
           ...resource
         },
-        rules
+        resourceRules
       );
 
       form = validateForm(form);
@@ -192,8 +152,8 @@ class ResourceSettingsView extends React.Component<Props, State> {
         { this.renderFields() }
         <Divider style={{ marginBottom: theme.spacing(3) }} />
         <div>
-          <Typography variant="h3">{localizedDataString}</Typography>
-          {dataField}
+          <Typography variant="h3">{ localizedDataString }</Typography>
+          { dataField }
         </div>
         <Divider style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} />
         <div>
@@ -241,15 +201,15 @@ class ResourceSettingsView extends React.Component<Props, State> {
       values,
       messages: { [key]: message }
     } = this.state.form;
-    if (type == "textarea") {
+    if (type === "textarea") {
       return ( <TextField
         fullWidth
         multiline
         rows={ 8 }
         style={{ margin: theme.spacing(3) }}
         type={ type }
-        error={ message && message.type === MessageType.ERROR} 
-        helperText={ message && message.message} 
+        error={ message && message.type === MessageType.ERROR}
+        helperText={ message && message.message}
         value={ values[key] || "" }
         onChange={ this.onHandleChange(key) }
         onBlur={ this.onHandleBlur(key) }
@@ -429,7 +389,7 @@ class ResourceSettingsView extends React.Component<Props, State> {
    * Render file drop zone method
    */
   private renderDataField = () => {
-    const { classes, resource } = this.props;
+    const { resource } = this.props;
     const resourceType = resource.type;
 
     if (resourceType === ResourceType.TEXT) {
@@ -449,7 +409,7 @@ class ResourceSettingsView extends React.Component<Props, State> {
     } else {
       const allowedFileTypes = getAllowedFileTypes(resource.type);
       const fileData = this.state.form.values.data;
-      
+
       return <>
         <FileUploader resource={ this.props.resource } allowedFileTypes={ allowedFileTypes } onSave={ this.onFileChange }/>
         { fileData && this.renderPreview() }
@@ -457,7 +417,7 @@ class ResourceSettingsView extends React.Component<Props, State> {
     }
   };
 
-    /**
+  /**
    * Render preview view
    * TODO: Render preview should be own generic component that would show some stock image
    * when data contains something else then image/video 
@@ -471,10 +431,10 @@ class ResourceSettingsView extends React.Component<Props, State> {
      * TODO: Add some default icon for other file types (Tuomas). OR find some library that can show a preview of a file
      */
     if (resourceType !== ResourceType.VIDEO && resourceType !== ResourceType.IMAGE) {
-      uri = logo
+      uri = logo;
     }
 
-    return <>
+    return (
       <div style={{ marginTop: theme.spacing(2) }}>
         <GridList cellHeight={ 400 } cols={ 5 }>
           <GridListTile key={ uri }>
@@ -482,7 +442,7 @@ class ResourceSettingsView extends React.Component<Props, State> {
           </GridListTile>
         </GridList>
       </div>
-    </>
+    );
   }
 
   /**
@@ -530,8 +490,8 @@ class ResourceSettingsView extends React.Component<Props, State> {
     });
 
     this.onUpdateResource()
-    //TODO: Handle possible error cases
-    return 200
+    // TODO: Handle possible error cases
+    return 200;
   };
 
   /**

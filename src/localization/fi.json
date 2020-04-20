@@ -1,11 +1,12 @@
 {
   "active": "Aktiivinen",
   "address": "Osoite",
+  "addNew": "Lisää..",
   "addLanguage": "Lisää kieli",
   "addNewCustomer": "Lisää uusi asiakas",
   "addNewDevice": "Lisää uusi laite",
   "applications": "Sovellukset",
-  "applicationSettings": "Sovellusasetukset",
+  "applicationName": "Sovelluksen nimi",
   "back": "Takaisin",
   "cancel": "Peruuta",
   "confirm": "Hyväksy",
@@ -57,6 +58,8 @@
   "update": "Päivitä",
   "requiredField": "Vaadittu kenttä",
   "fileUpload": {
+    "addMedia": "Lisää media",
+    "changeMedia": "Vaihda media",
     "addImage": "Lisää kuva",
     "changeImage": "Vaihda kuvaa",
     "addFile": "Lisää tiedosto",
@@ -80,5 +83,15 @@
     "text": "Teksti",
     "video": "Video"
   },
-  "childResources": "Alisivut"
+  "childResources": "Alisivut",
+  "applicationSettings": {
+    "settings": "Sovellusasetukset",
+    "teaserText": "Teaserteksti",
+    "background": "Sovelluksen taustakuva",
+    "icon": "Sovelluksen kuvake",
+    "icons": "Sovelluksen ikonit",
+    "returnDelay": "Alkutilan paluuviive minuutteina",
+    "id": "Sovelluksen id",
+    "addIcon": "Lisää ikoni"
+  }
 }

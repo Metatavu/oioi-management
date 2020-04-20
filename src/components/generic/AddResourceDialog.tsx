@@ -23,7 +23,7 @@ import { AuthState } from "../../types/index";
 import ApiUtils from "../../utils/ApiUtils";
 import { ResourceTypeObject, resolveChildResourceTypes } from "../../commons/resourceTypeHelper";
 
-import slugify from "slugify"
+import slugify from "slugify";
 
 /**
  * Component props
@@ -208,48 +208,51 @@ class AddResourceDialog extends React.Component<Props, State> {
 
     return (
       <Dialog
-        fullScreen={false}
-        open={this.props.open}
-        onClose={this.props.handleClose}
+        fullScreen={ false }
+        open={ this.props.open }
+        onClose={ this.props.handleClose }
         aria-labelledby="dialog-title"
-        onBackdropClick={this.onAddResourceDialogBackDropClick}
+        onBackdropClick={ this.onAddResourceDialogBackDropClick }
       >
         <DialogTitle id="dialog-title">
           <div>
-            <Typography variant="h2">{strings.addNewResource}</Typography>
+            <Typography variant="h2">{ strings.addNewResource }</Typography>
           </div>
         </DialogTitle>
         <Divider />
         <DialogContent>
-          <Grid container spacing={2}>
-            <Grid item className={classes.fullWidth}>
-              {this.renderField("name", strings.name, "text")}
+          <Grid container spacing={ 2 }>
+            <Grid item className={ classes.fullWidth }>
+              { this.renderField("name", strings.name, "text") }
             </Grid>
-            <Grid item className={classes.fullWidth}>
-              <InputLabel htmlFor="resourceType">{strings.resourceType}</InputLabel>
+            <Grid item className={ classes.fullWidth }>
+              <InputLabel htmlFor="resourceType">{ strings.resourceType }</InputLabel>
               { this.renderSelect() }
             </Grid>
-            <Grid item className={classes.fullWidth}>
-              {this.renderField("order_number", strings.orderNumber, "number")}
+            <Grid item className={ classes.fullWidth }>
+              { this.renderField("order_number", strings.orderNumber, "number") }
             </Grid>
             <Grid item className={classes.fullWidth}>
-              {this.renderField("slug", strings.slug, "text")}
+              { this.renderField("slug", strings.slug, "text") }
             </Grid>
           </Grid>
         </DialogContent>
         <Divider />
         <DialogActions>
-          <Button variant="outlined" onClick={this.onCloseClick} color="primary">
-            {strings.cancel}
+          <Button variant="outlined" onClick={ this.onCloseClick } color="primary">
+            { strings.cancel }
           </Button>
-          <Button variant="contained" onClick={this.onSaveNewResource} color="primary" autoFocus disabled={!isFormValid}>
-            {strings.save}
+          <Button variant="contained" onClick={ this.onSaveNewResource } color="primary" autoFocus disabled={!isFormValid}>
+            { strings.save }
           </Button>
         </DialogActions>
       </Dialog>
     );
   }
 
+  /**
+   * Render select
+   */
   private renderSelect = () => {
     return <>
       <Select
@@ -326,15 +329,15 @@ class AddResourceDialog extends React.Component<Props, State> {
       <TextField
         multiline
         fullWidth
-        type={type}
-        error={message && message.type === MessageType.ERROR}
-        helperText={message && message.message}
-        value={values[key] || ""}
-        onChange={this.onHandleChange(key)}
-        onBlur={this.onHandleBlur(key)}
-        name={key}
+        type={ type }
+        error={ message && message.type === MessageType.ERROR }
+        helperText={ message && message.message }
+        value={ values[key] || "" }
+        onChange={ this.onHandleChange(key) }
+        onBlur={ this.onHandleBlur(key) }
+        name={ key }
         variant="outlined"
-        label={label}
+        label={ label }
       />
     );
   };
@@ -465,7 +468,7 @@ class AddResourceDialog extends React.Component<Props, State> {
      * If name changes slugify the name value and put it to url value
      */
     if (key === "name" && form.values.name) {
-      const nameValue = form.values.name
+      const nameValue = form.values.name;
       form.values.slug = slugify(nameValue, {
         replacement: "",
         remove: /[^A-Za-z0-9]+/g,
@@ -482,8 +485,5 @@ class AddResourceDialog extends React.Component<Props, State> {
     });
   };
 }
-
-
-
 
 export default withStyles(styles)(AddResourceDialog);

@@ -126,6 +126,8 @@ class ApplicationsList extends React.Component<Props, State> {
    * Card render method
    */
   private renderCard(application: Application, key: string) {
+
+    // TODO get background image from application root element resources!
     return (
       <Grid item key={key}>
         <CardItem

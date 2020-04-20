@@ -73,49 +73,49 @@ class IndexPage extends React.Component<Props, State> {
       <div className="wrapper">
         <Route
           path="/"
-          exact={false}
+          exact={ false }
           render={ ({ history }) => (
-            <BreadCrumb history={history} />
+            <BreadCrumb history={ history } />
           )}
         />
         <Header></Header>
-        <div>
+        <>
           <Route
             path="/"
-            exact={true}
+            exact={ true }
             render={ ({ history }) => (
-              <CustomersList history={history} />
+              <CustomersList history={ history } />
             )}
           />
           <Route
             path="/:customerId/devices"
-            exact={true}
+            exact={ true }
             render={ ({ match, history }) => (
-              <DevicesList customerId={match.params.customerId} history={history}/>
+              <DevicesList customerId={ match.params.customerId } history={ history }/>
             )}
           />
           <Route
             path="/:customerId/devices/:deviceId/applications"
-            exact={true}
+            exact={ true }
             render={ ({ match, history }) => (
-              <ApplicationsList 
-                customerId={match.params.customerId} 
-                deviceId={match.params.deviceId}
-                history={history}/>
+              <ApplicationsList
+                customerId={ match.params.customerId }
+                deviceId={ match.params.deviceId }
+                history={ history }/>
             )}
           />
           <Route
             path="/:customerId/devices/:deviceId/applications/:applicationId"
-            exact={true}
-            render={ ({ match,history }) => (
-              <ApplicationEditor 
-              customerId={match.params.customerId} 
-              deviceId={match.params.deviceId}
-              applicationId={match.params.applicationId}
-              history={history} />
+            exact={ true }
+            render={ ({ match, history }) => (
+              <ApplicationEditor
+              customerId={ match.params.customerId }
+              deviceId={ match.params.deviceId }
+              applicationId={ match.params.applicationId }
+              history={ history } />
             )}
           />
-        </div>
+        </>
       </div>
     );
   }
