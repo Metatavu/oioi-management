@@ -97,8 +97,11 @@ class ResourceTreeItemClass extends React.Component<Props, State> {
           TransitionComponent={ TransitionComponent }
           icon={ icon }
           nodeId={ resource.id }
-          label={ this.state.resource.name }
-          onClick={this.onTreeItemClick}
+          label={
+            <div>
+              <div style={{ display: "inline-block" }} onClick={ this.onTreeItemClick }>{ this.state.resource.name }</div>
+            </div>
+          }
         >
           { this.renderAdd() }
         </TreeItem>
@@ -112,10 +115,9 @@ class ResourceTreeItemClass extends React.Component<Props, State> {
           nodeId={ resource.id }
           label={
             <div>
-              { this.state.resource.name }
+              <div style={{ display: "inline-block" }} onClick={ this.onTreeItemClick }>{ this.state.resource.name }</div>
             </div>
           }
-          onClick={ this.onTreeItemClick }
         />
       );
     }
@@ -201,7 +203,7 @@ class ResourceTreeItemClass extends React.Component<Props, State> {
      */
     if (window.confirm(`${strings.deleteResourceDialogDescription} ${resource.name} ${childResources && strings.andAllChildren}?`)) {
       await resourcesApi.deleteResource({ customer_id: customerId, device_id: deviceId, application_id: applicationId, resource_id: resourceId });
-      await this.props.onDelete(resourceId);
+      this.props.onDelete(resourceId);
     }
   };
 

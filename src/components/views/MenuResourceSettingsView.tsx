@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import * as React from "react";
-import { withStyles, WithStyles, TextField, Divider, Typography, Grid, FormControl, InputLabel, Select, MenuItem, Button } from "@material-ui/core";
+import { withStyles, WithStyles, TextField, Divider, Typography, Grid, Button } from "@material-ui/core";
 import MaterialTable from "material-table";
 import AddIcon from "@material-ui/icons/AddBox";
 import DeleteIcon from "@material-ui/icons/Delete";
@@ -11,12 +11,12 @@ import EditIcon from "@material-ui/icons/Edit";
 import styles from "../../styles/editor-view";
 import strings from "../../localization/strings";
 import theme from "../../styles/theme";
-import { Resource, ResourceToJSON, ResourceFromJSON, ResourceType, KeyValuePropertyFromJSON, KeyValueProperty } from "../../generated/client/src";
+import { Resource, ResourceToJSON, KeyValueProperty } from "../../generated/client/src";
 import FileUpload from "../../utils/FileUpload";
 import { forwardRef } from "react";
 import { FormValidationRules, MessageType, initForm, Form, validateForm } from "ts-form-validation";
 import FileUploader from "../generic/FileUploader";
-import { getAllowedFileTypes, resolveChildResourceTypes, getLocalizedTypeString } from "../../commons/resourceTypeHelper";
+import { getAllowedFileTypes, getLocalizedTypeString } from "../../commons/resourceTypeHelper";
 import GridList from '@material-ui/core/GridList';
 import GridListTile from '@material-ui/core/GridListTile';
 import { AuthState } from "../../types";
@@ -27,6 +27,7 @@ import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
 import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
+import { resourceRules, ResourceSettingsForm } from "../../commons/formRules";
 
 /**
  * Component props
@@ -40,56 +41,6 @@ interface Props extends WithStyles<typeof styles> {
   onUpdate(resource: Resource): void;
   onDelete(resource: Resource): void;
 }
-
-interface ResourceSettingsForm extends Partial<Resource> {
-  nameText?: string,
-  title?: string,
-  content?: string
-}
-
-const rules: FormValidationRules<ResourceSettingsForm> = {
-  fields: {
-    name: {
-      required: true,
-      trim: true,
-      requiredText: strings.requiredField
-    },
-    order_number: {
-      required: true,
-      trim: true,
-      requiredText: strings.requiredField
-    },
-    slug: {
-      required: true,
-      trim: true,
-      requiredText: strings.requiredField
-    },
-    data: {
-      required: false,
-      trim: true
-    },
-    nameText: {
-      required: false,
-      trim: true
-    },
-    title: {
-      required: false,
-      trim: true
-    },
-    content: {
-      required: false,
-      trim: true
-    }
-  },
-  validateForm: form => {
-    const messages = {};
-
-    return {
-      ...form,
-      messages
-    };
-  }
-};
 
 /**
  * Component state
@@ -121,7 +72,7 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
           title: undefined,
           content: undefined
         },
-        rules
+        resourceRules
       ),
 
       resourceId: "",
@@ -154,7 +105,7 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
         content: contentProperty ? contentProperty.value : undefined,
         title: titleProperty ? titleProperty.value : undefined
       },
-      rules
+      resourceRules
     );
 
     form = validateForm(form);
@@ -197,9 +148,9 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
       });
 
       const properties = resource.properties || [];
-      const titleProperty = properties.find(p => p.key == "title");
-      const contentProperty = properties.find(p => p.key == "content");
-      const nameTextProperty = properties.find(p => p.key == "nameText");
+      const titleProperty = properties.find(p => p.key === "title");
+      const contentProperty = properties.find(p => p.key === "content");
+      const nameTextProperty = properties.find(p => p.key === "nameText");
       let form = initForm<ResourceSettingsForm>(
         {
           ...resource,
@@ -207,7 +158,7 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
           content: contentProperty ? contentProperty.value : undefined,
           title: titleProperty ? titleProperty.value : undefined
         },
-        rules
+        resourceRules
       );
 
       form = validateForm(form);
@@ -282,21 +233,21 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
    */
   private renderFields = () => {
     return<>
-      <Grid container spacing={3} direction="row">
+      <Grid container spacing={ 3 } direction="row">
         <Typography variant="h3">{ strings.title }</Typography>
-        {this.renderField("title", strings.title, "text")}
+        { this.renderField("title", strings.title, "text") }
 
         <Typography variant="h3">{ strings.nameText }</Typography>
-        {this.renderField("nameText", strings.nameText, "textarea")}
+        { this.renderField("nameText", strings.nameText, "textarea") }
 
         <Typography variant="h3">{ strings.content }</Typography>
-        {this.renderField("content", strings.content, "textarea")}
+        { this.renderField("content", strings.content, "textarea") }
 
-        {this.renderField("name", strings.name, "text")}
-        {this.renderField("order_number", strings.orderNumber, "number")}
-        {this.renderField("slug", strings.slug, "text")}
+        { this.renderField("name", strings.name, "text") }
+        { this.renderField("order_number", strings.orderNumber, "number") }
+        { this.renderField("slug", strings.slug, "text") }
       </Grid>
-    </>
+    </>;
   }
 
   /**
@@ -310,36 +261,36 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
       values,
       messages: { [key]: message }
     } = this.state.form;
-    if (type == "textarea") {
+    if (type === "textarea") {
       return ( <TextField
         fullWidth
         multiline
-        rows={8}
+        rows={ 8 }
         style={{ margin: theme.spacing(3) }}
-        type={type}
-        error={message && message.type === MessageType.ERROR}
-        helperText={message && message.message}
-        value={values[key] || ""}
-        onChange={this.onHandleChange(key)}
-        onBlur={this.onHandleBlur(key)}
-        name={key}
+        type={ type }
+        error={ message && message.type === MessageType.ERROR }
+        helperText={ message && message.message }
+        value={ values[key] || "" }
+        onChange={ this.onHandleChange(key) }
+        onBlur={ this.onHandleBlur(key) }
+        name={ key }
         variant="outlined"
-        label={label}
+        label={ label }
       /> );
     }
     return (
       <TextField
         fullWidth
         style={{ margin: theme.spacing(3) }}
-        type={type}
-        error={message && message.type === MessageType.ERROR}
-        helperText={message && message.message}
-        value={values[key] || ""}
-        onChange={this.onHandleChange(key)}
-        onBlur={this.onHandleBlur(key)}
-        name={key}
+        type={ type }
+        error={ message && message.type === MessageType.ERROR }
+        helperText={ message && message.message }
+        value={ values[key] || "" }
+        onChange={ this.onHandleChange(key) }
+        onBlur={ this.onHandleBlur(key) }
+        name={ key }
         variant="outlined"
-        label={label}
+        label={ label }
       />
     );
   };
@@ -538,7 +489,6 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
 
   /**
    * Render file uploaders for background image and custom icons
-   * TODO: Icon upload needs support for multiple files. Atm only 1 file is allowed
    */
   private renderUploaderAndPreview = (title: string, uploadKey: string) => {
     const resource = this.props.resource;
@@ -547,7 +497,7 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
     const properties = this.state.form.values.properties;
     let previewItem;
     if (properties) {
-      previewItem = this.findImage(properties, uploadKey)
+      previewItem = this.findImage(properties, uploadKey);
     }
 
     return <>
@@ -562,14 +512,13 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
     </>
   };
 
-    /**
+  /**
    * Render preview view
    * TODO: Render preview should be own generic component that would show some stock image
    * when data contains something else then image/video 
    * @param image image url
    */
   private renderPreview = (image: string) => {
-
     return (
       <div style={{ marginTop: theme.spacing(2) }}>
         <GridList cellHeight={ 100 } cols={ 10 }>
@@ -581,14 +530,15 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
     )
   };
 
+  /**
+   * Find image from prop
+   */
   private findImage = (properties: KeyValueProperty[], propertyKey: string) => {
-
-    const foundItem = properties.find((p: KeyValueProperty) => p.key === propertyKey)
-
+    const foundItem = properties.find((p: KeyValueProperty) => p.key === propertyKey);
     if (foundItem) {
       return foundItem.value;
     }
-    return
+    return;
   }
 
   /**
@@ -618,9 +568,9 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
     this.setState({
       resourceData: { ...resourceData }
     });
-    
+
     this.onUpdateResource();
-    //TODO: Handle error cases
+    // TODO: Handle error cases
     return 200;
   };
 
@@ -634,7 +584,7 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
     const titleIndex = properties.findIndex((p: KeyValueProperty) => p.key === "title");
     const nameTextIndex = properties.findIndex((p: KeyValueProperty) => p.key === "nameText");
     const contentIndex = properties.findIndex((p: KeyValueProperty) => p.key === "content");
-    
+
     if (titleIndex > -1) {
       properties[titleIndex] = { key: "title", value: form.values.title }
     } else {

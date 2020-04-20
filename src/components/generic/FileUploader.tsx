@@ -1,19 +1,31 @@
 import * as React from "react";
 import { withStyles, WithStyles, Button, CircularProgress } from "@material-ui/core";
 import styles from "../../styles/dialog";
-import { DropzoneDialog } from 'material-ui-dropzone';
+import { DropzoneDialog } from "material-ui-dropzone";
 import { Resource } from "../../generated/client/src";
 import strings from "../../localization/strings";
-import AddIcon from '@material-ui/icons/AddOutlined';
+import AddIcon from "@material-ui/icons/AddOutlined";
 import { resolveUploadLocalizationString } from "../../commons/resourceTypeHelper";
 
+/**
+ * Component props
+ */
 interface Props extends WithStyles<typeof styles> {
   uploadKey?: string;
   resource: Resource;
   allowedFileTypes: string[];
-  onSave(files: File[], key?: string): Promise<Number>;
+
+  /**
+   * Save files to resource
+   * @param files files
+   * @param key  upload key
+   */
+  onSave(files: File[], key?: string): Promise<number>;
 }
 
+/**
+ * Component states
+ */
 interface State {
   dialogOpen: boolean;
   uploading: boolean;
@@ -47,8 +59,8 @@ class FileUploader extends React.Component<Props, State> {
    * Component render method
    */
   public render() {
-    const { resource, classes } = this.props;
-    let localStrings = resolveUploadLocalizationString(resource.type);
+    const { resource } = this.props;
+    const localStrings = resolveUploadLocalizationString(resource.type);
     if (!localStrings.fileUploadLocal) {
       localStrings.fileUploadLocal = [strings.fileUpload.addFile, strings.fileUpload.changeFile];
     }
@@ -57,7 +69,7 @@ class FileUploader extends React.Component<Props, State> {
         <div style={{ display: "flex", height: "1vh", justifyContent: "center" }}>
           <CircularProgress color="secondary" style={{ alignSelf: "center" }}></CircularProgress>
         </div>
-      )
+      );
     }
     /**
      * TODO: Add custom icons to resolveLocalizationString
@@ -68,7 +80,7 @@ class FileUploader extends React.Component<Props, State> {
       </Button>
 
       { this.renderUploadDialog() }
-    </>
+    </>;
   }
 
   /**
@@ -90,7 +102,7 @@ class FileUploader extends React.Component<Props, State> {
         maxFileSize={ 20000000 }
         showPreviewsInDropzone={ false }
       />
-    )
+    );
   }
 
   /**
@@ -99,16 +111,16 @@ class FileUploader extends React.Component<Props, State> {
   private openDialog = () => {
     this.setState({
       dialogOpen: true
-    })
+    });
   }
 
-    /**
+  /**
    * Close upload image dialog
    */
   private closeDialog = () => {
     this.setState({
       dialogOpen: false
-    })
+    });
   }
 
   /**
@@ -117,9 +129,9 @@ class FileUploader extends React.Component<Props, State> {
    */
   private handleSave = async (files: File[]) => {
     this.setState({ uploading: true })
-    this.closeDialog()
-    await this.props.onSave(files, this.props.uploadKey)
-    this.setState({ uploading: false })
+    this.closeDialog();
+    await this.props.onSave(files, this.props.uploadKey);
+    this.setState({ uploading: false });
   }
 }
 
