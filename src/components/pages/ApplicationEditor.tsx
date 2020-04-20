@@ -569,7 +569,7 @@ class ApplicationEditor extends React.Component<Props, State> {
       resource: resource
     });
 
-    //updatedResourceView();
+    updatedResourceView();
 
     this.setState({
       addResourceDialogOpen: false,
