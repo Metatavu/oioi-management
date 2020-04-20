@@ -146,6 +146,9 @@ class AppSettingsView extends React.Component<Props, State> {
     </>;
   }
 
+  /**
+   * Render text fields with given form keys
+   */
   private renderTextField = (label: string, type: string, appKey?: keyof ApplicationForm, resourceKey?: keyof ResourceSettingsForm) => {
     if (appKey) {
       const values = this.state.applicationForm.values;

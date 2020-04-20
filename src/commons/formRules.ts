@@ -1,8 +1,12 @@
-import { FormValidationRules, Form, initForm, validateForm, MessageType } from "ts-form-validation";
-import { Application, ApplicationToJSON, ApplicationFromJSON, KeyValueProperty, Resource } from "../generated/client/src";
+import { FormValidationRules } from "ts-form-validation";
+import { Application, Resource } from "../generated/client/src";
 
 import strings from "../localization/strings";
 
+/**
+ * Interface for ResourceSettingsFrom.
+ * Contains all fields used for resources and applications
+ */
 export interface ResourceSettingsForm extends Partial<Resource> {
   nameText?: string;
   title?: string;
@@ -13,7 +17,6 @@ export interface ResourceSettingsForm extends Partial<Resource> {
   applicationIcons?: string;
   teaserText?: string;
   returnDelay?: string;
-
 }
 
 /**
@@ -22,7 +25,7 @@ export interface ResourceSettingsForm extends Partial<Resource> {
 export interface ApplicationForm extends Partial<Application> {}
 
 /**
- * Form validation rules
+ * Form validation rules for ApplicationForm
  */
 export const applicationRules: FormValidationRules<ApplicationForm> = {
   fields: {
@@ -42,6 +45,9 @@ export const applicationRules: FormValidationRules<ApplicationForm> = {
   }
 };
 
+/**
+ * Form validation rules for ResourceSettingsForm
+ */
 export const resourceRules: FormValidationRules<ResourceSettingsForm> = {
   fields: {
     name: {

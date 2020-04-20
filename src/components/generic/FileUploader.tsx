@@ -7,13 +7,25 @@ import strings from "../../localization/strings";
 import AddIcon from "@material-ui/icons/AddOutlined";
 import { resolveUploadLocalizationString } from "../../commons/resourceTypeHelper";
 
+/**
+ * Component props
+ */
 interface Props extends WithStyles<typeof styles> {
   uploadKey?: string;
   resource: Resource;
   allowedFileTypes: string[];
+
+  /**
+   * Save files to resource
+   * @param files files
+   * @param key  upload key
+   */
   onSave(files: File[], key?: string): Promise<number>;
 }
 
+/**
+ * Component states
+ */
 interface State {
   dialogOpen: boolean;
   uploading: boolean;

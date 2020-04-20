@@ -90,7 +90,7 @@ export const resolveChildResourceTypes = (type: ResourceType): ResourceTypeObjec
 /**
  * Get correct localization names based on the given resource type.
  * TODO: Add also custom icons
- * @param type 
+ * @param type
  */
 export const resolveUploadLocalizationString = (type: ResourceType): ResourceTypeObject => ({
   [ResourceType.ROOT] : {
@@ -128,7 +128,7 @@ export const resolveUploadLocalizationString = (type: ResourceType): ResourceTyp
 
 /**
  * Get allowed filetype for file uploader
- * @param type 
+ * @param type
  */
 export const getAllowedFileTypes = (type: ResourceType): string[] => {
   switch (type) {
@@ -149,7 +149,7 @@ export const getAllowedFileTypes = (type: ResourceType): string[] => {
 
 /**
  * Get localized string for each resource type
- * @param type 
+ * @param type
  */
 export const getLocalizedTypeString = (type: ResourceType): ResourceTypeObject => ({
   [ResourceType.ROOT] : { resourceLocal: strings.resourceTypes.root },
