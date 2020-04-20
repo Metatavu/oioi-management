@@ -550,11 +550,16 @@ class ApplicationEditor extends React.Component<Props, State> {
    */
   private onOpenResourceClick = async (resource: Resource) => {
     const { openResource } = this.props;
+    const { openedResource } = this.state;
     console.log("A")
     this.setState({
       loading: true
     });
-    await openResource(resource);
+    new Promise((resolve, reject) => {
+      if ( === resource.id) {
+
+      }
+    })
     this.setState({
       loading: false
     });
