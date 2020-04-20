@@ -102,8 +102,7 @@ class ResourceTreeItemClass extends React.Component<Props, State> {
               <div style={{ display: "inline-block" }} onClick={ this.onTreeItemClick }>{ this.state.resource.name }</div>
             </div>
           }
-        >
-        </TreeItem>
+        />
       );
     } else {
       return (
@@ -190,17 +189,11 @@ class ResourceTreeItemClass extends React.Component<Props, State> {
     }
 
     const resourcesApi = ApiUtils.getResourcesApi(auth.token);
-    const childResources = await resourcesApi.listResources({
-      customer_id: customerId,
-      device_id: deviceId,
-      application_id: applicationId,
-      parent_id: resourceId
-    });
 
     /**
      * TODO: prettier delete confirmation
      */
-    if (window.confirm(`${strings.deleteResourceDialogDescription} ${resource.name} ${childResources && strings.andAllChildren}?`)) {
+    if (window.confirm(`${strings.deleteResourceDialogDescription} ${resource.name} ${ strings.andAllChildren}?`)) {
       await resourcesApi.deleteResource({ customer_id: customerId, device_id: deviceId, application_id: applicationId, resource_id: resourceId });
       this.props.onDelete(resourceId);
     }
