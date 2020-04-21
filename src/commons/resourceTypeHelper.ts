@@ -1,10 +1,10 @@
 import { ResourceType } from "../generated/client/src";
 import strings from "../localization/strings";
 
-export interface ResourceTypeObject{
+export interface ResourceTypeObject {
     value?: ResourceType;
-    resourceLocal?: String;
-    fileUploadLocal? : String[];
+    resourceLocal?: string;
+    fileUploadLocal?: string[];
 }
 
 /**
@@ -85,7 +85,7 @@ export const resolveChildResourceTypes = (type: ResourceType): ResourceTypeObjec
   [ResourceType.IMAGE] : [],
   [ResourceType.TEXT]: [],
   [ResourceType.VIDEO]: []
-})[type]
+})[type];
 
 /**
  * Get correct localization names based on the given resource type.
@@ -124,7 +124,7 @@ export const resolveUploadLocalizationString = (type: ResourceType): ResourceTyp
       strings.fileUpload.changeVideo
     ]
   },
-})[type]
+})[type];
 
 /**
  * Get allowed filetype for file uploader
@@ -132,6 +132,7 @@ export const resolveUploadLocalizationString = (type: ResourceType): ResourceTyp
  */
 export const getAllowedFileTypes = (type: ResourceType): string[] => {
   switch (type) {
+    case ResourceType.ROOT:
     case ResourceType.IMAGE: {
       return ["image/*"];
     }
@@ -163,4 +164,4 @@ export const getLocalizedTypeString = (type: ResourceType): ResourceTypeObject =
   [ResourceType.IMAGE] : { resourceLocal: strings.resourceTypes.image },
   [ResourceType.TEXT]: { resourceLocal: strings.resourceTypes.text },
   [ResourceType.VIDEO]: { resourceLocal: strings.resourceTypes.video },
-})[type]
+})[type];

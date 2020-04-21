@@ -11,17 +11,15 @@ import EditIcon from "@material-ui/icons/Edit";
 import styles from "../../styles/editor-view";
 import strings from "../../localization/strings";
 import theme from "../../styles/theme";
-import { Resource, ResourceToJSON, ResourceType } from "../../generated/client/src";
+import { Resource, ResourceToJSON, ResourceType, KeyValueProperty } from "../../generated/client/src";
 import FileUpload from "../../utils/FileUpload";
 import { forwardRef } from "react";
-import { FormValidationRules, MessageType, initForm, Form, validateForm } from "ts-form-validation";
-import FileUploader from "../generic/FileUploader"
+import { MessageType, initForm, Form, validateForm } from "ts-form-validation";
 import logo from "../../resources/svg/oioi-logo.svg";
 
-import GridList from "@material-ui/core/GridList";
-import GridListTile from "@material-ui/core/GridListTile";
-import { getAllowedFileTypes, getLocalizedTypeString } from "../../commons/resourceTypeHelper";
+import { getLocalizedTypeString } from "../../commons/resourceTypeHelper";
 import { ResourceSettingsForm, resourceRules } from "../../commons/formRules";
+import ImagePreview from "../generic/ImagePreview";
 
 /**
  * Component props
@@ -29,7 +27,17 @@ import { ResourceSettingsForm, resourceRules } from "../../commons/formRules";
 interface Props extends WithStyles<typeof styles> {
   resource: Resource;
   customerId: string;
+
+  /**
+   * Update resource
+   * @param resource resource to update
+   */
   onUpdate(resource: Resource): void;
+
+  /**
+   * Delete resource
+   * @param resource resource to delete
+   */
   onDelete(resource: Resource): void;
 }
 
@@ -391,7 +399,6 @@ class ResourceSettingsView extends React.Component<Props, State> {
   private renderDataField = () => {
     const { resource } = this.props;
     const resourceType = resource.type;
-
     if (resourceType === ResourceType.TEXT) {
       return (
         <TextField
@@ -407,43 +414,19 @@ class ResourceSettingsView extends React.Component<Props, State> {
         />
       );
     } else {
-      const allowedFileTypes = getAllowedFileTypes(resource.type);
-      const fileData = this.state.form.values.data;
-
+      const fileData = this.state.form.values.data || logo;
+      
       return <>
-        <FileUploader resource={ this.props.resource } allowedFileTypes={ allowedFileTypes } onSave={ this.onFileChange }/>
-        { fileData && this.renderPreview() }
-      </>
+        <ImagePreview
+          imagePath={ fileData }
+          onSave={ this.onFileChange }
+          resource={ resource }
+          uploadKey={ "data" }
+          onDelete={ this.onPropertyFileDelete }
+        />
+      </>;
     }
   };
-
-  /**
-   * Render preview view
-   * TODO: Render preview should be own generic component that would show some stock image
-   * when data contains something else then image/video 
-   */
-  private renderPreview = () => {
-    const { resource } = this.props;
-    const resourceType = resource.type;
-    let uri = this.state.form.values.data;
-
-    /**
-     * TODO: Add some default icon for other file types (Tuomas). OR find some library that can show a preview of a file
-     */
-    if (resourceType !== ResourceType.VIDEO && resourceType !== ResourceType.IMAGE) {
-      uri = logo;
-    }
-
-    return (
-      <div style={{ marginTop: theme.spacing(2) }}>
-        <GridList cellHeight={ 400 } cols={ 5 }>
-          <GridListTile key={ uri }>
-            <img src={ uri } alt="File"/>
-          </GridListTile>
-        </GridList>
-      </div>
-    );
-  }
 
   /**
    * Get localized string for data type method
@@ -489,9 +472,24 @@ class ResourceSettingsView extends React.Component<Props, State> {
       resourceData: resourceData
     });
 
-    this.onUpdateResource()
-    // TODO: Handle possible error cases
-    return 200;
+    this.onUpdateResource();
+  };
+
+  /**
+   * Handles image delete
+   */
+  private onPropertyFileDelete = (key?: string) => {
+    const { resourceData } = this.state;
+
+    const properties = resourceData.properties ? [...resourceData.properties] : [];
+    const updatedProperties = properties.filter((property: KeyValueProperty) => property.key !== key);
+
+    resourceData.properties = updatedProperties;
+    this.setState({
+      resourceData: { ...resourceData }
+    });
+
+    this.onUpdateResource();
   };
 
   /**

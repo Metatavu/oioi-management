@@ -23,7 +23,7 @@ interface Props extends WithStyles<typeof styles> {
   /**
    * Save button click
    */
-  onSave(files: File[], key?: string): Promise<number>;
+  onSave(files: File[], key?: string): void;
 
   /**
    * Toggle add icon dialog
@@ -100,7 +100,7 @@ class AddIconDialog extends React.Component<Props, State> {
         </DialogContent>
         <Divider />
         <DialogActions>
-          <Button variant="outlined" onClick={ this.handleCancel } color="primary">
+          <Button variant="outlined" onClick={ this.clearAndClose } color="primary">
             { strings.cancel }
           </Button>
           <Button variant="contained" color="primary" autoFocus onClick={ this.handleSave } disabled={ !this.state.newFiles }>
@@ -114,7 +114,7 @@ class AddIconDialog extends React.Component<Props, State> {
   /**
    * Handle cancel click
    */
-  private handleCancel = () => {
+  private clearAndClose = () => {
     this.setState({
       iconName: "",
       newFiles: [],
@@ -132,6 +132,7 @@ class AddIconDialog extends React.Component<Props, State> {
       return;
     }
     this.props.onSave(newFiles, propertyName);
+    this.clearAndClose();
   }
 
   /**
@@ -159,7 +160,6 @@ class AddIconDialog extends React.Component<Props, State> {
       newFiles: files,
       propertyName: resourceKey
     });
-    return 200;
   };
 }
 

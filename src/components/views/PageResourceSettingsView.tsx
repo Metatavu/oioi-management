@@ -17,13 +17,14 @@ import { Resource, ResourceToJSON, KeyValueProperty, ResourceType, ResourcesApi 
 import FileUpload from "../../utils/FileUpload";
 import { forwardRef } from "react";
 import { MessageType, initForm, Form, validateForm } from "ts-form-validation";
-import FileUploader from "../generic/FileUploader";
-import { getAllowedFileTypes, getLocalizedTypeString } from "../../commons/resourceTypeHelper";
+import logo from "../../resources/svg/oioi-logo.svg";
+import { getLocalizedTypeString } from "../../commons/resourceTypeHelper";
 import GridList from '@material-ui/core/GridList';
 import GridListTile from '@material-ui/core/GridListTile';
 import { AuthState } from "../../types";
 import ApiUtils from "../../utils/ApiUtils";
 import { resourceRules, ResourceSettingsForm } from "../../commons/formRules";
+import ImagePreview from "../generic/ImagePreview";
 
 /**
  * Component props
@@ -35,10 +36,35 @@ interface Props extends WithStyles<typeof styles> {
   resource: Resource;
   resourcesUpdated: number;
   customerId: string;
+
+  /**
+   * Add child
+   */
   onAddChild: (parentId: string) => void;
+
+  /**
+   * Save resource to parent
+   * @param resource resource to save
+   */
   onSave: (resource: Resource) => void;
+
+  /**
+   * Save child resource
+   * @param childResource child resource to save
+   */
   onSaveChildren: (childResources: Resource[]) => void;
+
+  /**
+   * Delete resource
+   * @param resource resource to delete
+   */
   onDelete: (resource: Resource) => void;
+
+  /**
+   * Delete child resource
+   * @param resource resource to delete
+   * @param nextOpenResource
+   */
   onDeleteChild: (resource: Resource, nextOpenResource?: Resource) => void;
 }
 
@@ -469,53 +495,22 @@ class PageResourceSettingsView extends React.Component<Props, State> {
    * Renders file uploaders for background image and custom icons
    */
   private renderUploaderAndPreview = (resource: Resource) => {
-    const allowedFileTypes = getAllowedFileTypes(resource.type);
-    const previewItem = resource.data;
-    console.log(previewItem);
 
+    if (!resource.id) {
+      return;
+    }
+
+    const previewItem = resource.data || logo;
     return (
-      <Grid container xs={ 12 }>
-        <Grid item xs={ 12 }>
-          <FileUploader
-            resource={ resource }
-            allowedFileTypes={ allowedFileTypes }
-            onSave={ this.onChildResourceFileChange }
-            uploadKey={ resource.id }
-          />
-        </Grid>
-        <Grid item xs={ 12 }>
-          { previewItem && this.renderPreview(previewItem, resource.id!) }
-        </Grid>
-      </Grid>
+      <ImagePreview
+        imagePath={ previewItem }
+        resource={ resource }
+        onDelete={ this.onChildResourceFileDelete }
+        onSave={ this.onChildResourceFileChange }
+        uploadKey={ resource.id }
+      />
     );
   }
-
-  /**
-   * Renders preview view
-   * 
-   * @param image image url
-   */
-  private renderPreview = (image: string, resourceId: string) => {
-    return (
-      <div style={{ marginTop: theme.spacing(2) }}>
-        <GridList cellHeight={ 100 } cols={ 10 }>
-          <GridListTile key={ image }>
-            <img src={ image } alt="File"/>
-            <GridListTileBar
-              actionPosition="right"
-              titlePosition="top"
-              style={{ background: "rgba(0, 0, 0, 0)" }}
-              actionIcon={
-                <IconButton onClick={ () => this.onChildResourceFileDelete(resourceId) }>
-                  <ClearIcon color="primary"></ClearIcon>
-                </IconButton>
-              }
-            />
-          </GridListTile>
-        </GridList>
-      </div>
-    )
-  };
 
   /**
    * Updates component data
