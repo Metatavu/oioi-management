@@ -36,7 +36,7 @@ interface Props extends WithStyles<typeof styles> {
   openedResource?: Resource;
   openResource: typeof openResource;
   onDelete: (resourceId: string) => void;
-  onOpenResource(resource: Resource): void;
+  onOpenResource: (resource: Resource) => void;
 }
 
 /**
@@ -102,9 +102,7 @@ class ResourceTreeItemClass extends React.Component<Props, State> {
               <div style={{ display: "inline-block" }} onClick={ this.onTreeItemClick }>{ this.state.resource.name }</div>
             </div>
           }
-        >
-          { this.renderAdd() }
-        </TreeItem>
+        />
       );
     } else {
       return (
@@ -176,34 +174,6 @@ class ResourceTreeItemClass extends React.Component<Props, State> {
       default: {
         return <UnknownIcon />;
       }
-    }
-  };
-
-  /**
-   * Delete method
-   */
-  private onDeleteIconClick = async () => {
-    const { auth, customerId, deviceId, applicationId, resource } = this.props;
-    const resourceId = resource.id;
-
-    if (!auth || !auth.token || !resourceId) {
-      return;
-    }
-
-    const resourcesApi = ApiUtils.getResourcesApi(auth.token);
-    const childResources = await resourcesApi.listResources({
-      customer_id: customerId,
-      device_id: deviceId,
-      application_id: applicationId,
-      parent_id: resourceId
-    });
-
-    /**
-     * TODO: prettier delete confirmation
-     */
-    if (window.confirm(`${strings.deleteResourceDialogDescription} ${resource.name} ${childResources && strings.andAllChildren}?`)) {
-      await resourcesApi.deleteResource({ customer_id: customerId, device_id: deviceId, application_id: applicationId, resource_id: resourceId });
-      this.props.onDelete(resourceId);
     }
   };
 

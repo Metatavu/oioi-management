@@ -139,7 +139,6 @@ class AppSettingsView extends React.Component<Props, State> {
     <Grid container spacing={ 3 } direction="row">
       { this.renderTextField(strings.applicationName, "text", "name") }
       { this.renderTextField(strings.applicationSettings.teaserText, "textarea", undefined, "teaserText") }
-
       { this.renderTextField(strings.applicationSettings.returnDelay, "text", undefined, "returnDelay") }
       { this.renderTextField(strings.applicationSettings.id, "text", undefined, "applicationId") }
     </Grid>

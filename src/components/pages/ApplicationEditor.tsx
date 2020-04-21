@@ -12,6 +12,7 @@ import {
   WithStyles,
   withStyles,
   Drawer,
+  Button,
 } from "@material-ui/core";
 import { History } from "history";
 import MenuIcon from "@material-ui/icons/Menu";
@@ -38,6 +39,7 @@ import FileExplorerTheme from 'react-sortable-tree-theme-file-explorer';
 import MenuResourceSettingsView from "../views/MenuResourceSettingsView";
 import AddIcon from "@material-ui/icons/AddCircle";
 import PageResourceSettingsView from "../views/PageResourceSettingsView";
+import DeleteIcon from "@material-ui/icons/Delete";
 
 /**
  * Component props
@@ -121,6 +123,15 @@ class ApplicationEditor extends React.Component<Props, State> {
               { !this.state.openedResource && this.state.application && this.state.application.name + " " + strings.applicationSettings.settings }
               { this.state.openedResource && this.state.openedResource.name + " " + strings.resourceSettings }
             </Typography>
+            <Button
+              style={{ marginLeft: "auto" }}
+              color="primary"
+              variant="contained"
+              startIcon={ <DeleteIcon /> }
+              onClick={ this.onChildDelete }
+            >
+              { strings.delete }
+            </Button>
           </div>
         </AppBar>
         { this.renderResponsiveDrawer() }
@@ -223,7 +234,7 @@ class ApplicationEditor extends React.Component<Props, State> {
    * 
    * @param parentId id of tree item parent
    */
-  private loadTreeChildren = async (parent_id: string, parent:Resource): Promise<ResourceTreeItem[]> => {
+  private loadTreeChildren = async (parent_id: string, parent: Resource): Promise<ResourceTreeItem[]> => {
     const { auth, customerId, deviceId, applicationId } = this.props;
     const data: ResourceTreeItem[] = [];
     if (!auth || !auth.token) {
@@ -280,31 +291,74 @@ class ApplicationEditor extends React.Component<Props, State> {
    * @param data tree data change info object
    */
   private moveResource = async (data: NodeData & FullTree & OnMovePreviousAndNextLocation) => {
-    const { resources, updateResources, auth, customerId, deviceId, applicationId } = this.props;
+    const { auth, customerId, deviceId, applicationId } = this.props;
+    const { treeData, application } = this.state;
     if (!auth || !auth.token) {
       return null;
     }
     try {
       const resourcesApi = ApiUtils.getResourcesApi(auth.token);
-      if (data.nextParentNode && data.nextParentNode.children && Array.isArray(data.nextParentNode.children)) {
-        data.nextParentNode.children.forEach( async (child, index) => {
+      if (treeData && data.nextParentNode && data.nextParentNode.children && Array.isArray(data.nextParentNode.children)) {
+        data.nextParentNode.children
+        .filter(child => child.resource)
+        .forEach((child, index) => {
           const resource = child.resource;
-          if (resource) {
-            resource.order_number = index + 1;
-            await resourcesApi.updateResource({
-              resource: resource,
-              customer_id: customerId,
-              device_id: deviceId,
-              application_id: applicationId,
-              resource_id: resource.id || ""
-            });
-          }
+          resource.order_number = index + 1;
+          resource.parent_id = data.nextParentNode!.resource.id;
+          resourcesApi.updateResource({
+            resource: resource,
+            customer_id: customerId,
+            device_id: deviceId,
+            application_id: applicationId,
+            resource_id: resource.id || ""
+          });
+        });
+        this.setState({
+          treeData: this.treeDataRearrange(treeData, application ? application.root_resource_id! : "", data.nextParentNode.resource.id)
+        });
+      } else if (treeData) {
+        (treeData as TreeItemSortable[])
+        .filter((child: TreeItemSortable) => child.resource)
+        .forEach((child: TreeItemSortable, index: number) => {
+          const resource = child.resource;
+          resource.order_number = index + 1;
+          resourcesApi.updateResource({
+            resource: resource,
+            customer_id: customerId,
+            device_id: deviceId,
+            application_id: applicationId,
+            resource_id: resource.id || ""
+          });
+        });
+        this.setState({
+          treeData: this.treeDataRearrange(treeData, application ? application.root_resource_id! : "", application ? application.root_resource_id! : "")
         });
       }
-      updateResources(resources);
     } catch (error) {
       console.log(error);
     }
+  }
+
+  /**
+   * Rearranges tree data layer
+   * 
+   * @param treeData current tree data layer
+   * @param parent_id parent id of the current layer
+   * @param changes_id parent id of the layer that needs to be rearranged
+   */
+  private treeDataRearrange = (treeData: ResourceTreeItem[], parent_id: string, changes_id: string): ResourceTreeItem[] => {
+    if (parent_id === changes_id) {
+      return [...treeData
+      .filter(data => data.resource)
+      .sort((a, b) => {
+        return (a.resource!.order_number || 0) - (b.resource!.order_number || 0);
+      }), {
+        title: this.renderAdd(changes_id)
+      } as ResourceTreeItem];
+    }
+    return treeData.map((data) => {
+      return {...data, children: data.children && Array.isArray(data.children) && data.resource && data.resource.id ? this.treeDataRearrange(data.children as ResourceTreeItem[], data.resource.id, changes_id) : []};
+    });
   }
 
   /**
@@ -324,10 +378,59 @@ class ApplicationEditor extends React.Component<Props, State> {
    * Returns boolean value based on check whether item can be dropped
    */
   private canDrop = (data: OnDragPreviousAndNextLocation & NodeData) => {
-    if ((data.nextParent && !this.canHaveChildren(data.nextParent)) || (data.nextParent && data.nextParent.children && Array.isArray(data.nextParent.children) && data.nextParent.children[data.nextParent.children.length - 1] === data.node) || (!data.nextParent && data.nextTreeIndex === this.props.resources.length)) {
+    if ((data.nextParent && !this.canHaveChildren(data.nextParent)) || (!this.typeCheck(data.nextParent ? data.nextParent.resource : undefined, data.node.resource))) {
       return false;
     }
     return true;
+  }
+
+  /**
+   * Returns boolean value based on whether parent and child are compatible
+   * 
+   * @param parent parent resource
+   * @param child child resource
+   */
+  private typeCheck = (parent?: Resource, child?: Resource) => {
+    if (parent && child) {
+      switch(parent.type) {
+        case ResourceType.INTRO:
+          if (child.type === ResourceType.PAGE) {
+            return true;
+          }
+          return false;
+        case ResourceType.LANGUAGEMENU:
+          if (child.type === ResourceType.LANGUAGE) {
+            return true;
+          }
+          return false;
+        case ResourceType.LANGUAGE:
+          if (child.type === ResourceType.MENU || child.type === ResourceType.SLIDESHOW) {
+            return true;
+          }
+          return false;
+        case ResourceType.MENU:
+          if (child.type === ResourceType.SLIDESHOW || child.type === ResourceType.MENU) {
+            return true;
+          }
+          return false;
+        case ResourceType.SLIDESHOW:
+          if (child.type === ResourceType.PAGE) {
+            return true;
+          }
+          return false;
+        case ResourceType.PAGE:
+          if (child.type === ResourceType.VIDEO || child.type === ResourceType.TEXT || child.type === ResourceType.PDF || child.type === ResourceType.IMAGE) {
+            return true;
+          }
+          return false;
+        default:
+          return false;
+      }
+    } else if (child && (child.type === ResourceType.INTRO || child.type === ResourceType.LANGUAGEMENU)) {
+      return true;
+    } else {
+      return false;
+    }
   }
 
   /**
@@ -486,7 +589,8 @@ class ApplicationEditor extends React.Component<Props, State> {
       device_id: deviceId,
       application_id: applicationId,
       resource_id: application.root_resource_id
-    })
+    });
+    
     this.setState({
       customer: customer,
       device: device,
@@ -501,19 +605,24 @@ class ApplicationEditor extends React.Component<Props, State> {
   /**
    * Child delete
    */
-  private onChildDelete = (childResourceId: string) => {
-    const { openedResource, updatedResourceView, openResource } = this.props;
+  private onChildDelete = async () => {
+    const { auth, openedResource, updatedResourceView, openResource,customerId, deviceId, applicationId } = this.props;
     const { treeData } = this.state;
-
-    if (openedResource && openedResource.id === childResourceId) {
-      openResource(undefined);
+    if (!auth || !auth.token) {
+      return;
     }
-
-    updatedResourceView();
-
-    this.setState({
-      treeData: this.treeDataDelete(childResourceId, treeData || [])
-    });
+    const resourcesApi = ApiUtils.getResourcesApi(auth.token);
+    if (openedResource && window.confirm(`${strings.deleteResourceDialogDescription} ${openedResource.name} ${ strings.andAllChildren}?`)) {
+      const childResourceId = openedResource.id;
+      openResource(undefined);
+      updatedResourceView();
+      if (childResourceId) {
+        await resourcesApi.deleteResource({ customer_id: customerId, device_id: deviceId, application_id: applicationId, resource_id: openedResource.id || "" });
+        this.setState({
+          treeData: this.treeDataDelete(childResourceId, treeData || [])
+        });
+      }
+    }
   };
 
   /**
