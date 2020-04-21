@@ -42,6 +42,7 @@ interface State {
   applications: Application[];
   deleteDialogOpen: boolean;
   snackbarOpen: boolean;
+  applicationImages?: { id: string, src: string }[];
 }
 
 /**
@@ -81,10 +82,15 @@ class ApplicationsList extends React.Component<Props, State> {
       applicationsApi.listApplications({ customer_id: customerId, device_id: deviceId })
     ]);
 
+    const applicationImages = await Promise.all(
+      applications.map( async (app) => { return await { id: app.id || "", src: await this.getApplicationImage(app) || "" } })
+    );
+
     this.setState({
       customer: customer,
       device: device,
-      applications: applications
+      applications: applications,
+      applicationImages: applicationImages
     });
     setCustomer(customer);
     setDevice(device);
@@ -125,21 +131,47 @@ class ApplicationsList extends React.Component<Props, State> {
   /**
    * Card render method
    */
-  private renderCard(application: Application, key: string) {
-
-    // TODO get background image from application root element resources!
+  private renderCard = (application: Application, key: string) => {
+    const { applicationImages } = this.state;
+    const image = applicationImages ? applicationImages.find(item => item.id === application.id) : undefined;
     return (
       <Grid item key={key}>
-        <CardItem
+          <CardItem
           title={application.name}
-          img={img}
+          img={ image ? image.src : img }
           editConfiguration={() => this.onEditConfiguration(application)}
           editClick={() => this.onEditApplicationClick(application)}
           detailsClick={() => this.onEditApplicationClick(application)}
-          deleteClick={() => this.onDeleteOpenModalClick(application)}
-        ></CardItem>
+          deleteClick={() => this.onDeleteOpenModalClick(application)}>
+          </CardItem>
       </Grid>
     );
+  }
+
+  /**
+   * Finds the application image from root resource and returns it
+   * 
+   * @param application application
+   */
+  private getApplicationImage = async (application: Application) => {
+    const { auth, customerId, deviceId } = this.props;
+    if (!auth || !auth.token) {
+      return;
+    }
+    const resourcesApi = ApiUtils.getResourcesApi(auth.token);
+    return resourcesApi.findResource({
+      customer_id: customerId,
+      device_id: deviceId,
+      application_id: application.id || "",
+      resource_id: application.root_resource_id || ""
+    }).then((rootResource) => {
+      if (rootResource && rootResource.properties) {
+        const img = rootResource.properties.find(resource => resource.key === "applicationImage");
+        if (img) {
+          return img.value;
+        }
+      }
+    });
   }
 
   /**

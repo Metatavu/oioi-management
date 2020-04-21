@@ -11,6 +11,7 @@ import {
   WithStyles,
   withStyles,
   Drawer,
+  Button,
 } from "@material-ui/core";
 import { History } from "history";
 import MenuIcon from "@material-ui/icons/Menu";
@@ -36,6 +37,7 @@ import SortableTree, { TreeItem as TreeItemSortable, NodeData, FullTree, OnMoveP
 import FileExplorerTheme from 'react-sortable-tree-theme-file-explorer';
 import MenuResourceSettingsView from "../views/MenuResourceSettingsView";
 import AddIcon from "@material-ui/icons/AddCircle";
+import DeleteIcon from "@material-ui/icons/Delete";
 
 /**
  * Component props
@@ -119,6 +121,15 @@ class ApplicationEditor extends React.Component<Props, State> {
               { !this.state.openedResource && this.state.application && this.state.application.name + " " + strings.applicationSettings.settings }
               { this.state.openedResource && this.state.openedResource.name + " " + strings.resourceSettings }
             </Typography>
+            <Button
+              style={{ marginLeft: "auto" }}
+              color="primary"
+              variant="contained"
+              startIcon={ <DeleteIcon /> }
+              onClick={ this.onChildDelete }
+            >
+              { strings.delete }
+            </Button>
           </div>
         </AppBar>
         { this.renderResponsiveDrawer() }
@@ -561,7 +572,8 @@ class ApplicationEditor extends React.Component<Props, State> {
       device_id: deviceId,
       application_id: applicationId,
       resource_id: application.root_resource_id
-    })
+    });
+    
     this.setState({
       customer: customer,
       device: device,
@@ -576,19 +588,24 @@ class ApplicationEditor extends React.Component<Props, State> {
   /**
    * Child delete
    */
-  private onChildDelete = (childResourceId: string) => {
-    const { openedResource, updatedResourceView, openResource } = this.props;
+  private onChildDelete = async () => {
+    const { auth, openedResource, updatedResourceView, openResource,customerId, deviceId, applicationId } = this.props;
     const { treeData } = this.state;
-
-    if (openedResource && openedResource.id === childResourceId) {
-      openResource(undefined);
+    if (!auth || !auth.token) {
+      return;
     }
-
-    updatedResourceView();
-
-    this.setState({
-      treeData: this.treeDataDelete(childResourceId, treeData || [])
-    });
+    const resourcesApi = ApiUtils.getResourcesApi(auth.token);
+    if (openedResource && window.confirm(`${strings.deleteResourceDialogDescription} ${openedResource.name} ${ strings.andAllChildren}?`)) {
+      const childResourceId = openedResource.id;
+      openResource(undefined);
+      updatedResourceView();
+      if (childResourceId) {
+        await resourcesApi.deleteResource({ customer_id: customerId, device_id: deviceId, application_id: applicationId, resource_id: openedResource.id || "" });
+        this.setState({
+          treeData: this.treeDataDelete(childResourceId, treeData || [])
+        });
+      }
+    }
   };
 
   /**
