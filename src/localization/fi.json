@@ -48,8 +48,8 @@
   "orderNumber": "Järjestysnumero",
   "slug": "URL - pääte",
   "deleteResource": "Poista tämä resurssi",
-  "deleteResourceDialogDescription": "Haluatko varmasti poistaa resurssin ",
-  "andAllChildren": " ja kaikki sen alla olevat resurssit",
+  "deleteResourceDialogDescription": "Haluatko varmasti poistaa resurssin",
+  "andAllChildren": "ja kaikki sen alla olevat resurssit",
   "key": "Avain",
   "value": "Arvo",
   "styles": "Tyylit",
@@ -81,6 +81,7 @@
     "menu": "Valikko",
     "pdf": "PDF",
     "text": "Teksti",
+    "image": "Kuva",
     "video": "Video"
   },
   "childResources": "Alisivut",

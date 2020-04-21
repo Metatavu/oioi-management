@@ -38,6 +38,7 @@ import SortableTree, { TreeItem as TreeItemSortable, NodeData, FullTree, OnMoveP
 import FileExplorerTheme from 'react-sortable-tree-theme-file-explorer';
 import MenuResourceSettingsView from "../views/MenuResourceSettingsView";
 import AddIcon from "@material-ui/icons/AddCircle";
+import PageResourceSettingsView from "../views/PageResourceSettingsView";
 import DeleteIcon from "@material-ui/icons/Delete";
 
 /**
@@ -495,7 +496,7 @@ class ApplicationEditor extends React.Component<Props, State> {
   };
 
   private renderResourceSettingsView = (resource: Resource, customerId: string) => {
-    const { auth, deviceId, applicationId } = this.props;
+    const { auth, deviceId, applicationId, resourceViewUpdated } = this.props;
 
     switch (resource.type) {
       case ResourceType.MENU:
@@ -503,14 +504,28 @@ class ApplicationEditor extends React.Component<Props, State> {
       case ResourceType.SLIDESHOW:
       case ResourceType.INTRO:
         return <MenuResourceSettingsView
-            resource={ resource }
-            customerId={ customerId }
-            onUpdate={ this.onUpdateResource }
-            onDelete={ this.onDeleteResource }
-            auth={ auth }
-            deviceId={ deviceId }
-            applicationId={ applicationId }
-          />;
+          resource={ resource }
+          customerId={ customerId }
+          onUpdate={ this.onUpdateResource }
+          onDelete={ this.onDeleteResource }
+          auth={ auth }
+          deviceId={ deviceId }
+          applicationId={ applicationId }
+        />;
+      case ResourceType.PAGE:
+        return <PageResourceSettingsView
+          resource={ resource }
+          resourcesUpdated={ resourceViewUpdated }
+          customerId={ customerId }
+          onAddChild={ this.onAddNewResourceClick }
+          onSave={ this.onUpdateResource }
+          onSaveChildren={ this.onUpdateChildResources }
+          onDelete={ this.onDeleteResource }
+          onDeleteChild={ this.onDeleteResource }
+          auth={ auth }
+          deviceId={ deviceId }
+          applicationId={ applicationId }
+        />;
       default:
         return <ResourceSettingsView resource={ resource } customerId={ customerId } onUpdate={ this.onUpdateResource } onDelete={ this.onDeleteResource } />;
 
@@ -551,7 +566,7 @@ class ApplicationEditor extends React.Component<Props, State> {
     const applicationsApi = ApiUtils.getApplicationsApi(auth.token);
     const resourcesApi = ApiUtils.getResourcesApi(auth.token);
 
-    const [customer, device, application] = await Promise.all([
+    const [customer, device, application] = await Promise.all<Customer, Device, Application>([
       customersApi.findCustomer({ customer_id: customerId }),
       devicesApi.findDevice({ customer_id: customerId, device_id: deviceId }),
       applicationsApi.findApplication({ customer_id: customerId, device_id: deviceId, application_id: applicationId })
@@ -743,9 +758,35 @@ class ApplicationEditor extends React.Component<Props, State> {
   };
 
   /**
+   * Handles update child resources
+   * 
+   * @param childResources child resources
+   */
+  private onUpdateChildResources = async (childResources: Resource[]) => {
+    const { auth, customerId, deviceId, applicationId, updatedResourceView } = this.props;
+    if (!auth || !auth.token) {
+      return;
+    }
+
+    const resourcesApi = ApiUtils.getResourcesApi(auth.token);
+    const updateChildResourcePromises = childResources.map(resource =>
+      resourcesApi.updateResource({
+        resource: resource,
+        customer_id: customerId,
+        device_id: deviceId,
+        application_id: applicationId,
+        resource_id: resource.id!
+      })
+    );
+
+    await Promise.all(updateChildResourcePromises);
+    updatedResourceView();
+  }
+
+  /**
    * Delete resource method
    */
-  private onDeleteResource = async (resource: Resource) => {
+  private onDeleteResource = async (resource: Resource, nextOpenResource?: Resource) => {
     const { auth, customerId, deviceId, applicationId, openResource } = this.props;
     const resourceId = resource.id;
 
@@ -764,10 +805,12 @@ class ApplicationEditor extends React.Component<Props, State> {
     /**
      * TODO: prettier delete confirmation
      */
-    if (window.confirm(`${strings.deleteResourceDialogDescription} ${resource.name} ${childResources && strings.andAllChildren}?`)) {
+    const hasChildren = childResources.length > 0;
+    const subjectToDelete = hasChildren ? `${resource.name} ${strings.andAllChildren}` : resource.name;
+    if (window.confirm(`${strings.deleteResourceDialogDescription} ${subjectToDelete}?`)) {
       await resourcesApi.deleteResource({ customer_id: customerId, device_id: deviceId, application_id: applicationId, resource_id: resourceId });
 
-      openResource(undefined);
+      openResource(nextOpenResource);
 
       this.setState({
         openedResource: undefined
