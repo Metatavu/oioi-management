@@ -178,28 +178,6 @@ class ResourceTreeItemClass extends React.Component<Props, State> {
   };
 
   /**
-   * Delete method
-   */
-  private onDeleteIconClick = async () => {
-    const { auth, customerId, deviceId, applicationId, resource } = this.props;
-    const resourceId = resource.id;
-
-    if (!auth || !auth.token || !resourceId) {
-      return;
-    }
-
-    const resourcesApi = ApiUtils.getResourcesApi(auth.token);
-
-    /**
-     * TODO: prettier delete confirmation
-     */
-    if (window.confirm(`${strings.deleteResourceDialogDescription} ${resource.name} ${ strings.andAllChildren}?`)) {
-      await resourcesApi.deleteResource({ customer_id: customerId, device_id: deviceId, application_id: applicationId, resource_id: resourceId });
-      this.props.onDelete(resourceId);
-    }
-  };
-
-  /**
    * On treeItem open method
    */
   private onTreeItemClick = async () => {
