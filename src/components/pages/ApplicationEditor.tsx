@@ -7,7 +7,6 @@ import {
   List,
   ListItem,
   AppBar,
-  Toolbar,
   IconButton,
   WithStyles,
   withStyles,
@@ -33,7 +32,7 @@ import { setCustomer } from "../../actions/customer";
 import { setDevice } from "../../actions/device";
 import { setApplications } from "../../actions/applications";
 import { updateResources, openResource, updatedResourceView } from "../../actions/resources";
-import SortableTree, { TreeItem as TreeItemSortable, NodeData, FullTree, OnMovePreviousAndNextLocation, ExtendedNodeData, changeNodeAtPath, OnDragPreviousAndNextLocation } from 'react-sortable-tree';
+import SortableTree, { TreeItem as TreeItemSortable, NodeData, FullTree, OnMovePreviousAndNextLocation, ExtendedNodeData, OnDragPreviousAndNextLocation } from 'react-sortable-tree';
 import FileExplorerTheme from 'react-sortable-tree-theme-file-explorer';
 import MenuResourceSettingsView from "../views/MenuResourceSettingsView";
 import AddIcon from "@material-ui/icons/AddCircle";
@@ -485,7 +484,6 @@ class ApplicationEditor extends React.Component<Props, State> {
 
   private renderResourceSettingsView = (resource: Resource, customerId: string) => {
     const { auth, deviceId, applicationId } = this.props;
-
     switch (resource.type) {
       case ResourceType.MENU:
       case ResourceType.LANGUAGE:
@@ -721,7 +719,12 @@ class ApplicationEditor extends React.Component<Props, State> {
       application_id: applicationId,
       resource_id: resourceId
     });
-    openResource(updatedResource);
+    if (updatedResource.type !== ResourceType.ROOT) {
+      openResource(updatedResource);
+    } else {
+      this.setState({ rootResource: updatedResource });
+    }
+
     updatedResourceView();
   };
 

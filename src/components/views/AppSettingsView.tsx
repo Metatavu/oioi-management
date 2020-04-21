@@ -6,14 +6,12 @@ import theme from "../../styles/theme";
 import SaveIcon from "@material-ui/icons/Save";
 import { Application, Resource, KeyValueProperty } from "../../generated/client/src";
 import { Form, initForm, validateForm, MessageType } from "ts-form-validation";
-import { ApplicationForm, applicationRules, ResourceSettingsForm, resourceRules } from "../../commons/formRules";
+import { ApplicationForm, applicationRules, ResourceSettingsForm } from "../../commons/formRules";
 
-import GridList from '@material-ui/core/GridList';
-import GridListTile from '@material-ui/core/GridListTile';
-import FileUploader from "../generic/FileUploader";
 import FileUpload from "../../utils/FileUpload";
 import logo from "../../resources/svg/oioi-logo.svg";
 import AddIconDialog from "../generic/AddIconDialog";
+import ImagePreview from "../generic/ImagePreview";
 
 
 /**
@@ -192,23 +190,15 @@ class AppSettingsView extends React.Component<Props, State> {
 
     let previewItem: string;
     previewItem = this.state.resourceMap.get(key) || logo;
-
-    return <>
-      <div style={{ marginTop: theme.spacing(2) }}>
-        <GridList cellHeight={ 100 } cols={ 10 }>
-          <GridListTile key={ previewItem }>
-            <img src={ previewItem } alt="File"/>
-          </GridListTile>
-        </GridList>
-      </div>
-
-      <FileUploader
-        resource={ this.props.rootResource }
-        allowedFileTypes={ [] }
+    return (
+      <ImagePreview
+        imagePath={ previewItem }
         onSave={ this.onPropertyFileChange }
+        resource={ this.props.rootResource }
         uploadKey={ key }
+        onDelete={ this.onPropertyFileDelete }
       />
-    </>;
+    );
   }
 
   /**
@@ -221,13 +211,13 @@ class AppSettingsView extends React.Component<Props, State> {
     resourceMap.forEach((value: string, key: string) => {
       if (key.includes("applicationIcon_")) {
         const preview = (
-          <div style={{ marginTop: theme.spacing(2) }}>
-            <GridList cellHeight={ 100 } cols={ 10 }>
-              <GridListTile key={ value }>
-                <img src={ value } alt="File"/>
-              </GridListTile>
-            </GridList>
-          </div>
+          <ImagePreview
+            imagePath={ value }
+            onSave={ this.onPropertyFileChange }
+            resource={ this.props.rootResource }
+            uploadKey={ key }
+            onDelete={ this.onPropertyFileDelete }
+          />
         );
         icons.push(preview);
       }
@@ -347,12 +337,8 @@ class AppSettingsView extends React.Component<Props, State> {
    * Handles image change
    */
   private onPropertyFileChange = async (files: File[], key: string) => {
-    const { customerId, rootResource } = this.props;
+    const { customerId } = this.props;
 
-    if (!rootResource) {
-      return 400;
-    }
-    
     let newUri = "";
     const file = files[0];
 
@@ -368,13 +354,25 @@ class AppSettingsView extends React.Component<Props, State> {
     });
 
     this.onUpdateResource();
-    // // TODO: Handle error cases
-    return 200;
+  };
+
+  /**
+   * Delete property file with key
+   */
+  private onPropertyFileDelete = (key: string) => {
+    const tempMap = this.state.resourceMap;
+
+    tempMap.delete(key);
+    this.setState({
+      resourceMap: tempMap
+    });
+
+    this.onUpdateResource();
   };
 
   /**
    * Push all property key value pairs from state map to properties array
-   * @param properties 
+   * @param properties
    */
   private getPropertiesToUpdate(properties: KeyValueProperty[]) {
     const { resourceMap } = this.state;

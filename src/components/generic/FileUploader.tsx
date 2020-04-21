@@ -20,7 +20,7 @@ interface Props extends WithStyles<typeof styles> {
    * @param files files
    * @param key  upload key
    */
-  onSave(files: File[], key?: string): Promise<number>;
+  onSave(files: File[], key?: string): void;
 }
 
 /**

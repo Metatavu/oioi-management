@@ -14,13 +14,12 @@ import theme from "../../styles/theme";
 import { Resource, ResourceToJSON, KeyValueProperty } from "../../generated/client/src";
 import FileUpload from "../../utils/FileUpload";
 import { forwardRef } from "react";
-import { FormValidationRules, MessageType, initForm, Form, validateForm } from "ts-form-validation";
-import FileUploader from "../generic/FileUploader";
-import { getAllowedFileTypes, getLocalizedTypeString } from "../../commons/resourceTypeHelper";
-import GridList from '@material-ui/core/GridList';
-import GridListTile from '@material-ui/core/GridListTile';
+import { MessageType, initForm, Form, validateForm } from "ts-form-validation";
+
+import { getLocalizedTypeString } from "../../commons/resourceTypeHelper";
 import { AuthState } from "../../types";
 import ApiUtils from "../../utils/ApiUtils";
+import logo from "../../resources/svg/oioi-logo.svg";
 
 import IconButton from '@material-ui/core/IconButton';
 import List from '@material-ui/core/List';
@@ -28,6 +27,8 @@ import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
 import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
 import { resourceRules, ResourceSettingsForm } from "../../commons/formRules";
+import ImagePreview from "../generic/ImagePreview";
+import { logout } from "../../actions/auth";
 
 /**
  * Component props
@@ -38,7 +39,17 @@ interface Props extends WithStyles<typeof styles> {
   auth: AuthState;
   resource: Resource;
   customerId: string;
+
+  /**
+   * Update resource
+   * @param resource resource to update
+   */
   onUpdate(resource: Resource): void;
+
+  /**
+   * Delete resource
+   * @param resource resource to delete
+   */
   onDelete(resource: Resource): void;
 }
 
@@ -492,42 +503,23 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
    */
   private renderUploaderAndPreview = (title: string, uploadKey: string) => {
     const resource = this.props.resource;
-    const allowedFileTypes = getAllowedFileTypes(resource.type);
 
     const properties = this.state.form.values.properties;
-    let previewItem;
-    if (properties) {
-      previewItem = this.findImage(properties, uploadKey);
+    if (!properties) {
+      return;
     }
+    const previewItem = this.findImage(properties, uploadKey) || logo;
 
     return <>
       <Typography variant="h4">{ title }</Typography>
-      <FileUploader
-        resource={ resource }
-        allowedFileTypes={ allowedFileTypes }
+      <ImagePreview
+        imagePath={ previewItem }
         onSave={ this.onPropertyFileChange }
+        resource={ resource }
         uploadKey={ uploadKey }
+        onDelete={ this.onPropertyFileDelete }
       />
-      { previewItem && this.renderPreview(previewItem) }
-    </>
-  };
-
-  /**
-   * Render preview view
-   * TODO: Render preview should be own generic component that would show some stock image
-   * when data contains something else then image/video 
-   * @param image image url
-   */
-  private renderPreview = (image: string) => {
-    return (
-      <div style={{ marginTop: theme.spacing(2) }}>
-        <GridList cellHeight={ 100 } cols={ 10 }>
-          <GridListTile key={ image }>
-            <img src={ image } alt="File"/>
-          </GridListTile>
-        </GridList>
-      </div>
-    )
+    </>;
   };
 
   /**
@@ -570,8 +562,23 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
     });
 
     this.onUpdateResource();
-    // TODO: Handle error cases
-    return 200;
+  };
+
+  /**
+   * Handles image delete
+   */
+  private onPropertyFileDelete = (key?: string) => {
+    const { resourceData } = this.state;
+
+    const properties = resourceData.properties ? [...resourceData.properties] : [];
+    const updatedProperties = properties.filter((property: KeyValueProperty) => property.key !== key);
+
+    resourceData.properties = updatedProperties;
+    this.setState({
+      resourceData: { ...resourceData }
+    });
+
+    this.onUpdateResource();
   };
 
   /**
