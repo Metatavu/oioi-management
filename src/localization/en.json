@@ -48,8 +48,8 @@
   "orderNumber": "Order number",
   "slug": "Slug",
   "deleteResource": "Delete this resource",
-  "deleteResourceDialogDescription": "Are you sure you want to delete resource ",
-  "andAllChildren": " and all its child resources",
+  "deleteResourceDialogDescription": "Are you sure you want to delete resource",
+  "andAllChildren": "and all its child resources",
   "key": "Key",
   "value": "Value",
   "styles": "Styles",
@@ -81,6 +81,7 @@
     "menu": "Menu",
     "pdf": "PDF",
     "text": "Text",
+    "image": "Image",
     "video": "Video"
   },
   "childResources": "Sub resources",
