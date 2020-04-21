@@ -37,9 +37,6 @@ import SortableTree, { TreeItem as TreeItemSortable, NodeData, FullTree, OnMoveP
 import FileExplorerTheme from 'react-sortable-tree-theme-file-explorer';
 import MenuResourceSettingsView from "../views/MenuResourceSettingsView";
 import AddIcon from "@material-ui/icons/AddCircle";
-import ArrowRight from "@material-ui/icons/ArrowRight";
-import ArrowDown from "@material-ui/icons/ArrowDropDown";
-import { Z_FILTERED } from "zlib";
 
 /**
  * Component props
