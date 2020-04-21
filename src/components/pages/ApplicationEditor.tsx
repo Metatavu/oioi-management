@@ -574,7 +574,8 @@ class ApplicationEditor extends React.Component<Props, State> {
       device_id: deviceId,
       application_id: applicationId,
       resource_id: application.root_resource_id
-    })
+    });
+    
     this.setState({
       customer: customer,
       device: device,
