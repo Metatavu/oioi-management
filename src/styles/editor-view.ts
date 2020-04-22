@@ -36,7 +36,8 @@ export default createStyles({
     display: "flex",
     alignItems: "center",
     padding: "0 16px",
-    boxShadow: "0 0 30px rgba(0,0,0,0.2)"
+    boxShadow: "0 0 30px rgba(0,0,0,0.2)",
+    justifyContent: "space-between"
   },
 
   menuButton: {

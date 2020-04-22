@@ -1,20 +1,17 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import * as React from "react";
 import styles from "../../styles/editor-view";
-import { withStyles, WithStyles, Typography } from "@material-ui/core";
+import { withStyles, WithStyles } from "@material-ui/core";
 import TreeItem from "@material-ui/lab/TreeItem";
 import TransitionComponent from "../generic/TransitionComponent";
 import { Resource, ResourceType } from "../../generated/client/src";
-import ApiUtils from "../../utils/ApiUtils";
 import { AuthState } from "../../types";
 import { ReduxState, ReduxActions } from "../../store";
 import { Dispatch } from "redux";
 import { connect } from "react-redux";
-import strings from "../../localization/strings";
 import { openResource } from "../../actions/resources";
 
 import LanguageIcon from "@material-ui/icons/Language";
-import AddIcon from "@material-ui/icons/AddCircle";
 import PageIcon from "@material-ui/icons/CropLandscapeOutlined";
 import IntroIcon from "@material-ui/icons/VideoLibraryOutlined";
 import MenuIcon from "@material-ui/icons/Menu";
@@ -23,6 +20,7 @@ import UnknownIcon from "@material-ui/icons/HelpOutlineOutlined";
 import VideoIcon from "@material-ui/icons/PlayCircleOutlineOutlined";
 import TextIcon from "@material-ui/icons/TitleOutlined";
 import PDFIcon from "@material-ui/icons/PictureAsPdfOutlined";
+import ImageIcon from "@material-ui/icons/ImageOutlined";
 
 /**
  * Component props
@@ -122,25 +120,6 @@ class ResourceTreeItemClass extends React.Component<Props, State> {
   }
 
   /**
-   * Render add resource treeItem method
-   */
-  private renderAdd = () => {
-    const resourceId = this.state.resource.id;
-    if (!resourceId) {
-      return;
-    }
-
-    return (
-      <TreeItem
-        TransitionComponent={ TransitionComponent }
-        nodeId={ resourceId + "add" }
-        icon={ <AddIcon /> }
-        label={ <Typography variant="h6">{ strings.addNew }</Typography> }
-      />
-    );
-  };
-
-  /**
    * get icon component by resource type method
    *
    * @param resourceType resource type
@@ -153,6 +132,9 @@ class ResourceTreeItemClass extends React.Component<Props, State> {
       case ResourceType.PAGE: {
         return <PageIcon />;
       }
+      case ResourceType.IMAGE: {
+        return <ImageIcon />;
+      }
       case ResourceType.VIDEO: {
         return <VideoIcon />;
       }
@@ -161,6 +143,9 @@ class ResourceTreeItemClass extends React.Component<Props, State> {
       }
       case ResourceType.PDF: {
         return <PDFIcon />;
+      }
+      case ResourceType.LANGUAGEMENU: {
+        return <LanguageIcon />;
       }
       case ResourceType.LANGUAGE: {
         return <LanguageIcon />;

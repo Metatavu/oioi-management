@@ -21,11 +21,11 @@ import { AuthState } from "../../types";
 import ApiUtils from "../../utils/ApiUtils";
 import logo from "../../resources/svg/oioi-logo.svg";
 
-import IconButton from '@material-ui/core/IconButton';
-import List from '@material-ui/core/List';
-import ListItem from '@material-ui/core/ListItem';
-import ListItemText from '@material-ui/core/ListItemText';
-import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
+import IconButton from "@material-ui/core/IconButton";
+import List from "@material-ui/core/List";
+import ListItem from "@material-ui/core/ListItem";
+import ListItemText from "@material-ui/core/ListItemText";
+import ListItemSecondaryAction from "@material-ui/core/ListItemSecondaryAction";
 import { resourceRules, ResourceSettingsForm } from "../../commons/formRules";
 import ImagePreview from "../generic/ImagePreview";
 import { logout } from "../../actions/auth";
@@ -105,9 +105,9 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
     }
 
     const properties = this.props.resource.properties || [];
-    const titleProperty = properties.find(p => p.key == "title");
-    const contentProperty = properties.find(p => p.key == "content");
-    const nameTextProperty = properties.find(p => p.key == "nameText");
+    const titleProperty = properties.find(p => p.key === "title");
+    const contentProperty = properties.find(p => p.key === "content");
+    const nameTextProperty = properties.find(p => p.key === "nameText");
 
     let form = initForm<ResourceSettingsForm>(
       {
@@ -200,19 +200,16 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
 
     return (
       <div>
-        <Grid>
-          <Typography variant="h3">{ resourceTypeObject.resourceLocal }</Typography>
-          <Button
-            style={{ marginLeft: theme.spacing(3), marginTop: theme.spacing(1) }}
-            color="primary"
-            variant="contained"
-            startIcon={ <SaveIcon /> }
-            disabled={ !isFormValid }
-            onClick={ this.onUpdateResource }
-          >
-            { strings.save }
-          </Button>
-        </Grid>
+        <Typography variant="h3">{ resourceTypeObject.resourceLocal }</Typography>
+        <Button
+          style={{ marginLeft: theme.spacing(3), marginTop: theme.spacing(1) }}
+          color="primary"
+          variant="contained"
+          disabled={ !isFormValid }
+          onClick={ this.onUpdateResource }
+        >
+          { strings.save }
+        </Button>
         <Divider style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} />
         { this.renderFields() }
         <Divider style={{ marginBottom: theme.spacing(3) }} />
@@ -243,8 +240,8 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
    * Render text fields
    */
   private renderFields = () => {
-    return<>
-      <Grid container spacing={ 3 } direction="row">
+    return (
+      <>
         <Typography variant="h3">{ strings.title }</Typography>
         { this.renderField("title", strings.title, "text") }
 
@@ -257,8 +254,8 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
         { this.renderField("name", strings.name, "text") }
         { this.renderField("order_number", strings.orderNumber, "number") }
         { this.renderField("slug", strings.slug, "text") }
-      </Grid>
-    </>;
+      </>
+    );
   }
 
   /**

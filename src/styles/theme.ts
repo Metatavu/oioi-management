@@ -69,6 +69,34 @@ export default createMuiTheme({
     }
   },
   overrides: {
+    MuiButton: {
+      root: {
+        borderRadius: 0,
+        fontFamily: "TTNorms-Black",
+        padding: "6px 30px",
+      },
+      outlined: {
+        padding: "4px 30px",
+        border: "2px solid #263238",
+        "&:hover": {
+          border: "2px solid #263238",
+        }
+      },
+      outlinedSecondary: {
+        padding: "4px 30px",
+        border: "2px solid #263238",
+        "&:hover": {
+          border: "2px solid #263238",
+        }
+      },
+      outlinedPrimary: {
+        padding: "4px 30px",
+        border: "2px solid #263238",
+        "&:hover": {
+          border: "2px solid #263238",
+        }
+      }
+    },
     MuiInputBase: {
       root: {
         backgroundColor: "#fff",
@@ -76,6 +104,16 @@ export default createMuiTheme({
         [theme.breakpoints.up("sm")]: {
           minWidth: 340
         },
+      }
+    },
+    MuiListItem: {
+      root: {
+        "&.Mui-selected": {
+          backgroundColor: "rgba(38, 50, 56, 0.1)",
+          "&:hover": {
+            backgroundColor: "rgba(38, 50, 56, 0.1)"
+          }
+        }
       }
     }
   }

@@ -97,20 +97,20 @@ class ImagePreview extends React.Component<Props, State> {
   private renderDialog = () => {
     const { imagePath } = this.props;
 
-    return <>
+    return (
       <Dialog fullScreen open={ this.state.dialogOpen } onClose={ this.closeDialog }>
         <AppBar>
           <Toolbar>
-            <IconButton edge="start" color="inherit" onClick={ this.closeDialog } aria-label="close">
+            <IconButton edge="end" color="inherit" onClick={ this.closeDialog } aria-label="close">
               <CloseIcon />
             </IconButton>
           </Toolbar>
         </AppBar>
-        <Grid>
+        <div style={ { display: "flex", alignItems: "center", justifyContent: "center", height: "100%" } }>
           <img src={ imagePath } alt="File"/>
-        </Grid>
+        </div>
       </Dialog>
-    </>;
+    );
   }
 
   /**
@@ -134,7 +134,7 @@ class ImagePreview extends React.Component<Props, State> {
    * Check if preview item is application icon
    */
   private isIcon = (key: string) => {
-    return key.includes("_");    
+    return key.includes("_");
   }
 
   /**
