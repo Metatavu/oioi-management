@@ -7,14 +7,12 @@ import {
   List,
   ListItem,
   AppBar,
-  IconButton,
   WithStyles,
   withStyles,
   Drawer,
   Button,
 } from "@material-ui/core";
 import { History } from "history";
-import MenuIcon from "@material-ui/icons/Menu";
 import TreeItem from "@material-ui/lab/TreeItem";
 import TransitionComponent from "../generic/TransitionComponent";
 import AppSettingsView from "../views/AppSettingsView";
@@ -33,12 +31,12 @@ import { setCustomer } from "../../actions/customer";
 import { setDevice } from "../../actions/device";
 import { setApplications } from "../../actions/applications";
 import { updateResources, openResource, updatedResourceView } from "../../actions/resources";
-import SortableTree, { TreeItem as TreeItemSortable, NodeData, FullTree, OnMovePreviousAndNextLocation, ExtendedNodeData, OnDragPreviousAndNextLocation } from 'react-sortable-tree';
-import FileExplorerTheme from 'react-sortable-tree-theme-file-explorer';
+import SortableTree, { TreeItem as TreeItemSortable, NodeData, FullTree, OnMovePreviousAndNextLocation, ExtendedNodeData, OnDragPreviousAndNextLocation } from "react-sortable-tree";
+import FileExplorerTheme from "react-sortable-tree-theme-file-explorer";
 import MenuResourceSettingsView from "../views/MenuResourceSettingsView";
 import AddIcon from "@material-ui/icons/AddCircle";
 import PageResourceSettingsView from "../views/PageResourceSettingsView";
-import DeleteIcon from "@material-ui/icons/Delete";
+import theme from "../../styles/theme";
 
 /**
  * Component props
@@ -63,7 +61,6 @@ interface Props extends WithStyles<typeof styles> {
 interface State {
   addResourceDialogOpen: boolean;
   parentResourceId?: string;
-  mobileOpen: boolean;
   customer?: Customer;
   device?: Device;
   application?: Application;
@@ -86,8 +83,7 @@ class ApplicationEditor extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = {
-      addResourceDialogOpen: false,
-      mobileOpen: false
+      addResourceDialogOpen: false
     };
   }
 
@@ -115,22 +111,26 @@ class ApplicationEditor extends React.Component<Props, State> {
       <div className={ classes.root }>
         <AppBar elevation={ 0 } position="relative" className={ classes.appBar }>
           <div className={ classes.toolbar }>
-            <IconButton color="inherit" aria-label="open drawer" edge="start" onClick={ this.handleDrawerToggle } className={ classes.menuButton }>
-              <MenuIcon />
-            </IconButton>
             <Typography variant="h3" noWrap>
-              { !this.state.openedResource && this.state.application && this.state.application.name + " " + strings.applicationSettings.settings }
-              { this.state.openedResource && this.state.openedResource.name + " " + strings.resourceSettings }
+              { this.state.openedResource && this.state.openedResource.name }
             </Typography>
-            <Button
-              style={{ marginLeft: "auto" }}
-              color="primary"
-              variant="contained"
-              startIcon={ <DeleteIcon /> }
-              onClick={ this.onChildDelete }
-            >
-              { strings.delete }
-            </Button>
+            <div>
+              <Button
+                color="primary"
+                variant="contained"
+                onClick={ this.onChildDelete }
+                >
+                { strings.delete }
+              </Button>
+              <Button
+                style={ { marginLeft: theme.spacing(2) } }
+                color="primary"
+                variant="outlined"
+                onClick={ this.onChildDelete }
+                >
+                { strings.save }
+              </Button>
+            </div>
           </div>
         </AppBar>
         { this.renderResponsiveDrawer() }
@@ -146,11 +146,9 @@ class ApplicationEditor extends React.Component<Props, State> {
     const { classes } = this.props;
 
     return (
-      <nav className={classes.drawer} aria-label="mailbox folders">
+      <nav className={ classes.drawer } aria-label="mailbox folders">
         <Drawer
-          classes={{
-            paper: classes.drawerPaper
-          }}
+          classes={ { paper: classes.drawerPaper } }
           variant="permanent"
           anchor="left"
           open
@@ -167,11 +165,11 @@ class ApplicationEditor extends React.Component<Props, State> {
   private renderDrawer = () => {
     const { auth, resources, classes } = this.props;
     const { parentResourceId, customer, device, application } = this.state;
-    const { treeData } = this.state;
+    const { treeData, openedResource } = this.state;
     return (
       <>
-        <List>
-          <ListItem button onClick={ () => this.props.openResource(undefined) }>
+        <List disablePadding>
+          <ListItem selected={ openedResource === undefined } button onClick={ () => this.props.openResource(undefined) }>
             <Typography variant="h4">{ strings.applicationSettings.settings }</Typography>
           </ListItem>
         </List>
@@ -217,7 +215,7 @@ class ApplicationEditor extends React.Component<Props, State> {
           title: this.renderTreeItem(resource),
           children: await this.loadTreeChildren(resource.id || "", resource),
           resource: resource
-        }
+        };
       })
     );
     treeData.push({
@@ -230,7 +228,7 @@ class ApplicationEditor extends React.Component<Props, State> {
 
   /**
    * Loads all children of the parent
-   * 
+   *
    * @param parentId id of tree item parent
    */
   private loadTreeChildren = async (parent_id: string, parent: Resource): Promise<ResourceTreeItem[]> => {
@@ -286,7 +284,7 @@ class ApplicationEditor extends React.Component<Props, State> {
 
   /**
    * Moves resource under new parent
-   * 
+   *
    * @param data tree data change info object
    */
   private moveResource = async (data: NodeData & FullTree & OnMovePreviousAndNextLocation) => {
@@ -340,7 +338,7 @@ class ApplicationEditor extends React.Component<Props, State> {
 
   /**
    * Rearranges tree data layer
-   * 
+   *
    * @param treeData current tree data layer
    * @param parent_id parent id of the current layer
    * @param changes_id parent id of the layer that needs to be rearranged
@@ -385,7 +383,7 @@ class ApplicationEditor extends React.Component<Props, State> {
 
   /**
    * Returns boolean value based on whether parent and child are compatible
-   * 
+   *
    * @param parent parent resource
    * @param child child resource
    */
@@ -434,7 +432,7 @@ class ApplicationEditor extends React.Component<Props, State> {
 
   /**
    * Returns boolean value based on check whether item can have children
-   * 
+   *
    * @param node node to check
    */
   private canHaveChildren = (node: TreeItemSortable) => {
@@ -453,14 +451,14 @@ class ApplicationEditor extends React.Component<Props, State> {
 
     return (
       <ResourceTreeItem
-        key={resource.id}
-        resource={resource}
-        customerId={customerId}
-        deviceId={deviceId}
-        applicationId={applicationId}
-        classes={classes}
-        onOpenResource={this.onOpenResourceClick}
-        onDelete={this.onChildDelete}
+        key={ resource.id }
+        resource={ resource }
+        customerId={ customerId }
+        deviceId={ deviceId }
+        applicationId={ applicationId }
+        classes={ classes }
+        onOpenResource={ this.onOpenResourceClick }
+        onDelete={ this.onChildDelete }
       />
     );
   };
@@ -496,7 +494,7 @@ class ApplicationEditor extends React.Component<Props, State> {
 
   private renderResourceSettingsView = (resource: Resource, customerId: string) => {
     const { auth, deviceId, applicationId, resourceViewUpdated } = this.props;
-    
+
     switch (resource.type) {
       case ResourceType.MENU:
       case ResourceType.LANGUAGE:
@@ -536,7 +534,7 @@ class ApplicationEditor extends React.Component<Props, State> {
    */
   private renderAdd = (parent_id?: string) => {
     if (!parent_id) {
-      return <TreeItem nodeId={"loading"} label={strings.loading} />;
+      return <TreeItem nodeId={ "loading" } label={ strings.loading } />;
     }
 
     return (
@@ -589,7 +587,7 @@ class ApplicationEditor extends React.Component<Props, State> {
       application_id: applicationId,
       resource_id: application.root_resource_id
     });
-    
+
     this.setState({
       customer: customer,
       device: device,
@@ -648,13 +646,6 @@ class ApplicationEditor extends React.Component<Props, State> {
   };
 
   /**
-   * Toggle mobile drawer open/close
-   */
-  private handleDrawerToggle = () => {
-    this.setState({ mobileOpen: !this.state.mobileOpen });
-  };
-
-  /**
    * on add resource click method
    */
   private onAddNewResourceClick = (parentResourceId: string) => {
@@ -700,7 +691,7 @@ class ApplicationEditor extends React.Component<Props, State> {
 
   /**
    * Changes resource to resource tree item
-   * 
+   *
    * @param resource resource to be converted
    */
   private treeItemFromResource = (resource: Resource) => {
@@ -708,12 +699,12 @@ class ApplicationEditor extends React.Component<Props, State> {
       title: this.renderTreeItem(resource),
       children: [],
       resource: resource
-    }
+    };
   }
 
   /**
    * Adds item under the parent element
-   * 
+   *
    * @param newItem item to be added
    * @param data array of current search level
    */
@@ -763,7 +754,7 @@ class ApplicationEditor extends React.Component<Props, State> {
 
   /**
    * Handles update child resources
-   * 
+   *
    * @param childResources child resources
    */
   private onUpdateChildResources = async (childResources: Resource[]) => {

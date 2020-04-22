@@ -3,7 +3,6 @@ import { withStyles, WithStyles, TextField, Button, Divider, Typography, Grid, D
 import styles from "../../styles/editor-view";
 import strings from "../../localization/strings";
 import theme from "../../styles/theme";
-import SaveIcon from "@material-ui/icons/Save";
 import { Application, Resource, KeyValueProperty } from "../../generated/client/src";
 import { Form, initForm, validateForm, MessageType } from "ts-form-validation";
 import { ApplicationForm, applicationRules, ResourceSettingsForm } from "../../commons/formRules";
@@ -12,7 +11,6 @@ import FileUpload from "../../utils/FileUpload";
 import logo from "../../resources/svg/oioi-logo.svg";
 import AddIconDialog from "../generic/AddIconDialog";
 import ImagePreview from "../generic/ImagePreview";
-
 
 /**
  * Component Props
@@ -91,33 +89,30 @@ class AppSettingsView extends React.Component<Props, State> {
     const { isFormValid } = this.state.applicationForm;
     return (
       <div>
-        <Grid>
-          <Button
-            style={{ marginLeft: theme.spacing(3), marginTop: theme.spacing(1) }}
-            color="primary"
-            variant="contained"
-            startIcon={ <SaveIcon /> }
-            disabled={ !isFormValid }
-            onClick={ this.onUpdateApplication }
-          >
-            { strings.save }
-          </Button>
-        </Grid>
-        <Divider style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} />
+        <Button
+          style={ { marginLeft: theme.spacing(3), marginTop: theme.spacing(1) } }
+          color="primary"
+          variant="outlined"
+          disabled={ !isFormValid }
+          onClick={ this.onUpdateApplication }
+        >
+          { strings.save }
+        </Button>
+        <Divider style={ { marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} />
         { this.renderFields() }
-        <Divider style={{ marginBottom: theme.spacing(3) }} />
+        <Divider style={ { marginBottom: theme.spacing(3) } } />
 
         <Typography variant="h4">{ strings.applicationSettings.background }</Typography>
         { this.renderMedia("applicationImage") }
-        <Divider style={{ marginBottom: theme.spacing(3) }} />
+        <Divider style={ { marginBottom: theme.spacing(3) } } />
 
         <Typography variant="h4">{ strings.applicationSettings.icon }</Typography>
         { this.renderMedia("applicationIcon") }
-        <Divider style={{ marginBottom: theme.spacing(3) }} />
+        <Divider style={ { marginBottom: theme.spacing(3) } } />
 
         <Typography variant="h4">{ strings.applicationSettings.icons }</Typography>
         { this.renderIconList() }
-        <Divider style={{ marginBottom: theme.spacing(3) }} />
+        <Divider style={ { marginBottom: theme.spacing(3) } } />
         <AddIconDialog
           resource={ this.props.rootResource }
           onSave={ this.onPropertyFileChange }
@@ -133,14 +128,14 @@ class AppSettingsView extends React.Component<Props, State> {
    */
   private renderFields = () => {
 
-    return<>
-    <Grid container spacing={ 3 } direction="row">
-      { this.renderTextField(strings.applicationName, "text", "name") }
-      { this.renderTextField(strings.applicationSettings.teaserText, "textarea", undefined, "teaserText") }
-      { this.renderTextField(strings.applicationSettings.returnDelay, "text", undefined, "returnDelay") }
-      { this.renderTextField(strings.applicationSettings.id, "text", undefined, "applicationId") }
-    </Grid>
-    </>;
+    return (
+      <>
+        { this.renderTextField(strings.applicationName, "text", "name") }
+        { this.renderTextField(strings.applicationSettings.teaserText, "textarea", undefined, "teaserText") }
+        { this.renderTextField(strings.applicationSettings.returnDelay, "text", undefined, "returnDelay") }
+        { this.renderTextField(strings.applicationSettings.id, "text", undefined, "applicationId") }
+      </>
+    );
   }
 
   /**
@@ -151,34 +146,34 @@ class AppSettingsView extends React.Component<Props, State> {
       const values = this.state.applicationForm.values;
       const { messages: { [appKey]: message } } = this.state.applicationForm;
 
-      return <TextField
-        fullWidth
-        multiline
-        rows={ 8 }
-        style={{ margin: theme.spacing(3) }}
-        type={ type }
-        error={ message && message.type === MessageType.ERROR }
-        helperText={ message && message.message }
-        value={ values[appKey] || "" }
-        onChange={ this.onHandleChange(appKey) }
-        onBlur={ this.onHandleBlur(appKey) }
-        name={ appKey }
-        variant="outlined"
-        label={ label }
-      />;
+      return(
+        <TextField
+          fullWidth
+          multiline
+          type={ type }
+          error={ message && message.type === MessageType.ERROR }
+          helperText={ message && message.message }
+          value={ values[appKey] || "" }
+          onChange={ this.onHandleChange(appKey) }
+          onBlur={ this.onHandleBlur(appKey) }
+          name={ appKey }
+          variant="outlined"
+          label={ label }
+        />
+      );
     } else if (resourceKey) {
-      return <TextField
-        fullWidth
-        multiline
-        rows={ 8 }
-        style={{ margin: theme.spacing(3) }}
-        type={ type }
-        value={ this.state.resourceMap.get(resourceKey) || "" }
-        onChange={ this.onHandleResourceChange(resourceKey) }
-        name={ resourceKey }
-        variant="outlined"
-        label={ label }
-      />;
+      return (
+        <TextField
+          fullWidth
+          multiline
+          type={ type }
+          value={ this.state.resourceMap.get(resourceKey) || "" }
+          onChange={ this.onHandleResourceChange(resourceKey) }
+          name={ resourceKey }
+          variant="outlined"
+          label={ label }
+        />
+      );
     }
   }
 
@@ -221,17 +216,19 @@ class AppSettingsView extends React.Component<Props, State> {
         icons.push(preview);
       }
     });
-    return <>
-      { icons }
-      <Button
-        style={{ marginLeft: theme.spacing(3), marginTop: theme.spacing(1) }}
-        color="primary"
-        variant="contained"
-        onClick={ this.toggleDialog }
-      >
-        { strings.applicationSettings.addIcon }
-      </Button>
-    </>;
+    return (
+      <>
+        { icons }
+        <Button
+          style={ { marginLeft: theme.spacing(3), marginTop: theme.spacing(1) }}
+          color="primary"
+          variant="contained"
+          onClick={ this.toggleDialog }
+        >
+          { strings.applicationSettings.addIcon }
+        </Button>
+      </>
+    );
   }
 
   /**
