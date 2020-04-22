@@ -6,7 +6,7 @@ import { History } from "history";
 import CardItem from "../generic/CardItem";
 import DeviceDialog from "../generic/DeviceDialog";
 import strings from "../../localization/strings";
-import { Device, Customer, Application } from "../../generated/client/src";
+import { Device, Customer } from "../../generated/client/src";
 import ApiUtils from "../../utils/ApiUtils";
 import { AuthState, DialogType } from "../../types";
 import { ReduxState, ReduxActions } from "../../store";
@@ -15,7 +15,6 @@ import { connect } from "react-redux";
 import DeleteDialog from "../generic/DeleteDialog";
 import { Alert } from "@material-ui/lab";
 import { setDevice } from "../../actions/device";
-import { setApplications } from "../../actions/applications";
 import { setCustomer } from "../../actions/customer";
 
 /**
@@ -30,13 +29,13 @@ interface Props extends WithStyles<typeof styles> {
    * Customer id
    */
   customerId: string;
+  customer?: Customer
   /**
    * Auth
    */
   auth: AuthState;
   setCustomer: typeof setCustomer;
   setDevice: typeof setDevice;
-  setApplications: typeof setApplications;
 }
 
 /**
@@ -49,7 +48,6 @@ interface State {
   snackbarOpen: boolean;
   deviceInDialog?: Device;
   devices: Device[];
-  customer?: Customer;
 }
 
 /**
@@ -77,31 +75,31 @@ class DevicesList extends React.Component<Props, State> {
    * Component did mount
    */
   public componentDidMount = async () => {
-    const { auth, customerId, setCustomer } = this.props;
+    const { auth, customerId, setCustomer, customer } = this.props;
     if (!auth || !auth.token) {
       return;
     }
 
     const customersApi = ApiUtils.getCustomersApi(auth.token);
     const devicesApi = ApiUtils.getDevicesApi(auth.token);
-    const [customer, devices] = await Promise.all([
-      customersApi.findCustomer({ customer_id: customerId }),
-      devicesApi.listDevices({ customer_id: customerId })
-    ]);
+    let currentCustomer = customer;
+    if (!currentCustomer || currentCustomer.id !== customerId) {
+      currentCustomer = await customersApi.findCustomer({ customer_id: customerId });
+      setCustomer(currentCustomer);
+    }
 
+    const devices = await devicesApi.listDevices({ customer_id: customerId });
     this.setState({
-      customer: customer,
       devices: devices
     });
-    setCustomer(customer);
   };
 
   /**
    * Component render method
    */
   public render() {
-    const { classes } = this.props;
-    const { customer, deviceInDialog, dialogType, editorDialogOpen, deleteDialogOpen, snackbarOpen } = this.state;
+    const { classes, customer } = this.props;
+    const { deviceInDialog, dialogType, editorDialogOpen, deleteDialogOpen, snackbarOpen } = this.state;
     const cards = this.state.devices.map((device: Device, index) => this.renderCard(device, `${index}${device.name}`));
 
     return (
@@ -175,8 +173,9 @@ class DevicesList extends React.Component<Props, State> {
    * @param device
    */
   private onEditDeviceConfigurationClick = (device: Device) => {
-    const { customerId } = this.props;
-    this.props.history.push(`/${customerId}/devices/${device.id}/applications`);
+    const { customerId, setDevice, history } = this.props;
+    setDevice(device);
+    history.push(`/${customerId}/devices/${device.id}/applications`);
   };
 
   /**
@@ -360,7 +359,8 @@ class DevicesList extends React.Component<Props, State> {
  * @param state redux state
  */
 const mapStateToProps = (state: ReduxState) => ({
-  auth: state.auth
+  auth: state.auth,
+  customer: state.customer.customer
 });
 
 /**
@@ -372,7 +372,6 @@ const mapDispatchToProps = (dispatch: Dispatch<ReduxActions>) => {
   return {
     setCustomer: (customer: Customer) => dispatch(setCustomer(customer)),
     setDevice: (device: Device) => dispatch(setDevice(device)),
-    setApplications: (applications: Application[]) => dispatch(setApplications(applications))
   };
 };
 
