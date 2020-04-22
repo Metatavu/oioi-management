@@ -500,7 +500,7 @@ class ApplicationEditor extends React.Component<Props, State> {
    * Render treeItem method
    */
   private renderTreeItem = (resource: Resource) => {
-    const { classes, customerId, deviceId, applicationId } = this.props;
+    const { classes, customerId, deviceId, applicationId, openedResource } = this.props;
 
     return (
       <ResourceTreeItem
