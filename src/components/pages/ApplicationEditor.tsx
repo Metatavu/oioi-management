@@ -520,7 +520,7 @@ class ApplicationEditor extends React.Component<Props, State> {
    * Render editor method
    */
   private renderEditor = () => {
-    const { classes, customerId, openedResource, application } = this.props;
+    const { classes, customerId, deviceId, openedResource, application, auth } = this.props;
     const { rootResource } = this.state;
     if (!rootResource) {
       return (
@@ -539,11 +539,13 @@ class ApplicationEditor extends React.Component<Props, State> {
       return (
         <main className={ classes.content }>
           <AppSettingsView
+            auth={auth}
             application={ application }
             onUpdateApplication={ this.onUpdateApplication }
             onUpdateRootResource={ this.onUpdateResource }
             rootResource={ rootResource }
             customerId={ customerId }
+            deviceId={ deviceId }
           />
         </main>
       );

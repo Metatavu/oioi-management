@@ -57,6 +57,9 @@
   "file": "Tiedosto",
   "update": "Päivitä",
   "requiredField": "Vaadittu kenttä",
+  "importInProgress": "Sisältöä tuodaan, odota äläkä tee mitään.",
+  "importDone": "Onnistui, sivu ladataan uudelleen hetken kuluttua.",
+  "importLabel": "Tuo sisältö json tiedostosta.",
   "fileUpload": {
     "addMedia": "Lisää media",
     "changeMedia": "Vaihda media",
