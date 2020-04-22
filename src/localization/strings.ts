@@ -58,6 +58,17 @@ export interface IStrings extends LocalizedStringsMethods {
   update: string;
   file: string;
   requiredField: string;
+  dontCopy: string;
+  copyContentFromLanguageLabel: string;
+  unknownErrorMessage: string;
+  badRequestErrorMessage: string;
+  forbiddenErrorMessage: string;
+  notFoundErrorMessage: string;
+  internalErrorMessage: string;
+  unavailableErrorMessage: string;
+  updateSuccessMessage: string;
+  createSuccessMessage: string;
+  deleteSuccessMessage: string;
   importInProgress: string;
   importDone: string;
   importLabel: string;

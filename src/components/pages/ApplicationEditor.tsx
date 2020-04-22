@@ -679,7 +679,7 @@ class ApplicationEditor extends React.Component<Props, State> {
   /**
    * on save new resource method
    */
-  private onSaveNewResourceClick = async (resource: Resource) => {
+  private onSaveNewResourceClick = async (resource: Resource, copyContentFromId?: string) => {
     const { auth, customerId, deviceId, applicationId, updatedResourceView } = this.props;
 
     if (!auth || !auth.token) {
@@ -699,7 +699,43 @@ class ApplicationEditor extends React.Component<Props, State> {
       addResourceDialogOpen: false,
       treeData: this.treeDataAdd(this.treeItemFromResource(newResource), this.state.treeData || [])
     });
+
+    if (copyContentFromId) {
+      await this.copyContentFrom(copyContentFromId, newResource.id!);
+    }
   };
+
+  /**
+   * Copies all content recursively from old parent under new parent
+   */
+  private copyContentFrom = async (oldParentId: string, newParentId: string) => {
+    const { auth, customerId, deviceId, applicationId } = this.props;
+
+    if (!auth || !auth.token) {
+      return;
+    }
+    const resourcesApi = ApiUtils.getResourcesApi(auth.token);
+    const resources = await resourcesApi.listResources({
+      application_id: applicationId,
+      customer_id: customerId,
+      device_id: deviceId,
+      parent_id: oldParentId
+    });
+
+    for (let i = 0; i < resources.length; i++) {
+      let res = resources[i];
+      let copy = { ...res, id: undefined, parent_id: newParentId }
+      let created = await resourcesApi.createResource({
+        application_id: applicationId,
+        customer_id: customerId,
+        device_id: deviceId,
+        resource: copy
+      });
+      this.setState({ treeData: this.treeDataAdd(this.treeItemFromResource(created), this.state.treeData || []) });
+      await this.copyContentFrom(res.id!, created.id!);
+    }
+
+  }
 
   /**
    * Changes resource to resource tree item

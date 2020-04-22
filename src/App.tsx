@@ -5,6 +5,8 @@ import { ThemeProvider } from "@material-ui/styles";
 import { CssBaseline } from "@material-ui/core";
 import { Provider as ReduxProvider } from "react-redux";
 import "./styles/styles.scss";
+import "../node_modules/noty/lib/noty.css";
+import "../node_modules/noty/lib/themes/mint.css";
 import theme from "./styles/theme";
 import { createStore } from "redux";
 import { ReduxState, ReduxActions, rootReducer } from "./store";
