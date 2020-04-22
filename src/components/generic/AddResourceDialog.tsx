@@ -66,7 +66,7 @@ interface Props extends WithStyles<typeof styles> {
   /**
    * Save button click
    */
-  onSave(resource: Resource): void;
+  onSave(resource: Resource, copyFromId?: string): void;
   /**
    * Close handler
    */
@@ -115,7 +115,10 @@ const rules: FormValidationRules<AddResourceForm> = {
 interface State {
   form: Form<AddResourceForm>;
   resourceType?: ResourceType;
+  siblingResources: Resource[];
   parentResourceType?: ResourceType;
+  addingLanguage: boolean,
+  copyContentFromId?: string
 }
 
 /**
@@ -139,7 +142,9 @@ class AddResourceDialog extends React.Component<Props, State> {
         },
         rules
       ),
-      resourceType: undefined
+      resourceType: undefined,
+      addingLanguage: false,
+      siblingResources: []
     };
   }
 
@@ -191,7 +196,8 @@ class AddResourceDialog extends React.Component<Props, State> {
       this.getResourceType();
       this.setState({
         form,
-        resourceType: undefined
+        resourceType: undefined,
+        siblingResources: childResources
       });
     }
   };
@@ -202,6 +208,7 @@ class AddResourceDialog extends React.Component<Props, State> {
   public render() {
     const { classes } = this.props;
     const { isFormValid } = this.state.form;
+    const { addingLanguage } = this.state;
 
     return (
       <Dialog
@@ -226,6 +233,12 @@ class AddResourceDialog extends React.Component<Props, State> {
               <InputLabel htmlFor="resourceType">{ strings.resourceType }</InputLabel>
               { this.renderSelect() }
             </Grid>
+            {addingLanguage && (
+              <Grid item className={ classes.fullWidth }>
+                <InputLabel htmlFor="copyContentFrom"> { strings.copyContentFromLanguageLabel } </InputLabel>
+                { this.renderLanguageSelect() }
+              </Grid>
+            )}
             <Grid item className={ classes.fullWidth }>
               { this.renderField("order_number", strings.orderNumber, "number") }
             </Grid>
@@ -265,6 +278,46 @@ class AddResourceDialog extends React.Component<Props, State> {
         { this.state.parentResourceType && this.renderMenuItems() }
       </Select>
     </>;
+  }
+
+  /**
+   * Render select
+   */
+  private renderLanguageSelect = () => {
+    return <>
+      <Select
+        fullWidth
+        displayEmpty
+        variant="outlined"
+        value={ this.state.copyContentFromId }
+        inputProps={{
+          id: "copyContentFrom"
+        }}
+        onChange={ this.onCopyContentFromSelectChange }
+        name="copyContentFrom"
+      >
+        { this.renderLanguageMenuItems() }
+      </Select>
+    </>;
+  }
+
+    /**
+   * Render menu items
+   */
+  private renderLanguageMenuItems = () => {
+    const { siblingResources } = this.state;
+    const menuItems: JSX.Element[] = [];
+    const languageSiblings = siblingResources.filter(res => res.type === ResourceType.LANGUAGE);
+    menuItems.push(
+      <MenuItem value={ undefined } key="do-not-copy"> { strings.dontCopy } </MenuItem>
+    )
+    languageSiblings.forEach(language => {
+      menuItems.push(
+        <MenuItem value={ language.id } key={language.id}>{language.name}</MenuItem>
+      );
+    });
+
+    return menuItems;
   }
 
   /**
@@ -336,6 +389,7 @@ class AddResourceDialog extends React.Component<Props, State> {
    */
   private onSaveNewResource = () => {
     const { onSave, parentResourceId } = this.props;
+    const { copyContentFromId } = this.state;
     const { form } = this.state;
 
     if (!parentResourceId) {
@@ -348,7 +402,7 @@ class AddResourceDialog extends React.Component<Props, State> {
       parent_id: parentResourceId
     } as Resource;
 
-    onSave(newResource);
+    onSave(newResource, copyContentFromId);
 
     this.setState(
       {
@@ -411,8 +465,20 @@ class AddResourceDialog extends React.Component<Props, State> {
       return;
     }
 
+    const resourceType: ResourceType = e.target.value;
     this.setState({
-      resourceType: e.target.value
+      resourceType: resourceType,
+      addingLanguage: resourceType === ResourceType.LANGUAGE,
+      copyContentFromId: undefined
+    });
+  };
+
+  /**
+   * Handles select element data change
+   */
+  private onCopyContentFromSelectChange = (e: React.ChangeEvent<{ name?: string; value: any }>) => {
+    this.setState({
+      copyContentFromId: e.target.value
     });
   };
 

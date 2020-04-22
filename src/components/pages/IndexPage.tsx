@@ -20,7 +20,6 @@ interface Props {
 }
 
 interface State {
-
 }
 
 class IndexPage extends React.Component<Props, State> {
@@ -33,7 +32,7 @@ class IndexPage extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = {
-
+      hasError: false
     };
   }
 
@@ -59,11 +58,16 @@ class IndexPage extends React.Component<Props, State> {
     }
   }
 
+  public componentDidCatch() { 
+    this.setState({
+      hasError: true
+    });
+  }
+
   /**
    * Component render method
    */
   public render() {
-
     const { auth } = this.props;
     if (!auth) {
       return null;
