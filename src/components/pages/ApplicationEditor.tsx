@@ -14,6 +14,7 @@ import {
   CircularProgress,
   ListItemIcon,
   ListItemText,
+  ListItemSecondaryAction,
 } from "@material-ui/core";
 import { History } from "history";
 import AppSettingsView from "../views/AppSettingsView";
@@ -36,8 +37,10 @@ import SortableTree, { TreeItem as TreeItemSortable, NodeData, FullTree, OnMoveP
 import FileExplorerTheme from "react-sortable-tree-theme-file-explorer";
 import MenuResourceSettingsView from "../views/MenuResourceSettingsView";
 import AddIcon from "@material-ui/icons/AddCircle";
+import ChevronRight from "@material-ui/icons/ChevronRight";
 import PageResourceSettingsView from "../views/PageResourceSettingsView";
 import theme from "../../styles/theme";
+import { getLocalizedTypeString } from "../../commons/resourceTypeHelper";
 
 /**
  * Component props
@@ -153,13 +156,18 @@ class ApplicationEditor extends React.Component<Props, State> {
    */
   public render() {
     const { classes, openedResource } = this.props;
+    let resourceType = ResourceType.ROOT;
 
+    if (openedResource) {
+      resourceType = openedResource.type;
+    }
+    const resourceTypeObject = getLocalizedTypeString(resourceType);
     return (
       <div className={ classes.root }>
         <AppBar elevation={ 0 } position="relative" className={ classes.appBar }>
           <div className={ classes.toolbar }>
             <Typography variant="h3" noWrap>
-              { openedResource && openedResource.name }
+              { openedResource && resourceTypeObject.resourceLocal }
             </Typography>
             <div>
               <Button
@@ -208,15 +216,18 @@ class ApplicationEditor extends React.Component<Props, State> {
     return (
       <>
         <List disablePadding>
-          <ListItem selected={ openedResource === undefined } button onClick={ () => this.props.openResource(undefined) }>
+          <ListItem style={{ height: 54 }} selected={ openedResource === undefined } button onClick={ () => this.props.openResource(undefined) }>
             <Typography variant="h4">{ strings.applicationSettings.settings }</Typography>
+            <ListItemSecondaryAction>
+              <ChevronRight />
+            </ListItemSecondaryAction>
           </ListItem>
         </List>
         <Divider />
         { treeData &&
           <SortableTree
             className={ classes.treeWrapper }
-            rowHeight={ 40 }
+            rowHeight={ 48 }
             treeData={ treeData }
             onChange={ this.setTreeData }
             onMoveNode={ this.moveResource }
@@ -297,7 +308,7 @@ class ApplicationEditor extends React.Component<Props, State> {
       // no children found
     }
 
-    const childResourcePromises = childResources.map(async (resource) => {
+    const childResourcePromises = childResources.map(async resource => {
       return {
         title: this.renderTreeItem(resource),
         children: await this.loadTreeChildren(resource.id || "", resource),
@@ -599,6 +610,8 @@ class ApplicationEditor extends React.Component<Props, State> {
    * Render add resource treeItem method
    */
   private renderAdd = (parent_id?: string) => {
+    const { classes } = this.props;
+
     if (!parent_id) {
       return (
         <ListItem key="loading">
@@ -609,8 +622,8 @@ class ApplicationEditor extends React.Component<Props, State> {
 
     return (
       <ListItem key={ parent_id + "add" }>
-        <ListItemIcon><AddIcon /></ListItemIcon>
-        <ListItemText onMouseUp={ () => this.onAddNewResourceClick(parent_id) } primary={strings.addNew} />
+        <ListItemIcon style={{ minWidth: 0, marginRight: theme.spacing(1) }}><AddIcon /></ListItemIcon>
+        <ListItemText className={ classes.addResourceBtnText } onMouseUp={ () => this.onAddNewResourceClick(parent_id) } primary={ strings.addNew } />
       </ListItem>
     );
   };
@@ -792,7 +805,6 @@ class ApplicationEditor extends React.Component<Props, State> {
   private onUpdateResource = async (resource: Resource) => {
     const { auth, customerId, deviceId, applicationId, openResource, updatedResourceView } = this.props;
     const resourceId = resource.id;
-
     if (!auth || !auth.token || !resourceId) {
       return;
     }
@@ -809,10 +821,12 @@ class ApplicationEditor extends React.Component<Props, State> {
     } else {
       this.setState({ 
         rootResource: updatedResource,
-        confirmationRequired: false
       });
     }
     updatedResourceView();
+    this.setState({
+      confirmationRequired: false
+    });
   };
 
   /**

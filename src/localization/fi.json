@@ -2,6 +2,7 @@
   "active": "Aktiivinen",
   "address": "Osoite",
   "addNew": "Lisää..",
+  "advanced": "Edistyneet toiminnot",
   "addLanguage": "Lisää kieli",
   "addNewCustomer": "Lisää uusi asiakas",
   "addNewDevice": "Lisää uusi laite",
@@ -108,5 +109,8 @@
     "returnDelay": "Alkutilan paluuviive minuutteina",
     "id": "Sovelluksen id",
     "addIcon": "Lisää ikoni"
-  }
+  },
+  "autoplay": "Automaattinen toisto",
+  "loop": "Looppi",
+  "slideTimeOnScreen": "Siirtymä aika näytöllä"
 }

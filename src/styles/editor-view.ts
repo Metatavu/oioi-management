@@ -62,7 +62,7 @@ export default createStyles({
 
   treeWrapper: {
     height: "100%",
-    padding: theme.spacing(4),
+    padding: theme.spacing(2),
     overflowY: "auto",
     "& > div:focus": {
       outline: "none"
@@ -117,5 +117,10 @@ export default createStyles({
   },
   table: {
     width: "100%"
+  },
+  addResourceBtnText: {
+    "& .MuiTypography-body1": {
+      fontFamily: "TTNorms-Bold"
+    }
   }
 });

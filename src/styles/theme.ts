@@ -80,6 +80,10 @@ export default createMuiTheme({
         border: "2px solid #263238",
         "&:hover": {
           border: "2px solid #263238",
+        },
+        "&.Mui-disabled": {
+          opacity: 0.5,
+          border: "2px solid #263238"
         }
       },
       outlinedSecondary: {
@@ -110,10 +114,31 @@ export default createMuiTheme({
       root: {
         "&.Mui-selected": {
           backgroundColor: "rgba(38, 50, 56, 0.1)",
+          "& .MuiTypography-body1": {
+            fontFamily: "TTNorms-Bold",
+          },
+          "& ~ .MuiListItemSecondaryAction-root": {
+            opacity: 1
+          },
           "&:hover": {
             backgroundColor: "rgba(38, 50, 56, 0.1)"
           }
         }
+      },
+      container: {
+        display: "flex"
+      }
+    },
+    MuiListItemIcon: {
+      root: {
+        color: "#263238"
+      }
+    },
+    MuiListItemSecondaryAction: {
+      root: {
+        display: "flex",
+        opacity: 0,
+        transition: "opacity 0.2s ease-out"
       }
     }
   }

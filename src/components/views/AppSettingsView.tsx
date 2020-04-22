@@ -173,7 +173,7 @@ class AppSettingsView extends React.Component<Props, State> {
       const topLevel = data.root.children;
       this.setState({ importingContent: true });
       const imported = await this.importWallJsonItems(rootResource.id!, topLevel);
-      this.setState({importDone: imported});
+      this.setState({ importDone: imported });
       setTimeout(() => window.location.reload(), 3000);
     }
     reader.readAsText(file);
@@ -315,7 +315,6 @@ class AppSettingsView extends React.Component<Props, State> {
 
   /**
    * Render media elements
-   * TODO: Add remove/modify buttons (Tuomas)
    */
   private renderIconList = () => {
     const { resourceMap } = this.state;

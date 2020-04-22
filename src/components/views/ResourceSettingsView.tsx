@@ -142,12 +142,10 @@ class ResourceSettingsView extends React.Component<Props, State> {
     const dataField = this.renderDataField();
 
     const { isFormValid } = this.state.form;
-    const resourceTypeObject = getLocalizedTypeString(this.props.resource.type);
 
     return (
       <div>
         <Grid>
-          <Typography variant="h3">{ resourceTypeObject.resourceLocal }</Typography>
           <Button
             style={{ marginLeft: theme.spacing(3), marginTop: theme.spacing(1) }}
             color="primary"
@@ -165,6 +163,11 @@ class ResourceSettingsView extends React.Component<Props, State> {
           <Typography variant="h3">{ localizedDataString }</Typography>
           { dataField }
         </div>
+        <Divider style={{ marginBottom: theme.spacing(3), marginTop: theme.spacing(3) }} />
+        <Typography variant="h3">{ strings.advanced }</Typography>
+        { this.renderField("name", strings.name, "text") }
+        { this.renderField("order_number", strings.orderNumber, "number") }
+        { this.renderField("slug", strings.slug, "text") }
         <Divider style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} />
         <div>
           { this.renderStyleTable() }
@@ -182,7 +185,7 @@ class ResourceSettingsView extends React.Component<Props, State> {
    * Render text fields
    */
   private renderFields = () => {
-    return<>
+    return (
       <Grid container spacing={ 3 } direction="row">
         <Typography variant="h3">{ strings.title }</Typography>
         { this.renderField("title", strings.title, "text") }
@@ -192,12 +195,8 @@ class ResourceSettingsView extends React.Component<Props, State> {
 
         <Typography variant="h3">{ strings.content }</Typography>
         { this.renderField("content", strings.content, "textarea") }
-
-        { this.renderField("name", strings.name, "text") }
-        { this.renderField("order_number", strings.orderNumber, "number") }
-        { this.renderField("slug", strings.slug, "text") }
       </Grid>
-    </>
+    );
   }
 
   /**

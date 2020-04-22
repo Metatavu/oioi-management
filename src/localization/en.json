@@ -2,6 +2,7 @@
   "active": "Active",
   "address": "Address",
   "addNew": "Add..",
+  "advanced": "Advanced",
   "addLanguage": "Add language",
   "addNewCustomer": "Add a new customer",
   "addNewDevice": "Add a new device",
@@ -109,5 +110,8 @@
     "returnDelay": "Reset delay",
     "id": "Application id",
     "addIcon": "Add icon"
-  }
+  },
+  "autoplay": "Automatic play",
+  "loop": "Loop",
+  "slideTimeOnScreen": "Slide time on screen"
 }

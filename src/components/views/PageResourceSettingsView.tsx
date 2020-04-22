@@ -140,12 +140,10 @@ class PageResourceSettingsView extends React.Component<Props, State> {
     }
 
     const { isFormValid } = this.state.form;
-    const resourceTypeObject = getLocalizedTypeString(this.props.resource.type);
 
     return (
       <div>
         <Grid>
-          <Typography variant="h3">{ resourceTypeObject.resourceLocal }</Typography>
           <Button
             style={{ marginLeft: theme.spacing(3), marginTop: theme.spacing(1) }}
             color="primary"
@@ -158,14 +156,14 @@ class PageResourceSettingsView extends React.Component<Props, State> {
         </Grid>
 
         <div>
-          <Divider style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} />
-          { this.renderResourceFields() }
           { this.renderChildResources() }
           <Divider style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} />
           { this.renderAddChild() }
           <Divider style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} />
         </div>
-
+        <Typography variant="h3">{ strings.advanced }</Typography>
+        <Divider style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} />
+        { this.renderResourceFields() }
         <div>
           { this.renderStyleTable() }
           <Divider style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} />
