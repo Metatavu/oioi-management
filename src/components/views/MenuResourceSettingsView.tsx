@@ -1,10 +1,9 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import * as React from "react";
-import { withStyles, WithStyles, TextField, Divider, Typography, Grid, Button } from "@material-ui/core";
+import { withStyles, WithStyles, TextField, Divider, Typography, Button, TableContainer, Paper, Table, TableHead, TableRow, TableCell, TableBody } from "@material-ui/core";
 import MaterialTable from "material-table";
 import AddIcon from "@material-ui/icons/AddBox";
-import DeleteIcon from "@material-ui/icons/Delete";
-import SaveIcon from "@material-ui/icons/Save";
+import DeleteIcon from "@material-ui/icons/DeleteForever";
 import CheckIcon from "@material-ui/icons/Check";
 import ClearIcon from "@material-ui/icons/Clear";
 import EditIcon from "@material-ui/icons/Edit";
@@ -22,13 +21,8 @@ import ApiUtils from "../../utils/ApiUtils";
 import logo from "../../resources/svg/oioi-logo.svg";
 
 import IconButton from "@material-ui/core/IconButton";
-import List from "@material-ui/core/List";
-import ListItem from "@material-ui/core/ListItem";
-import ListItemText from "@material-ui/core/ListItemText";
-import ListItemSecondaryAction from "@material-ui/core/ListItemSecondaryAction";
 import { resourceRules, ResourceSettingsForm } from "../../commons/formRules";
 import ImagePreview from "../generic/ImagePreview";
-import { logout } from "../../actions/auth";
 
 /**
  * Component props
@@ -460,39 +454,43 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
    */
   private renderChildResources = () => {
     const { childResources } = this.state;
+    const { classes } = this.props;
 
     if (!childResources) {
-      return <div/>
+      return <div />;
     }
 
-    const listItems = childResources.map(resource =>{
-      return(
-        <ListItem>
-          <ListItemText primary={ resource.name }/>
-          <ListItemText primary={ resource.order_number }/>
-          <ListItemText primary={ resource.type }/>
-          <ListItemSecondaryAction>
-            <IconButton edge="end" aria-label="delete">
-              <Button onClick={ () => this.props.onDelete(resource) }>
-                <DeleteIcon/>
-              </Button>
+    const listItems = childResources.map(resource => {
+      return (
+        <TableRow key={ resource.name }>
+          <TableCell component="th" scope="row">{ resource.name }</TableCell>
+          <TableCell align="right">{ resource.type }</TableCell>
+          <TableCell align="center">{ resource.order_number }</TableCell>
+          <TableCell align="right">
+            <IconButton color="primary" edge="end" aria-label="delete" onClick={ () => this.props.onDelete(resource) }>
+              <DeleteIcon />
             </IconButton>
-          </ListItemSecondaryAction>
-        </ListItem>
-      )
+          </TableCell>
+        </TableRow>
+      );
     });
 
     return(
-      <div>
-        <List component="nav" aria-label="secondary mailbox folders">
-          <ListItem>
-            <ListItemText primary="Sivu"/>
-            <ListItemText primary="Järjestys vasemmalta oikealle"/>
-            <ListItemText primary="Tyyppi"/>
-          </ListItem>
-          { listItems }
-        </List>
-      </div>
+      <TableContainer component={ Paper }>
+        <Table size="small" className={ classes.table } aria-label="simple table">
+          <TableHead>
+            <TableRow>
+              <TableCell>Sivu</TableCell>
+              <TableCell align="right">Tyyppi</TableCell>
+              <TableCell align="center">Järjestys vasemmalta oikealle</TableCell>
+              <TableCell align="right"></TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            { listItems }
+          </TableBody>
+        </Table>
+      </TableContainer>
     );
   };
 

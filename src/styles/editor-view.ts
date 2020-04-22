@@ -114,5 +114,8 @@ export default createStyles({
     marginBottom: theme.spacing(3),
     display: "flex",
     alignItems: "center"
+  },
+  table: {
+    width: "100%"
   }
 });
