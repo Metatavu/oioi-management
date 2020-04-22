@@ -32,13 +32,14 @@ interface Props extends WithStyles<typeof styles> {
    * Update resource
    * @param resource resource to update
    */
-  onUpdate(resource: Resource): void;
+  onUpdate: (resource: Resource) => void;
 
   /**
    * Delete resource
    * @param resource resource to delete
    */
-  onDelete(resource: Resource): void;
+  onDelete: (resource: Resource) => void;
+  confirmationRequired: (value: boolean) => void;
 }
 
 /**
@@ -49,6 +50,7 @@ interface State {
   resourceId: string;
   resourceData: any;
   updated: boolean;
+  dataChanged: boolean;
 }
 
 class ResourceSettingsView extends React.Component<Props, State> {
@@ -72,7 +74,8 @@ class ResourceSettingsView extends React.Component<Props, State> {
 
       resourceId: "",
       resourceData: {},
-      updated: false
+      updated: false,
+      dataChanged: false
     };
   }
 
@@ -126,7 +129,7 @@ class ResourceSettingsView extends React.Component<Props, State> {
    * Component render method
    */
   public render() {
-    const { updated } = this.state;
+    const { updated, dataChanged } = this.state;
 
     if (updated) {
       this.setState({
@@ -148,9 +151,8 @@ class ResourceSettingsView extends React.Component<Props, State> {
           <Button
             style={{ marginLeft: theme.spacing(3), marginTop: theme.spacing(1) }}
             color="primary"
-            variant="contained"
-            startIcon={ <SaveIcon /> }
-            disabled={ !isFormValid }
+            variant="outlined"
+            disabled={ !isFormValid || !dataChanged }
             onClick={ this.onUpdateResource }
           >
             { strings.save }
@@ -415,7 +417,7 @@ class ResourceSettingsView extends React.Component<Props, State> {
       );
     } else {
       const fileData = this.state.form.values.data || logo;
-      
+
       return <>
         <ImagePreview
           imagePath={ fileData }
@@ -500,8 +502,10 @@ class ResourceSettingsView extends React.Component<Props, State> {
     resourceData[e.target.name] = e.target.value;
 
     this.setState({
-      resourceData: resourceData
+      resourceData: resourceData,
+      dataChanged: true
     });
+    this.props.confirmationRequired(true);
   };
 
   /**
@@ -519,9 +523,8 @@ class ResourceSettingsView extends React.Component<Props, State> {
     } as Resource;
 
     onUpdate(resource);
-
     this.setState({
-      resourceData: resourceData
+      resourceData: resourceData,
     });
   };
 
@@ -547,8 +550,11 @@ class ResourceSettingsView extends React.Component<Props, State> {
     );
 
     this.setState({
-      form
+      form:form,
+      dataChanged: true
     });
+
+    this.props.confirmationRequired(true);
   };
 
   /**
@@ -568,8 +574,11 @@ class ResourceSettingsView extends React.Component<Props, State> {
     });
 
     this.setState({
-      form
+      form: form,
+      dataChanged: true
     });
+
+    this.props.confirmationRequired(true);
   };
 }
 

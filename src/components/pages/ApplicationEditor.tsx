@@ -65,6 +65,7 @@ interface State {
   parentResourceId?: string;
   rootResource?: Resource;
   treeData?: ResourceTreeItem[];
+  confirmationRequired: boolean;
 }
 
 interface ResourceTreeItem extends TreeItemSortable {
@@ -81,7 +82,8 @@ class ApplicationEditor extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = {
-      addResourceDialogOpen: false
+      addResourceDialogOpen: false,
+      confirmationRequired: false
     };
   }
 
@@ -99,8 +101,8 @@ class ApplicationEditor extends React.Component<Props, State> {
             setApplication,
             customer,
             device,
-            application,
-          updatedResourceView } = this.props;
+            application
+          } = this.props;
 
     if (!auth || !auth.token) {
       return;
@@ -166,14 +168,6 @@ class ApplicationEditor extends React.Component<Props, State> {
                 onClick={ this.onChildDelete }
                 >
                 { strings.delete }
-              </Button>
-              <Button
-                style={ { marginLeft: theme.spacing(2) } }
-                color="primary"
-                variant="outlined"
-                onClick={ this.onChildDelete }
-                >
-                { strings.save }
               </Button>
             </div>
           </div>
@@ -539,8 +533,9 @@ class ApplicationEditor extends React.Component<Props, State> {
       return (
         <main className={ classes.content }>
           <AppSettingsView
-            auth={auth}
+            auth={ auth }
             application={ application }
+            confirmationRequired={ this.confirmationRequired }
             onUpdateApplication={ this.onUpdateApplication }
             onUpdateRootResource={ this.onUpdateResource }
             rootResource={ rootResource }
@@ -565,6 +560,7 @@ class ApplicationEditor extends React.Component<Props, State> {
         return <MenuResourceSettingsView
           resource={ resource }
           customerId={ customerId }
+          confirmationRequired={ this.confirmationRequired }
           onUpdate={ this.onUpdateResource }
           onDelete={ this.onDeleteResource }
           resourcesUpdated={ resourceViewUpdated }
@@ -577,6 +573,7 @@ class ApplicationEditor extends React.Component<Props, State> {
           resource={ resource }
           customerId={ customerId }
           resourcesUpdated={ resourceViewUpdated }
+          confirmationRequired={ this.confirmationRequired }
           onAddChild={ this.onAddNewResourceClick }
           onSave={ this.onUpdateResource }
           onSaveChildren={ this.onUpdateChildResources }
@@ -587,7 +584,13 @@ class ApplicationEditor extends React.Component<Props, State> {
           applicationId={ applicationId }
         />;
       default:
-        return <ResourceSettingsView resource={ resource } customerId={ customerId } onUpdate={ this.onUpdateResource } onDelete={ this.onDeleteResource } />;
+        return <ResourceSettingsView
+          resource={ resource }
+          customerId={ customerId }
+          onUpdate={ this.onUpdateResource }
+          onDelete={ this.onDeleteResource }
+          confirmationRequired={ this.confirmationRequired }
+        />;
 
     }
   }
@@ -673,6 +676,16 @@ class ApplicationEditor extends React.Component<Props, State> {
    */
   private onOpenResourceClick = async (resource: Resource) => {
     const { openResource } = this.props;
+    const { confirmationRequired } = this.state;
+    if (confirmationRequired) {
+      if (window.confirm(`${strings.continueWithoutSaving}`)) {
+        openResource(resource);
+        this.setState({
+          confirmationRequired: false
+        });
+      }
+      return;
+    }
     openResource(resource);
   };
 
@@ -794,8 +807,10 @@ class ApplicationEditor extends React.Component<Props, State> {
     if (updatedResource.type !== ResourceType.ROOT) {
       openResource(updatedResource);
     } else {
-      this.setState({ rootResource: updatedResource });
-    
+      this.setState({ 
+        rootResource: updatedResource,
+        confirmationRequired: false
+      });
     }
     updatedResourceView();
   };
@@ -855,6 +870,12 @@ class ApplicationEditor extends React.Component<Props, State> {
       openResource(nextOpenResource);
     }
   };
+
+  private confirmationRequired = (value: boolean) => {
+    this.setState({
+      confirmationRequired: value
+    });
+  }
 
   /**
    * Update application method

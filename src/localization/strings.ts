@@ -50,6 +50,7 @@ export interface IStrings extends LocalizedStringsMethods {
   slug: string;
   deleteResource: string;
   deleteResourceDialogDescription: string;
+  continueWithoutSaving: string;
   andAllChildren: string;
   key: string;
   value: string;

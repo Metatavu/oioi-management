@@ -19,6 +19,7 @@
   "deviceImage": "Laitekuva",
   "deviceInformation": "Laitteen tiedot",
   "deleteConfirmation": "Varmista poisto",
+  "continueWithoutSaving": "Sinulla on tallentamattomia muutoksia! Haluatko varmasti jatkaa?",
   "deleteSuccess": "Poisto onnistui",
   "dropFile": "Tiputa tiedosto tai klikkaa ja etsi",
   "edit": "Editoi",

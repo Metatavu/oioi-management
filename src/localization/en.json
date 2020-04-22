@@ -20,6 +20,7 @@
   "deviceInformation": "Device information",
   "dropFile": "Drop file or click to add",
   "deleteConfirmation": "Delete confirmation",
+  "continueWithoutSaving": "You have unsaved modifications! Do you want to continue?",
   "deleteSuccess": "Delete success",
   "edit": "Edit",
   "editDevice": "Edit device",

@@ -40,18 +40,18 @@ interface Props extends WithStyles<typeof styles> {
   resource: Resource;
   customerId: string;
   resourcesUpdated: number;
-
+  confirmationRequired: (value: boolean) => void;
   /**
    * Update resource
    * @param resource resource to update
    */
-  onUpdate(resource: Resource): void;
+  onUpdate: (resource: Resource) => void;
 
   /**
    * Delete resource
    * @param resource resource to delete
    */
-  onDelete(resource: Resource): void;
+  onDelete: (resource: Resource) => void;
 }
 
 /**
@@ -63,6 +63,7 @@ interface State {
   resourceData: any;
   updated: boolean;
   childResources?: Resource[];
+  dataChanged: boolean;
 }
 
 class MenuResourceSettingsView extends React.Component<Props, State> {
@@ -89,7 +90,8 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
 
       resourceId: "",
       resourceData: {},
-      updated: false
+      updated: false,
+      dataChanged: false
     };
   }
 
@@ -187,7 +189,7 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
    * Component render method
    */
   public render() {
-    const { updated } = this.state;
+    const { updated, dataChanged } = this.state;
 
     if (updated) {
       this.setState({
@@ -205,8 +207,8 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
         <Button
           style={{ marginLeft: theme.spacing(3), marginTop: theme.spacing(1) }}
           color="primary"
-          variant="contained"
-          disabled={ !isFormValid }
+          variant="outlined"
+          disabled={ !isFormValid || !dataChanged }
           onClick={ this.onUpdateResource }
         >
           { strings.save }
@@ -218,6 +220,7 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
         <div>
           { this.renderUploaderAndPreview(strings.backgroundMedia, "background") }
           <Divider style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} />
+
           <Typography variant="h4">{ strings.childResources }</Typography>
           { this.renderChildResources() }
           <Divider style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} />
@@ -255,6 +258,10 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
         { this.renderField("name", strings.name, "text") }
         { this.renderField("order_number", strings.orderNumber, "number") }
         { this.renderField("slug", strings.slug, "text") }
+
+        { this.renderField("title", strings.title, "text") }
+        { this.renderField("title", strings.title, "text") }
+        { this.renderField("title", strings.title, "text") }
       </>
     );
   }
@@ -556,7 +563,8 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
 
     resourceData.properties = properties;
     this.setState({
-      resourceData: { ...resourceData }
+      resourceData: { ...resourceData },
+      dataChanged: true
     });
 
     this.onUpdateResource();
@@ -649,8 +657,10 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
     );
 
     this.setState({
-      form
+      form,
+      dataChanged: true
     });
+    this.props.confirmationRequired(true);
   };
 
   /**
@@ -670,8 +680,10 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
     });
 
     this.setState({
-      form
+      form,
+      dataChanged: true
     });
+    this.props.confirmationRequired(true);
   };
 }
 
