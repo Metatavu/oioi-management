@@ -39,6 +39,7 @@ interface Props extends WithStyles<typeof styles> {
   auth: AuthState;
   resource: Resource;
   customerId: string;
+  resourcesUpdated: number;
 
   /**
    * Update resource
@@ -141,7 +142,7 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
    * Component did update method
    */
   public componentDidUpdate = async (prevProps: Props, prevState: State) => {
-    if (prevProps.resource !== this.props.resource) {
+    if (prevProps.resource !== this.props.resource || prevProps.resourcesUpdated !== this.props.resourcesUpdated) {
 
       const { auth, customerId, deviceId, applicationId, resource } = this.props;
       const resourceId = resource.id;

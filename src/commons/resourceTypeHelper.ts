@@ -23,10 +23,6 @@ export const resolveChildResourceTypes = (type: ResourceType): ResourceTypeObjec
     }, {
       value: ResourceType.LANGUAGEMENU,
       resourceLocal: strings.resourceTypes.languageMenu
-    },
-    {
-      value: ResourceType.MENU,
-      resourceLocal: strings.resourceTypes.menu
     }
   ],
   [ResourceType.INTRO]: [

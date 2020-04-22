@@ -75,7 +75,7 @@ class IndexPage extends React.Component<Props, State> {
           path="/"
           exact={ false }
           render={ ({ history }) => (
-            <BreadCrumb history={ history } />
+            <BreadCrumb level={window.location.pathname.split("/").filter(val => !!val).length} history={ history } />
           )}
         />
         <Header></Header>

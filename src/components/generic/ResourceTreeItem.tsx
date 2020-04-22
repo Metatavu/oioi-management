@@ -1,9 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import * as React from "react";
 import styles from "../../styles/editor-view";
-import { withStyles, WithStyles } from "@material-ui/core";
-import TreeItem from "@material-ui/lab/TreeItem";
-import TransitionComponent from "../generic/TransitionComponent";
+import { withStyles, WithStyles, ListItem, ListItemIcon, ListItemText } from "@material-ui/core";
 import { Resource, ResourceType } from "../../generated/client/src";
 import { AuthState } from "../../types";
 import { ReduxState, ReduxActions } from "../../store";
@@ -41,7 +39,6 @@ interface Props extends WithStyles<typeof styles> {
  * Component state
  */
 interface State {
-  resource: Resource;
   parentResourceId?: string;
 }
 
@@ -56,9 +53,7 @@ class ResourceTreeItemClass extends React.Component<Props, State> {
    */
   constructor(props: Props) {
     super(props);
-    this.state = {
-      resource: this.props.resource,
-    };
+    this.state = {};
   }
 
   /**
@@ -72,15 +67,7 @@ class ResourceTreeItemClass extends React.Component<Props, State> {
    * Component render method
    */
   public render() {
-    const { classes } = this.props;
-    const { resource } = this.state;
-
-    const treeItemStyles = {
-      iconContainer: classes.treeIconContainer,
-      group: classes.treeGroup,
-      content: classes.treeContent,
-      label: classes.treeLabel
-    };
+    const { classes, resource } = this.props;
 
     const icon = this.renderIconComponentByResourceType(resource.type);
 
@@ -90,31 +77,17 @@ class ResourceTreeItemClass extends React.Component<Props, State> {
 
     if (this.isAllowedChildren()) {
       return (
-        <TreeItem
-          classes={ treeItemStyles }
-          TransitionComponent={ TransitionComponent }
-          icon={ icon }
-          nodeId={ resource.id }
-          label={
-            <div>
-              <div style={{ display: "inline-block" }} onClick={ this.onTreeItemClick }>{ this.state.resource.name }</div>
-            </div>
-          }
-        />
+        <ListItem key={ resource.id }>
+          <ListItemIcon>{icon}</ListItemIcon>
+          <ListItemText onClick={this.onTreeItemClick} primary={resource.name} />
+        </ListItem>
       );
     } else {
       return (
-        <TreeItem
-          classes={ treeItemStyles }
-          TransitionComponent={ TransitionComponent }
-          icon={ icon }
-          nodeId={ resource.id }
-          label={
-            <div>
-              <div style={{ display: "inline-block" }} onClick={ this.onTreeItemClick }>{ this.state.resource.name }</div>
-            </div>
-          }
-        />
+        <ListItem key={ resource.id }>
+          <ListItemIcon>{icon}</ListItemIcon>
+          <ListItemText onClick={this.onTreeItemClick} primary={resource.name} />
+        </ListItem>
       );
     }
   }
@@ -166,7 +139,7 @@ class ResourceTreeItemClass extends React.Component<Props, State> {
    * On treeItem open method
    */
   private onTreeItemClick = async () => {
-    this.props.onOpenResource(this.state.resource);
+    this.props.onOpenResource(this.props.resource);
   };
 
   /**

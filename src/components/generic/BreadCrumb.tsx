@@ -7,9 +7,7 @@ import strings from "../../localization/strings";
 import { ReduxState, ReduxActions } from "../../store";
 import { Customer, Device, Application } from "../../generated/client/src";
 import { Breadcrumbs, Link, createStyles, Theme, WithStyles, withStyles } from "@material-ui/core";
-import { setDevice } from "../../actions/device";
-import { setCustomer } from "../../actions/customer";
-import { setApplications } from "../../actions/applications";
+import { Link as RouterLink } from "react-router-dom";
 
 /**
  * Component properties
@@ -34,10 +32,12 @@ interface Props extends WithStyles<typeof styles> {
   /**
    * Currently selected applications
    */
-  applications?: Application[];
-  setCustomer: typeof setCustomer;
-  setDevice: typeof setDevice;
-  setApplications: typeof setApplications;
+  application?: Application;
+
+  /**
+   * Current navigation level
+   */
+  level: number;
 }
 
 /**
@@ -88,76 +88,36 @@ class BreadCrumb extends React.Component<Props, State> {
    * Component render method
    */
   public render() {
-    const { classes, customer, device, applications } = this.props;
-
+    const { classes, customer, device, application, level } = this.props;
     return (
       <div className={classes.breadcrumb}>
         <Breadcrumbs aria-label="breadcrumb">
-          <Link className="bc-link" href="/" onClick={this.handleClick("main")}>
+          <Link component={RouterLink} className="bc-link" to="/" >
             Main
           </Link>
-          {customer && (
-            <Link className="bc-link" href={`/${customer.id}/devices`} onClick={this.handleClick("customer")}>
+          {customer && level > 1 && (
+            <Link component={RouterLink} className="bc-link" to={`/${customer.id}/devices`} >
               {customer ? customer.name : strings.loading}
             </Link>
           )}
-          {customer && device && (
-            <Link className="bc-link" href={`/${customer.id}/devices/${device.id}/applications`} onClick={this.handleClick("device")}>
+          {customer && device && level > 3 && (
+            <Link component={RouterLink} className="bc-link" to={`/${customer.id}/devices/${device.id}/applications`} >
               {device ? device.name : strings.loading}
             </Link>
           )}
-          {customer && device && applications && applications.length > 0 && (
+          {customer && device && application && level > 4 && (
             <Link
+              component={RouterLink}
               className="bc-link"
-              href={`/${customer.id}/devices/${device.id}/applications/${applications[0].id}`}
-              onClick={this.handleClick("application")}
+              to={`/${customer.id}/devices/${device.id}/applications/${application.id}`}
             >
-              {applications[0] ? applications[0].name : strings.loading}
+              {application ? application.name : strings.loading}
             </Link>
           )}
         </Breadcrumbs>
       </div>
     );
   }
-
-  /**
-   * Handles clicks on breadcrumb
-   *
-   * @param event mouse event
-   */
-  private handleClick = (pageOpen: PageOpen) => (event: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
-    const { setCustomer, setDevice, setApplications } = this.props;
-
-    event.preventDefault();
-
-    switch (pageOpen) {
-      case "main":
-        setCustomer(undefined);
-        setDevice(undefined);
-        setApplications(undefined);
-
-        break;
-      case "customer":
-        setDevice(undefined);
-        setApplications(undefined);
-
-        break;
-      case "device":
-        setApplications(undefined);
-        break;
-
-      default:
-        break;
-    }
-
-    this.props.history.replace(
-      "/" +
-        event.currentTarget.href
-          .split("/")
-          .splice(3)
-          .join("/")
-    );
-  };
 }
 
 /**
@@ -169,7 +129,7 @@ const mapStateToProps = (state: ReduxState) => ({
   auth: state.auth,
   customer: state.customer.customer,
   device: state.device.device,
-  applications: state.applications.applications
+  application: state.application.application
 });
 
 /**
@@ -178,11 +138,7 @@ const mapStateToProps = (state: ReduxState) => ({
  * @param dispatch
  */
 const mapDispatchToProps = (dispatch: Dispatch<ReduxActions>) => {
-  return {
-    setCustomer: (customer?: Customer) => dispatch(setCustomer(customer)),
-    setDevice: (device?: Device) => dispatch(setDevice(device)),
-    setApplications: (applications?: Application[]) => dispatch(setApplications(applications))
-  };
+  return { };
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(BreadCrumb));

@@ -206,6 +206,7 @@ class AppSettingsView extends React.Component<Props, State> {
       if (key.includes("applicationIcon_")) {
         const preview = (
           <ImagePreview
+            key={ key }
             imagePath={ value }
             onSave={ this.onPropertyFileChange }
             resource={ this.props.rootResource }
