@@ -58,6 +58,9 @@ export interface IStrings extends LocalizedStringsMethods {
   update: string;
   file: string;
   requiredField: string;
+  importInProgress: string;
+  importDone: string;
+  importLabel: string;
   fileUpload: {
     addMedia: string;
     changeMedia: string;

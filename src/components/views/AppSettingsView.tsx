@@ -1,5 +1,5 @@
 import * as React from "react";
-import { withStyles, WithStyles, TextField, Button, Divider, Typography, Grid, Dialog, DialogTitle, DialogContent, DialogActions, } from "@material-ui/core";
+import { withStyles, WithStyles, TextField, Button, Divider, Typography, CircularProgress } from "@material-ui/core";
 import styles from "../../styles/editor-view";
 import strings from "../../localization/strings";
 import theme from "../../styles/theme";
@@ -11,6 +11,8 @@ import FileUpload from "../../utils/FileUpload";
 import logo from "../../resources/svg/oioi-logo.svg";
 import AddIconDialog from "../generic/AddIconDialog";
 import ImagePreview from "../generic/ImagePreview";
+import { AuthState } from "../../types";
+import ApiUtils from "../../utils/ApiUtils";
 
 /**
  * Component Props
@@ -18,7 +20,9 @@ import ImagePreview from "../generic/ImagePreview";
 interface Props extends WithStyles<typeof styles> {
   application: Application;
   customerId: string;
+  deviceId: string;
   rootResource: Resource;
+  auth: AuthState;
   onUpdateApplication: (application: Application) => void;
   onUpdateRootResource: (rootResource: Resource) => void;
 }
@@ -30,6 +34,8 @@ interface State {
   applicationForm: Form<ApplicationForm>;
   resourceMap: Map<string, string>;
   iconDialogOpen: boolean;
+  importingContent: boolean;
+  importDone: boolean;
 }
 /**
  * Creates Application setting view component
@@ -50,7 +56,9 @@ class AppSettingsView extends React.Component<Props, State> {
         applicationRules
       ),
       resourceMap: new Map(),
-      iconDialogOpen: false
+      iconDialogOpen: false,
+      importingContent: false,
+      importDone: false
     };
   }
 
@@ -86,6 +94,18 @@ class AppSettingsView extends React.Component<Props, State> {
    * Component render method
    */
   public render() {
+    const {importDone, importingContent} = this.state;
+    if (importDone) {
+      return (
+        <div><p>{ strings.importDone }</p></div>
+      )
+    }
+    if (importingContent) {
+      return (
+        <div><p>{ strings.importInProgress }</p><br/><CircularProgress /></div>
+      )
+    }
+
     const { isFormValid } = this.state.applicationForm;
     return (
       <div>
@@ -119,8 +139,103 @@ class AppSettingsView extends React.Component<Props, State> {
           onToggle={ this.toggleDialog }
           open={ this.state.iconDialogOpen }
         />
+        <Divider style={ { marginBottom: theme.spacing(3) } } />
+        <Typography variant="h4">{strings.importLabel}</Typography>
+        <input onChange={ (e) => this.handleWallJsonImport(e.target.files)} type="file"  />
       </div>
     );
+  }
+
+  /**
+   * Handles importing data from wall json file
+   * 
+   */
+  private handleWallJsonImport = async (files: FileList | null) => {
+    if (!files) {
+      return;
+    }
+
+    const file = files.item(0);
+    if (!file) {
+      return;
+    }
+
+    const { rootResource } = this.props;
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      if (!e.target) {
+        return;
+      }
+      const data = JSON.parse(e.target.result as string)
+      const topLevel = data.root.children;
+      this.setState({ importingContent: true });
+      const imported = await this.importWallJsonItems(rootResource.id!, topLevel);
+      this.setState({importDone: imported});
+      setTimeout(() => window.location.reload(), 3000);
+    }
+    reader.readAsText(file);
+  }
+
+  /**
+   * Imports wall json items
+   */
+  private importWallJsonItems = async (parentId: string, items: any[]): Promise<boolean> => {
+    const { auth, application, customerId, deviceId } = this.props;
+    if (!auth || !auth.token) {
+      return false;
+    }
+
+    const resourcesApi = ApiUtils.getResourcesApi(auth.token);
+    for(let i = 0; i < items.length; i++) {
+      let item = items[i];
+      let createdResource = await resourcesApi.createResource({
+        application_id: application.id!,
+        customer_id: customerId,
+        device_id: deviceId,
+        resource: this.translateWallItemToResource(parentId, i, item) 
+      });
+      if (item.children.length > 0) {
+        await this.importWallJsonItems(createdResource.id!, item.children);
+      }
+    }
+
+    return true;
+  }
+
+  /**
+   * Translates wall json item to resource
+   */
+  private translateWallItemToResource = (parentId: string, index: number, item: any): Resource => {
+    return {
+      name: item.name,
+      slug: item.slug,
+      type: item.type,
+      data: item.data,
+      order_number: index,
+      parent_id: parentId,
+      properties: this.translateWallItemProperties(item),
+      styles: this.translateWallItemStyles(item)
+    };
+  }
+
+  /**
+   * Translates wall json item properties to resource properties
+   */
+  private translateWallItemProperties = (item: any): KeyValueProperty[] => {
+    const properties: KeyValueProperty[] = [];
+    const keys = Object.keys(item.properties);
+    keys.forEach(key => properties.push({key: key, value: item.properties[key]}));
+    return properties;
+  }
+
+  /**
+   * Translates wall json item styles to resource styles
+   */
+  private translateWallItemStyles = (item: any): KeyValueProperty[] => {
+    const styles: KeyValueProperty[] = [];
+    const keys = Object.keys(item.styles);
+    keys.forEach(key => styles.push({key: key, value: item.styles[key]}));
+    return styles;
   }
 
   /**

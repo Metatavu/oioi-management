@@ -57,6 +57,9 @@
   "file": "File",
   "update": "Update",
   "requiredField": "Required field",
+  "importInProgress": "Importing content, please wait and dont do anything.",
+  "importDone": "Success, page will refresh automatically after few seconds",
+  "importLabel": "Import contents from JSON - file",
   "fileUpload": {
     "addMedia": "Add media",
     "changeMedia": "Change media",
