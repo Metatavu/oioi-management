@@ -69,6 +69,9 @@ export interface IStrings extends LocalizedStringsMethods {
   updateSuccessMessage: string;
   createSuccessMessage: string;
   deleteSuccessMessage: string;
+  importInProgress: string;
+  importDone: string;
+  importLabel: string;
   fileUpload: {
     addMedia: string;
     changeMedia: string;

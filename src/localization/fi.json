@@ -67,7 +67,9 @@
   "unavailableErrorMessage": "Palvelu on väliaikaisesti poissa käytöstä, jos ongelma ei katoa, ota yhteyttä järjestelmän ylläpitäjiin.",
   "updateSuccessMessage": "Päivitys onnistui.",
   "createSuccessMessage": "Luonti onnistui.",
-  "deleteSuccessMessage": "Poisto onnistui",
+  "importInProgress": "Sisältöä tuodaan, odota äläkä tee mitään.",
+  "importDone": "Onnistui, sivu ladataan uudelleen hetken kuluttua.",
+  "importLabel": "Tuo sisältö json tiedostosta.",
   "fileUpload": {
     "addMedia": "Lisää media",
     "changeMedia": "Vaihda media",
