@@ -57,7 +57,6 @@ interface State {
   updated: boolean;
   childResources?: Resource[];
   dataChanged: boolean;
-
   resourceMap: Map<string, string>;
 }
 
