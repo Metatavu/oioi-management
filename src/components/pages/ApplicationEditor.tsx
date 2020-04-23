@@ -869,6 +869,7 @@ class ApplicationEditor extends React.Component<Props, State> {
    */
   private onDeleteResource = async (resource: Resource, nextOpenResource?: Resource) => {
     const { auth, customerId, deviceId, applicationId, openResource } = this.props;
+    const { treeData } = this.state;
     const resourceId = resource.id;
 
     if (!auth || !auth.token || !resourceId) {
@@ -891,12 +892,15 @@ class ApplicationEditor extends React.Component<Props, State> {
     if (window.confirm(`${strings.deleteResourceDialogDescription} ${subjectToDelete}?`)) {
       await resourcesApi.deleteResource({ customer_id: customerId, device_id: deviceId, application_id: applicationId, resource_id: resourceId });
       openResource(nextOpenResource);
+      this.setState({
+        treeData: this.treeDataDelete(resource.id || "", treeData || [])
+      });
     }
   };
 
   private confirmationRequired = (value: boolean) => {
     this.setState({
-      confirmationRequired: value
+      confirmationRequired: value,
     });
   }
 
