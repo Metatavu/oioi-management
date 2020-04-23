@@ -566,6 +566,7 @@ class ApplicationEditor extends React.Component<Props, State> {
     switch (resource.type) {
       case ResourceType.MENU:
       case ResourceType.LANGUAGE:
+      case ResourceType.LANGUAGEMENU:
       case ResourceType.SLIDESHOW:
       case ResourceType.INTRO:
         return <MenuResourceSettingsView
@@ -602,7 +603,6 @@ class ApplicationEditor extends React.Component<Props, State> {
           onDelete={ this.onDeleteResource }
           confirmationRequired={ this.confirmationRequired }
         />;
-
     }
   }
 
@@ -621,9 +621,9 @@ class ApplicationEditor extends React.Component<Props, State> {
     }
 
     return (
-      <ListItem key={ parent_id + "add" }>
-        <ListItemIcon style={{ minWidth: 0, marginRight: theme.spacing(1) }}><AddIcon /></ListItemIcon>
-        <ListItemText className={ classes.addResourceBtnText } onMouseUp={ () => this.onAddNewResourceClick(parent_id) } primary={ strings.addNew } />
+      <ListItem className={ classes.treeAddItem } onClick={ () => this.onAddNewResourceClick(parent_id) } key={ parent_id + "add" }>
+        <ListItemIcon style={ { minWidth: 0, marginRight: theme.spacing(1) } }><AddIcon /></ListItemIcon>
+        <ListItemText className={ classes.addResourceBtnText } primary={ strings.addNew } />
       </ListItem>
     );
   };
@@ -659,20 +659,10 @@ class ApplicationEditor extends React.Component<Props, State> {
    */
   private treeDataDelete = (id: string, data: ResourceTreeItem[]): ResourceTreeItem[] => {
     return  data.filter(item => !item.resource || (item.resource.id !== id))
-    .map((item) => {
-      return {...item, children: (item.children) ? this.treeDataDelete(id, item.children as ResourceTreeItem[]) : [] }
+    .map(item => {
+      return { ...item, children: (item.children) ? this.treeDataDelete(id, item.children as ResourceTreeItem[]) : [] };
     });
   }
-
-  /**
-   * Child add click
-   */
-  private onChildAddClick = (parentResourceId: string) => {
-    this.setState({
-      addResourceDialogOpen: true,
-      parentResourceId: parentResourceId
-    });
-  };
 
   /**
    * on add resource click method

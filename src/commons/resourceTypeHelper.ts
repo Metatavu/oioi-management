@@ -98,7 +98,12 @@ export const resolveUploadLocalizationString = (type: ResourceType): ResourceTyp
   [ResourceType.INTRO]: {},
   [ResourceType.LANGUAGEMENU] : {},
   [ResourceType.LANGUAGE] : {},
-  [ResourceType.MENU]: {},
+  [ResourceType.MENU]: {
+    fileUploadLocal : [
+      strings.fileUpload.addImage,
+      strings.fileUpload.changeImage
+    ]
+  },
   [ResourceType.SLIDESHOW] : {},
   [ResourceType.PAGE]: {},
   [ResourceType.PDF]: {

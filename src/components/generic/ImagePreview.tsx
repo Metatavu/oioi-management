@@ -3,12 +3,13 @@ import { Dialog, AppBar, Toolbar, IconButton, withStyles, WithStyles, Typography
 import styles from "../../styles/editor-view";
 import strings from "../../localization/strings";
 import theme from "../../styles/theme";
-import { Resource } from "../../generated/client/src";
+import { Resource, ResourceType } from "../../generated/client/src";
 
 import CloseIcon from '@material-ui/icons/Close';
 import ClearIcon from "@material-ui/icons/Clear";
 import FileUploader from "../generic/FileUploader";
 import { getAllowedFileTypes } from "../../commons/resourceTypeHelper";
+import ReactPlayer from 'react-player'
 
 /**
  * Component props
@@ -62,33 +63,39 @@ class ImagePreview extends React.Component<Props, State> {
     const { imagePath, resource, onSave, uploadKey } = this.props;
     const allowedFileTypes = getAllowedFileTypes(resource.type);
     const displayName = this.trimKeyPrefix(uploadKey);
-    return <>
-      <div style={{ marginTop: theme.spacing(2) }}>
-        { this.isIcon(uploadKey) && 
-          <Typography variant="h5">{ displayName }</Typography>
-        }
-        <Grid container>
-          <Grid item key={ imagePath } onClick={ this.toggleDialog }>
-            <img src={ imagePath } alt="File" height="200" />
+    const video = resource.type === ResourceType.VIDEO;
+    return (
+      <>
+        <div style={{ marginTop: theme.spacing(2) }}>
+          { this.isIcon(uploadKey) && 
+            <Typography variant="h5">{ displayName }</Typography>
+          }
+          <Grid container>
+            <Grid item key={ imagePath } onClick={ this.toggleDialog }>
+              { video ?
+                <ReactPlayer url={ imagePath } controls={ true }/> :
+                <img src={ imagePath } alt="File" height="200" style={{ backgroundColor: "rgba(38, 50, 56, 0.1)" }}/>
+              }
+            </Grid>
+            <Grid item>
+              <IconButton onClick={ () => this.props.onDelete(uploadKey) }>
+                <ClearIcon color="primary"></ClearIcon>
+              </IconButton>
+            </Grid>
           </Grid>
-          <Grid item>
-            <IconButton onClick={ () => this.props.onDelete(uploadKey) }>
-              <ClearIcon color="primary"></ClearIcon>
-            </IconButton>
-          </Grid>
-        </Grid>
-      </div>
-      <FileUploader
-        resource={ resource }
-        allowedFileTypes={ allowedFileTypes }
-        onSave={ onSave }
-        uploadKey={ uploadKey }
-      />
+        </div>
+        <FileUploader
+          resource={ resource }
+          allowedFileTypes={ allowedFileTypes }
+          onSave={ onSave }
+          uploadKey={ uploadKey }
+        />
 
-      { this.state.dialogOpen &&
-        this.renderDialog()
-      }
-    </>;
+        { this.state.dialogOpen &&
+          this.renderDialog()
+        }
+      </>
+    );
   }
 
   /**

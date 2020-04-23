@@ -8,6 +8,7 @@
   "addNewDevice": "Add a new device",
   "applications": "Applications",
   "applicationName": "Application name",
+  "applicationBasicInformation": "Basic information",
   "back": "Back",
   "cancel": "Cancel",
   "confirm": "Confirm",
@@ -111,7 +112,9 @@
     "id": "Application id",
     "addIcon": "Add icon"
   },
+  "playback": "Playback",
   "autoplay": "Automatic play",
   "loop": "Loop",
-  "slideTimeOnScreen": "Slide time on screen"
+  "slideTimeOnScreen": "Slide time on screen",
+  "menuIcon": "Menu icon"
 }

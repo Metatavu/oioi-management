@@ -10,6 +10,7 @@ export interface IStrings extends LocalizedStringsMethods {
   addNewDevice: string;
   applications: string;
   applicationName: string;
+  applicationBasicInformation: string;
   back: string;
   cancel: string;
   confirm: string;
@@ -112,9 +113,11 @@ export interface IStrings extends LocalizedStringsMethods {
     id: string;
     addIcon: string;
   };
+  playback: string;
   autoplay: string;
   loop: string;
   slideTimeOnScreen: string;
+  menuIcon: string;
 }
 
 const strings: IStrings = new LocalizedStrings({
