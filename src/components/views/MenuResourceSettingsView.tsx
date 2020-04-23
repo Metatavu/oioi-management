@@ -217,9 +217,9 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
           <Divider style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} />
         </div>
         <Typography variant="h3">{ strings.advanced }</Typography>
-        { this.renderField("name", strings.name, "text") }
-        { this.renderField("order_number", strings.orderNumber, "number") }
-        { this.renderField("slug", strings.slug, "text") }
+        { this.renderFormField("name", strings.name, "text") }
+        { this.renderFormField("order_number", strings.orderNumber, "number") }
+        { this.renderFormField("slug", strings.slug, "text") }
         <div>
           { this.renderStyleTable() }
         </div>
@@ -240,25 +240,70 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
     return (
       <>
         <Typography variant="h3">{ strings.title }</Typography>
-        { this.renderField("title", strings.title, "text") }
+        { this.renderPropertiesField("title", strings.title, "text") }
 
         <Typography variant="h3">{ strings.nameText }</Typography>
-        { this.renderField("nameText", strings.nameText, "textarea") }
+        { this.renderPropertiesField("nameText", strings.nameText, "textarea") }
 
         <Typography variant="h3">{ strings.content }</Typography>
-        { this.renderField("content", strings.content, "textarea") }
+        { this.renderPropertiesField("content", strings.content, "textarea") }
         { resource.type === ResourceType.SLIDESHOW && this.renderSlideShowFields() }
       </>
     );
   }
 
   /**
-   * Renders textfield
+   * Renders form text field
    * @param key to look for
    * @param label label to be shown
    * @param type text field type
    */
-  private renderField = (key: keyof ResourceSettingsForm, label: string, type: string) => {
+  private renderFormField = (key: keyof ResourceSettingsForm, label: string, type: string) => {
+    const {
+      values,
+      messages: { [key]: message }
+    } = this.state.form;
+    if (type === "textarea") {
+      return ( <TextField
+        fullWidth
+        multiline
+        rows={ 8 }
+        style={{ margin: theme.spacing(3) }}
+        type={ type }
+        error={ message && message.type === MessageType.ERROR }
+        helperText={ message && message.message }
+        value={ values[key] || "" }
+        onChange={ this.onHandleResourceTextChange(key) }
+        onBlur={ this.onHandleBlur(key) }
+        name={ key }
+        variant="outlined"
+        label={ label }
+      /> );
+    }
+    return (
+      <TextField
+        fullWidth
+        style={{ margin: theme.spacing(3) }}
+        type={ type }
+        error={ message && message.type === MessageType.ERROR }
+        helperText={ message && message.message }
+        value={ values[key] || "" }
+        onChange={ this.onHandleResourceTextChange(key) }
+        onBlur={ this.onHandleBlur(key) }
+        name={ key }
+        variant="outlined"
+        label={ label }
+      />
+    );
+  };
+
+  /**
+   * Renders properties field
+   * @param key to look for
+   * @param label label to be shown
+   * @param type text field type
+   */
+  private renderPropertiesField = (key: keyof ResourceSettingsForm, label: string, type: string) => {
     const { messages: { [key]: message } } = this.state.form;
     if (type === "textarea") {
       return (
@@ -303,9 +348,38 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
     return <>
       { this.renderCheckbox("autoplay", strings.autoplay) }
       { this.renderCheckbox("loop", strings.loop) }
-      { this.renderField("slideTimeOnScreen", strings.slideTimeOnScreen, "text") }
+      { this.renderPropertiesField("slideTimeOnScreen", strings.slideTimeOnScreen, "text") }
     </>;
   }
+
+  /**
+   * Handles resource text fields change events
+   * @param key
+   * @param event
+   */
+  private onHandleResourceTextChange = (key: keyof ResourceSettingsForm) => (event: React.ChangeEvent<HTMLInputElement>) => {
+    const values = {
+      ...this.state.form.values,
+      [key]: event.target.value
+    };
+
+    const form = validateForm(
+      {
+        ...this.state.form,
+        values
+      },
+      {
+        usePreprocessor: false
+      }
+    );
+
+    this.setState({
+      form,
+      dataChanged: true
+    });
+
+    this.props.confirmationRequired(true);
+  };
 
   /**
    * Render checkbox
@@ -599,10 +673,19 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
    */
   private onUpdateResource = () => {
     const { onUpdate } = this.props;
+    const { form, resourceData } = this.state;
     const properties: KeyValueProperty[] = [];
     this.getPropertiesToUpdate(properties);
     const resource = {
       ...this.props.resource,
+      name: form.values.name,
+      order_number: form.values.order_number,
+      slug: form.values.slug,
+      parent_id: form.values.parent_id,
+      type: form.values.type,
+      id: form.values.id,
+      data: resourceData["data"],
+      styles: resourceData["styles"],
       properties: properties.filter(p => !!p.value)
     } as Resource;
     onUpdate(resource);
