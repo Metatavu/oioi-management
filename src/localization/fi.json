@@ -2,6 +2,7 @@
   "active": "Aktiivinen",
   "address": "Osoite",
   "addNew": "Lisää..",
+  "advanced": "Edistyneet toiminnot",
   "addLanguage": "Lisää kieli",
   "addNewCustomer": "Lisää uusi asiakas",
   "addNewDevice": "Lisää uusi laite",
@@ -19,6 +20,7 @@
   "deviceImage": "Laitekuva",
   "deviceInformation": "Laitteen tiedot",
   "deleteConfirmation": "Varmista poisto",
+  "continueWithoutSaving": "Sinulla on tallentamattomia muutoksia! Haluatko varmasti jatkaa?",
   "deleteSuccess": "Poisto onnistui",
   "dropFile": "Tiputa tiedosto tai klikkaa ja etsi",
   "edit": "Editoi",
@@ -107,5 +109,8 @@
     "returnDelay": "Alkutilan paluuviive minuutteina",
     "id": "Sovelluksen id",
     "addIcon": "Lisää ikoni"
-  }
+  },
+  "autoplay": "Automaattinen toisto",
+  "loop": "Looppi",
+  "slideTimeOnScreen": "Siirtymä aika näytöllä"
 }

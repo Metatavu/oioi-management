@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import * as React from "react";
 import styles from "../../styles/editor-view";
-import { withStyles, WithStyles, ListItem, ListItemIcon, ListItemText } from "@material-ui/core";
+import { withStyles, WithStyles, ListItem, ListItemIcon, ListItemText, ListItemSecondaryAction } from "@material-ui/core";
 import { Resource, ResourceType } from "../../generated/client/src";
 import { AuthState } from "../../types";
 import { ReduxState, ReduxActions } from "../../store";
@@ -19,6 +19,7 @@ import VideoIcon from "@material-ui/icons/PlayCircleOutlineOutlined";
 import TextIcon from "@material-ui/icons/TitleOutlined";
 import PDFIcon from "@material-ui/icons/PictureAsPdfOutlined";
 import ImageIcon from "@material-ui/icons/ImageOutlined";
+import theme from "../../styles/theme";
 
 /**
  * Component props
@@ -77,7 +78,7 @@ class ResourceTreeItemClass extends React.Component<Props, State> {
 
     return (
       <ListItem key={ resource.id } selected={ openedResource && openedResource.id === resource.id }>
-        <ListItemIcon>{ icon }</ListItemIcon>
+        <ListItemIcon style={{ minWidth: 0, marginRight: theme.spacing(1) }}>{ icon }</ListItemIcon>
         <ListItemText onClick={ this.onTreeItemClick } primary={ resource.name } />
       </ListItem>
     );

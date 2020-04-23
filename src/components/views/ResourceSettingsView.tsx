@@ -32,13 +32,14 @@ interface Props extends WithStyles<typeof styles> {
    * Update resource
    * @param resource resource to update
    */
-  onUpdate(resource: Resource): void;
+  onUpdate: (resource: Resource) => void;
 
   /**
    * Delete resource
    * @param resource resource to delete
    */
-  onDelete(resource: Resource): void;
+  onDelete: (resource: Resource) => void;
+  confirmationRequired: (value: boolean) => void;
 }
 
 /**
@@ -49,6 +50,7 @@ interface State {
   resourceId: string;
   resourceData: any;
   updated: boolean;
+  dataChanged: boolean;
 }
 
 class ResourceSettingsView extends React.Component<Props, State> {
@@ -72,7 +74,8 @@ class ResourceSettingsView extends React.Component<Props, State> {
 
       resourceId: "",
       resourceData: {},
-      updated: false
+      updated: false,
+      dataChanged: false
     };
   }
 
@@ -126,7 +129,7 @@ class ResourceSettingsView extends React.Component<Props, State> {
    * Component render method
    */
   public render() {
-    const { updated } = this.state;
+    const { updated, dataChanged } = this.state;
 
     if (updated) {
       this.setState({
@@ -139,18 +142,15 @@ class ResourceSettingsView extends React.Component<Props, State> {
     const dataField = this.renderDataField();
 
     const { isFormValid } = this.state.form;
-    const resourceTypeObject = getLocalizedTypeString(this.props.resource.type);
 
     return (
       <div>
         <Grid>
-          <Typography variant="h3">{ resourceTypeObject.resourceLocal }</Typography>
           <Button
             style={{ marginLeft: theme.spacing(3), marginTop: theme.spacing(1) }}
             color="primary"
-            variant="contained"
-            startIcon={ <SaveIcon /> }
-            disabled={ !isFormValid }
+            variant="outlined"
+            disabled={ !isFormValid || !dataChanged }
             onClick={ this.onUpdateResource }
           >
             { strings.save }
@@ -163,6 +163,11 @@ class ResourceSettingsView extends React.Component<Props, State> {
           <Typography variant="h3">{ localizedDataString }</Typography>
           { dataField }
         </div>
+        <Divider style={{ marginBottom: theme.spacing(3), marginTop: theme.spacing(3) }} />
+        <Typography variant="h3">{ strings.advanced }</Typography>
+        { this.renderField("name", strings.name, "text") }
+        { this.renderField("order_number", strings.orderNumber, "number") }
+        { this.renderField("slug", strings.slug, "text") }
         <Divider style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} />
         <div>
           { this.renderStyleTable() }
@@ -180,7 +185,7 @@ class ResourceSettingsView extends React.Component<Props, State> {
    * Render text fields
    */
   private renderFields = () => {
-    return<>
+    return (
       <Grid container spacing={ 3 } direction="row">
         <Typography variant="h3">{ strings.title }</Typography>
         { this.renderField("title", strings.title, "text") }
@@ -190,12 +195,8 @@ class ResourceSettingsView extends React.Component<Props, State> {
 
         <Typography variant="h3">{ strings.content }</Typography>
         { this.renderField("content", strings.content, "textarea") }
-
-        { this.renderField("name", strings.name, "text") }
-        { this.renderField("order_number", strings.orderNumber, "number") }
-        { this.renderField("slug", strings.slug, "text") }
       </Grid>
-    </>
+    );
   }
 
   /**
@@ -415,7 +416,7 @@ class ResourceSettingsView extends React.Component<Props, State> {
       );
     } else {
       const fileData = this.state.form.values.data || logo;
-      
+
       return <>
         <ImagePreview
           imagePath={ fileData }
@@ -500,8 +501,10 @@ class ResourceSettingsView extends React.Component<Props, State> {
     resourceData[e.target.name] = e.target.value;
 
     this.setState({
-      resourceData: resourceData
+      resourceData: resourceData,
+      dataChanged: true
     });
+    this.props.confirmationRequired(true);
   };
 
   /**
@@ -519,7 +522,6 @@ class ResourceSettingsView extends React.Component<Props, State> {
     } as Resource;
 
     onUpdate(resource);
-
     this.setState({
       resourceData: resourceData
     });
@@ -547,8 +549,11 @@ class ResourceSettingsView extends React.Component<Props, State> {
     );
 
     this.setState({
-      form
+      form:form,
+      dataChanged: true
     });
+
+    this.props.confirmationRequired(true);
   };
 
   /**
@@ -568,8 +573,11 @@ class ResourceSettingsView extends React.Component<Props, State> {
     });
 
     this.setState({
-      form
+      form: form,
+      dataChanged: true
     });
+
+    this.props.confirmationRequired(true);
   };
 }
 

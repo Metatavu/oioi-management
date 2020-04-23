@@ -5,7 +5,6 @@ import MaterialTable from "material-table";
 import AddIcon from "@material-ui/icons/AddBox";
 import AddCircleIcon from '@material-ui/icons/AddCircle';
 import DeleteIcon from "@material-ui/icons/Delete";
-import SaveIcon from "@material-ui/icons/Save";
 import CheckIcon from "@material-ui/icons/Check";
 import ClearIcon from "@material-ui/icons/Clear";
 import EditIcon from "@material-ui/icons/Edit";
@@ -64,6 +63,7 @@ interface Props extends WithStyles<typeof styles> {
    * @param nextOpenResource
    */
   onDeleteChild: (resource: Resource, nextOpenResource?: Resource) => void;
+  confirmationRequired: (value: boolean) => void;
 }
 
 /**
@@ -75,6 +75,7 @@ interface State {
   resourceData: any;
   loading: boolean;
   childResources?: Resource[];
+  dataChanged: boolean;
 }
 
 class PageResourceSettingsView extends React.Component<Props, State> {
@@ -97,7 +98,8 @@ class PageResourceSettingsView extends React.Component<Props, State> {
 
       resourceId: "",
       resourceData: {},
-      loading: false
+      loading: false,
+      dataChanged: false
     };
   }
 
@@ -131,25 +133,22 @@ class PageResourceSettingsView extends React.Component<Props, State> {
    * Component render method
    */
   public render() {
-    const { loading } = this.state;
+    const { loading, dataChanged } = this.state;
 
     if (loading) {
       return;
     }
 
     const { isFormValid } = this.state.form;
-    const resourceTypeObject = getLocalizedTypeString(this.props.resource.type);
 
     return (
       <div>
         <Grid>
-          <Typography variant="h3">{ resourceTypeObject.resourceLocal }</Typography>
           <Button
             style={{ marginLeft: theme.spacing(3), marginTop: theme.spacing(1) }}
             color="primary"
-            variant="contained"
-            startIcon={ <SaveIcon /> }
-            disabled={ !isFormValid }
+            variant="outlined"
+            disabled={ !isFormValid || !dataChanged }
             onClick={ this.onSaveChanges }
           >
             { strings.save }
@@ -157,14 +156,14 @@ class PageResourceSettingsView extends React.Component<Props, State> {
         </Grid>
 
         <div>
-          <Divider style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} />
-          { this.renderResourceFields() }
           { this.renderChildResources() }
           <Divider style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} />
           { this.renderAddChild() }
           <Divider style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} />
         </div>
-
+        <Typography variant="h3">{ strings.advanced }</Typography>
+        <Divider style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} />
+        { this.renderResourceFields() }
         <div>
           { this.renderStyleTable() }
           <Divider style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} />
@@ -598,8 +597,11 @@ class PageResourceSettingsView extends React.Component<Props, State> {
     const resourceIndex = childResources.findIndex(resource => resource.id === childResource.id);
     childResources.splice(resourceIndex, 1, childResource);
     this.setState({
-      childResources
+      childResources,
+      dataChanged: true
     });
+
+    this.props.confirmationRequired(true);
   }
 
   /**
@@ -624,8 +626,11 @@ class PageResourceSettingsView extends React.Component<Props, State> {
     );
 
     this.setState({
-      form
+      form,
+      dataChanged: true
     });
+
+    this.props.confirmationRequired(true);
   };
 
   /**
@@ -697,8 +702,11 @@ class PageResourceSettingsView extends React.Component<Props, State> {
     });
 
     this.setState({
-      form
+      form,
+      dataChanged: true
     });
+
+    this.props.confirmationRequired(true);
   };
 }
 

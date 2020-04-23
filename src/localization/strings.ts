@@ -3,6 +3,7 @@ import LocalizedStrings, { LocalizedStringsMethods } from "localized-strings";
 export interface IStrings extends LocalizedStringsMethods {
   active: string;
   address: string;
+  advanced: string;
   addNew: string;
   addLanguage: string;
   addNewCustomer: string;
@@ -50,6 +51,7 @@ export interface IStrings extends LocalizedStringsMethods {
   slug: string;
   deleteResource: string;
   deleteResourceDialogDescription: string;
+  continueWithoutSaving: string;
   andAllChildren: string;
   key: string;
   value: string;
@@ -110,6 +112,9 @@ export interface IStrings extends LocalizedStringsMethods {
     id: string;
     addIcon: string;
   };
+  autoplay: string;
+  loop: string;
+  slideTimeOnScreen: string;
 }
 
 const strings: IStrings = new LocalizedStrings({

@@ -2,6 +2,7 @@
   "active": "Active",
   "address": "Address",
   "addNew": "Add..",
+  "advanced": "Advanced",
   "addLanguage": "Add language",
   "addNewCustomer": "Add a new customer",
   "addNewDevice": "Add a new device",
@@ -20,6 +21,7 @@
   "deviceInformation": "Device information",
   "dropFile": "Drop file or click to add",
   "deleteConfirmation": "Delete confirmation",
+  "continueWithoutSaving": "You have unsaved modifications! Do you want to continue?",
   "deleteSuccess": "Delete success",
   "edit": "Edit",
   "editDevice": "Edit device",
@@ -108,5 +110,8 @@
     "returnDelay": "Reset delay",
     "id": "Application id",
     "addIcon": "Add icon"
-  }
+  },
+  "autoplay": "Automatic play",
+  "loop": "Loop",
+  "slideTimeOnScreen": "Slide time on screen"
 }

@@ -25,6 +25,7 @@ interface Props extends WithStyles<typeof styles> {
   auth: AuthState;
   onUpdateApplication: (application: Application) => void;
   onUpdateRootResource: (rootResource: Resource) => void;
+  confirmationRequired: (value: boolean) => void;
 }
 
 /**
@@ -36,6 +37,7 @@ interface State {
   iconDialogOpen: boolean;
   importingContent: boolean;
   importDone: boolean;
+  dataChanged: boolean;
 }
 /**
  * Creates Application setting view component
@@ -58,7 +60,8 @@ class AppSettingsView extends React.Component<Props, State> {
       resourceMap: new Map(),
       iconDialogOpen: false,
       importingContent: false,
-      importDone: false
+      importDone: false,
+      dataChanged: false
     };
   }
 
@@ -94,7 +97,7 @@ class AppSettingsView extends React.Component<Props, State> {
    * Component render method
    */
   public render() {
-    const {importDone, importingContent} = this.state;
+    const { importDone, importingContent, dataChanged } = this.state;
     if (importDone) {
       return (
         <div><p>{ strings.importDone }</p></div>
@@ -113,7 +116,7 @@ class AppSettingsView extends React.Component<Props, State> {
           style={ { marginLeft: theme.spacing(3), marginTop: theme.spacing(1) } }
           color="primary"
           variant="outlined"
-          disabled={ !isFormValid }
+          disabled={ !isFormValid || !dataChanged }
           onClick={ this.onUpdateApplication }
         >
           { strings.save }
@@ -141,7 +144,7 @@ class AppSettingsView extends React.Component<Props, State> {
         />
         <Divider style={ { marginBottom: theme.spacing(3) } } />
         <Typography variant="h4">{strings.importLabel}</Typography>
-        <input onChange={ (e) => this.handleWallJsonImport(e.target.files)} type="file"  />
+        <input onChange={ e => this.handleWallJsonImport(e.target.files)} type="file"  />
       </div>
     );
   }
@@ -162,7 +165,7 @@ class AppSettingsView extends React.Component<Props, State> {
 
     const { rootResource } = this.props;
     const reader = new FileReader();
-    reader.onload = async (e) => {
+    reader.onload = async e => {
       if (!e.target) {
         return;
       }
@@ -170,7 +173,7 @@ class AppSettingsView extends React.Component<Props, State> {
       const topLevel = data.root.children;
       this.setState({ importingContent: true });
       const imported = await this.importWallJsonItems(rootResource.id!, topLevel);
-      this.setState({importDone: imported});
+      this.setState({ importDone: imported });
       setTimeout(() => window.location.reload(), 3000);
     }
     reader.readAsText(file);
@@ -312,7 +315,6 @@ class AppSettingsView extends React.Component<Props, State> {
 
   /**
    * Render media elements
-   * TODO: Add remove/modify buttons (Tuomas)
    */
   private renderIconList = () => {
     const { resourceMap } = this.state;
@@ -406,8 +408,10 @@ class AppSettingsView extends React.Component<Props, State> {
     );
 
     this.setState({
-      applicationForm
+      applicationForm,
+      dataChanged: true,
     });
+    this.props.confirmationRequired(true);
   };
 
   /**
@@ -420,8 +424,10 @@ class AppSettingsView extends React.Component<Props, State> {
     copy.set(key, event.target.value);
 
     this.setState({
-      resourceMap: copy
+      resourceMap: copy,
+      dataChanged: true
     });
+    this.props.confirmationRequired(true);
   };
 
   /**
@@ -441,8 +447,10 @@ class AppSettingsView extends React.Component<Props, State> {
     });
 
     this.setState({
-      applicationForm
+      applicationForm,
+      dataChanged: true
     });
+    this.props.confirmationRequired(true);
   };
 
   /**
@@ -462,7 +470,8 @@ class AppSettingsView extends React.Component<Props, State> {
     const tempMap = this.state.resourceMap;
     tempMap.set(key, newUri);
     this.setState({
-      resourceMap: tempMap
+      resourceMap: tempMap,
+      dataChanged: true
     });
 
     this.onUpdateResource();
@@ -476,7 +485,8 @@ class AppSettingsView extends React.Component<Props, State> {
 
     tempMap.delete(key);
     this.setState({
-      resourceMap: tempMap
+      resourceMap: tempMap,
+      dataChanged: true
     });
 
     this.onUpdateResource();

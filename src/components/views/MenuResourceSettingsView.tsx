@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import * as React from "react";
-import { withStyles, WithStyles, TextField, Divider, Typography, Button, TableContainer, Paper, Table, TableHead, TableRow, TableCell, TableBody } from "@material-ui/core";
+import { withStyles, WithStyles, FormControlLabel, Checkbox, TextField, Divider, Typography, Button, TableContainer, Paper, Table, TableHead, TableRow, TableCell, TableBody } from "@material-ui/core";
 import MaterialTable from "material-table";
 import AddIcon from "@material-ui/icons/AddBox";
 import DeleteIcon from "@material-ui/icons/DeleteForever";
@@ -10,12 +10,11 @@ import EditIcon from "@material-ui/icons/Edit";
 import styles from "../../styles/editor-view";
 import strings from "../../localization/strings";
 import theme from "../../styles/theme";
-import { Resource, ResourceToJSON, KeyValueProperty } from "../../generated/client/src";
+import { Resource, ResourceToJSON, KeyValueProperty, ResourceType } from "../../generated/client/src";
 import FileUpload from "../../utils/FileUpload";
 import { forwardRef } from "react";
 import { MessageType, initForm, Form, validateForm } from "ts-form-validation";
 
-import { getLocalizedTypeString } from "../../commons/resourceTypeHelper";
 import { AuthState } from "../../types";
 import ApiUtils from "../../utils/ApiUtils";
 import logo from "../../resources/svg/oioi-logo.svg";
@@ -34,18 +33,18 @@ interface Props extends WithStyles<typeof styles> {
   resource: Resource;
   customerId: string;
   resourcesUpdated: number;
-
+  confirmationRequired: (value: boolean) => void;
   /**
    * Update resource
    * @param resource resource to update
    */
-  onUpdate(resource: Resource): void;
+  onUpdate: (resource: Resource) => void;
 
   /**
    * Delete resource
    * @param resource resource to delete
    */
-  onDelete(resource: Resource): void;
+  onDelete: (resource: Resource) => void;
 }
 
 /**
@@ -57,6 +56,8 @@ interface State {
   resourceData: any;
   updated: boolean;
   childResources?: Resource[];
+  dataChanged: boolean;
+  resourceMap: Map<string, string>;
 }
 
 class MenuResourceSettingsView extends React.Component<Props, State> {
@@ -74,16 +75,14 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
           order_number: undefined,
           slug: undefined,
           data: undefined,
-          nameText: undefined,
-          title: undefined,
-          content: undefined
         },
         resourceRules
       ),
-
+      resourceMap: new Map(),
       resourceId: "",
       resourceData: {},
-      updated: false
+      updated: false,
+      dataChanged: false
     };
   }
 
@@ -98,23 +97,22 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
     if (!auth || !auth.token || !resourceId) {
       return;
     }
-
-    const properties = this.props.resource.properties || [];
-    const titleProperty = properties.find(p => p.key === "title");
-    const contentProperty = properties.find(p => p.key === "content");
-    const nameTextProperty = properties.find(p => p.key === "nameText");
-
     let form = initForm<ResourceSettingsForm>(
       {
         ...this.props.resource,
-        nameText: nameTextProperty ? nameTextProperty.value : undefined,
-        content: contentProperty ? contentProperty.value : undefined,
-        title: titleProperty ? titleProperty.value : undefined
       },
       resourceRules
     );
 
     form = validateForm(form);
+
+    const initMap = new Map<string, string>();
+    const props = resource.properties;
+    if (props) {
+      props.map(p => {
+        initMap.set(p.key, p.value);
+      });
+    }
 
     const resourcesApi = ApiUtils.getResourcesApi(auth.token);
     const childResources = await resourcesApi.listResources({
@@ -128,7 +126,8 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
       form,
       resourceId: resourceId,
       resourceData: ResourceToJSON(this.props.resource),
-      childResources: childResources
+      childResources: childResources,
+      resourceMap: initMap
     });
   }
 
@@ -153,16 +152,16 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
         parent_id: resourceId
       });
 
-      const properties = resource.properties || [];
-      const titleProperty = properties.find(p => p.key === "title");
-      const contentProperty = properties.find(p => p.key === "content");
-      const nameTextProperty = properties.find(p => p.key === "nameText");
+      const initMap = new Map<string, string>();
+      const props = resource.properties;
+      if (props) {
+        props.map(p => {
+          initMap.set(p.key, p.value);
+        });
+      }
       let form = initForm<ResourceSettingsForm>(
         {
           ...resource,
-          nameText: nameTextProperty ? nameTextProperty.value : undefined,
-          content: contentProperty ? contentProperty.value : undefined,
-          title: titleProperty ? titleProperty.value : undefined
         },
         resourceRules
       );
@@ -172,7 +171,8 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
         updated: true,
         form,
         resourceData: ResourceToJSON(resource),
-        childResources: childResources
+        childResources: childResources,
+        resourceMap: initMap
       });
     }
   }
@@ -181,26 +181,23 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
    * Component render method
    */
   public render() {
-    const { updated } = this.state;
-
+    const { updated, dataChanged } = this.state;
     if (updated) {
       this.setState({
         updated: false
       });
-      return <div></div>;
+      return <div />;
     }
 
     const { isFormValid } = this.state.form;
-    const resourceTypeObject = getLocalizedTypeString(this.props.resource.type);
 
     return (
       <div>
-        <Typography variant="h3">{ resourceTypeObject.resourceLocal }</Typography>
         <Button
           style={{ marginLeft: theme.spacing(3), marginTop: theme.spacing(1) }}
           color="primary"
-          variant="contained"
-          disabled={ !isFormValid }
+          variant="outlined"
+          disabled={ !isFormValid || !dataChanged }
           onClick={ this.onUpdateResource }
         >
           { strings.save }
@@ -212,13 +209,17 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
         <div>
           { this.renderUploaderAndPreview(strings.backgroundMedia, "background") }
           <Divider style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} />
+
           <Typography variant="h4">{ strings.childResources }</Typography>
           { this.renderChildResources() }
           <Divider style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} />
           { this.renderUploaderAndPreview(strings.menuImage, "menuImg") }
           <Divider style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} />
         </div>
-
+        <Typography variant="h3">{ strings.advanced }</Typography>
+        { this.renderField("name", strings.name, "text") }
+        { this.renderField("order_number", strings.orderNumber, "number") }
+        { this.renderField("slug", strings.slug, "text") }
         <div>
           { this.renderStyleTable() }
         </div>
@@ -235,6 +236,7 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
    * Render text fields
    */
   private renderFields = () => {
+    const { resource } = this.props;
     return (
       <>
         <Typography variant="h3">{ strings.title }</Typography>
@@ -245,10 +247,7 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
 
         <Typography variant="h3">{ strings.content }</Typography>
         { this.renderField("content", strings.content, "textarea") }
-
-        { this.renderField("name", strings.name, "text") }
-        { this.renderField("order_number", strings.orderNumber, "number") }
-        { this.renderField("slug", strings.slug, "text") }
+        { resource.type === ResourceType.SLIDESHOW && this.renderSlideShowFields() }
       </>
     );
   }
@@ -260,26 +259,25 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
    * @param type text field type
    */
   private renderField = (key: keyof ResourceSettingsForm, label: string, type: string) => {
-    const {
-      values,
-      messages: { [key]: message }
-    } = this.state.form;
+    const { messages: { [key]: message } } = this.state.form;
     if (type === "textarea") {
-      return ( <TextField
-        fullWidth
-        multiline
-        rows={ 8 }
-        style={{ margin: theme.spacing(3) }}
-        type={ type }
-        error={ message && message.type === MessageType.ERROR }
-        helperText={ message && message.message }
-        value={ values[key] || "" }
-        onChange={ this.onHandleChange(key) }
-        onBlur={ this.onHandleBlur(key) }
-        name={ key }
-        variant="outlined"
-        label={ label }
-      /> );
+      return (
+        <TextField
+          fullWidth
+          multiline
+          rows={ 8 }
+          style={{ margin: theme.spacing(3) }}
+          type={ type }
+          error={ message && message.type === MessageType.ERROR }
+          helperText={ message && message.message }
+          value={ this.state.resourceMap.get(key) || "" }
+          onChange={ this.onHandleChange(key) }
+          onBlur={ this.onHandleBlur(key) }
+          name={ key }
+          variant="outlined"
+          label={ label }
+        />
+      );
     }
     return (
       <TextField
@@ -288,7 +286,7 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
         type={ type }
         error={ message && message.type === MessageType.ERROR }
         helperText={ message && message.message }
-        value={ values[key] || "" }
+        value={ this.state.resourceMap.get(key) || "" }
         onChange={ this.onHandleChange(key) }
         onBlur={ this.onHandleBlur(key) }
         name={ key }
@@ -297,6 +295,33 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
       />
     );
   };
+
+  /**
+   * Render slideshow specific fields
+   */
+  private renderSlideShowFields = () => {
+    return <>
+      { this.renderCheckbox("autoplay", strings.autoplay) }
+      { this.renderCheckbox("loop", strings.loop) }
+      { this.renderField("slideTimeOnScreen", strings.slideTimeOnScreen, "text") }
+    </>;
+  }
+
+  /**
+   * Render checkbox
+   */
+  private renderCheckbox = (key: keyof ResourceSettingsForm, label: string) => {
+    const { resourceMap } = this.state;
+    const value = (resourceMap.get(key) === "true");
+    return (
+      <FormControlLabel control={
+        <Checkbox
+          checked={ value }
+          onChange={ e => this.onHandleCheckBoxChange(key, e.target.checked) }
+        />} label={ label }
+      />
+    );
+  }
 
   /**
    * Renders table that contains style data
@@ -507,15 +532,15 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
     const previewItem = this.findImage(properties, uploadKey) || logo;
 
     return <>
-      <Typography variant="h4">{ title }</Typography>
-      <ImagePreview
-        imagePath={ previewItem }
-        onSave={ this.onPropertyFileChange }
-        resource={ resource }
-        uploadKey={ uploadKey }
-        onDelete={ this.onPropertyFileDelete }
-      />
-    </>;
+        <Typography variant="h4">{ title }</Typography>
+        <ImagePreview
+          imagePath={ previewItem }
+          onSave={ this.onPropertyFileChange }
+          resource={ resource }
+          uploadKey={ uploadKey }
+          onDelete={ this.onPropertyFileDelete }
+        />
+      </>;
   };
 
   /**
@@ -532,97 +557,56 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
   /**
    * Handles image change
    */
-  private onPropertyFileChange = async (files: File[], key?: string) => {
+  private onPropertyFileChange = async (files: File[], key: string) => {
     const { customerId } = this.props;
-    const { resourceData } = this.state;
 
-    const properties = resourceData.properties ? [...resourceData.properties] : [];
-    const property = { key: key, value: undefined };
+    let newUri = "";
     const file = files[0];
 
     if (file) {
       const response = await FileUpload.uploadFile(file, customerId);
-      property.value = response.uri;
+      newUri = response.uri;
     }
 
-    const propertyIndex = properties.findIndex((p: KeyValueProperty) => p.key === key)
-    if (propertyIndex > -1) {
-      properties[propertyIndex] = property;
-    } else {
-      properties.push(property);
-    }
-
-    resourceData.properties = properties;
+    const tempMap = this.state.resourceMap;
+    tempMap.set(key, newUri);
     this.setState({
-      resourceData: { ...resourceData }
+      resourceMap: tempMap,
+      dataChanged: true
     });
 
     this.onUpdateResource();
   };
 
+
   /**
-   * Handles image delete
+   * Delete property file with key
    */
-  private onPropertyFileDelete = (key?: string) => {
-    const { resourceData } = this.state;
+  private onPropertyFileDelete = (key: string) => {
+    const tempMap = this.state.resourceMap;
 
-    const properties = resourceData.properties ? [...resourceData.properties] : [];
-    const updatedProperties = properties.filter((property: KeyValueProperty) => property.key !== key);
-
-    resourceData.properties = updatedProperties;
+    tempMap.delete(key);
     this.setState({
-      resourceData: { ...resourceData }
+      resourceMap: tempMap,
+      dataChanged: true
     });
 
     this.onUpdateResource();
   };
 
   /**
-   * On update resource method
+   * Handle resource update
    */
   private onUpdateResource = () => {
     const { onUpdate } = this.props;
-    const { resourceData, form } = this.state;
-    const properties = resourceData.properties ? [...resourceData.properties] : [];
-    const titleIndex = properties.findIndex((p: KeyValueProperty) => p.key === "title");
-    const nameTextIndex = properties.findIndex((p: KeyValueProperty) => p.key === "nameText");
-    const contentIndex = properties.findIndex((p: KeyValueProperty) => p.key === "content");
-
-    if (titleIndex > -1) {
-      properties[titleIndex] = { key: "title", value: form.values.title }
-    } else {
-      properties.push({ key: "title", value: form.values.title });
-    }
-
-    if (nameTextIndex > -1) {
-      properties[nameTextIndex] = { key: "nameText", value: form.values.nameText }
-    } else {
-      properties.push({ key: "nameText", value: form.values.nameText });
-    }
-
-    if (contentIndex > -1) {
-      properties[contentIndex] = { key: "content", value: form.values.content }
-    } else {
-      properties.push({ key: "content", value: form.values.content });
-    }
-
+    const properties: KeyValueProperty[] = [];
+    this.getPropertiesToUpdate(properties);
     const resource = {
-      name: form.values.name,
-      order_number: form.values.order_number,
-      slug: form.values.slug,
-      parent_id: form.values.parent_id,
-      type: form.values.type,
-      id: form.values.id,
-      data: resourceData["data"],
-      styles: resourceData["styles"],
+      ...this.props.resource,
       properties: properties.filter(p => !!p.value)
     } as Resource;
-
     onUpdate(resource);
 
-    this.setState({
-      resourceData: resourceData
-    });
   };
 
   /**
@@ -631,24 +615,30 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
    * @param event
    */
   private onHandleChange = (key: keyof ResourceSettingsForm) => (event: React.ChangeEvent<HTMLInputElement>) => {
-    const values = {
-      ...this.state.form.values,
-      [key]: event.target.value
-    };
-
-    const form = validateForm(
-      {
-        ...this.state.form,
-        values
-      },
-      {
-        usePreprocessor: false
-      }
-    );
+    const copy = this.state.resourceMap;
+    copy.set(key, event.target.value);
 
     this.setState({
-      form
+      resourceMap: copy,
+      dataChanged: true
     });
+    this.props.confirmationRequired(true);
+  };
+
+  /**
+   * Handles textfields change events
+   * @param key
+   * @param event
+   */
+  private onHandleCheckBoxChange = (key: keyof ResourceSettingsForm, value: boolean) => {
+    const copy = this.state.resourceMap;
+    const stringValue = String(value);
+    copy.set(key, stringValue);
+    this.setState({
+      resourceMap: copy,
+      dataChanged: true
+    });
+    this.props.confirmationRequired(true);
   };
 
   /**
@@ -668,9 +658,28 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
     });
 
     this.setState({
-      form
+      form,
+      dataChanged: true
     });
+    this.props.confirmationRequired(true);
   };
+
+  /**
+   * Push all property key value pairs from state map to properties array
+   * @param properties
+   */
+  private getPropertiesToUpdate(properties: KeyValueProperty[]) {
+    const { resourceMap } = this.state;
+
+    resourceMap.forEach((value: string, key: string) => {
+      const index = properties.findIndex((p: KeyValueProperty) => p.key === key);
+      if (index > -1) {
+        properties[index] = { key: key, value: value || "" };
+      } else {
+        properties.push({ key: key, value: value || "" });
+      }
+    });
+  }
 }
 
 export default withStyles(styles)(MenuResourceSettingsView);
