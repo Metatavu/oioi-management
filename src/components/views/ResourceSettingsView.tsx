@@ -523,7 +523,7 @@ class ResourceSettingsView extends React.Component<Props, State> {
 
     onUpdate(resource);
     this.setState({
-      resourceData: resourceData,
+      resourceData: resourceData
     });
   };
 
