@@ -594,7 +594,6 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
     this.onUpdateResource();
   };
 
-
   /**
    * Handle resource update
    */
