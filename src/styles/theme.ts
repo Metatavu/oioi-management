@@ -112,6 +112,10 @@ export default createMuiTheme({
     },
     MuiListItem: {
       root: {
+        transition: "background-color 0.2s ease-out",
+        "&:hover": {
+          backgroundColor: "rgba(38, 50, 56, 0.1)",
+        },
         "&.Mui-selected": {
           backgroundColor: "rgba(38, 50, 56, 0.1)",
           "& .MuiTypography-body1": {

@@ -147,7 +147,7 @@ class ResourceSettingsView extends React.Component<Props, State> {
       <div>
         <Grid>
           <Button
-            style={{ marginLeft: theme.spacing(3), marginTop: theme.spacing(1) }}
+            style={ { marginLeft: theme.spacing(3), marginTop: theme.spacing(1) } }
             color="primary"
             variant="outlined"
             disabled={ !isFormValid || !dataChanged }
@@ -156,18 +156,25 @@ class ResourceSettingsView extends React.Component<Props, State> {
             { strings.save }
           </Button>
         </Grid>
-        <Divider style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} />
+        <Divider style={ { marginTop: theme.spacing(3), marginBottom: theme.spacing(3) } } />
         { this.renderFields() }
-        <Divider style={{ marginBottom: theme.spacing(3) }} />
+        <Divider style={ { marginBottom: theme.spacing(3) }} />
         <div>
           <Typography variant="h3">{ localizedDataString }</Typography>
           { dataField }
         </div>
         <Divider style={{ marginBottom: theme.spacing(3), marginTop: theme.spacing(3) }} />
-        <Typography variant="h3">{ strings.advanced }</Typography>
-        { this.renderField("name", strings.name, "text") }
-        { this.renderField("order_number", strings.orderNumber, "number") }
-        { this.renderField("slug", strings.slug, "text") }
+        <Typography style={{ marginBottom: theme.spacing(3), marginTop: theme.spacing(3) }} variant="h3">{ strings.advanced }</Typography>
+        <div style={{ display: "grid", gridAutoFlow: "column", gridGap: theme.spacing(3), marginBottom: theme.spacing(3) }}>
+          <div>
+            <Typography variant="h4">{ strings.orderNumber }</Typography>
+            { this.renderField("order_number", strings.orderNumber, "number") }
+          </div>
+          <div>
+            <Typography variant="h4">{ strings.orderNumber }</Typography>
+            { this.renderField("slug", strings.slug, "text") }
+          </div>
+        </div>
         <Divider style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} />
         <div>
           { this.renderStyleTable() }
@@ -186,26 +193,29 @@ class ResourceSettingsView extends React.Component<Props, State> {
    */
   private renderFields = () => {
     return (
-      <Grid container spacing={ 3 } direction="row">
-        <Typography variant="h3">{ strings.title }</Typography>
+      <div>
+        <Typography variant="h4">{ strings.name }</Typography>
+        { this.renderField("name", strings.name, "text") }
+
+        <Typography style={ { marginTop: theme.spacing(3) } } variant="h4">{ strings.title }</Typography>
         { this.renderField("title", strings.title, "text") }
 
-        <Typography variant="h3">{ strings.nameText }</Typography>
+        <Typography style={ { marginTop: theme.spacing(3) } } variant="h4">{ strings.nameText }</Typography>
         { this.renderField("nameText", strings.nameText, "textarea") }
 
-        <Typography variant="h3">{ strings.content }</Typography>
+        <Typography style={ { marginTop: theme.spacing(3) } } variant="h4">{ strings.content }</Typography>
         { this.renderField("content", strings.content, "textarea") }
-      </Grid>
+      </div>
     );
   }
 
   /**
    * Renders textfield
    * @param key to look for
-   * @param label label to be shown
+   * @param placeholder placeholder text to be shown
    * @param type text field type
    */
-  private renderField = (key: keyof ResourceSettingsForm, label: string, type: string) => {
+  private renderField = (key: keyof ResourceSettingsForm, placeholder: string, type: string) => {
     const {
       values,
       messages: { [key]: message }
@@ -215,7 +225,6 @@ class ResourceSettingsView extends React.Component<Props, State> {
         fullWidth
         multiline
         rows={ 8 }
-        style={{ margin: theme.spacing(3) }}
         type={ type }
         error={ message && message.type === MessageType.ERROR}
         helperText={ message && message.message}
@@ -224,13 +233,12 @@ class ResourceSettingsView extends React.Component<Props, State> {
         onBlur={ this.onHandleBlur(key) }
         name={ key }
         variant="outlined"
-        label={ label }
+        placeholder={ placeholder }
       /> );
     }
     return (
       <TextField
         fullWidth
-        style={{ margin: theme.spacing(3) }}
         type={ type }
         error={ message && message.type === MessageType.ERROR }
         helperText={ message && message.message }
@@ -239,7 +247,7 @@ class ResourceSettingsView extends React.Component<Props, State> {
         onBlur={ this.onHandleBlur(key) }
         name={ key }
         variant="outlined"
-        label={ label }
+        placeholder={ placeholder }
       />
     );
   };

@@ -8,6 +8,7 @@
   "addNewDevice": "Lisää uusi laite",
   "applications": "Sovellukset",
   "applicationName": "Sovelluksen nimi",
+  "applicationBasicInformation": "Sovelluksen perustiedot",
   "back": "Takaisin",
   "cancel": "Peruuta",
   "confirm": "Hyväksy",
@@ -110,7 +111,9 @@
     "id": "Sovelluksen id",
     "addIcon": "Lisää ikoni"
   },
+  "playback": "Toisto",
   "autoplay": "Automaattinen toisto",
   "loop": "Looppi",
-  "slideTimeOnScreen": "Siirtymä aika näytöllä"
+  "slideTimeOnScreen": "Siirtymäaika",
+  "menuIcon": "Menu ikoni"
 }

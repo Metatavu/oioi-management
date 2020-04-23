@@ -22,6 +22,7 @@ import logo from "../../resources/svg/oioi-logo.svg";
 import IconButton from "@material-ui/core/IconButton";
 import { resourceRules, ResourceSettingsForm } from "../../commons/formRules";
 import ImagePreview from "../generic/ImagePreview";
+import AddIconDialog from "../generic/AddIconDialog";
 
 /**
  * Component props
@@ -58,6 +59,7 @@ interface State {
   childResources?: Resource[];
   dataChanged: boolean;
   resourceMap: Map<string, string>;
+  iconDialogOpen: boolean;
 }
 
 class MenuResourceSettingsView extends React.Component<Props, State> {
@@ -82,7 +84,8 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
       resourceId: "",
       resourceData: {},
       updated: false,
-      dataChanged: false
+      dataChanged: false,
+      iconDialogOpen: false
     };
   }
 
@@ -194,7 +197,7 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
     return (
       <div>
         <Button
-          style={{ marginLeft: theme.spacing(3), marginTop: theme.spacing(1) }}
+          style={ { marginLeft: theme.spacing(3), marginTop: theme.spacing(1) } }
           color="primary"
           variant="outlined"
           disabled={ !isFormValid || !dataChanged }
@@ -202,27 +205,52 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
         >
           { strings.save }
         </Button>
-        <Divider style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} />
+
+        <Divider style={ { marginTop: theme.spacing(3), marginBottom: theme.spacing(3) } } />
+
         { this.renderFields() }
-        <Divider style={{ marginBottom: theme.spacing(3) }} />
+
+        <Divider style={ { marginBottom: theme.spacing(3) } } />
 
         <div>
           { this.renderUploaderAndPreview(strings.backgroundMedia, "background") }
-          <Divider style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} />
+          <Divider style={ { marginTop: theme.spacing(3), marginBottom: theme.spacing(3) } } />
 
-          <Typography variant="h4">{ strings.childResources }</Typography>
-          { this.renderChildResources() }
-          <Divider style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} />
           { this.renderUploaderAndPreview(strings.menuImage, "menuImg") }
-          <Divider style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} />
+          <Divider style={ { marginTop: theme.spacing(3), marginBottom: theme.spacing(3) } } />
+
+          <Typography variant="h4">{ strings.menuIcon }</Typography>
+          { this.renderIconList() }
+          <AddIconDialog
+            resource={ this.props.resource }
+            onSave={ this.onPropertyFileChange }
+            onToggle={ this.toggleDialog }
+            open={ this.state.iconDialogOpen }
+          />
+          <Divider style={ { marginTop: theme.spacing(3), marginBottom: theme.spacing(3) } } />
         </div>
-        <Typography variant="h3">{ strings.advanced }</Typography>
-        { this.renderFormField("name", strings.name, "text") }
-        { this.renderFormField("order_number", strings.orderNumber, "number") }
-        { this.renderFormField("slug", strings.slug, "text") }
+
+        <Typography variant="h3">{ strings.childResources }</Typography>
+        { this.renderChildResources() }
+
+        <Divider style={ { marginTop: theme.spacing(3), marginBottom: theme.spacing(3) } } />
+
+        <Typography style={ { marginTop: theme.spacing(3), marginBottom: theme.spacing(3) } } variant="h3">{ strings.advanced }</Typography>
+        <div style={{ display: "grid", gridAutoFlow: "column", gridGap: theme.spacing(3), marginBottom: theme.spacing(3) }}>
+          <div>
+            <Typography variant="h4">{ strings.orderNumber }</Typography>
+            { this.renderFormField("order_number", strings.orderNumber, "number") }
+          </div>
+          <div>
+            <Typography variant="h4">{ strings.slug }</Typography>
+            { this.renderFormField("slug", strings.slug, "text") }
+          </div>
+        </div>
+
         <div>
           { this.renderStyleTable() }
         </div>
+
         <Divider style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} />
 
         <div>
@@ -239,13 +267,15 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
     const { resource } = this.props;
     return (
       <>
-        <Typography variant="h3">{ strings.title }</Typography>
+        <Typography variant="h4">{ strings.name }</Typography>
+        { this.renderFormField("name", strings.name, "text") }
+        <Typography style={ { marginTop: theme.spacing(3) } } variant="h4">{ strings.title }</Typography>
         { this.renderPropertiesField("title", strings.title, "text") }
 
-        <Typography variant="h3">{ strings.nameText }</Typography>
+        <Typography style={ { marginTop: theme.spacing(3) } } variant="h4">{ strings.nameText }</Typography>
         { this.renderPropertiesField("nameText", strings.nameText, "textarea") }
 
-        <Typography variant="h3">{ strings.content }</Typography>
+        <Typography style={ { marginTop: theme.spacing(3) } } variant="h4">{ strings.content }</Typography>
         { this.renderPropertiesField("content", strings.content, "textarea") }
         { resource.type === ResourceType.SLIDESHOW && this.renderSlideShowFields() }
       </>
@@ -258,7 +288,7 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
    * @param label label to be shown
    * @param type text field type
    */
-  private renderFormField = (key: keyof ResourceSettingsForm, label: string, type: string) => {
+  private renderFormField = (key: keyof ResourceSettingsForm, placeholder: string, type: string) => {
     const {
       values,
       messages: { [key]: message }
@@ -268,7 +298,6 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
         fullWidth
         multiline
         rows={ 8 }
-        style={{ margin: theme.spacing(3) }}
         type={ type }
         error={ message && message.type === MessageType.ERROR }
         helperText={ message && message.message }
@@ -277,13 +306,12 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
         onBlur={ this.onHandleBlur(key) }
         name={ key }
         variant="outlined"
-        label={ label }
+        placeholder={ placeholder }
       /> );
     }
     return (
       <TextField
         fullWidth
-        style={{ margin: theme.spacing(3) }}
         type={ type }
         error={ message && message.type === MessageType.ERROR }
         helperText={ message && message.message }
@@ -292,7 +320,7 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
         onBlur={ this.onHandleBlur(key) }
         name={ key }
         variant="outlined"
-        label={ label }
+        placeholder={ placeholder }
       />
     );
   };
@@ -303,7 +331,7 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
    * @param label label to be shown
    * @param type text field type
    */
-  private renderPropertiesField = (key: keyof ResourceSettingsForm, label: string, type: string) => {
+  private renderPropertiesField = (key: keyof ResourceSettingsForm, placeholder: string, type: string) => {
     const { messages: { [key]: message } } = this.state.form;
     if (type === "textarea") {
       return (
@@ -311,7 +339,6 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
           fullWidth
           multiline
           rows={ 8 }
-          style={{ margin: theme.spacing(3) }}
           type={ type }
           error={ message && message.type === MessageType.ERROR }
           helperText={ message && message.message }
@@ -320,14 +347,13 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
           onBlur={ this.onHandleBlur(key) }
           name={ key }
           variant="outlined"
-          label={ label }
+          placeholder={ placeholder }
         />
       );
     }
     return (
       <TextField
         fullWidth
-        style={{ margin: theme.spacing(3) }}
         type={ type }
         error={ message && message.type === MessageType.ERROR }
         helperText={ message && message.message }
@@ -336,7 +362,7 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
         onBlur={ this.onHandleBlur(key) }
         name={ key }
         variant="outlined"
-        label={ label }
+        placeholder={ placeholder }
       />
     );
   };
@@ -345,11 +371,21 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
    * Render slideshow specific fields
    */
   private renderSlideShowFields = () => {
-    return <>
-      { this.renderCheckbox("autoplay", strings.autoplay) }
-      { this.renderCheckbox("loop", strings.loop) }
-      { this.renderPropertiesField("slideTimeOnScreen", strings.slideTimeOnScreen, "text") }
-    </>;
+    return (
+      <div style={{ display: "grid", gridAutoFlow: "column", gridGap: theme.spacing(3), marginBottom: theme.spacing(3) }}>
+        <div>
+          <Typography style={ { marginTop: theme.spacing(3) } } variant="h4">{ strings.playback }</Typography>
+          <div>
+            { this.renderCheckbox("autoplay", strings.autoplay) }
+            { this.renderCheckbox("loop", strings.loop) }
+          </div>
+        </div>
+        <div>
+          <Typography style={ { marginTop: theme.spacing(3) } } variant="h4">{ strings.slideTimeOnScreen }</Typography>
+          { this.renderPropertiesField("slideTimeOnScreen", strings.slideTimeOnScreen, "text") }
+        </div>
+      </div>
+    );
   }
 
   /**
@@ -618,6 +654,42 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
   };
 
   /**
+   * Render media elements
+   */
+  private renderIconList = () => {
+    const { resourceMap } = this.state;
+    const icons: JSX.Element[] = [];
+    resourceMap.forEach((value: string, key: string) => {
+      if (key.includes("applicationIcon_")) {
+        const preview = (
+          <ImagePreview
+            key={ key }
+            imagePath={ value }
+            onSave={ this.onPropertyFileChange }
+            resource={ this.props.resource }
+            uploadKey={ key }
+            onDelete={ this.onPropertyFileDelete }
+          />
+        );
+        icons.push(preview);
+      }
+    });
+    return (
+      <>
+        { icons }
+        <Button
+          style={ { marginTop: theme.spacing(3) }}
+          color="primary"
+          variant="outlined"
+          onClick={ this.toggleDialog }
+        >
+          { strings.applicationSettings.addIcon }
+        </Button>
+      </>
+    );
+  }
+
+  /**
    * Find image from prop
    */
   private findImage = (properties: KeyValueProperty[], propertyKey: string) => {
@@ -651,6 +723,15 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
 
     this.onUpdateResource();
   };
+
+  /**
+   * Toggle dialog
+   */
+  private toggleDialog = () => {
+    const open = !this.state.iconDialogOpen;
+    this.setState({iconDialogOpen: open});
+  }
+
 
 
   /**
@@ -689,9 +770,7 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
       properties: properties.filter(p => !!p.value)
     } as Resource;
     onUpdate(resource);
-
   };
-
   /**
    * Handles textfields change events
    * @param key

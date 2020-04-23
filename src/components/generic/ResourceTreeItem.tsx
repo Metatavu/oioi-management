@@ -77,9 +77,9 @@ class ResourceTreeItemClass extends React.Component<Props, State> {
     }
 
     return (
-      <ListItem key={ resource.id } selected={ openedResource && openedResource.id === resource.id }>
+      <ListItem onClick={ this.onTreeItemClick } key={ resource.id } selected={ openedResource && openedResource.id === resource.id }>
         <ListItemIcon style={{ minWidth: 0, marginRight: theme.spacing(1) }}>{ icon }</ListItemIcon>
-        <ListItemText onClick={ this.onTreeItemClick } primary={ resource.name } />
+        <ListItemText primary={ resource.name } />
       </ListItem>
     );
   }

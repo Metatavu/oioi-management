@@ -122,5 +122,8 @@ export default createStyles({
     "& .MuiTypography-body1": {
       fontFamily: "TTNorms-Bold"
     }
+  },
+  treeAddItem: {
+    cursor: "pointer"
   }
 });

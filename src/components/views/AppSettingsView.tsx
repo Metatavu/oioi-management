@@ -101,12 +101,12 @@ class AppSettingsView extends React.Component<Props, State> {
     if (importDone) {
       return (
         <div><p>{ strings.importDone }</p></div>
-      )
+      );
     }
     if (importingContent) {
       return (
         <div><p>{ strings.importInProgress }</p><br/><CircularProgress /></div>
-      )
+      );
     }
 
     const { isFormValid } = this.state.applicationForm;
@@ -121,29 +121,34 @@ class AppSettingsView extends React.Component<Props, State> {
         >
           { strings.save }
         </Button>
+
         <Divider style={ { marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} />
+
+        <Typography style={{ marginBottom: theme.spacing(3) }} variant="h3">{ strings.applicationBasicInformation }</Typography>
         { this.renderFields() }
-        <Divider style={ { marginBottom: theme.spacing(3) } } />
+
+        <Divider style={ { marginTop: theme.spacing(3),marginBottom: theme.spacing(3) } } />
 
         <Typography variant="h4">{ strings.applicationSettings.background }</Typography>
         { this.renderMedia("applicationImage") }
-        <Divider style={ { marginBottom: theme.spacing(3) } } />
+        <Divider style={ { marginTop: theme.spacing(3), marginBottom: theme.spacing(3) } } />
 
         <Typography variant="h4">{ strings.applicationSettings.icon }</Typography>
         { this.renderMedia("applicationIcon") }
-        <Divider style={ { marginBottom: theme.spacing(3) } } />
+        <Divider style={ { marginTop: theme.spacing(3), marginBottom: theme.spacing(3) } } />
 
         <Typography variant="h4">{ strings.applicationSettings.icons }</Typography>
         { this.renderIconList() }
-        <Divider style={ { marginBottom: theme.spacing(3) } } />
+
         <AddIconDialog
           resource={ this.props.rootResource }
           onSave={ this.onPropertyFileChange }
           onToggle={ this.toggleDialog }
           open={ this.state.iconDialogOpen }
         />
-        <Divider style={ { marginBottom: theme.spacing(3) } } />
-        <Typography variant="h4">{strings.importLabel}</Typography>
+
+        <Divider style={ { marginTop: theme.spacing(3), marginBottom: theme.spacing(3) } } />
+        <Typography variant="h4">{ strings.importLabel }</Typography>
         <input onChange={ e => this.handleWallJsonImport(e.target.files)} type="file"  />
       </div>
     );
@@ -248,10 +253,24 @@ class AppSettingsView extends React.Component<Props, State> {
 
     return (
       <>
-        { this.renderTextField(strings.applicationName, "text", "name") }
-        { this.renderTextField(strings.applicationSettings.teaserText, "textarea", undefined, "teaserText") }
-        { this.renderTextField(strings.applicationSettings.returnDelay, "text", undefined, "returnDelay") }
-        { this.renderTextField(strings.applicationSettings.id, "text", undefined, "applicationId") }
+        <div style={{ marginBottom: theme.spacing(3) }}>
+          <Typography variant="h4">{ strings.applicationName }</Typography>
+          { this.renderTextField(strings.applicationName, "text", "name") }
+        </div>
+        <div style={{ marginBottom: theme.spacing(3) }}>
+          <Typography variant="h4">{ strings.applicationSettings.teaserText }</Typography>
+          { this.renderTextField(strings.applicationSettings.teaserText, "textarea", undefined, "teaserText") }
+        </div>
+        <div style={{ display: "grid", gridAutoFlow: "column", gridGap: theme.spacing(3), marginBottom: theme.spacing(3) }}>
+          <div>
+            <Typography variant="h4">{ strings.applicationSettings.returnDelay }</Typography>
+            { this.renderTextField(strings.applicationSettings.returnDelay, "text", undefined, "returnDelay") }
+          </div>
+          <div>
+            <Typography variant="h4">{ strings.applicationSettings.id }</Typography>
+            { this.renderTextField(strings.applicationSettings.id, "text", undefined, "applicationId") }
+          </div>
+        </div>
       </>
     );
   }
@@ -276,7 +295,7 @@ class AppSettingsView extends React.Component<Props, State> {
           onBlur={ this.onHandleBlur(appKey) }
           name={ appKey }
           variant="outlined"
-          label={ label }
+          placeholder={ label }
         />
       );
     } else if (resourceKey) {
@@ -289,7 +308,7 @@ class AppSettingsView extends React.Component<Props, State> {
           onChange={ this.onHandleResourceChange(resourceKey) }
           name={ resourceKey }
           variant="outlined"
-          label={ label }
+          placeholder={ label }
         />
       );
     }
@@ -338,9 +357,9 @@ class AppSettingsView extends React.Component<Props, State> {
       <>
         { icons }
         <Button
-          style={ { marginLeft: theme.spacing(3), marginTop: theme.spacing(1) }}
+          style={ { marginTop: theme.spacing(3) }}
           color="primary"
-          variant="contained"
+          variant="outlined"
           onClick={ this.toggleDialog }
         >
           { strings.applicationSettings.addIcon }

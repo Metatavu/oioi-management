@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import * as React from "react";
-import { withStyles, WithStyles, TextField, Divider, Typography, Grid, Button, IconButton, GridListTileBar } from "@material-ui/core";
+import { withStyles, WithStyles, TextField, Divider, Typography, Grid, Button, IconButton } from "@material-ui/core";
 import MaterialTable from "material-table";
 import AddIcon from "@material-ui/icons/AddBox";
 import AddCircleIcon from '@material-ui/icons/AddCircle';
@@ -17,7 +17,6 @@ import FileUpload from "../../utils/FileUpload";
 import { forwardRef } from "react";
 import { MessageType, initForm, Form, validateForm } from "ts-form-validation";
 import logo from "../../resources/svg/oioi-logo.svg";
-import { getLocalizedTypeString } from "../../commons/resourceTypeHelper";
 import { AuthState } from "../../types";
 import ApiUtils from "../../utils/ApiUtils";
 import { resourceRules, ResourceSettingsForm } from "../../commons/formRules";
@@ -145,7 +144,7 @@ class PageResourceSettingsView extends React.Component<Props, State> {
       <div>
         <Grid>
           <Button
-            style={{ marginLeft: theme.spacing(3), marginTop: theme.spacing(1) }}
+            style={ { marginLeft: theme.spacing(3), marginTop: theme.spacing(1) } }
             color="primary"
             variant="outlined"
             disabled={ !isFormValid || !dataChanged }
@@ -155,15 +154,23 @@ class PageResourceSettingsView extends React.Component<Props, State> {
           </Button>
         </Grid>
 
+        <Divider style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} />
+
+        <Typography variant="h4">{ strings.name }</Typography>
+        { this.renderField("name", strings.name, "text") }
+
         <div>
           { this.renderChildResources() }
           <Divider style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} />
+
           { this.renderAddChild() }
           <Divider style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} />
         </div>
-        <Typography variant="h3">{ strings.advanced }</Typography>
-        <Divider style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} />
+
+        <Typography style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} variant="h3">{ strings.advanced }</Typography>
+
         { this.renderResourceFields() }
+
         <div>
           { this.renderStyleTable() }
           <Divider style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} />
@@ -180,13 +187,18 @@ class PageResourceSettingsView extends React.Component<Props, State> {
    * Renders resource text fields
    */
   private renderResourceFields = () => {
-    return<>
-      <Grid container spacing={ 3 } direction="row">
-        { this.renderField("name", strings.name, "text") }
-        { this.renderField("order_number", strings.orderNumber, "number") }
-        { this.renderField("slug", strings.slug, "text") }
-      </Grid>
-    </>;
+    return (
+      <div style={{ display: "grid", gridAutoFlow: "column", gridGap: theme.spacing(3), marginBottom: theme.spacing(3) }}>
+        <div>
+          <Typography variant="h4">{ strings.orderNumber }</Typography>
+          { this.renderField("order_number", strings.orderNumber, "number") }
+        </div>
+        <div>
+          <Typography variant="h4">{ strings.slug }</Typography>
+          { this.renderField("slug", strings.slug, "text") }
+        </div>
+      </div>
+    );
   }
 
   /**
@@ -195,7 +207,7 @@ class PageResourceSettingsView extends React.Component<Props, State> {
    * @param label label to be shown
    * @param type text field type
    */
-  private renderField = (key: keyof ResourceSettingsForm, label: string, type: string) => {
+  private renderField = (key: keyof ResourceSettingsForm, placeholder: string, type: string) => {
     const {
       values,
       messages: { [key]: message }
@@ -205,7 +217,6 @@ class PageResourceSettingsView extends React.Component<Props, State> {
         fullWidth
         multiline
         rows={ 8 }
-        style={{ margin: theme.spacing(3) }}
         type={ type }
         error={ message && message.type === MessageType.ERROR }
         helperText={ message && message.message }
@@ -214,13 +225,12 @@ class PageResourceSettingsView extends React.Component<Props, State> {
         onBlur={ this.onHandleBlur(key) }
         name={ key }
         variant="outlined"
-        label={ label }
+        placeholder={ placeholder }
       /> );
     }
     return (
       <TextField
         fullWidth
-        style={{ margin: theme.spacing(3) }}
         type={ type }
         error={ message && message.type === MessageType.ERROR }
         helperText={ message && message.message }
@@ -229,7 +239,7 @@ class PageResourceSettingsView extends React.Component<Props, State> {
         onBlur={ this.onHandleBlur(key) }
         name={ key }
         variant="outlined"
-        label={ label }
+        placeholder={ placeholder }
       />
     );
   };
@@ -471,12 +481,11 @@ class PageResourceSettingsView extends React.Component<Props, State> {
         return <>
           <TextField
             fullWidth
-            style={{ margin: theme.spacing(3) }}
             value={ resource.data || "" }
             onChange={ this.onHandleChildResourceTextChange(resource) }
             name={ resource.id }
             variant="outlined"
-            label={ strings.resourceTypes.text }
+            placeholder={ strings.resourceTypes.text }
           />
         </>;
       case ResourceType.PDF:
