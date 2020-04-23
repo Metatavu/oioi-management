@@ -57,7 +57,6 @@ interface State {
   updated: boolean;
   childResources?: Resource[];
   dataChanged: boolean;
-
   resourceMap: Map<string, string>;
 }
 
@@ -668,7 +667,6 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
 
     this.onUpdateResource();
   };
-
 
   /**
    * Handle resource update
