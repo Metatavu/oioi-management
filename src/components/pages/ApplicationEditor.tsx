@@ -170,13 +170,15 @@ class ApplicationEditor extends React.Component<Props, State> {
               { openedResource && resourceTypeObject.resourceLocal }
             </Typography>
             <div>
-              <Button
-                color="primary"
-                variant="contained"
-                onClick={ this.onChildDelete }
-                >
-                { strings.delete }
-              </Button>
+              { openedResource &&
+                <Button
+                  color="primary"
+                  variant="contained"
+                  onClick={ this.onChildDelete }
+                  >
+                  { strings.delete }
+                </Button>
+              }
             </div>
           </div>
         </AppBar>
@@ -794,8 +796,9 @@ class ApplicationEditor extends React.Component<Props, State> {
    */
   private onUpdateResource = async (resource: Resource) => {
     const { auth, customerId, deviceId, applicationId, openResource, updatedResourceView } = this.props;
+    const { treeData } = this.state;
     const resourceId = resource.id;
-    if (!auth || !auth.token || !resourceId) {
+    if (!auth || !auth.token || !resourceId || !treeData) {
       return;
     }
     const resourcesApi = ApiUtils.getResourcesApi(auth.token);
@@ -815,9 +818,25 @@ class ApplicationEditor extends React.Component<Props, State> {
     }
     updatedResourceView();
     this.setState({
-      confirmationRequired: false
+      confirmationRequired: false,
+      treeData: this.updateTreeData(updatedResource, treeData)
     });
   };
+
+  /**
+   * Updates tree data when resource is updated
+   * 
+   * @param resource updated resource
+   * @param data tree data object
+   */
+  private updateTreeData = (resource: Resource, data: ResourceTreeItem[]): ResourceTreeItem[] => {
+    return data.map((item) => {
+      if (item.resource && item.resource.id === resource.id) {
+        return {...item, resource: resource, title: this.renderTreeItem(resource)};
+      }
+      return {...item, children: item.children ? this.updateTreeData(resource, item.children as ResourceTreeItem[]) : []};
+    });
+  }
 
   /**
    * Handles update child resources

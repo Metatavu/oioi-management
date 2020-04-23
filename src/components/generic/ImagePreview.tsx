@@ -114,7 +114,7 @@ class ImagePreview extends React.Component<Props, State> {
           </Toolbar>
         </AppBar>
         <div style={ { display: "flex", alignItems: "center", justifyContent: "center", height: "100%" } }>
-          <img src={ imagePath } alt="File"/>
+          <img src={ imagePath } alt="File" style={{ maxHeight: "100%", maxWidth: "100%", paddingTop: "5%", paddingBottom: "2%" }} />
         </div>
       </Dialog>
     );
