@@ -23,6 +23,7 @@ import IconButton from "@material-ui/core/IconButton";
 import { resourceRules, ResourceSettingsForm } from "../../commons/formRules";
 import ImagePreview from "../generic/ImagePreview";
 import AddIconDialog from "../generic/AddIconDialog";
+import { IconKeys, getLocalizedIconTypeString } from "../../commons/iconTypeHelper";
 
 /**
  * Component props
@@ -59,6 +60,7 @@ interface State {
   childResources?: Resource[];
   dataChanged: boolean;
   resourceMap: Map<string, string>;
+  iconsMap: Map<string, string>;
   iconDialogOpen: boolean;
 }
 
@@ -81,6 +83,7 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
         resourceRules
       ),
       resourceMap: new Map(),
+      iconsMap: new Map(),
       resourceId: "",
       resourceData: {},
       updated: false,
@@ -108,14 +111,7 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
     );
 
     form = validateForm(form);
-
-    const initMap = new Map<string, string>();
-    const props = resource.properties;
-    if (props) {
-      props.map(p => {
-        initMap.set(p.key, p.value);
-      });
-    }
+    const { initResourceMap, initIconsMap } = this.updateMaps(resource);
 
     const resourcesApi = ApiUtils.getResourcesApi(auth.token);
     const childResources = await resourcesApi.listResources({
@@ -130,7 +126,8 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
       resourceId: resourceId,
       resourceData: ResourceToJSON(this.props.resource),
       childResources: childResources,
-      resourceMap: initMap
+      resourceMap: initResourceMap,
+      iconsMap: initIconsMap
     });
   }
 
@@ -154,14 +151,6 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
         application_id: applicationId,
         parent_id: resourceId
       });
-
-      const initMap = new Map<string, string>();
-      const props = resource.properties;
-      if (props) {
-        props.map(p => {
-          initMap.set(p.key, p.value);
-        });
-      }
       let form = initForm<ResourceSettingsForm>(
         {
           ...resource,
@@ -170,12 +159,15 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
       );
 
       form = validateForm(form);
+      const { initResourceMap, initIconsMap } = this.updateMaps(resource);
+
       this.setState({
         updated: true,
         form,
         resourceData: ResourceToJSON(resource),
         childResources: childResources,
-        resourceMap: initMap
+        resourceMap: initResourceMap,
+        iconsMap: initIconsMap
       });
     }
   }
@@ -223,7 +215,7 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
           { this.renderIconList() }
           <AddIconDialog
             resource={ this.props.resource }
-            onSave={ this.onPropertyFileChange }
+            onSave={ this.onIconFileChange }
             onToggle={ this.toggleDialog }
             open={ this.state.iconDialogOpen }
           />
@@ -657,22 +649,29 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
    * Render media elements
    */
   private renderIconList = () => {
-    const { resourceMap } = this.state;
+    const { iconsMap } = this.state;
     const icons: JSX.Element[] = [];
-    resourceMap.forEach((value: string, key: string) => {
-      if (key.includes("applicationIcon_")) {
-        const preview = (
-          <ImagePreview
-            key={ key }
-            imagePath={ value }
-            onSave={ this.onPropertyFileChange }
-            resource={ this.props.resource }
-            uploadKey={ key }
-            onDelete={ this.onPropertyFileDelete }
-          />
-        );
-        icons.push(preview);
+    const allKeys = Object.values(IconKeys);
+    iconsMap.forEach((value: string, key: string) => {
+      let displayName;
+      const iconTypeKey = allKeys.find(k => key === k.toString());
+      if (iconTypeKey) {
+        displayName = getLocalizedIconTypeString(iconTypeKey);
+      } else {
+        displayName = key;
       }
+      const preview = <>
+        <Typography variant="h5">{ displayName }</Typography>
+        <ImagePreview
+          key={ key }
+          imagePath={ value }
+          onSave={ this.onIconFileChange }
+          resource={ this.props.resource }
+          uploadKey={ key }
+          onDelete={ this.onIconFileDelete }
+        />
+      </>;
+      icons.push(preview);
     });
     return (
       <>
@@ -687,6 +686,29 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
         </Button>
       </>
     );
+  }
+
+  /**
+   * Update resource and icons maps
+   * @param resource resource
+   */
+  private updateMaps(resource: Resource) {
+    const initResourceMap = new Map<string, string>();
+    const initIconsMap = new Map<string, string>();
+    const props = resource.properties;
+    const allKeys = Object.values(IconKeys);
+
+    if (props) {
+      props.map(p => {
+        const iconTypeKey = allKeys.find(k => p.key === k.toString());
+        if (p.key.includes("icon_") || iconTypeKey ) {
+          initIconsMap.set(p.key, p.value);
+        } else {
+          initResourceMap.set(p.key, p.value);
+        }
+      });
+    }
+    return { initResourceMap, initIconsMap };
   }
 
   /**
@@ -706,18 +728,27 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
   private onPropertyFileChange = async (files: File[], key: string) => {
     const { customerId } = this.props;
 
-    let newUri = "";
-    const file = files[0];
-
-    if (file) {
-      const response = await FileUpload.uploadFile(file, customerId);
-      newUri = response.uri;
-    }
-
+    const newUri = await this.upload(files, customerId);
     const tempMap = this.state.resourceMap;
     tempMap.set(key, newUri);
     this.setState({
       resourceMap: tempMap,
+      dataChanged: true
+    });
+    this.onUpdateResource();
+  };
+
+  /**
+   * Handles icon change
+   */
+  private onIconFileChange = async (files: File[], key: string) => {
+    const { customerId } = this.props;
+    
+    const newUri = await this.upload(files, customerId);
+    const tempMap = this.state.iconsMap;
+    tempMap.set(key, newUri);
+    this.setState({
+      iconsMap: tempMap,
       dataChanged: true
     });
 
@@ -732,8 +763,6 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
     this.setState({iconDialogOpen: open});
   }
 
-
-
   /**
    * Delete property file with key
    */
@@ -743,6 +772,21 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
     tempMap.delete(key);
     this.setState({
       resourceMap: tempMap,
+      dataChanged: true
+    });
+
+    this.onUpdateResource();
+  };
+
+  /**
+   * Delete icon file with key
+   */
+  private onIconFileDelete = (key: string) => {
+    const tempMap = this.state.iconsMap;
+
+    tempMap.delete(key);
+    this.setState({
+      iconsMap: tempMap,
       dataChanged: true
     });
 
@@ -827,13 +871,37 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
   };
 
   /**
-   * Push all property key value pairs from state map to properties array
+   * Upload file to S3
+   * @param files list of files
+   * @param customerId customer id
+   */
+  private async upload(files: File[], customerId: string) {
+    let newUri = "";
+    const file = files[0];
+    if (file) {
+      const response = await FileUpload.uploadFile(file, customerId);
+      newUri = response.uri;
+    }
+    return newUri;
+  }
+
+  /**
+   * Push all property key value pairs from state maps to properties array
    * @param properties
    */
   private getPropertiesToUpdate(properties: KeyValueProperty[]) {
-    const { resourceMap } = this.state;
+    const { resourceMap, iconsMap } = this.state;
 
     resourceMap.forEach((value: string, key: string) => {
+      const index = properties.findIndex((p: KeyValueProperty) => p.key === key);
+      if (index > -1) {
+        properties[index] = { key: key, value: value || "" };
+      } else {
+        properties.push({ key: key, value: value || "" });
+      }
+    });
+
+    iconsMap.forEach((value: string, key: string) => {
       const index = properties.findIndex((p: KeyValueProperty) => p.key === key);
       if (index > -1) {
         properties[index] = { key: key, value: value || "" };

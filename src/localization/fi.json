@@ -108,6 +108,8 @@
     "background": "Sovelluksen taustakuva",
     "icon": "Sovelluksen kuvake",
     "icons": "Sovelluksen ikonit",
+    "addIconSelect": "Lisää/korvaa vakioikoni",
+    "addIconTextField": "Lisää ikoni uudella nimellä",
     "returnDelay": "Alkutilan paluuviive minuutteina",
     "id": "Sovelluksen id",
     "addIcon": "Lisää ikoni"
@@ -116,5 +118,17 @@
   "autoplay": "Automaattinen toisto",
   "loop": "Looppi",
   "slideTimeOnScreen": "Siirtymäaika",
-  "menuIcon": "Menu ikoni"
+  "menuIcon": "Menu ikoni",
+  "iconKeys": {
+    "iconHome": "Koti normaali",
+    "iconHomeActive": "Koti aktiivinen",
+    "iconBack": "Paluu normaali",
+    "iconBackActive": "Paluu aktiivinen",
+    "iconForward": "Eteenpäin normaali",
+    "iconForwardActive": "Eteenpäin aktiivinen",
+    "iconClose": "Sulje normaali",
+    "iconCloseActive": "Sulje aktiivinen",
+    "iconExitApp": "Sulje sovellus",
+    "iconExitAppActive": "Sulje sovellus aktiivinen"
+  }
 }

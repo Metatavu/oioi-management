@@ -1,11 +1,14 @@
 import * as React from "react";
-import { withStyles, WithStyles, Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, Divider, Grid, Typography } from "@material-ui/core";
+import { withStyles, WithStyles, Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, Divider, Grid, Typography, Select, MenuItem } from "@material-ui/core";
 import styles from "../../styles/dialog";
 import strings from "../../localization/strings";
 import { Resource } from "../../generated/client/src";
 import FileUploader from "./FileUploader";
+import theme from "../../styles/theme";
 
 import slugify from "slugify";
+import { IconKeys } from "../../commons/iconTypeHelper";
+import { ChangeEvent } from "react";
 /**
  * Component props
  */
@@ -38,6 +41,7 @@ interface State {
   iconName?: string;
   newFiles?: File[];
   propertyName?: string;
+  customInput: boolean;
 }
 
 /**
@@ -54,6 +58,7 @@ class AddIconDialog extends React.Component<Props, State> {
     super(props);
 
     this.state = {
+      customInput: false
     };
   }
 
@@ -62,7 +67,7 @@ class AddIconDialog extends React.Component<Props, State> {
    */
   public render() {
     const { classes } = this.props;
-
+    const selectItems = this.getSelectItems();
     return (
       <Dialog
         fullScreen={ false }
@@ -72,13 +77,25 @@ class AddIconDialog extends React.Component<Props, State> {
       >
         <DialogTitle id="dialog-title">
           <div>
-            <Typography variant="h2">{ strings.applicationSettings.addIcon }</Typography>
+            <Typography variant="h4">{ strings.applicationSettings.addIcon }</Typography>
           </div>
         </DialogTitle>
         <Divider />
         <DialogContent>
           <Grid container spacing={ 2 }>
             <Grid item className={ classes.fullWidth }>
+              <Typography variant="h4">{ strings.applicationSettings.addIconSelect }</Typography>
+              <Select
+                labelId="demo-simple-select-label"
+                id="demo-simple-select"
+                onChange={ this.handleNameChange }
+                name="iconSelect"
+              >
+                { selectItems }
+              </Select>
+              <Divider style={ { marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} />
+
+              <Typography variant="h4">{ strings.applicationSettings.addIconTextField }</Typography>
               <TextField
                 multiline
                 fullWidth
@@ -87,13 +104,14 @@ class AddIconDialog extends React.Component<Props, State> {
                 onChange={ this.handleNameChange }
                 variant="outlined"
               />
+
             </Grid>
             <Grid item className={ classes.fullWidth }>
               <FileUploader
                 resource={ this.props.resource }
                 allowedFileTypes={ [] }
                 onSave={ this.onPropertyFileChange }
-                uploadKey={ "applicationIcon_" }
+                uploadKey={ this.state.customInput ? "icon_" : ""}
               />
             </Grid>
           </Grid>
@@ -109,6 +127,16 @@ class AddIconDialog extends React.Component<Props, State> {
         </DialogActions>
       </Dialog>
     );
+  }
+
+  /**
+   * Generate select items
+   */
+  private getSelectItems = () => {
+    const keys = Object.values(IconKeys);
+    return keys.map(key => {
+      return <MenuItem value={ key }>{ key }</MenuItem>;
+    });
   }
 
   /**
@@ -139,9 +167,12 @@ class AddIconDialog extends React.Component<Props, State> {
    * Handle name change
    * @param event change event
    */
-  private handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  private handleNameChange = (event: ChangeEvent<{ name?: string | undefined; value: unknown; }>) => {
+    const stringValue = event.target.value as string;
+    const isCustomInput = (!event.target.name);
     this.setState({
-      iconName : event.target.value
+      customInput: isCustomInput,
+      iconName : stringValue
     });
   }
 

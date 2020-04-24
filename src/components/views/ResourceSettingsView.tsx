@@ -196,15 +196,6 @@ class ResourceSettingsView extends React.Component<Props, State> {
       <div>
         <Typography variant="h4">{ strings.name }</Typography>
         { this.renderField("name", strings.name, "text") }
-
-        <Typography style={ { marginTop: theme.spacing(3) } } variant="h4">{ strings.title }</Typography>
-        { this.renderField("title", strings.title, "text") }
-
-        <Typography style={ { marginTop: theme.spacing(3) } } variant="h4">{ strings.nameText }</Typography>
-        { this.renderField("nameText", strings.nameText, "textarea") }
-
-        <Typography style={ { marginTop: theme.spacing(3) } } variant="h4">{ strings.content }</Typography>
-        { this.renderField("content", strings.content, "textarea") }
       </div>
     );
   }
