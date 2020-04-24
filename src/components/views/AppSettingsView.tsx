@@ -126,7 +126,7 @@ class AppSettingsView extends React.Component<Props, State> {
         <Divider style={ { marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} />
 
         <Typography style={{ marginBottom: theme.spacing(3) }} variant="h3">{ strings.applicationBasicInformation }</Typography>
-        <Typography variant="h4">{ this.props.rootResource.id }</Typography>
+        <Typography variant="h4">{ this.props.application.id }</Typography>
         { this.renderFields() }
 
         <Divider style={ { marginTop: theme.spacing(3),marginBottom: theme.spacing(3) } } />
