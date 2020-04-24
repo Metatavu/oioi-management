@@ -19,5 +19,15 @@ export default createStyles({
   },
   fullWidth: {
     width: "100%"
-  }
+  },
+
+  imageUploadLoaderContainer: {
+    position: "absolute",
+    backgroundColor: "rgba(0,0,0,0.2)",
+    display: "flex",
+    height: "100%",
+    width: "100%",
+    alignItems: "center",
+    justifyContent: "center"
+  },
 });

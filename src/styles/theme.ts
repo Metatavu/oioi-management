@@ -8,6 +8,7 @@ export default createMuiTheme({
   palette: {
     primary: { main: blueGrey[900] },
     secondary: { main: grey[900] },
+
     background: {
       default: blueGrey[200],
       paper: blueGrey[50]
@@ -18,7 +19,9 @@ export default createMuiTheme({
       selected: blueGrey[900],
       disabled: blueGrey[900]
     },
-    error: red,
+    error: {
+      main: "#d41b3f"
+    },
   },
   typography: {
     fontFamily: "TTNorms-Regular",
@@ -143,6 +146,16 @@ export default createMuiTheme({
         display: "flex",
         opacity: 0,
         transition: "opacity 0.2s ease-out"
+      }
+    },
+    MuiTableBody: {
+      root: {
+        backgroundColor: "#fff"
+      }
+    },
+    MuiTableCell: {
+      head: {
+        fontFamily: "TTNorms-Bold",
       }
     }
   }

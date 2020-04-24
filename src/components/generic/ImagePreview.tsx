@@ -1,15 +1,15 @@
 import * as React from "react";
-import { Dialog, AppBar, Toolbar, IconButton, withStyles, WithStyles, Typography, Grid } from "@material-ui/core";
+import { Dialog, AppBar, Toolbar, IconButton, withStyles, WithStyles } from "@material-ui/core";
 import styles from "../../styles/editor-view";
-import strings from "../../localization/strings";
-import theme from "../../styles/theme";
 import { Resource, ResourceType } from "../../generated/client/src";
 
-import CloseIcon from '@material-ui/icons/Close';
-import ClearIcon from "@material-ui/icons/Clear";
+import CloseIcon from "@material-ui/icons/Close";
+import DeleteIcon from "@material-ui/icons/DeleteForever";
 import FileUploader from "../generic/FileUploader";
 import { getAllowedFileTypes } from "../../commons/resourceTypeHelper";
-import ReactPlayer from 'react-player'
+import ReactPlayer from "react-player";
+import theme from "../../styles/theme";
+import strings from "../../localization/strings";
 
 /**
  * Component props
@@ -60,25 +60,28 @@ class ImagePreview extends React.Component<Props, State> {
    * Component render method
    */
   public render() {
-    const { imagePath, resource, onSave, uploadKey } = this.props;
+    const { imagePath, resource, onSave, uploadKey, classes } = this.props;
     const allowedFileTypes = getAllowedFileTypes(resource.type);
     const video = resource.type === ResourceType.VIDEO;
     return (
-      <>
-        <div style={{ marginTop: theme.spacing(2) }}>
-          <Grid container>
-            <Grid item key={ imagePath } onClick={ this.toggleDialog }>
-              { video ?
-                <ReactPlayer url={ imagePath } controls={ true }/> :
-                <img src={ imagePath } alt="File" height="200" style={{ backgroundColor: "rgba(38, 50, 56, 0.1)" }}/>
-              }
-            </Grid>
-            <Grid item>
-              <IconButton onClick={ () => this.props.onDelete(uploadKey) }>
-                <ClearIcon color="primary"></ClearIcon>
-              </IconButton>
-            </Grid>
-          </Grid>
+      <div className={ classes.imagePreviewElement }>
+        <div style={{ marginBottom: theme.spacing(1) }}>
+          <div key={ imagePath } onClick={ this.toggleDialog }>
+            { video ?
+              <ReactPlayer url={ imagePath } controls={ true } style={{ backgroundColor: "#000" }} /> :
+              <img src={ imagePath } alt="File" height="200" className={ classes.imagePreview }/>
+            }
+          </div>
+          <div className={ classes.deleteImage }>
+            <IconButton 
+              size="small"
+              className={ classes.iconButton }
+              title={ strings.delete }
+              color="secondary"
+              onClick={ () => this.props.onDelete(uploadKey) }>
+              <DeleteIcon />
+            </IconButton>
+          </div>
         </div>
         <FileUploader
           resource={ resource }
@@ -90,7 +93,7 @@ class ImagePreview extends React.Component<Props, State> {
         { this.state.dialogOpen &&
           this.renderDialog()
         }
-      </>
+      </div>
     );
   }
 
@@ -98,7 +101,7 @@ class ImagePreview extends React.Component<Props, State> {
    * Render preview dialog
    */
   private renderDialog = () => {
-    const { imagePath } = this.props;
+    const { imagePath, classes } = this.props;
 
     return (
       <Dialog fullScreen open={ this.state.dialogOpen } onClose={ this.closeDialog }>
@@ -109,8 +112,8 @@ class ImagePreview extends React.Component<Props, State> {
             </IconButton>
           </Toolbar>
         </AppBar>
-        <div style={ { display: "flex", alignItems: "center", justifyContent: "center", height: "100%" } }>
-          <img src={ imagePath } alt="File" style={{ maxHeight: "100%", maxWidth: "100%", paddingTop: "5%", paddingBottom: "2%" }} />
+        <div className={ classes.imagePreviewFullscreenContainer }>
+          <img src={ imagePath } alt="File" />
         </div>
       </Dialog>
     );

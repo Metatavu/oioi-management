@@ -5,7 +5,9 @@ import { fade } from "@material-ui/core/styles";
 const drawerWidth = 500;
 
 export default createStyles({
+
   root: {
+    position: "relative",
     display: "grid",
     gridTemplateColumns: "auto 1fr",
     gridTemplateRows: "auto auto 1fr",
@@ -14,6 +16,7 @@ export default createStyles({
     height: "100%",
     overflowY: "auto",
   },
+
   drawer: {
     gridArea: "drawer",
     position: "relative",
@@ -22,6 +25,7 @@ export default createStyles({
       flexShrink: 0
     }
   },
+
   appBar: {
     height: 55,
     backgroundColor: "#F6F6F6",
@@ -64,7 +68,7 @@ export default createStyles({
     height: "100%",
     padding: theme.spacing(2),
     overflowY: "auto",
-    "& > div:focus": {
+    "& > div div:focus": {
       outline: "none"
     }
   },
@@ -72,25 +76,30 @@ export default createStyles({
   treeRoot: {
     margin: 10
   },
+
   treeContent: {
     minHeight: 30
   },
+
   treeIconContainer: {
     marginRight: 5,
     "& .close": {
       opacity: 0.3
     }
   },
+
   treeGroup: {
     marginLeft: 12,
     paddingLeft: 12,
     borderLeft: `1px dashed ${fade(theme.palette.text.primary, 0.4)}`
   },
+
   treeLabel: {
     whiteSpace: "nowrap",
     overflow: "hidden",
     textOverflow: "ellipsis"
   },
+
   dropzone: {
     padding: 30,
     minHeight: 200,
@@ -102,28 +111,94 @@ export default createStyles({
       justifyContent: "center"
     }
   },
+
   dropzoneText: {
     color: "rgba(0, 0, 0, 0.5)",
     fontSize: theme.typography.subtitle1.fontSize
   },
+
   fullWidth: {
     width: "100%"
   },
+
   languageInputContainer: {
     marginTop: theme.spacing(3),
     marginBottom: theme.spacing(3),
     display: "flex",
     alignItems: "center"
   },
+
   table: {
     width: "100%"
   },
+
   addResourceBtnText: {
     "& .MuiTypography-body1": {
       fontFamily: "TTNorms-Bold"
     }
   },
+
   treeAddItem: {
     cursor: "pointer"
+  },
+
+  gridRow: {
+    maxWidth: "100%",
+    overflowX: "auto",
+    display: "grid",
+    gridAutoFlow: "column",
+    alignItems: "center",
+    gridAutoColumns: "max-content",
+    gridGap: theme.spacing(3)
+  },
+
+  imagePreviewElement: {
+    position: "relative",
+    maxWidth: "min-content",
+    display: "flex",
+    flexDirection: "column"
+  },
+
+  imagePreviewFullscreenContainer: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    height: "100%",
+    "& img": {
+      maxHeight: "100%",
+      maxWidth: "100%",
+      paddingTop: "5%",
+      paddingBottom: "2%"
+    }
+  },
+
+  imagePreview: {
+    backgroundColor: "rgba(38, 50, 56, 0.1)"
+  },
+
+  deleteImage: {
+    position: "absolute",
+    top: 5,
+    right: 5
+  },
+
+  iconButton: {
+    backgroundColor: "rgba(38, 50, 56, 0.9)",
+    color: "#fff",
+    transition: "background-color 0.2s ease-out",
+    "&:hover": {
+      backgroundColor: "rgba(38, 50, 56, 1)",
+    }
+  },
+
+  saveButton: {
+    position: "absolute",
+    top: 9,
+    right: 150,
+    zIndex: 1200
+  },
+
+  deleteButton: {
+    backgroundColor: "#e85874"
   }
 });
