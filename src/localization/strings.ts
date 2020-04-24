@@ -103,7 +103,6 @@ export interface IStrings extends LocalizedStringsMethods {
     text: string;
     image: string;
   };
-  childResources: string;
   applicationSettings: {
     teaserText: string;
     settings: string;
@@ -132,7 +131,10 @@ export interface IStrings extends LocalizedStringsMethods {
     iconCloseActive: string;
     iconExitApp: string;
     iconExitAppActive: string;
-  }
+  };
+  childResources: string;
+  resourceName: string;
+  orderFromLeftToRight: string;
 }
 
 const strings: IStrings = new LocalizedStrings({

@@ -101,7 +101,6 @@
     "image": "Kuva",
     "video": "Video"
   },
-  "childResources": "Alisivut",
   "applicationSettings": {
     "settings": "Sovellusasetukset",
     "teaserText": "Teaserteksti",
@@ -130,5 +129,8 @@
     "iconCloseActive": "Sulje aktiivinen",
     "iconExitApp": "Sulje sovellus",
     "iconExitAppActive": "Sulje sovellus aktiivinen"
-  }
+  },
+  "childResources": "Aliresurssit",
+  "resourceName": "Resurssin nimi",
+  "orderFromLeftToRight": "Järjestys vasemmalta oikealle"
 }

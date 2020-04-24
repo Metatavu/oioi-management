@@ -24,6 +24,7 @@ import { resourceRules, ResourceSettingsForm } from "../../commons/formRules";
 import ImagePreview from "../generic/ImagePreview";
 import AddIconDialog from "../generic/AddIconDialog";
 import { IconKeys, getLocalizedIconTypeString } from "../../commons/iconTypeHelper";
+import { getLocalizedTypeString } from "../../commons/resourceTypeHelper";
 
 /**
  * Component props
@@ -65,6 +66,7 @@ interface State {
 }
 
 class MenuResourceSettingsView extends React.Component<Props, State> {
+
   /**
    * Constructor
    *
@@ -453,7 +455,11 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
                 const styles = resourceData["styles"];
                 styles.push(newData);
                 resourceData["styles"] = styles;
-                this.setState({ resourceData: resourceData }, () => resolve());
+                this.props.confirmationRequired(true);
+                this.setState({
+                  resourceData: resourceData,
+                  dataChanged: true
+                }, () => resolve());
               }
               resolve();
             }),
@@ -465,7 +471,11 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
                 const index = styles.indexOf(oldData);
                 styles[index] = newData;
                 resourceData["styles"] = styles;
-                this.setState({ resourceData: resourceData }, () => resolve());
+                this.props.confirmationRequired(true);
+                this.setState({
+                  resourceData: resourceData,
+                  dataChanged: true
+                }, () => resolve());
               }
               resolve();
             }),
@@ -477,7 +487,11 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
                 const index = styles.indexOf(oldData);
                 styles.splice(index, 1);
                 resourceData["styles"] = styles;
-                this.setState({ resourceData: resourceData }, () => resolve());
+                this.props.confirmationRequired(true);
+                this.setState({
+                  resourceData: resourceData,
+                  dataChanged: true
+                }, () => resolve());
               }
               resolve();
             })
@@ -519,16 +533,21 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
           { title: strings.key, field: "key" },
           { title: strings.value, field: "value" }
         ]}
-        data={resourceData["properties"]}
+        data={ resourceData["properties"] }
         editable={{
           onRowAdd: newData =>
             new Promise((resolve, reject) => {
               {
-                const { resourceData } = this.state;
+                const { resourceData, resourceMap, iconsMap } = this.state;
                 const properties = resourceData["properties"];
                 properties.push(newData);
                 resourceData["properties"] = properties;
-                this.setState({ resourceData: resourceData }, () => resolve());
+                this.addResourceToMap(newData, iconsMap, resourceMap);
+                this.props.confirmationRequired(true);
+                this.setState({
+                  resourceData: resourceData,
+                  dataChanged: true
+                }, () => resolve());
               }
               resolve();
             }),
@@ -539,20 +558,31 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
                 const properties = resourceData["properties"];
                 const index = properties.indexOf(oldData);
                 properties[index] = newData;
+
+                this.updateMapsOnTableDataChange(oldData, newData);
+                this.props.confirmationRequired(true);
                 resourceData["properties"] = properties;
-                this.setState({ resourceData: resourceData }, () => resolve());
+                this.setState({
+                  resourceData: resourceData,
+                  dataChanged: true
+                }, () => resolve());
               }
               resolve();
             }),
           onRowDelete: oldData =>
             new Promise((resolve, reject) => {
               {
-                const { resourceData } = this.state;
+                const { resourceData, iconsMap, resourceMap } = this.state;
                 const properties = resourceData["properties"];
                 const index = properties.indexOf(oldData);
                 properties.splice(index, 1);
                 resourceData["properties"] = properties;
-                this.setState({ resourceData: resourceData }, () => resolve());
+                this.deleteResourceFromMap(oldData, iconsMap, resourceMap);
+                this.props.confirmationRequired(true);
+                this.setState({
+                  resourceData: resourceData,
+                  dataChanged: true
+                }, () => resolve());
               }
               resolve();
             })
@@ -591,7 +621,7 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
       return (
         <TableRow key={ resource.name }>
           <TableCell component="th" scope="row">{ resource.name }</TableCell>
-          <TableCell align="right">{ resource.type }</TableCell>
+          <TableCell align="right">{ getLocalizedTypeString(resource.type) }</TableCell>
           <TableCell align="center">{ resource.order_number }</TableCell>
           <TableCell align="right">
             <IconButton color="primary" edge="end" aria-label="delete" onClick={ () => this.props.onDelete(resource) }>
@@ -607,9 +637,9 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
         <Table size="small" className={ classes.table } aria-label="simple table">
           <TableHead>
             <TableRow>
-              <TableCell>Sivu</TableCell>
-              <TableCell align="right">Tyyppi</TableCell>
-              <TableCell align="center">Järjestys vasemmalta oikealle</TableCell>
+              <TableCell>{ strings.resourceName }</TableCell>
+              <TableCell align="right">{ strings.resourceType }</TableCell>
+              <TableCell align="center">{ strings.orderFromLeftToRight }</TableCell>
               <TableCell align="right"></TableCell>
             </TableRow>
           </TableHead>
@@ -701,7 +731,7 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
     if (props) {
       props.map(p => {
         const iconTypeKey = allKeys.find(k => p.key === k.toString());
-        if (p.key.includes("icon_") || iconTypeKey ) {
+        if (p.key.startsWith("icon_") || iconTypeKey ) {
           initIconsMap.set(p.key, p.value);
         } else {
           initResourceMap.set(p.key, p.value);
@@ -814,6 +844,9 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
       properties: properties.filter(p => !!p.value)
     } as Resource;
     onUpdate(resource);
+    this.setState({
+      dataChanged: false
+    });
   };
   /**
    * Handles textfields change events
@@ -909,6 +942,69 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
         properties.push({ key: key, value: value || "" });
       }
     });
+  }
+
+  /**
+   * Update map values based on new and old value.
+   * TODO: This needs cleaner implementation
+   * @param oldData old data from table
+   * @param newData new data from table
+   */
+  private updateMapsOnTableDataChange = (oldData: ({ key: string; } & { value: string; }) | undefined, newData: { key: string; } & { value: string; }) => {
+    const { resourceMap, iconsMap } = this.state;
+
+    if (oldData) {
+      const keyChanged = oldData.key !== newData.key;
+      const valueChanged = oldData.value !== newData.value;
+      const inResourceMap = resourceMap.has(oldData.key);
+      const inIconsMap = iconsMap.has(oldData.key);
+
+      if ((keyChanged && valueChanged) || keyChanged) {
+        if (inResourceMap) {
+          resourceMap.delete(oldData.key);
+          resourceMap.set(newData.key, newData.value);
+        } else if (inIconsMap) {
+          iconsMap.delete(oldData.key);
+          iconsMap.set(newData.key, newData.value);
+        }
+      } else if (valueChanged) {
+        if (inResourceMap) {
+          resourceMap.set(oldData.key, newData.value);
+        } else if (inIconsMap) {
+          iconsMap.set(oldData.key, newData.value);
+        }
+      }
+    } else {
+      this.addResourceToMap(newData, iconsMap, resourceMap);
+    }
+  }
+
+  /**
+   * Adds resource to map
+   * @param newData new data
+   * @param iconsMap icons map
+   * @param resourceMap resource map
+   */
+  private addResourceToMap(newData: { key: string; } & { value: string; }, iconsMap: Map<string, string>, resourceMap: Map<string, string>) {
+    if (newData.key.startsWith("icon_")) {
+      iconsMap.set(newData.key, newData.value);
+    } else {
+      resourceMap.set(newData.key, newData.value);
+    }
+  }
+
+  /**
+   * Deletes resource from map
+   * @param oldData  old data
+   * @param iconsMap icons map
+   * @param resourceMap resource map
+   */
+  private deleteResourceFromMap(oldData: { key: string; } & { value: string; }, iconsMap: Map<string, string>, resourceMap: Map<string, string>) {
+    if (oldData.key.startsWith("icon_")) {
+      iconsMap.delete(oldData.key);
+    } else {
+      resourceMap.delete(oldData.key);
+    }
   }
 }
 

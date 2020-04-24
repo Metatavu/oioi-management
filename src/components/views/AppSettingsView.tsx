@@ -389,7 +389,7 @@ class AppSettingsView extends React.Component<Props, State> {
 
     if (props) {
       props.map(p => {
-        if (p.key.includes("icon_") || initIconsMap.has(p.key)) {
+        if (p.key.startsWith("icon_") || initIconsMap.has(p.key)) {
           initIconsMap.set(p.key, p.value);
         } else {
           initResourceMap.set(p.key, p.value);
@@ -438,7 +438,9 @@ class AppSettingsView extends React.Component<Props, State> {
       properties: properties.filter(p => !!p.value)
     } as Resource;
     onUpdateRootResource(resource);
-
+    this.setState({
+      dataChanged: false
+    });
   };
 
   /**
