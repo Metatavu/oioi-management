@@ -73,7 +73,7 @@ interface State {
 
 interface ResourceTreeItem extends TreeItemSortable {
   id?: string;
-  resource: Resource;
+  resource?: Resource;
 }
 
 class ApplicationEditor extends React.Component<Props, State> {
@@ -317,16 +317,6 @@ class ApplicationEditor extends React.Component<Props, State> {
         resource: resource
       } as ResourceTreeItem;
     });
-
-    const addNewChild = new Promise<ResourceTreeItem>((resolve, reject) => {
-      resolve({
-        title: this.renderAdd(parent_id)
-      } as ResourceTreeItem);
-    });
-
-    if (this.canHaveChildren({ title: "", resource: parent })) {
-      childResourcePromises.push(addNewChild);
-    }
 
     return await Promise.all(childResourcePromises);
   }
@@ -681,7 +671,7 @@ class ApplicationEditor extends React.Component<Props, State> {
    */
   private onOpenResourceClick = async (resource: Resource) => {
     const { openResource } = this.props;
-    const { confirmationRequired } = this.state;
+    const { confirmationRequired, treeData } = this.state;
     if (confirmationRequired) {
       if (window.confirm(`${strings.continueWithoutSaving}`)) {
         openResource(resource);
@@ -692,7 +682,27 @@ class ApplicationEditor extends React.Component<Props, State> {
       return;
     }
     openResource(resource);
+    this.setState({
+      treeData: this.treeDataRenderAddButton(treeData || [], resource || "")
+    });
   };
+
+  /**
+   * Renders add button under the chosen resource
+   * 
+   * @param data tree data object
+   * @param resource resource
+   */
+  private treeDataRenderAddButton = (data: ResourceTreeItem[], resource: Resource): ResourceTreeItem[] => {
+    return data
+    .filter(item => item.resource)
+    .map((item) => {
+      if (resource.id === item.resource!.id && this.canHaveChildren(item as TreeItemSortable)) {
+        return {...item, children: item.children && Array.isArray(item.children) ? [...this.treeDataRenderAddButton(item.children as ResourceTreeItem[], resource), { title: this.renderAdd(resource.id) }] : [{ title: this.renderAdd(resource.id) }]}
+      }
+      return {...item, children: item.children ? this.treeDataRenderAddButton(item.children as ResourceTreeItem[], resource) : [] };
+    });
+  }
 
   /**
    * on save new resource method
@@ -776,13 +786,12 @@ class ApplicationEditor extends React.Component<Props, State> {
    */
   private treeDataAdd = (newItem: ResourceTreeItem, data: ResourceTreeItem[]): ResourceTreeItem[] => {
     const { application } = this.props;
-    const newItemWithAddButton = this.canHaveChildren(newItem as TreeItemSortable) ? {...newItem, children: [{ title: this.renderAdd(newItem.resource.id)} as ResourceTreeItem ]} : newItem;
-    if (newItem.resource.parent_id === application!.root_resource_id) {
-      return [...data.filter(item => item.resource), newItemWithAddButton, { title: this.renderAdd(newItemWithAddButton.resource.parent_id) } as ResourceTreeItem];
+    if (newItem.resource!.parent_id === application!.root_resource_id) {
+      return [...data.filter(item => item.resource), newItem, { title: this.renderAdd(newItem.resource!.parent_id) } as ResourceTreeItem];
     }
     return data.map((item) => {
       if (item.resource && item.children && Array.isArray(item.children)) {
-        return {...item, children: item.resource.id === newItem.resource.parent_id ? [...item.children.filter(item => item.resource) as ResourceTreeItem[], newItemWithAddButton, { title: this.renderAdd(newItem.resource.parent_id)} as ResourceTreeItem] as ResourceTreeItem[] : this.treeDataAdd(newItem, item.children as ResourceTreeItem[])};
+        return {...item, children: item.resource.id === newItem.resource!.parent_id ? [...item.children.filter(item => item.resource) as ResourceTreeItem[], newItem, { title: this.renderAdd(newItem.resource!.parent_id)} as ResourceTreeItem] as ResourceTreeItem[] : this.treeDataAdd(newItem, item.children as ResourceTreeItem[])};
       } else {
         return item;
       }
