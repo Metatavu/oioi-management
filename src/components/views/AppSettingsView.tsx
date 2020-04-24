@@ -389,7 +389,7 @@ class AppSettingsView extends React.Component<Props, State> {
 
     if (props) {
       props.map(p => {
-        if (p.key.includes("applicationIcon_") || initIconsMap.has(p.key)) {
+        if (p.key.includes("icon_") || initIconsMap.has(p.key)) {
           initIconsMap.set(p.key, p.value);
         } else {
           initResourceMap.set(p.key, p.value);

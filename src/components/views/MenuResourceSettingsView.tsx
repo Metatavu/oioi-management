@@ -701,7 +701,7 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
     if (props) {
       props.map(p => {
         const iconTypeKey = allKeys.find(k => p.key === k.toString());
-        if (p.key.includes("applicationIcon_") || iconTypeKey ) {
+        if (p.key.includes("icon_") || iconTypeKey ) {
           initIconsMap.set(p.key, p.value);
         } else {
           initResourceMap.set(p.key, p.value);

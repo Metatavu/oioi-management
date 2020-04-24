@@ -141,7 +141,7 @@ class ImagePreview extends React.Component<Props, State> {
   }
 
   /**
-   * If preview item is application icon (contains prefix applicationIcon_)
+   * If preview item is application icon (contains prefix icon_)
    * split the property name and return the trimmed name
    */
   private trimKeyPrefix = (key: string): string => {
