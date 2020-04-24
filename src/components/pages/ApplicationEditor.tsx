@@ -149,6 +149,11 @@ class ApplicationEditor extends React.Component<Props, State> {
     if (this.state.rootResource && this.state.rootResource.id !== prevRootResourceId) {
       await this.loadTree();
     }
+    if (prevProps.openedResource && !this.props.openedResource) {
+      this.setState({
+        treeData: this.treeDataRenderAddButton(this.state.treeData || [], undefined)
+      });
+    }
   };
 
   /**
@@ -227,17 +232,20 @@ class ApplicationEditor extends React.Component<Props, State> {
         </List>
         <Divider />
         { treeData &&
-          <SortableTree
-            className={ classes.treeWrapper }
-            rowHeight={ 48 }
-            treeData={ treeData }
-            onChange={ this.setTreeData }
-            onMoveNode={ this.moveResource }
-            canDrop={ this.canDrop }
-            canDrag={ this.canDrag }
-            canNodeHaveChildren={ this.canHaveChildren }
-            theme={ FileExplorerTheme }
-          />
+          <>
+            { this.renderAdd(this.props.application!.root_resource_id) }
+            <SortableTree
+              className={ classes.treeWrapper }
+              rowHeight={ 48 }
+              treeData={ treeData }
+              onChange={ this.setTreeData }
+              onMoveNode={ this.moveResource }
+              canDrop={ this.canDrop }
+              canDrag={ this.canDrag }
+              canNodeHaveChildren={ this.canHaveChildren }
+              theme={ FileExplorerTheme }
+            />
+          </>
         }
         <AddResourceDialog
           open={ this.state.addResourceDialogOpen }
@@ -278,9 +286,6 @@ class ApplicationEditor extends React.Component<Props, State> {
         };
       })
     );
-    treeData.push({
-      title: this.renderAdd(application!.root_resource_id || "")
-    } as ResourceTreeItem);
     this.setState({
       treeData: treeData
     });
@@ -603,13 +608,25 @@ class ApplicationEditor extends React.Component<Props, State> {
    */
   private renderAdd = (parent_id?: string) => {
     const { classes } = this.props;
+    const { treeData } = this.state;
 
     if (!parent_id) {
-      return (
-        <ListItem key="loading">
-          <ListItemText primary={strings.loading} />
-        </ListItem>
-      );
+      return;
+    }
+
+    if (parent_id === this.props.application!.root_resource_id) {
+      if (treeData && (!treeData.find(data => data.resource && data.resource.type === ResourceType.INTRO) || !treeData.find(data => data.resource && data.resource.type === ResourceType.LANGUAGEMENU))) {
+        return (
+          <>
+            <ListItem className={ classes.treeAddItem } onClick={ () => this.onAddNewResourceClick(parent_id) } key={ parent_id + "add" }>
+              <ListItemIcon style={ { minWidth: 0, marginRight: theme.spacing(1) } }><AddIcon /></ListItemIcon>
+              <ListItemText className={ classes.addResourceBtnText } primary={ strings.addNewIntroOrLanguageMenu } />
+            </ListItem>
+          </>
+        );
+      } else {
+        return;
+      }
     }
 
     return (
@@ -693,7 +710,10 @@ class ApplicationEditor extends React.Component<Props, State> {
    * @param data tree data object
    * @param resource resource
    */
-  private treeDataRenderAddButton = (data: ResourceTreeItem[], resource: Resource): ResourceTreeItem[] => {
+  private treeDataRenderAddButton = (data: ResourceTreeItem[], resource?: Resource): ResourceTreeItem[] => {
+    if (!resource) {
+      return data.filter(item => item.resource).map((item) => { return {...item, children: item.children && Array.isArray(item.children) ? this.treeDataRenderAddButton(item.children, resource) : []} })
+    }
     return data
     .filter(item => item.resource)
     .map((item) => {
@@ -787,7 +807,7 @@ class ApplicationEditor extends React.Component<Props, State> {
   private treeDataAdd = (newItem: ResourceTreeItem, data: ResourceTreeItem[]): ResourceTreeItem[] => {
     const { application } = this.props;
     if (newItem.resource!.parent_id === application!.root_resource_id) {
-      return [...data.filter(item => item.resource), newItem, { title: this.renderAdd(newItem.resource!.parent_id) } as ResourceTreeItem];
+      return [...data.filter(item => item.resource), newItem];
     }
     return data.map((item) => {
       if (item.resource && item.children && Array.isArray(item.children)) {
