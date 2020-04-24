@@ -247,6 +247,9 @@ class ApplicationEditor extends React.Component<Props, State> {
             />
           </>
         }
+        { !treeData &&
+          <div style={{ padding: "1rem" }}><CircularProgress /></div>
+        }
         <AddResourceDialog
           open={ this.state.addResourceDialogOpen }
           auth={ auth}
