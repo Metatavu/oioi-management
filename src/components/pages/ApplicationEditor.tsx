@@ -104,11 +104,16 @@ class ApplicationEditor extends React.Component<Props, State> {
             setApplication,
             customer,
             device,
-            application
+            application,
+            openResource,
+            openedResource
           } = this.props;
 
     if (!auth || !auth.token) {
       return;
+    }
+    if (openedResource) {
+      openResource(undefined);
     }
     const customersApi = ApiUtils.getCustomersApi(auth.token);
     const devicesApi = ApiUtils.getDevicesApi(auth.token);
