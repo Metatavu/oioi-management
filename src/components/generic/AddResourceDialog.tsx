@@ -117,8 +117,8 @@ interface State {
   resourceType?: ResourceType;
   siblingResources: Resource[];
   parentResourceType?: ResourceType;
-  addingLanguage: boolean,
-  copyContentFromId?: string
+  addingLanguage: boolean;
+  copyContentFromId?: string;
 }
 
 /**

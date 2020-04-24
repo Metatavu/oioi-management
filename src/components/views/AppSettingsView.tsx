@@ -13,6 +13,7 @@ import AddIconDialog from "../generic/AddIconDialog";
 import ImagePreview from "../generic/ImagePreview";
 import { AuthState } from "../../types";
 import ApiUtils from "../../utils/ApiUtils";
+import { IconKeys, getLocalizedIconTypeString, getDefaultIconURL } from "../../commons/iconTypeHelper";
 
 /**
  * Component Props
@@ -34,6 +35,7 @@ interface Props extends WithStyles<typeof styles> {
 interface State {
   applicationForm: Form<ApplicationForm>;
   resourceMap: Map<string, string>;
+  iconsMap: Map<string, string>;
   iconDialogOpen: boolean;
   importingContent: boolean;
   importDone: boolean;
@@ -57,7 +59,8 @@ class AppSettingsView extends React.Component<Props, State> {
         },
         applicationRules
       ),
-      resourceMap: new Map(),
+      resourceMap: new Map<string, string>(),
+      iconsMap: new Map<string, string>(),
       iconDialogOpen: false,
       importingContent: false,
       importDone: false,
@@ -79,18 +82,16 @@ class AppSettingsView extends React.Component<Props, State> {
     );
 
     applicationForm = validateForm(applicationForm);
-    const initMap = new Map<string, string>();
-    const props = rootResource.properties;
-    if (props) {
-      props.map(p => {
-        initMap.set(p.key, p.value);
-      });
-    }
+    this.updateMaps(rootResource, applicationForm);
+  }
 
-    this.setState({
-      applicationForm: applicationForm,
-      resourceMap: initMap
-    });
+  public componentDidUpdate = (prevProps: Props, prevState: State) => {
+    const { rootResource } = this.props;
+    let { applicationForm } = this.state;
+    if (prevProps.rootResource !== this.props.rootResource) {
+      applicationForm = validateForm(applicationForm);
+      this.updateMaps(rootResource, applicationForm);
+    }
   }
 
   /**
@@ -125,6 +126,7 @@ class AppSettingsView extends React.Component<Props, State> {
         <Divider style={ { marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} />
 
         <Typography style={{ marginBottom: theme.spacing(3) }} variant="h3">{ strings.applicationBasicInformation }</Typography>
+        <Typography variant="h4">{ this.props.rootResource.id }</Typography>
         { this.renderFields() }
 
         <Divider style={ { marginTop: theme.spacing(3),marginBottom: theme.spacing(3) } } />
@@ -142,7 +144,7 @@ class AppSettingsView extends React.Component<Props, State> {
 
         <AddIconDialog
           resource={ this.props.rootResource }
-          onSave={ this.onPropertyFileChange }
+          onSave={ this.onIconFileChange }
           onToggle={ this.toggleDialog }
           open={ this.state.iconDialogOpen }
         />
@@ -156,7 +158,7 @@ class AppSettingsView extends React.Component<Props, State> {
 
   /**
    * Handles importing data from wall json file
-   * 
+   *
    */
   private handleWallJsonImport = async (files: FileList | null) => {
     if (!files) {
@@ -266,10 +268,6 @@ class AppSettingsView extends React.Component<Props, State> {
             <Typography variant="h4">{ strings.applicationSettings.returnDelay }</Typography>
             { this.renderTextField(strings.applicationSettings.returnDelay, "text", undefined, "returnDelay") }
           </div>
-          <div>
-            <Typography variant="h4">{ strings.applicationSettings.id }</Typography>
-            { this.renderTextField(strings.applicationSettings.id, "text", undefined, "applicationId") }
-          </div>
         </div>
       </>
     );
@@ -336,22 +334,26 @@ class AppSettingsView extends React.Component<Props, State> {
    * Render media elements
    */
   private renderIconList = () => {
-    const { resourceMap } = this.state;
+    const { iconsMap } = this.state;
     const icons: JSX.Element[] = [];
-    resourceMap.forEach((value: string, key: string) => {
-      if (key.includes("applicationIcon_")) {
-        const preview = (
-          <ImagePreview
-            key={ key }
-            imagePath={ value }
-            onSave={ this.onPropertyFileChange }
-            resource={ this.props.rootResource }
-            uploadKey={ key }
-            onDelete={ this.onPropertyFileDelete }
-          />
-        );
-        icons.push(preview);
+    const allKeys = Object.values(IconKeys);
+    iconsMap.forEach((value: string, key: string) => {
+      const iconTypeKey = allKeys.find(k => key === k.toString());
+      if (!iconTypeKey) {
+        return;
       }
+      const preview = <>
+        <Typography variant="h5">{ getLocalizedIconTypeString(iconTypeKey) }</Typography>
+        <ImagePreview
+          key={ key }
+          imagePath={ value }
+          onSave={ this.onIconFileChange }
+          resource={ this.props.rootResource }
+          uploadKey={ key }
+          onDelete={ this.onIconFileDelete }
+        />
+      </>;
+      icons.push(preview);
     });
     return (
       <>
@@ -369,11 +371,45 @@ class AppSettingsView extends React.Component<Props, State> {
   }
 
   /**
+   * Update resource and icon map data
+   * @param rootResource root resource
+   * @param applicationForm application form
+   */
+  private updateMaps(rootResource: Resource, applicationForm: Form<ApplicationForm>) {
+    const initResourceMap = new Map<string, string>();
+    const initIconsMap = new Map<string, string>();
+    const props = rootResource.properties;
+
+    const iconKeys = Object.values(IconKeys);
+    iconKeys.map(iconKey => {
+      if (!initIconsMap.has(iconKey)) {
+        initIconsMap.set(iconKey, getDefaultIconURL(iconKey));
+      }
+    });
+
+    if (props) {
+      props.map(p => {
+        if (p.key.includes("applicationIcon_") || initIconsMap.has(p.key)) {
+          initIconsMap.set(p.key, p.value);
+        } else {
+          initResourceMap.set(p.key, p.value);
+        }
+      });
+    }
+
+    this.setState({
+      applicationForm: applicationForm,
+      resourceMap: initResourceMap,
+      iconsMap: initIconsMap
+    });
+  }
+
+  /**
    * Toggle dialog
    */
   private toggleDialog = () => {
     const open = !this.state.iconDialogOpen;
-    this.setState({iconDialogOpen: open});
+    this.setState({ iconDialogOpen: open });
   }
 
   /**
@@ -478,18 +514,28 @@ class AppSettingsView extends React.Component<Props, State> {
   private onPropertyFileChange = async (files: File[], key: string) => {
     const { customerId } = this.props;
 
-    let newUri = "";
-    const file = files[0];
-
-    if (file) {
-      const response = await FileUpload.uploadFile(file, customerId);
-      newUri = response.uri;
-    }
-
+    const newUri = await this.upload(files, customerId);
     const tempMap = this.state.resourceMap;
     tempMap.set(key, newUri);
     this.setState({
       resourceMap: tempMap,
+      dataChanged: true
+    });
+
+    this.onUpdateResource();
+  };
+
+  /**
+   * Handles icon change
+   */
+  private onIconFileChange = async (files: File[], key: string) => {
+    const { customerId } = this.props;
+    
+    const newUri = await this.upload(files, customerId);
+    const tempMap = this.state.iconsMap;
+    tempMap.set(key, newUri);
+    this.setState({
+      iconsMap: tempMap,
       dataChanged: true
     });
 
@@ -512,13 +558,47 @@ class AppSettingsView extends React.Component<Props, State> {
   };
 
   /**
-   * Push all property key value pairs from state map to properties array
+   * Delete icon file with key
+   */
+  private onIconFileDelete = (key: string) => {
+    const tempMap = this.state.iconsMap;
+
+    tempMap.delete(key);
+    this.setState({
+      iconsMap: tempMap,
+      dataChanged: true
+    });
+
+    this.onUpdateResource();
+  };
+
+  private async upload(files: File[], customerId: string) {
+    let newUri = "";
+    const file = files[0];
+    if (file) {
+      const response = await FileUpload.uploadFile(file, customerId);
+      newUri = response.uri;
+    }
+    return newUri;
+  }
+
+  /**
+   * Push all property key value pairs from state maps to properties array
    * @param properties
    */
   private getPropertiesToUpdate(properties: KeyValueProperty[]) {
-    const { resourceMap } = this.state;
+    const { resourceMap, iconsMap } = this.state;
 
     resourceMap.forEach((value: string, key: string) => {
+      const index = properties.findIndex((p: KeyValueProperty) => p.key === key);
+      if (index > -1) {
+        properties[index] = { key: key, value: value || "" };
+      } else {
+        properties.push({ key: key, value: value || "" });
+      }
+    });
+
+    iconsMap.forEach((value: string, key: string) => {
       const index = properties.findIndex((p: KeyValueProperty) => p.key === key);
       if (index > -1) {
         properties[index] = { key: key, value: value || "" };

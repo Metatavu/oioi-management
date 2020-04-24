@@ -109,6 +109,8 @@ export interface IStrings extends LocalizedStringsMethods {
     background: string;
     icon: string;
     icons: string;
+    addIconSelect: string;
+    addIconTextField: string;
     returnDelay: string;
     id: string;
     addIcon: string;
@@ -118,6 +120,18 @@ export interface IStrings extends LocalizedStringsMethods {
   loop: string;
   slideTimeOnScreen: string;
   menuIcon: string;
+  iconKeys: {
+    iconHome: string;
+    iconHomeActive: string;
+    iconBack: string;
+    iconBackActive: string;
+    iconForward: string;
+    iconForwardActive: string;
+    iconClose: string;
+    iconCloseActive: string;
+    iconExitApp: string;
+    iconExitAppActive: string;
+  }
 }
 
 const strings: IStrings = new LocalizedStrings({

@@ -62,14 +62,10 @@ class ImagePreview extends React.Component<Props, State> {
   public render() {
     const { imagePath, resource, onSave, uploadKey } = this.props;
     const allowedFileTypes = getAllowedFileTypes(resource.type);
-    const displayName = this.trimKeyPrefix(uploadKey);
     const video = resource.type === ResourceType.VIDEO;
     return (
       <>
         <div style={{ marginTop: theme.spacing(2) }}>
-          { this.isIcon(uploadKey) && 
-            <Typography variant="h5">{ displayName }</Typography>
-          }
           <Grid container>
             <Grid item key={ imagePath } onClick={ this.toggleDialog }>
               { video ?

@@ -108,6 +108,8 @@
     "background": "Application background image",
     "icon": "Application icon",
     "icons": "Application icons",
+    "addIconSelect": "Add/replace default icon",
+    "addIconTextField": "Add icon with new name",
     "returnDelay": "Reset delay",
     "id": "Application id",
     "addIcon": "Add icon"
@@ -116,5 +118,17 @@
   "autoplay": "Automatic play",
   "loop": "Loop",
   "slideTimeOnScreen": "Slide time on screen",
-  "menuIcon": "Menu icon"
+  "menuIcon": "Menu icon",
+  "iconKeys": {
+    "iconHome": "Home normal",
+    "iconHomeActive": "Home active",
+    "iconBack": "Return normal",
+    "iconBackActive": "Return active",
+    "iconForward": "Forward normal",
+    "iconForwardActive": "Forward active",
+    "iconClose": "Close normal",
+    "iconCloseActive": "Close active",
+    "iconExitApp": "Close app normal",
+    "iconExitAppActive": "Close app active"
+  }
 }
