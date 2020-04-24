@@ -882,6 +882,7 @@ class ApplicationEditor extends React.Component<Props, State> {
    */
   private onUpdateChildResources = async (childResources: Resource[]) => {
     const { auth, customerId, deviceId, applicationId, updatedResourceView } = this.props;
+    const { treeData } = this.state;
     if (!auth || !auth.token) {
       return;
     }
@@ -897,8 +898,26 @@ class ApplicationEditor extends React.Component<Props, State> {
       })
     );
 
-    await Promise.all(updateChildResourcePromises);
+    const resources = await Promise.all(updateChildResourcePromises);
     updatedResourceView();
+    this.setState({
+      treeData: this.treeDataUpdateChildResources(treeData || [], resources)
+    });
+  }
+
+  /**
+   * Updates child resources
+   * 
+   * @param data tree data object
+   * @param resources child resources
+   */
+  private treeDataUpdateChildResources = (data: ResourceTreeItem[], resources: Resource[]): ResourceTreeItem[] => {
+    return data.map((item) => {
+      if (resources.length > 0 && item.resource && resources[0].parent_id === item.resource.id) {
+        return {...item, children: item.children && Array.isArray(item.children) ? item.children.map((child, index) => { return {...child, title: child.resource ? this.renderTreeItem(resources[index]) : this.renderAdd(resources[0].parent_id), resource: child.resource ? resources[index] : undefined } }) : []};
+      }
+      return {...item, children: item.children && Array.isArray(item.children) ? this.treeDataUpdateChildResources(item.children, resources) : []};
+    });
   }
 
   /**
