@@ -8,6 +8,7 @@ export interface IStrings extends LocalizedStringsMethods {
   addLanguage: string;
   addNewCustomer: string;
   addNewDevice: string;
+  addNewIntroOrLanguageMenu: string;
   applications: string;
   applicationName: string;
   applicationBasicInformation: string;
