@@ -165,19 +165,19 @@ class ApplicationEditor extends React.Component<Props, State> {
    * Component render method
    */
   public render() {
-    const { classes, openedResource } = this.props;
+    const { classes, openedResource, resourceViewUpdated } = this.props;
     let resourceType = ResourceType.ROOT;
 
     if (openedResource) {
       resourceType = openedResource.type;
     }
-    const resourceTypeObject = getLocalizedTypeString(resourceType);
+    const localString = getLocalizedTypeString(resourceType);
     return (
       <div className={ classes.root }>
         <AppBar elevation={ 0 } position="relative" className={ classes.appBar }>
           <div className={ classes.toolbar }>
             <Typography variant="h3" noWrap>
-              { openedResource && resourceTypeObject.resourceLocal }
+              { openedResource && localString }
             </Typography>
             <div>
               { openedResource &&
@@ -924,8 +924,7 @@ class ApplicationEditor extends React.Component<Props, State> {
    * Delete resource method
    */
   private onDeleteResource = async (resource: Resource, nextOpenResource?: Resource) => {
-    const { auth, customerId, deviceId, applicationId, openResource } = this.props;
-    const { treeData } = this.state;
+    const { auth, customerId, deviceId, applicationId, openResource, updatedResourceView } = this.props;
     const resourceId = resource.id;
 
     if (!auth || !auth.token || !resourceId) {
@@ -949,8 +948,10 @@ class ApplicationEditor extends React.Component<Props, State> {
       await resourcesApi.deleteResource({ customer_id: customerId, device_id: deviceId, application_id: applicationId, resource_id: resourceId });
       openResource(nextOpenResource);
       this.setState({
-        treeData: this.treeDataDelete(resource.id || "", treeData || [])
+        treeData: this.treeDataDelete(resource.id || "", this.state.treeData || [])
       });
+
+      updatedResourceView();
     }
   };
 

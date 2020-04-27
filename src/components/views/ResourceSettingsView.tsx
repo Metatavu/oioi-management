@@ -17,7 +17,6 @@ import { forwardRef } from "react";
 import { MessageType, initForm, Form, validateForm } from "ts-form-validation";
 import logo from "../../resources/svg/oioi-logo.svg";
 
-import { getLocalizedTypeString } from "../../commons/resourceTypeHelper";
 import { ResourceSettingsForm, resourceRules } from "../../commons/formRules";
 import ImagePreview from "../generic/ImagePreview";
 
@@ -522,7 +521,8 @@ class ResourceSettingsView extends React.Component<Props, State> {
 
     onUpdate(resource);
     this.setState({
-      resourceData: resourceData
+      resourceData: resourceData,
+      dataChanged: false
     });
   };
 

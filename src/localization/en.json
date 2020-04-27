@@ -102,7 +102,6 @@
     "image": "Image",
     "video": "Video"
   },
-  "childResources": "Sub resources",
   "applicationSettings": {
     "settings": "Basic application settings",
     "teaserText": "Teaser text",
@@ -131,5 +130,8 @@
     "iconCloseActive": "Close active",
     "iconExitApp": "Close app normal",
     "iconExitAppActive": "Close app active"
-  }
+  },
+  "childResources": "Child resources",
+  "resourceName": "Resource name",
+  "orderFromLeftToRight": "Order from left to right"
 }
