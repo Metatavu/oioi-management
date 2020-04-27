@@ -137,5 +137,6 @@
   "type": "Tyyppi",
   "childResources": "Aliresurssit",
   "resourceName": "Resurssin nimi",
-  "orderFromLeftToRight": "Järjestys vasemmalta oikealle"
+  "orderFromLeftToRight": "Järjestys vasemmalta oikealle",
+  "iconNameIncorrectWarning": "Ikonin nimen tulisi alkaa \"icon_\""
 }

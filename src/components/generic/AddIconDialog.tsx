@@ -9,6 +9,7 @@ import theme from "../../styles/theme";
 import slugify from "slugify";
 import { IconKeys } from "../../commons/iconTypeHelper";
 import { ChangeEvent } from "react";
+import { Alert } from "@material-ui/lab";
 /**
  * Component props
  */
@@ -62,6 +63,16 @@ class AddIconDialog extends React.Component<Props, State> {
     };
   }
 
+  componentDidMount() {
+    this.setState({iconName: "icon_"});
+  }
+
+  componentDidUpdate = (prevProps: Props) => {
+    if (!prevProps.open && this.props.open) {
+      this.setState({iconName: "icon_"});
+    }
+  }
+
   /**
    * Component render method
    */
@@ -104,7 +115,9 @@ class AddIconDialog extends React.Component<Props, State> {
                 onChange={ this.handleNameChange }
                 variant="outlined"
               />
-
+              {(!this.state.iconName || !this.state.iconName.startsWith("icon_")) && (
+                <Alert style={{marginTop: "10px"}} severity="warning"> {strings.iconNameIncorrectWarning} </Alert>
+              )}
             </Grid>
             <Grid item className={ classes.fullWidth }>
               <FileUploader
