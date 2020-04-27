@@ -14,6 +14,7 @@ import ImagePreview from "../generic/ImagePreview";
 import { AuthState } from "../../types";
 import ApiUtils from "../../utils/ApiUtils";
 import { IconKeys, getLocalizedIconTypeString, getDefaultIconURL } from "../../commons/iconTypeHelper";
+import VisibleWithRole from "../generic/VisibleWithRole";
 import AddIcon from "@material-ui/icons/Add";
 
 /**
@@ -171,9 +172,11 @@ class AppSettingsView extends React.Component<Props, State> {
           open={ this.state.iconDialogOpen }
         />
 
-        <Divider style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} />
-        <Typography variant="h4">{ strings.importLabel }</Typography>
-        <input onChange={ e => this.handleWallJsonImport(e.target.files)} type="file"  />
+        <VisibleWithRole role="admin">
+          <Divider style={ { marginTop: theme.spacing(3), marginBottom: theme.spacing(3) } } />
+          <Typography variant="h4">{ strings.importLabel }</Typography>
+          <input onChange={ e => this.handleWallJsonImport(e.target.files)} type="file"  />
+        </VisibleWithRole>
       </div>
     );
   }
@@ -378,13 +381,15 @@ class AppSettingsView extends React.Component<Props, State> {
     return (
       <>
         { icons }
-        <IconButton
-          title={ strings.addNewIcon }
-          className={ classes.iconButton }
-          onClick={ this.toggleDialog }
-        >
-          <AddIcon />
-        </IconButton>
+        <VisibleWithRole role="admin">
+          <IconButton
+            title={ strings.addNewIcon }
+            className={ classes.iconButton }
+            onClick={ this.toggleDialog }
+          >
+            <AddIcon />
+          </IconButton>
+        </VisibleWithRole>
       </>
     );
   }

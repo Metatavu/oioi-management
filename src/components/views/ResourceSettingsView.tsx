@@ -19,6 +19,7 @@ import logo from "../../resources/svg/oioi-logo.svg";
 
 import { ResourceSettingsForm, resourceRules } from "../../commons/formRules";
 import ImagePreview from "../generic/ImagePreview";
+import VisibleWithRole from "../generic/VisibleWithRole";
 
 /**
  * Component props
@@ -164,26 +165,25 @@ class ResourceSettingsView extends React.Component<Props, State> {
           { dataField }
         </div>
         <Divider style={{ marginBottom: theme.spacing(3), marginTop: theme.spacing(3) }} />
-        <Typography style={{ marginBottom: theme.spacing(3), marginTop: theme.spacing(3) }} variant="h3">{ strings.advanced }</Typography>
-        <div className={ classes.gridRow }>
-          <div>
-            <Typography variant="h4" style={{ marginBottom: theme.spacing(1) }}>{ strings.orderNumber }</Typography>
-            { this.renderField("order_number", strings.orderNumber, "number") }
-          </div>
-          <div>
-            <Typography variant="h4" style={{ marginBottom: theme.spacing(1) }}>{ strings.slug }</Typography>
-            { this.renderField("slug", strings.slug, "text") }
-          </div>
-        </div>
-        <Divider style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} />
-        <div>
-          { this.renderStyleTable() }
-        </div>
-        <Divider style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} />
+        <VisibleWithRole role="admin">
+          <Typography style={{ marginBottom: theme.spacing(3), marginTop: theme.spacing(3) }} variant="h3">{ strings.advanced }</Typography>
+          <div className={ classes.gridRow }>
+            <div>
+              <Typography variant="h4" style={{ marginBottom: theme.spacing(1) }}>{ strings.orderNumber }</Typography>
+              { this.renderField("order_number", strings.orderNumber, "number") }
+            </div>
+            <Divider style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} />
+            <div>
+              <Typography variant="h4" style={{ marginBottom: theme.spacing(1) }}>{ strings.slug }</Typography>
+              { this.renderField("slug", strings.slug, "text") }
+            </div>
+            <Divider style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} />
 
-        <div>
-          { this.renderPropertiesTable() }
-        </div>
+            <div>
+              { this.renderPropertiesTable() }
+            </div>
+          </div>
+        </VisibleWithRole>
       </div>
     );
   }

@@ -25,6 +25,7 @@ import { resourceRules, ResourceSettingsForm } from "../../commons/formRules";
 import ImagePreview from "../generic/ImagePreview";
 import AddIconDialog from "../generic/AddIconDialog";
 import { IconKeys, getLocalizedIconTypeString } from "../../commons/iconTypeHelper";
+import VisibleWithRole from "../generic/VisibleWithRole";
 import { getLocalizedTypeString } from "../../commons/resourceTypeHelper";
 
 /**
@@ -233,28 +234,26 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
         { this.renderChildResources() }
 
         <Divider style={ { marginTop: theme.spacing(3), marginBottom: theme.spacing(3) } } />
+        <VisibleWithRole role="admin">
+          <Typography style={ { marginTop: theme.spacing(3), marginBottom: theme.spacing(3) } } variant="h3">{ strings.advanced }</Typography>
+          <div className={ classes.gridRow } style={{ marginBottom: theme.spacing(3) }}>
+            <div>
+              <Typography variant="h4" style={{ marginBottom: theme.spacing(1) }}>{ strings.orderNumber }</Typography>
+              { this.renderFormField("order_number", strings.orderNumber, "number") }
+            </div>
 
-        <Typography style={ { marginTop: theme.spacing(3), marginBottom: theme.spacing(3) } } variant="h3">{ strings.advanced }</Typography>
-        <div className={ classes.gridRow } style={{ marginBottom: theme.spacing(3) }}>
-          <div>
-            <Typography variant="h4" style={{ marginBottom: theme.spacing(1) }}>{ strings.orderNumber }</Typography>
-            { this.renderFormField("order_number", strings.orderNumber, "number") }
+            <div>
+              <Typography variant="h4" style={{ marginBottom: theme.spacing(1) }}>{ strings.slug }</Typography>
+              { this.renderFormField("slug", strings.slug, "text") }
+            </div>
+
+            <Divider style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} />
+
+            <div>
+              { this.renderPropertiesTable() }
+            </div>
           </div>
-          <div>
-            <Typography variant="h4" style={{ marginBottom: theme.spacing(1) }}>{ strings.slug }</Typography>
-            { this.renderFormField("slug", strings.slug, "text") }
-          </div>
-        </div>
-
-        <div>
-          { this.renderStyleTable() }
-        </div>
-
-        <Divider style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} />
-
-        <div>
-          { this.renderPropertiesTable() }
-        </div>
+        </VisibleWithRole>
       </div>
     );
   }
