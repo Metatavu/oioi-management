@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import * as React from "react";
-import { withStyles, WithStyles, TextField, Divider, Typography, Button, Grid } from "@material-ui/core";
+import { withStyles, WithStyles, TextField, Divider, Typography, Button } from "@material-ui/core";
 import MaterialTable from "material-table";
-import AddIcon from "@material-ui/icons/AddBox";
+import AddIcon from "@material-ui/icons/Add";
+import AddCircleIcon from "@material-ui/icons/AddCircle";
 import DeleteIcon from "@material-ui/icons/Delete";
-import SaveIcon from "@material-ui/icons/Save";
 import CheckIcon from "@material-ui/icons/Check";
 import ClearIcon from "@material-ui/icons/Clear";
 import EditIcon from "@material-ui/icons/Edit";
@@ -130,6 +130,7 @@ class ResourceSettingsView extends React.Component<Props, State> {
    */
   public render() {
     const { updated, dataChanged } = this.state;
+    const { classes } = this.props;
 
     if (updated) {
       this.setState({
@@ -145,45 +146,42 @@ class ResourceSettingsView extends React.Component<Props, State> {
 
     return (
       <div>
-        <Grid>
-          <Button
-            style={ { marginLeft: theme.spacing(3), marginTop: theme.spacing(1) } }
-            color="primary"
-            variant="outlined"
-            disabled={ !isFormValid || !dataChanged }
-            onClick={ this.onUpdateResource }
-          >
-            { strings.save }
-          </Button>
-        </Grid>
-        <Divider style={ { marginTop: theme.spacing(3), marginBottom: theme.spacing(3) } } />
+        <Button
+          className={ classes.saveButton }
+          color="primary"
+          variant="outlined"
+          disabled={ !isFormValid || !dataChanged }
+          onClick={ this.onUpdateResource }
+        >
+          { strings.save }
+        </Button>
+
         { this.renderFields() }
+
         <Divider style={ { marginBottom: theme.spacing(3) }} />
+
         <div>
-          <Typography variant="h3">{ localizedDataString }</Typography>
+          <Typography variant="h4">{ localizedDataString }</Typography>
           { dataField }
         </div>
         <Divider style={{ marginBottom: theme.spacing(3), marginTop: theme.spacing(3) }} />
         <VisibleWithRole role="admin">
           <Typography style={{ marginBottom: theme.spacing(3), marginTop: theme.spacing(3) }} variant="h3">{ strings.advanced }</Typography>
-          <div style={{ display: "grid", gridAutoFlow: "column", gridGap: theme.spacing(3), marginBottom: theme.spacing(3) }}>
+          <div className={ classes.gridRow }>
             <div>
-              <Typography variant="h4">{ strings.orderNumber }</Typography>
+              <Typography variant="h4" style={{ marginBottom: theme.spacing(1) }}>{ strings.orderNumber }</Typography>
               { this.renderField("order_number", strings.orderNumber, "number") }
             </div>
+            <Divider style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} />
             <div>
-              <Typography variant="h4">{ strings.orderNumber }</Typography>
+              <Typography variant="h4" style={{ marginBottom: theme.spacing(1) }}>{ strings.slug }</Typography>
               { this.renderField("slug", strings.slug, "text") }
             </div>
-          </div>
-          <Divider style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} />
-          <div>
-            { this.renderStyleTable() }
-          </div>
-          <Divider style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} />
+            <Divider style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} />
 
-          <div>
-            { this.renderPropertiesTable() }
+            <div>
+              { this.renderPropertiesTable() }
+            </div>
           </div>
         </VisibleWithRole>
       </div>
@@ -196,7 +194,7 @@ class ResourceSettingsView extends React.Component<Props, State> {
   private renderFields = () => {
     return (
       <div>
-        <Typography variant="h4">{ strings.name }</Typography>
+        <Typography variant="h4" style={{ marginBottom: theme.spacing(1) }}>{ strings.name }</Typography>
         { this.renderField("name", strings.name, "text") }
       </div>
     );
@@ -254,7 +252,7 @@ class ResourceSettingsView extends React.Component<Props, State> {
     return (
       <MaterialTable
         icons={{
-          Add: forwardRef((props, ref) => <AddIcon { ...props } ref={ ref } />),
+          Add: forwardRef((props, ref) => <AddCircleIcon color="secondary" { ...props } ref={ ref } />),
           Delete: forwardRef((props, ref) => <DeleteIcon { ...props } ref={ ref } />),
           Check: forwardRef((props, ref) => <CheckIcon { ...props } ref={ ref } />),
           Clear: forwardRef((props, ref) => <ClearIcon { ...props } ref={ ref } />),
@@ -329,7 +327,7 @@ class ResourceSettingsView extends React.Component<Props, State> {
     return (
       <MaterialTable
         icons={{
-          Add: forwardRef((props, ref) => <AddIcon { ...props } ref={ ref } />),
+          Add: forwardRef((props, ref) => <AddCircleIcon color="secondary" { ...props } ref={ ref } />),
           Delete: forwardRef((props, ref) => <DeleteIcon { ...props } ref={ ref } />),
           Check: forwardRef((props, ref) => <CheckIcon { ...props } ref={ ref } />),
           Clear: forwardRef((props, ref) => <ClearIcon { ...props } ref={ ref } />),
@@ -524,7 +522,8 @@ class ResourceSettingsView extends React.Component<Props, State> {
 
     onUpdate(resource);
     this.setState({
-      resourceData: resourceData
+      resourceData: resourceData,
+      dataChanged: false
     });
   };
 

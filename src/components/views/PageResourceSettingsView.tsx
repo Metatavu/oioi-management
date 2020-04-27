@@ -2,13 +2,13 @@
 import * as React from "react";
 import { withStyles, WithStyles, TextField, Divider, Typography, Grid, Button, IconButton } from "@material-ui/core";
 import MaterialTable from "material-table";
-import AddIcon from "@material-ui/icons/AddBox";
-import AddCircleIcon from '@material-ui/icons/AddCircle';
+import AddIcon from "@material-ui/icons/Add";
+import AddCircleIcon from "@material-ui/icons/AddCircle";
 import DeleteIcon from "@material-ui/icons/Delete";
 import CheckIcon from "@material-ui/icons/Check";
 import ClearIcon from "@material-ui/icons/Clear";
 import EditIcon from "@material-ui/icons/Edit";
-import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
+import DeleteForeverIcon from "@material-ui/icons/DeleteForever";
 import styles from "../../styles/editor-view";
 import strings from "../../localization/strings";
 import theme from "../../styles/theme";
@@ -134,6 +134,7 @@ class PageResourceSettingsView extends React.Component<Props, State> {
    */
   public render() {
     const { loading, dataChanged } = this.state;
+    const { classes } = this.props;
 
     if (loading) {
       return;
@@ -143,21 +144,17 @@ class PageResourceSettingsView extends React.Component<Props, State> {
 
     return (
       <div>
-        <Grid>
-          <Button
-            style={ { marginLeft: theme.spacing(3), marginTop: theme.spacing(1) } }
-            color="primary"
-            variant="outlined"
-            disabled={ !isFormValid || !dataChanged }
-            onClick={ this.onSaveChanges }
-          >
-            { strings.save }
-          </Button>
-        </Grid>
+        <Button
+          className={ classes.saveButton }
+          color="primary"
+          variant="outlined"
+          disabled={ !isFormValid || !dataChanged }
+          onClick={ this.onSaveChanges }
+        >
+          { strings.save }
+        </Button>
 
-        <Divider style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} />
-
-        <Typography variant="h4">{ strings.name }</Typography>
+        <Typography variant="h4" style={{ marginBottom: theme.spacing(1) }}>{ strings.name }</Typography>
         { this.renderField("name", strings.name, "text") }
 
         <div>
@@ -190,14 +187,15 @@ class PageResourceSettingsView extends React.Component<Props, State> {
    * Renders resource text fields
    */
   private renderResourceFields = () => {
+    const { classes } = this.props;
     return (
-      <div style={{ display: "grid", gridAutoFlow: "column", gridGap: theme.spacing(3), marginBottom: theme.spacing(3) }}>
+      <div className={ classes.gridRow } style={{ marginBottom: theme.spacing(3) }}>
         <div>
-          <Typography variant="h4">{ strings.orderNumber }</Typography>
+          <Typography variant="h4" style={{ marginBottom: theme.spacing(1) }}>{ strings.orderNumber }</Typography>
           { this.renderField("order_number", strings.orderNumber, "number") }
         </div>
         <div>
-          <Typography variant="h4">{ strings.slug }</Typography>
+          <Typography variant="h4" style={{ marginBottom: theme.spacing(1) }}>{ strings.slug }</Typography>
           { this.renderField("slug", strings.slug, "text") }
         </div>
       </div>
@@ -256,7 +254,7 @@ class PageResourceSettingsView extends React.Component<Props, State> {
     return (
       <MaterialTable
         icons={{
-          Add: forwardRef((props, ref) => <AddIcon { ...props } ref={ ref } />),
+          Add: forwardRef((props, ref) => <AddCircleIcon color="secondary" { ...props } ref={ ref } />),
           Delete: forwardRef((props, ref) => <DeleteIcon { ...props } ref={ ref } />),
           Check: forwardRef((props, ref) => <CheckIcon { ...props } ref={ ref } />),
           Clear: forwardRef((props, ref) => <ClearIcon { ...props } ref={ ref } />),
@@ -275,7 +273,11 @@ class PageResourceSettingsView extends React.Component<Props, State> {
                 const styles = resourceData["styles"];
                 styles.push(newData);
                 resourceData["styles"] = styles;
-                this.setState({ resourceData: resourceData }, () => resolve());
+                this.props.confirmationRequired(true);
+                this.setState({
+                  resourceData: resourceData,
+                  dataChanged: true
+                }, () => resolve());
               }
               resolve();
             }),
@@ -287,7 +289,11 @@ class PageResourceSettingsView extends React.Component<Props, State> {
                 const index = styles.indexOf(oldData);
                 styles[index] = newData;
                 resourceData["styles"] = styles;
-                this.setState({ resourceData: resourceData }, () => resolve());
+                this.props.confirmationRequired(true);
+                this.setState({
+                  resourceData: resourceData,
+                  dataChanged: true
+                }, () => resolve());
               }
               resolve();
             }),
@@ -299,7 +305,11 @@ class PageResourceSettingsView extends React.Component<Props, State> {
                 const index = styles.indexOf(oldData);
                 styles.splice(index, 1);
                 resourceData["styles"] = styles;
-                this.setState({ resourceData: resourceData }, () => resolve());
+                this.props.confirmationRequired(true);
+                this.setState({
+                  resourceData: resourceData,
+                  dataChanged: true
+                }, () => resolve());
               }
               resolve();
             })
@@ -331,7 +341,7 @@ class PageResourceSettingsView extends React.Component<Props, State> {
     return (
       <MaterialTable
         icons={{
-          Add: forwardRef((props, ref) => <AddIcon { ...props } ref={ ref } />),
+          Add: forwardRef((props, ref) => <AddCircleIcon color="secondary" { ...props } ref={ ref } />),
           Delete: forwardRef((props, ref) => <DeleteIcon { ...props } ref={ ref } />),
           Check: forwardRef((props, ref) => <CheckIcon { ...props } ref={ ref } />),
           Clear: forwardRef((props, ref) => <ClearIcon { ...props } ref={ ref } />),
@@ -350,7 +360,11 @@ class PageResourceSettingsView extends React.Component<Props, State> {
                 const properties = resourceData["properties"];
                 properties.push(newData);
                 resourceData["properties"] = properties;
-                this.setState({ resourceData: resourceData }, () => resolve());
+                this.props.confirmationRequired(true);
+                this.setState({
+                  resourceData: resourceData,
+                  dataChanged: true
+                }, () => resolve());
               }
               resolve();
             }),
@@ -362,7 +376,11 @@ class PageResourceSettingsView extends React.Component<Props, State> {
                 const index = properties.indexOf(oldData);
                 properties[index] = newData;
                 resourceData["properties"] = properties;
-                this.setState({ resourceData: resourceData }, () => resolve());
+                this.props.confirmationRequired(true);
+                this.setState({
+                  resourceData: resourceData,
+                  dataChanged: true
+                }, () => resolve());
               }
               resolve();
             }),
@@ -374,7 +392,11 @@ class PageResourceSettingsView extends React.Component<Props, State> {
                 const index = properties.indexOf(oldData);
                 properties.splice(index, 1);
                 resourceData["properties"] = properties;
-                this.setState({ resourceData: resourceData }, () => resolve());
+                this.props.confirmationRequired(true);
+                this.setState({
+                  resourceData: resourceData,
+                  dataChanged: true
+                }, () => resolve());
               }
               resolve();
             })
@@ -410,24 +432,11 @@ class PageResourceSettingsView extends React.Component<Props, State> {
     const listItems = childResources.map(child =>
       <>
         <Divider style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} />
-        <Grid
-          xs={ 12 }
-          container
-          direction="row"
-          style={{ paddingLeft: theme.spacing(3), paddingRight: theme.spacing(3) }}
-        >
-          <Grid
-            xs={ 12 }
-            item
-            container
-            justify="space-between"
-            alignItems="center"
-          >
-            <Typography variant="h3" style={{ textTransform: "capitalize" }}>{ child.name }</Typography>
-            { this.renderDeleteChild(child) }
-          </Grid>
+        <Typography variant="h4" style={{ textTransform: "capitalize", marginBottom: theme.spacing(1) }}>{ child.name }</Typography>
+        <div style={{ display: "flex" }}>
           { this.renderChildResourceContentField(child) }
-        </Grid>
+          { this.renderDeleteChild(child) }
+        </div>
       </>
     );
 
@@ -463,8 +472,12 @@ class PageResourceSettingsView extends React.Component<Props, State> {
    * Renders delete child resource button
    */
   private renderDeleteChild = (resource: Resource) => {
+    const { classes } = this.props;
     return (
       <IconButton
+        className={ classes.iconButton }
+        style={{ width: 50, height: 50, marginLeft: theme.spacing(3) }}
+        title={ strings.deleteResource }
         key={ `delete.${resource.id}` }
         name={ resource.id }
         color="primary"
@@ -573,7 +586,6 @@ class PageResourceSettingsView extends React.Component<Props, State> {
   private onSaveChanges = () => {
     const { onSave, onSaveChildren } = this.props;
     const { resourceData, childResources, form } = this.state;
-    const properties = resourceData.properties ? [...resourceData.properties] : [];
 
     const resource = {
       name: form.values.name,
@@ -584,14 +596,15 @@ class PageResourceSettingsView extends React.Component<Props, State> {
       id: form.values.id,
       data: resourceData["data"],
       styles: resourceData["styles"],
-      properties: properties.filter(p => !!p.value)
+      properties: resourceData["properties"]
     } as Resource;
 
     onSave(resource);
     childResources && onSaveChildren(childResources);
 
     this.setState({
-      resourceData
+      resourceData,
+      dataChanged: false
     });
   };
 

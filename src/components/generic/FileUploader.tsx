@@ -4,7 +4,6 @@ import styles from "../../styles/dialog";
 import { DropzoneDialog } from "material-ui-dropzone";
 import { Resource } from "../../generated/client/src";
 import strings from "../../localization/strings";
-import AddIcon from "@material-ui/icons/AddOutlined";
 import { resolveUploadLocalizationString } from "../../commons/resourceTypeHelper";
 
 /**
@@ -59,14 +58,14 @@ class FileUploader extends React.Component<Props, State> {
    * Component render method
    */
   public render() {
-    const { resource } = this.props;
+    const { resource, classes } = this.props;
     const localStrings = resolveUploadLocalizationString(resource.type);
     if (!localStrings.fileUploadLocal) {
       localStrings.fileUploadLocal = [strings.fileUpload.addFile, strings.fileUpload.changeFile];
     }
     if (this.state.uploading) {
       return (
-        <div style={{ display: "flex", height: "1vh", justifyContent: "center" }}>
+        <div className={ classes.imageUploadLoaderContainer }>
           <CircularProgress color="secondary" style={{ alignSelf: "center" }}></CircularProgress>
         </div>
       );
@@ -74,13 +73,15 @@ class FileUploader extends React.Component<Props, State> {
     /**
      * TODO: Add custom icons to resolveLocalizationString
      */
-    return<>
-      <Button startIcon={ <AddIcon /> } variant="outlined" color="secondary" onClick={() => this.openDialog() }>
-        { !resource.data ? localStrings.fileUploadLocal[0] : localStrings.fileUploadLocal[1]}
-      </Button>
+    return (
+      <>
+        <Button variant="outlined" color="secondary" onClick={ () => this.openDialog() }>
+          { !resource.data ? localStrings.fileUploadLocal[0] : localStrings.fileUploadLocal[1] }
+        </Button>
 
-      { this.renderUploadDialog() }
-    </>;
+        { this.renderUploadDialog() }
+      </>
+    );
   }
 
   /**

@@ -153,16 +153,16 @@ export const getAllowedFileTypes = (type: ResourceType): string[] => {
  * Get localized string for each resource type
  * @param type
  */
-export const getLocalizedTypeString = (type: ResourceType): ResourceTypeObject => ({
-  [ResourceType.ROOT] : { resourceLocal: strings.resourceTypes.root },
-  [ResourceType.INTRO]: { resourceLocal: strings.resourceTypes.intro },
-  [ResourceType.LANGUAGEMENU] : { resourceLocal: strings.resourceTypes.languageMenu },
-  [ResourceType.LANGUAGE] : { resourceLocal: strings.resourceTypes.language },
-  [ResourceType.MENU]: { resourceLocal: strings.resourceTypes.menu },
-  [ResourceType.SLIDESHOW] : { resourceLocal: strings.resourceTypes.slideshow },
-  [ResourceType.PAGE]: { resourceLocal: strings.resourceTypes.page },
-  [ResourceType.PDF]: { resourceLocal: strings.resourceTypes.pdf },
-  [ResourceType.IMAGE] : { resourceLocal: strings.resourceTypes.image },
-  [ResourceType.TEXT]: { resourceLocal: strings.resourceTypes.text },
-  [ResourceType.VIDEO]: { resourceLocal: strings.resourceTypes.video },
+export const getLocalizedTypeString = (type: ResourceType): string => ({
+  [ResourceType.ROOT] : strings.resourceTypes.root,
+  [ResourceType.INTRO]: strings.resourceTypes.intro,
+  [ResourceType.LANGUAGEMENU] : strings.resourceTypes.languageMenu,
+  [ResourceType.LANGUAGE] : strings.resourceTypes.language,
+  [ResourceType.MENU]: strings.resourceTypes.menu,
+  [ResourceType.SLIDESHOW] : strings.resourceTypes.slideshow,
+  [ResourceType.PAGE]: strings.resourceTypes.page,
+  [ResourceType.PDF]: strings.resourceTypes.pdf,
+  [ResourceType.IMAGE] : strings.resourceTypes.image,
+  [ResourceType.TEXT]: strings.resourceTypes.text,
+  [ResourceType.VIDEO]: strings.resourceTypes.video,
 })[type];

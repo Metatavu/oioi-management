@@ -2,7 +2,8 @@
 import * as React from "react";
 import { withStyles, WithStyles, FormControlLabel, Checkbox, TextField, Divider, Typography, Button, TableContainer, Paper, Table, TableHead, TableRow, TableCell, TableBody } from "@material-ui/core";
 import MaterialTable from "material-table";
-import AddIcon from "@material-ui/icons/AddBox";
+import AddIcon from "@material-ui/icons/Add";
+import AddCircleIcon from "@material-ui/icons/AddCircle";
 import DeleteIcon from "@material-ui/icons/DeleteForever";
 import CheckIcon from "@material-ui/icons/Check";
 import ClearIcon from "@material-ui/icons/Clear";
@@ -25,6 +26,7 @@ import ImagePreview from "../generic/ImagePreview";
 import AddIconDialog from "../generic/AddIconDialog";
 import { IconKeys, getLocalizedIconTypeString } from "../../commons/iconTypeHelper";
 import VisibleWithRole from "../generic/VisibleWithRole";
+import { getLocalizedTypeString } from "../../commons/resourceTypeHelper";
 
 /**
  * Component props
@@ -66,6 +68,7 @@ interface State {
 }
 
 class MenuResourceSettingsView extends React.Component<Props, State> {
+
   /**
    * Constructor
    *
@@ -178,6 +181,8 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
    */
   public render() {
     const { updated, dataChanged } = this.state;
+    const { classes } = this.props;
+
     if (updated) {
       this.setState({
         updated: false
@@ -190,7 +195,7 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
     return (
       <div>
         <Button
-          style={ { marginLeft: theme.spacing(3), marginTop: theme.spacing(1) } }
+          className={ classes.saveButton }
           color="primary"
           variant="outlined"
           disabled={ !isFormValid || !dataChanged }
@@ -199,56 +204,54 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
           { strings.save }
         </Button>
 
-        <Divider style={ { marginTop: theme.spacing(3), marginBottom: theme.spacing(3) } } />
-
         { this.renderFields() }
 
-        <Divider style={ { marginBottom: theme.spacing(3) } } />
+        <Divider style={ { marginTop: theme.spacing(3), marginBottom: theme.spacing(3) } } />
 
-        <div>
-          { this.renderUploaderAndPreview(strings.backgroundMedia, "background") }
-          <Divider style={ { marginTop: theme.spacing(3), marginBottom: theme.spacing(3) } } />
-
-          { this.renderUploaderAndPreview(strings.menuImage, "menuImg") }
-          <Divider style={ { marginTop: theme.spacing(3), marginBottom: theme.spacing(3) } } />
-
-          <Typography variant="h4">{ strings.menuIcon }</Typography>
-          { this.renderIconList() }
-          <AddIconDialog
-            resource={ this.props.resource }
-            onSave={ this.onIconFileChange }
-            onToggle={ this.toggleDialog }
-            open={ this.state.iconDialogOpen }
-          />
-          <Divider style={ { marginTop: theme.spacing(3), marginBottom: theme.spacing(3) } } />
+        <div className={ classes.gridRow }>
+          <div>
+            { this.renderUploaderAndPreview(strings.backgroundMedia, "background") }
+          </div>
+          <div>
+            { this.renderUploaderAndPreview(strings.menuImage, "menuImg") }
+          </div>
         </div>
 
-        <Typography variant="h3">{ strings.childResources }</Typography>
+        <Divider style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} />
+
+        <Typography variant="h4" style={{ marginBottom: theme.spacing(1) }}>{ strings.replacedIcons }</Typography>
+        { this.renderIconList() }
+        <AddIconDialog
+          resource={ this.props.resource }
+          onSave={ this.onIconFileChange }
+          onToggle={ this.toggleDialog }
+          open={ this.state.iconDialogOpen }
+        />
+
+        <Divider style={ { marginTop: theme.spacing(3), marginBottom: theme.spacing(3) } } />
+
+        <Typography variant="h4" style={{ marginBottom: theme.spacing(1) }}>{ strings.childResources }</Typography>
         { this.renderChildResources() }
 
         <Divider style={ { marginTop: theme.spacing(3), marginBottom: theme.spacing(3) } } />
-
         <VisibleWithRole role="admin">
           <Typography style={ { marginTop: theme.spacing(3), marginBottom: theme.spacing(3) } } variant="h3">{ strings.advanced }</Typography>
-          <div style={{ display: "grid", gridAutoFlow: "column", gridGap: theme.spacing(3), marginBottom: theme.spacing(3) }}>
+          <div className={ classes.gridRow } style={{ marginBottom: theme.spacing(3) }}>
             <div>
-              <Typography variant="h4">{ strings.orderNumber }</Typography>
+              <Typography variant="h4" style={{ marginBottom: theme.spacing(1) }}>{ strings.orderNumber }</Typography>
               { this.renderFormField("order_number", strings.orderNumber, "number") }
             </div>
+
             <div>
-              <Typography variant="h4">{ strings.slug }</Typography>
+              <Typography variant="h4" style={{ marginBottom: theme.spacing(1) }}>{ strings.slug }</Typography>
               { this.renderFormField("slug", strings.slug, "text") }
             </div>
-          </div>
 
-          <div>
-            { this.renderStyleTable() }
-          </div>
+            <Divider style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} />
 
-          <Divider style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} />
-
-          <div>
-            { this.renderPropertiesTable() }
+            <div>
+              { this.renderPropertiesTable() }
+            </div>
           </div>
         </VisibleWithRole>
       </div>
@@ -262,15 +265,13 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
     const { resource } = this.props;
     return (
       <>
-        <Typography variant="h4">{ strings.name }</Typography>
+        <Typography variant="h4" style={{ marginBottom: theme.spacing(1) }}>{ strings.name }</Typography>
         { this.renderFormField("name", strings.name, "text") }
-        <Typography style={ { marginTop: theme.spacing(3) } } variant="h4">{ strings.title }</Typography>
+        <Typography style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(1) }} variant="h4">{ strings.title }</Typography>
         { this.renderPropertiesField("title", strings.title, "text") }
-
-        <Typography style={ { marginTop: theme.spacing(3) } } variant="h4">{ strings.nameText }</Typography>
+        <Typography style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(1) }} variant="h4">{ strings.nameText }</Typography>
         { this.renderPropertiesField("nameText", strings.nameText, "textarea") }
-
-        <Typography style={ { marginTop: theme.spacing(3) } } variant="h4">{ strings.content }</Typography>
+        <Typography style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(1) }} variant="h4">{ strings.content }</Typography>
         { this.renderPropertiesField("content", strings.content, "textarea") }
         { resource.type === ResourceType.SLIDESHOW && this.renderSlideShowFields() }
       </>
@@ -366,17 +367,18 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
    * Render slideshow specific fields
    */
   private renderSlideShowFields = () => {
+    const { classes } = this.props;
     return (
-      <div style={{ display: "grid", gridAutoFlow: "column", gridGap: theme.spacing(3), marginBottom: theme.spacing(3) }}>
+      <div className={ classes.gridRow }>
         <div>
-          <Typography style={ { marginTop: theme.spacing(3) } } variant="h4">{ strings.playback }</Typography>
-          <div>
+          <Typography style={ { marginTop: theme.spacing(3), marginBottom: theme.spacing(1) } } variant="h4">{ strings.playback }</Typography>
+          <div style={{ marginLeft: theme.spacing(2) }}>
             { this.renderCheckbox("autoplay", strings.autoplay) }
             { this.renderCheckbox("loop", strings.loop) }
           </div>
         </div>
         <div>
-          <Typography style={ { marginTop: theme.spacing(3) } } variant="h4">{ strings.slideTimeOnScreen }</Typography>
+          <Typography style={ { marginTop: theme.spacing(3), marginBottom: theme.spacing(1) } } variant="h4">{ strings.slideTimeOnScreen }</Typography>
           { this.renderPropertiesField("slideTimeOnScreen", strings.slideTimeOnScreen, "text") }
         </div>
       </div>
@@ -437,7 +439,7 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
     return (
       <MaterialTable
         icons={{
-          Add: forwardRef((props, ref) => <AddIcon { ...props } ref={ ref } />),
+          Add: forwardRef((props, ref) => <AddCircleIcon color="secondary" { ...props } ref={ ref } />),
           Delete: forwardRef((props, ref) => <DeleteIcon { ...props } ref={ ref } />),
           Check: forwardRef((props, ref) => <CheckIcon { ...props } ref={ ref } />),
           Clear: forwardRef((props, ref) => <ClearIcon { ...props } ref={ ref } />),
@@ -456,7 +458,11 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
                 const styles = resourceData["styles"];
                 styles.push(newData);
                 resourceData["styles"] = styles;
-                this.setState({ resourceData: resourceData }, () => resolve());
+                this.props.confirmationRequired(true);
+                this.setState({
+                  resourceData: resourceData,
+                  dataChanged: true
+                }, () => resolve());
               }
               resolve();
             }),
@@ -468,7 +474,11 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
                 const index = styles.indexOf(oldData);
                 styles[index] = newData;
                 resourceData["styles"] = styles;
-                this.setState({ resourceData: resourceData }, () => resolve());
+                this.props.confirmationRequired(true);
+                this.setState({
+                  resourceData: resourceData,
+                  dataChanged: true
+                }, () => resolve());
               }
               resolve();
             }),
@@ -480,7 +490,11 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
                 const index = styles.indexOf(oldData);
                 styles.splice(index, 1);
                 resourceData["styles"] = styles;
-                this.setState({ resourceData: resourceData }, () => resolve());
+                this.props.confirmationRequired(true);
+                this.setState({
+                  resourceData: resourceData,
+                  dataChanged: true
+                }, () => resolve());
               }
               resolve();
             })
@@ -512,7 +526,7 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
     return (
       <MaterialTable
         icons={{
-          Add: forwardRef((props, ref) => <AddIcon { ...props } ref={ ref } />),
+          Add: forwardRef((props, ref) => <AddCircleIcon color="secondary" { ...props } ref={ ref } />),
           Delete: forwardRef((props, ref) => <DeleteIcon { ...props } ref={ ref } />),
           Check: forwardRef((props, ref) => <CheckIcon { ...props } ref={ ref } />),
           Clear: forwardRef((props, ref) => <ClearIcon { ...props } ref={ ref } />),
@@ -522,16 +536,21 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
           { title: strings.key, field: "key" },
           { title: strings.value, field: "value" }
         ]}
-        data={resourceData["properties"]}
+        data={ resourceData["properties"] }
         editable={{
           onRowAdd: newData =>
             new Promise((resolve, reject) => {
               {
-                const { resourceData } = this.state;
+                const { resourceData, resourceMap, iconsMap } = this.state;
                 const properties = resourceData["properties"];
                 properties.push(newData);
                 resourceData["properties"] = properties;
-                this.setState({ resourceData: resourceData }, () => resolve());
+                this.addResourceToMap(newData, iconsMap, resourceMap);
+                this.props.confirmationRequired(true);
+                this.setState({
+                  resourceData: resourceData,
+                  dataChanged: true
+                }, () => resolve());
               }
               resolve();
             }),
@@ -542,20 +561,31 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
                 const properties = resourceData["properties"];
                 const index = properties.indexOf(oldData);
                 properties[index] = newData;
+
+                this.updateMapsOnTableDataChange(oldData, newData);
+                this.props.confirmationRequired(true);
                 resourceData["properties"] = properties;
-                this.setState({ resourceData: resourceData }, () => resolve());
+                this.setState({
+                  resourceData: resourceData,
+                  dataChanged: true
+                }, () => resolve());
               }
               resolve();
             }),
           onRowDelete: oldData =>
             new Promise((resolve, reject) => {
               {
-                const { resourceData } = this.state;
+                const { resourceData, iconsMap, resourceMap } = this.state;
                 const properties = resourceData["properties"];
                 const index = properties.indexOf(oldData);
                 properties.splice(index, 1);
                 resourceData["properties"] = properties;
-                this.setState({ resourceData: resourceData }, () => resolve());
+                this.deleteResourceFromMap(oldData, iconsMap, resourceMap);
+                this.props.confirmationRequired(true);
+                this.setState({
+                  resourceData: resourceData,
+                  dataChanged: true
+                }, () => resolve());
               }
               resolve();
             })
@@ -594,10 +624,17 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
       return (
         <TableRow key={ resource.name }>
           <TableCell component="th" scope="row">{ resource.name }</TableCell>
-          <TableCell align="right">{ resource.type }</TableCell>
+          <TableCell align="left">{ getLocalizedTypeString(resource.type) }</TableCell>
           <TableCell align="center">{ resource.order_number }</TableCell>
           <TableCell align="right">
-            <IconButton color="primary" edge="end" aria-label="delete" onClick={ () => this.props.onDelete(resource) }>
+            <IconButton 
+              size="small"
+              className={ classes.iconButton }
+              color="primary"
+              edge="end"
+              aria-label="delete"
+              onClick={ () => this.props.onDelete(resource) }
+            >
               <DeleteIcon />
             </IconButton>
           </TableCell>
@@ -610,9 +647,9 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
         <Table size="small" className={ classes.table } aria-label="simple table">
           <TableHead>
             <TableRow>
-              <TableCell>Sivu</TableCell>
-              <TableCell align="right">Tyyppi</TableCell>
-              <TableCell align="center">Järjestys vasemmalta oikealle</TableCell>
+              <TableCell>{ strings.page }</TableCell>
+              <TableCell align="left">{ strings.type }</TableCell>
+              <TableCell align="center">{ strings.orderFromLeftToRight }</TableCell>
               <TableCell align="right"></TableCell>
             </TableRow>
           </TableHead>
@@ -637,7 +674,7 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
     const previewItem = this.findImage(properties, uploadKey) || logo;
 
     return <>
-        <Typography variant="h4">{ title }</Typography>
+        <Typography variant="h4" style={{ marginBottom: theme.spacing(1) }}>{ title }</Typography>
         <ImagePreview
           imagePath={ previewItem }
           onSave={ this.onPropertyFileChange }
@@ -653,6 +690,7 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
    */
   private renderIconList = () => {
     const { iconsMap } = this.state;
+    const { classes } = this.props; 
     const icons: JSX.Element[] = [];
     const allKeys = Object.values(IconKeys);
     iconsMap.forEach((value: string, key: string) => {
@@ -663,31 +701,31 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
       } else {
         displayName = key;
       }
-      const preview = <>
-        <Typography variant="h5">{ displayName }</Typography>
-        <ImagePreview
-          key={ key }
-          imagePath={ value }
-          onSave={ this.onIconFileChange }
-          resource={ this.props.resource }
-          uploadKey={ key }
-          onDelete={ this.onIconFileDelete }
-        />
-      </>;
+      const preview = (
+        <div>
+          <Typography variant="h5">{ displayName }</Typography>
+          <ImagePreview
+            key={ key }
+            imagePath={ value }
+            onSave={ this.onIconFileChange }
+            resource={ this.props.resource }
+            uploadKey={ key }
+            onDelete={ this.onIconFileDelete }
+            />
+        </div>
+      );
       icons.push(preview);
     });
     return (
-      <>
+      <div className={ classes.gridRow }>
         { icons }
-        <Button
-          style={ { marginTop: theme.spacing(3) }}
-          color="primary"
-          variant="outlined"
+        <IconButton
+          className={ classes.iconButton }
           onClick={ this.toggleDialog }
         >
-          { strings.applicationSettings.addIcon }
-        </Button>
-      </>
+          <AddIcon />
+        </IconButton>
+      </div>
     );
   }
 
@@ -704,7 +742,7 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
     if (props) {
       props.map(p => {
         const iconTypeKey = allKeys.find(k => p.key === k.toString());
-        if (p.key.includes("icon_") || iconTypeKey ) {
+        if (p.key.startsWith("icon_") || iconTypeKey ) {
           initIconsMap.set(p.key, p.value);
         } else {
           initResourceMap.set(p.key, p.value);
@@ -817,6 +855,9 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
       properties: properties.filter(p => !!p.value)
     } as Resource;
     onUpdate(resource);
+    this.setState({
+      dataChanged: false
+    });
   };
   /**
    * Handles textfields change events
@@ -912,6 +953,69 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
         properties.push({ key: key, value: value || "" });
       }
     });
+  }
+
+  /**
+   * Update map values based on new and old value.
+   * TODO: This needs cleaner implementation
+   * @param oldData old data from table
+   * @param newData new data from table
+   */
+  private updateMapsOnTableDataChange = (oldData: ({ key: string; } & { value: string; }) | undefined, newData: { key: string; } & { value: string; }) => {
+    const { resourceMap, iconsMap } = this.state;
+
+    if (oldData) {
+      const keyChanged = oldData.key !== newData.key;
+      const valueChanged = oldData.value !== newData.value;
+      const inResourceMap = resourceMap.has(oldData.key);
+      const inIconsMap = iconsMap.has(oldData.key);
+
+      if ((keyChanged && valueChanged) || keyChanged) {
+        if (inResourceMap) {
+          resourceMap.delete(oldData.key);
+          resourceMap.set(newData.key, newData.value);
+        } else if (inIconsMap) {
+          iconsMap.delete(oldData.key);
+          iconsMap.set(newData.key, newData.value);
+        }
+      } else if (valueChanged) {
+        if (inResourceMap) {
+          resourceMap.set(oldData.key, newData.value);
+        } else if (inIconsMap) {
+          iconsMap.set(oldData.key, newData.value);
+        }
+      }
+    } else {
+      this.addResourceToMap(newData, iconsMap, resourceMap);
+    }
+  }
+
+  /**
+   * Adds resource to map
+   * @param newData new data
+   * @param iconsMap icons map
+   * @param resourceMap resource map
+   */
+  private addResourceToMap(newData: { key: string; } & { value: string; }, iconsMap: Map<string, string>, resourceMap: Map<string, string>) {
+    if (newData.key.startsWith("icon_")) {
+      iconsMap.set(newData.key, newData.value);
+    } else {
+      resourceMap.set(newData.key, newData.value);
+    }
+  }
+
+  /**
+   * Deletes resource from map
+   * @param oldData  old data
+   * @param iconsMap icons map
+   * @param resourceMap resource map
+   */
+  private deleteResourceFromMap(oldData: { key: string; } & { value: string; }, iconsMap: Map<string, string>, resourceMap: Map<string, string>) {
+    if (oldData.key.startsWith("icon_")) {
+      iconsMap.delete(oldData.key);
+    } else {
+      resourceMap.delete(oldData.key);
+    }
   }
 }
 
