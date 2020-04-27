@@ -179,17 +179,16 @@ class ApplicationEditor extends React.Component<Props, State> {
             <Typography variant="h3" noWrap>
               { openedResource && localString }
             </Typography>
-            <div>
-              { openedResource &&
-                <Button
-                  color="primary"
-                  variant="contained"
-                  onClick={ this.onChildDelete }
-                  >
-                  { strings.delete }
-                </Button>
-              }
-            </div>
+            <Button
+              disableElevation
+              className={ classes.deleteButton }
+              color="primary"
+              variant="contained"
+              disabled={ openedResource ? false : true }
+              onClick={ this.onChildDelete }
+              >
+              { strings.delete }
+            </Button>
           </div>
         </AppBar>
         { this.renderResponsiveDrawer() }

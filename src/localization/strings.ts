@@ -5,6 +5,7 @@ export interface IStrings extends LocalizedStringsMethods {
   address: string;
   advanced: string;
   addNew: string;
+  addNewIcon: string;
   addLanguage: string;
   addNewCustomer: string;
   addNewDevice: string;
@@ -12,6 +13,7 @@ export interface IStrings extends LocalizedStringsMethods {
   applications: string;
   applicationName: string;
   applicationBasicInformation: string;
+  applicationId: string;
   back: string;
   cancel: string;
   confirm: string;
@@ -120,6 +122,7 @@ export interface IStrings extends LocalizedStringsMethods {
   loop: string;
   slideTimeOnScreen: string;
   menuIcon: string;
+  replacedIcons: string;
   iconKeys: {
     iconHome: string;
     iconHomeActive: string;
@@ -131,7 +134,9 @@ export interface IStrings extends LocalizedStringsMethods {
     iconCloseActive: string;
     iconExitApp: string;
     iconExitAppActive: string;
-  };
+  },
+  page: string;
+  type: string;
   childResources: string;
   resourceName: string;
   orderFromLeftToRight: string;

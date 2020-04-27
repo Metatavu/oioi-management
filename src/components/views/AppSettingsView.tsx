@@ -1,5 +1,5 @@
 import * as React from "react";
-import { withStyles, WithStyles, TextField, Button, Divider, Typography, CircularProgress } from "@material-ui/core";
+import { withStyles, WithStyles, TextField, Button, Divider, Typography, CircularProgress, IconButton } from "@material-ui/core";
 import styles from "../../styles/editor-view";
 import strings from "../../localization/strings";
 import theme from "../../styles/theme";
@@ -14,6 +14,7 @@ import ImagePreview from "../generic/ImagePreview";
 import { AuthState } from "../../types";
 import ApiUtils from "../../utils/ApiUtils";
 import { IconKeys, getLocalizedIconTypeString, getDefaultIconURL } from "../../commons/iconTypeHelper";
+import AddIcon from "@material-ui/icons/Add";
 
 /**
  * Component Props
@@ -99,6 +100,8 @@ class AppSettingsView extends React.Component<Props, State> {
    */
   public render() {
     const { importDone, importingContent, dataChanged } = this.state;
+    const { classes } = this.props;
+
     if (importDone) {
       return (
         <div><p>{ strings.importDone }</p></div>
@@ -114,7 +117,7 @@ class AppSettingsView extends React.Component<Props, State> {
     return (
       <div>
         <Button
-          style={ { marginLeft: theme.spacing(3), marginTop: theme.spacing(1) } }
+          className={ classes.saveButton }
           color="primary"
           variant="outlined"
           disabled={ !isFormValid || !dataChanged }
@@ -123,24 +126,43 @@ class AppSettingsView extends React.Component<Props, State> {
           { strings.save }
         </Button>
 
-        <Divider style={ { marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} />
-
         <Typography style={{ marginBottom: theme.spacing(3) }} variant="h3">{ strings.applicationBasicInformation }</Typography>
-        <Typography variant="h4">{ this.props.application.id }</Typography>
+        <div style={{ display: "grid", gridAutoFlow: "column", gridAutoColumns: "max-content", gridGap: theme.spacing(3) }}>
+          <div style={{ paddingRight: theme.spacing(3), borderRight: "1px solid rgba(0,0,0,0.1)" }}>
+            <Typography variant="h4" style={{ marginBottom: theme.spacing(1) }}>{ strings.applicationId }</Typography>
+            <Typography variant="body1" style={{ marginTop: theme.spacing(2) }}>{ this.props.application.id }</Typography>
+          </div>
+          <div style={{ paddingBottom: theme.spacing(3) }}>
+            <Typography variant="h4" style={{ marginBottom: theme.spacing(1) }}>{ strings.applicationSettings.returnDelay }</Typography>
+            { this.renderTextField(strings.applicationSettings.returnDelay, 1, "text", undefined, "returnDelay") }
+          </div>
+        </div>
+
+        <Divider style={{ marginBottom: theme.spacing(3) }} />
+
         { this.renderFields() }
 
-        <Divider style={ { marginTop: theme.spacing(3),marginBottom: theme.spacing(3) } } />
+        <Divider style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} />
 
-        <Typography variant="h4">{ strings.applicationSettings.background }</Typography>
-        { this.renderMedia("applicationImage") }
-        <Divider style={ { marginTop: theme.spacing(3), marginBottom: theme.spacing(3) } } />
+        <div className={ classes.gridRow }>
+          <div>
+            <Typography variant="h4" style={{ marginBottom: theme.spacing(1) }}>{ strings.applicationSettings.background }</Typography>
+            { this.renderMedia("applicationImage") }
+          </div>
 
-        <Typography variant="h4">{ strings.applicationSettings.icon }</Typography>
-        { this.renderMedia("applicationIcon") }
-        <Divider style={ { marginTop: theme.spacing(3), marginBottom: theme.spacing(3) } } />
+          <div>
+            <Typography variant="h4" style={{ marginBottom: theme.spacing(1) }}>{ strings.applicationSettings.icon }</Typography>
+            { this.renderMedia("applicationIcon") }
+          </div>
+        </div>
 
-        <Typography variant="h4">{ strings.applicationSettings.icons }</Typography>
-        { this.renderIconList() }
+        <Divider style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} />
+
+        <Typography variant="h4" style={{ marginBottom: theme.spacing(1) }}>{ strings.applicationSettings.icons }</Typography>
+
+        <div className={ classes.gridRow }>
+          { this.renderIconList() }
+        </div>
 
         <AddIconDialog
           resource={ this.props.rootResource }
@@ -149,7 +171,7 @@ class AppSettingsView extends React.Component<Props, State> {
           open={ this.state.iconDialogOpen }
         />
 
-        <Divider style={ { marginTop: theme.spacing(3), marginBottom: theme.spacing(3) } } />
+        <Divider style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} />
         <Typography variant="h4">{ strings.importLabel }</Typography>
         <input onChange={ e => this.handleWallJsonImport(e.target.files)} type="file"  />
       </div>
@@ -256,18 +278,12 @@ class AppSettingsView extends React.Component<Props, State> {
     return (
       <>
         <div style={{ marginBottom: theme.spacing(3) }}>
-          <Typography variant="h4">{ strings.applicationName }</Typography>
-          { this.renderTextField(strings.applicationName, "text", "name") }
+          <Typography variant="h4" style={{ marginBottom: theme.spacing(1) }}>{ strings.applicationName }</Typography>
+          { this.renderTextField(strings.applicationName, 1, "text", "name") }
         </div>
         <div style={{ marginBottom: theme.spacing(3) }}>
-          <Typography variant="h4">{ strings.applicationSettings.teaserText }</Typography>
-          { this.renderTextField(strings.applicationSettings.teaserText, "textarea", undefined, "teaserText") }
-        </div>
-        <div style={{ display: "grid", gridAutoFlow: "column", gridGap: theme.spacing(3), marginBottom: theme.spacing(3) }}>
-          <div>
-            <Typography variant="h4">{ strings.applicationSettings.returnDelay }</Typography>
-            { this.renderTextField(strings.applicationSettings.returnDelay, "text", undefined, "returnDelay") }
-          </div>
+          <Typography variant="h4" style={{ marginBottom: theme.spacing(1) }}>{ strings.applicationSettings.teaserText }</Typography>
+          { this.renderTextField(strings.applicationSettings.teaserText, 8, "text", undefined, "teaserText") }
         </div>
       </>
     );
@@ -276,15 +292,15 @@ class AppSettingsView extends React.Component<Props, State> {
   /**
    * Render text fields with given form keys
    */
-  private renderTextField = (label: string, type: string, appKey?: keyof ApplicationForm, resourceKey?: keyof ResourceSettingsForm) => {
+  private renderTextField = (label: string, rows: number, type: string, appKey?: keyof ApplicationForm, resourceKey?: keyof ResourceSettingsForm) => {
     if (appKey) {
       const values = this.state.applicationForm.values;
       const { messages: { [appKey]: message } } = this.state.applicationForm;
-
-      return(
+      return (
         <TextField
           fullWidth
           multiline
+          rows={ rows }
           type={ type }
           error={ message && message.type === MessageType.ERROR }
           helperText={ message && message.message }
@@ -301,6 +317,7 @@ class AppSettingsView extends React.Component<Props, State> {
         <TextField
           fullWidth
           multiline
+          rows={ rows }
           type={ type }
           value={ this.state.resourceMap.get(resourceKey) || "" }
           onChange={ this.onHandleResourceChange(resourceKey) }
@@ -335,6 +352,7 @@ class AppSettingsView extends React.Component<Props, State> {
    */
   private renderIconList = () => {
     const { iconsMap } = this.state;
+    const { classes } = this.props;
     const icons: JSX.Element[] = [];
     const allKeys = Object.values(IconKeys);
     iconsMap.forEach((value: string, key: string) => {
@@ -342,30 +360,31 @@ class AppSettingsView extends React.Component<Props, State> {
       if (!iconTypeKey) {
         return;
       }
-      const preview = <>
-        <Typography variant="h5">{ getLocalizedIconTypeString(iconTypeKey) }</Typography>
-        <ImagePreview
-          key={ key }
-          imagePath={ value }
-          onSave={ this.onIconFileChange }
-          resource={ this.props.rootResource }
-          uploadKey={ key }
-          onDelete={ this.onIconFileDelete }
-        />
-      </>;
+      const preview = (
+        <div>
+          <Typography variant="h5">{ getLocalizedIconTypeString(iconTypeKey) }</Typography>
+          <ImagePreview
+            key={ key }
+            imagePath={ value }
+            onSave={ this.onIconFileChange }
+            resource={ this.props.rootResource }
+            uploadKey={ key }
+            onDelete={ this.onIconFileDelete }
+          />
+        </div>
+      );
       icons.push(preview);
     });
     return (
       <>
         { icons }
-        <Button
-          style={ { marginTop: theme.spacing(3) }}
-          color="primary"
-          variant="outlined"
+        <IconButton
+          title={ strings.addNewIcon }
+          className={ classes.iconButton }
           onClick={ this.toggleDialog }
         >
-          { strings.applicationSettings.addIcon }
-        </Button>
+          <AddIcon />
+        </IconButton>
       </>
     );
   }
@@ -532,7 +551,7 @@ class AppSettingsView extends React.Component<Props, State> {
    */
   private onIconFileChange = async (files: File[], key: string) => {
     const { customerId } = this.props;
-    
+
     const newUri = await this.upload(files, customerId);
     const tempMap = this.state.iconsMap;
     tempMap.set(key, newUri);

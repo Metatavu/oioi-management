@@ -2,7 +2,8 @@
 import * as React from "react";
 import { withStyles, WithStyles, FormControlLabel, Checkbox, TextField, Divider, Typography, Button, TableContainer, Paper, Table, TableHead, TableRow, TableCell, TableBody } from "@material-ui/core";
 import MaterialTable from "material-table";
-import AddIcon from "@material-ui/icons/AddBox";
+import AddIcon from "@material-ui/icons/Add";
+import AddCircleIcon from "@material-ui/icons/AddCircle";
 import DeleteIcon from "@material-ui/icons/DeleteForever";
 import CheckIcon from "@material-ui/icons/Check";
 import ClearIcon from "@material-ui/icons/Clear";
@@ -179,6 +180,8 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
    */
   public render() {
     const { updated, dataChanged } = this.state;
+    const { classes } = this.props;
+
     if (updated) {
       this.setState({
         updated: false
@@ -191,7 +194,7 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
     return (
       <div>
         <Button
-          style={ { marginLeft: theme.spacing(3), marginTop: theme.spacing(1) } }
+          className={ classes.saveButton }
           color="primary"
           variant="outlined"
           disabled={ !isFormValid || !dataChanged }
@@ -200,43 +203,45 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
           { strings.save }
         </Button>
 
-        <Divider style={ { marginTop: theme.spacing(3), marginBottom: theme.spacing(3) } } />
-
         { this.renderFields() }
 
-        <Divider style={ { marginBottom: theme.spacing(3) } } />
+        <Divider style={ { marginTop: theme.spacing(3), marginBottom: theme.spacing(3) } } />
 
-        <div>
-          { this.renderUploaderAndPreview(strings.backgroundMedia, "background") }
-          <Divider style={ { marginTop: theme.spacing(3), marginBottom: theme.spacing(3) } } />
-
-          { this.renderUploaderAndPreview(strings.menuImage, "menuImg") }
-          <Divider style={ { marginTop: theme.spacing(3), marginBottom: theme.spacing(3) } } />
-
-          <Typography variant="h4">{ strings.menuIcon }</Typography>
-          { this.renderIconList() }
-          <AddIconDialog
-            resource={ this.props.resource }
-            onSave={ this.onIconFileChange }
-            onToggle={ this.toggleDialog }
-            open={ this.state.iconDialogOpen }
-          />
-          <Divider style={ { marginTop: theme.spacing(3), marginBottom: theme.spacing(3) } } />
+        <div className={ classes.gridRow }>
+          <div>
+            { this.renderUploaderAndPreview(strings.backgroundMedia, "background") }
+          </div>
+          <div>
+            { this.renderUploaderAndPreview(strings.menuImage, "menuImg") }
+          </div>
         </div>
 
-        <Typography variant="h3">{ strings.childResources }</Typography>
+        <Divider style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} />
+
+        <Typography variant="h4" style={{ marginBottom: theme.spacing(1) }}>{ strings.replacedIcons }</Typography>
+        { this.renderIconList() }
+        <AddIconDialog
+          resource={ this.props.resource }
+          onSave={ this.onIconFileChange }
+          onToggle={ this.toggleDialog }
+          open={ this.state.iconDialogOpen }
+        />
+
+        <Divider style={ { marginTop: theme.spacing(3), marginBottom: theme.spacing(3) } } />
+
+        <Typography variant="h4" style={{ marginBottom: theme.spacing(1) }}>{ strings.childResources }</Typography>
         { this.renderChildResources() }
 
         <Divider style={ { marginTop: theme.spacing(3), marginBottom: theme.spacing(3) } } />
 
         <Typography style={ { marginTop: theme.spacing(3), marginBottom: theme.spacing(3) } } variant="h3">{ strings.advanced }</Typography>
-        <div style={{ display: "grid", gridAutoFlow: "column", gridGap: theme.spacing(3), marginBottom: theme.spacing(3) }}>
+        <div className={ classes.gridRow } style={{ marginBottom: theme.spacing(3) }}>
           <div>
-            <Typography variant="h4">{ strings.orderNumber }</Typography>
+            <Typography variant="h4" style={{ marginBottom: theme.spacing(1) }}>{ strings.orderNumber }</Typography>
             { this.renderFormField("order_number", strings.orderNumber, "number") }
           </div>
           <div>
-            <Typography variant="h4">{ strings.slug }</Typography>
+            <Typography variant="h4" style={{ marginBottom: theme.spacing(1) }}>{ strings.slug }</Typography>
             { this.renderFormField("slug", strings.slug, "text") }
           </div>
         </div>
@@ -261,15 +266,13 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
     const { resource } = this.props;
     return (
       <>
-        <Typography variant="h4">{ strings.name }</Typography>
+        <Typography variant="h4" style={{ marginBottom: theme.spacing(1) }}>{ strings.name }</Typography>
         { this.renderFormField("name", strings.name, "text") }
-        <Typography style={ { marginTop: theme.spacing(3) } } variant="h4">{ strings.title }</Typography>
+        <Typography style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(1) }} variant="h4">{ strings.title }</Typography>
         { this.renderPropertiesField("title", strings.title, "text") }
-
-        <Typography style={ { marginTop: theme.spacing(3) } } variant="h4">{ strings.nameText }</Typography>
+        <Typography style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(1) }} variant="h4">{ strings.nameText }</Typography>
         { this.renderPropertiesField("nameText", strings.nameText, "textarea") }
-
-        <Typography style={ { marginTop: theme.spacing(3) } } variant="h4">{ strings.content }</Typography>
+        <Typography style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(1) }} variant="h4">{ strings.content }</Typography>
         { this.renderPropertiesField("content", strings.content, "textarea") }
         { resource.type === ResourceType.SLIDESHOW && this.renderSlideShowFields() }
       </>
@@ -365,17 +368,18 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
    * Render slideshow specific fields
    */
   private renderSlideShowFields = () => {
+    const { classes } = this.props;
     return (
-      <div style={{ display: "grid", gridAutoFlow: "column", gridGap: theme.spacing(3), marginBottom: theme.spacing(3) }}>
+      <div className={ classes.gridRow }>
         <div>
-          <Typography style={ { marginTop: theme.spacing(3) } } variant="h4">{ strings.playback }</Typography>
-          <div>
+          <Typography style={ { marginTop: theme.spacing(3), marginBottom: theme.spacing(1) } } variant="h4">{ strings.playback }</Typography>
+          <div style={{ marginLeft: theme.spacing(2) }}>
             { this.renderCheckbox("autoplay", strings.autoplay) }
             { this.renderCheckbox("loop", strings.loop) }
           </div>
         </div>
         <div>
-          <Typography style={ { marginTop: theme.spacing(3) } } variant="h4">{ strings.slideTimeOnScreen }</Typography>
+          <Typography style={ { marginTop: theme.spacing(3), marginBottom: theme.spacing(1) } } variant="h4">{ strings.slideTimeOnScreen }</Typography>
           { this.renderPropertiesField("slideTimeOnScreen", strings.slideTimeOnScreen, "text") }
         </div>
       </div>
@@ -436,7 +440,7 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
     return (
       <MaterialTable
         icons={{
-          Add: forwardRef((props, ref) => <AddIcon { ...props } ref={ ref } />),
+          Add: forwardRef((props, ref) => <AddCircleIcon color="secondary" { ...props } ref={ ref } />),
           Delete: forwardRef((props, ref) => <DeleteIcon { ...props } ref={ ref } />),
           Check: forwardRef((props, ref) => <CheckIcon { ...props } ref={ ref } />),
           Clear: forwardRef((props, ref) => <ClearIcon { ...props } ref={ ref } />),
@@ -523,7 +527,7 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
     return (
       <MaterialTable
         icons={{
-          Add: forwardRef((props, ref) => <AddIcon { ...props } ref={ ref } />),
+          Add: forwardRef((props, ref) => <AddCircleIcon color="secondary" { ...props } ref={ ref } />),
           Delete: forwardRef((props, ref) => <DeleteIcon { ...props } ref={ ref } />),
           Check: forwardRef((props, ref) => <CheckIcon { ...props } ref={ ref } />),
           Clear: forwardRef((props, ref) => <ClearIcon { ...props } ref={ ref } />),
@@ -621,10 +625,17 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
       return (
         <TableRow key={ resource.name }>
           <TableCell component="th" scope="row">{ resource.name }</TableCell>
-          <TableCell align="right">{ getLocalizedTypeString(resource.type) }</TableCell>
+          <TableCell align="left">{ getLocalizedTypeString(resource.type) }</TableCell>
           <TableCell align="center">{ resource.order_number }</TableCell>
           <TableCell align="right">
-            <IconButton color="primary" edge="end" aria-label="delete" onClick={ () => this.props.onDelete(resource) }>
+            <IconButton 
+              size="small"
+              className={ classes.iconButton }
+              color="primary"
+              edge="end"
+              aria-label="delete"
+              onClick={ () => this.props.onDelete(resource) }
+            >
               <DeleteIcon />
             </IconButton>
           </TableCell>
@@ -637,8 +648,8 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
         <Table size="small" className={ classes.table } aria-label="simple table">
           <TableHead>
             <TableRow>
-              <TableCell>{ strings.resourceName }</TableCell>
-              <TableCell align="right">{ strings.resourceType }</TableCell>
+              <TableCell>{ strings.page }</TableCell>
+              <TableCell align="left">{ strings.type }</TableCell>
               <TableCell align="center">{ strings.orderFromLeftToRight }</TableCell>
               <TableCell align="right"></TableCell>
             </TableRow>
@@ -664,7 +675,7 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
     const previewItem = this.findImage(properties, uploadKey) || logo;
 
     return <>
-        <Typography variant="h4">{ title }</Typography>
+        <Typography variant="h4" style={{ marginBottom: theme.spacing(1) }}>{ title }</Typography>
         <ImagePreview
           imagePath={ previewItem }
           onSave={ this.onPropertyFileChange }
@@ -680,6 +691,7 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
    */
   private renderIconList = () => {
     const { iconsMap } = this.state;
+    const { classes } = this.props; 
     const icons: JSX.Element[] = [];
     const allKeys = Object.values(IconKeys);
     iconsMap.forEach((value: string, key: string) => {
@@ -690,31 +702,31 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
       } else {
         displayName = key;
       }
-      const preview = <>
-        <Typography variant="h5">{ displayName }</Typography>
-        <ImagePreview
-          key={ key }
-          imagePath={ value }
-          onSave={ this.onIconFileChange }
-          resource={ this.props.resource }
-          uploadKey={ key }
-          onDelete={ this.onIconFileDelete }
-        />
-      </>;
+      const preview = (
+        <div>
+          <Typography variant="h5">{ displayName }</Typography>
+          <ImagePreview
+            key={ key }
+            imagePath={ value }
+            onSave={ this.onIconFileChange }
+            resource={ this.props.resource }
+            uploadKey={ key }
+            onDelete={ this.onIconFileDelete }
+            />
+        </div>
+      );
       icons.push(preview);
     });
     return (
-      <>
+      <div className={ classes.gridRow }>
         { icons }
-        <Button
-          style={ { marginTop: theme.spacing(3) }}
-          color="primary"
-          variant="outlined"
+        <IconButton
+          className={ classes.iconButton }
           onClick={ this.toggleDialog }
         >
-          { strings.applicationSettings.addIcon }
-        </Button>
-      </>
+          <AddIcon />
+        </IconButton>
+      </div>
     );
   }
 
