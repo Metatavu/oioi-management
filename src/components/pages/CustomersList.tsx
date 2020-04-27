@@ -17,6 +17,7 @@ import DeleteDialog from "../generic/DeleteDialog";
 import { Alert } from "@material-ui/lab";
 import { DialogType } from "../../types/index";
 import { setCustomer } from "../../actions/customer";
+import VisibleWithRole from "../generic/VisibleWithRole";
 
 /**
  * Component props
@@ -148,11 +149,13 @@ class CustomersList extends React.Component<Props, State> {
     const { classes } = this.props;
     return (
       <Grid item>
-        <Card elevation={0} className={classes.addCard}>
-          <CardActionArea className={classes.add} onClick={this.onAddCustomerClick}>
-            <AddIcon className={classes.addIcon} />
-          </CardActionArea>
-        </Card>
+        <VisibleWithRole role="admin">
+          <Card elevation={0} className={classes.addCard}>
+            <CardActionArea className={classes.add} onClick={this.onAddCustomerClick}>
+              <AddIcon className={classes.addIcon} />
+            </CardActionArea>
+          </Card>
+        </VisibleWithRole>
       </Grid>
     );
   }

@@ -24,6 +24,7 @@ import { resourceRules, ResourceSettingsForm } from "../../commons/formRules";
 import ImagePreview from "../generic/ImagePreview";
 import AddIconDialog from "../generic/AddIconDialog";
 import { IconKeys, getLocalizedIconTypeString } from "../../commons/iconTypeHelper";
+import VisibleWithRole from "../generic/VisibleWithRole";
 
 /**
  * Component props
@@ -227,27 +228,29 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
 
         <Divider style={ { marginTop: theme.spacing(3), marginBottom: theme.spacing(3) } } />
 
-        <Typography style={ { marginTop: theme.spacing(3), marginBottom: theme.spacing(3) } } variant="h3">{ strings.advanced }</Typography>
-        <div style={{ display: "grid", gridAutoFlow: "column", gridGap: theme.spacing(3), marginBottom: theme.spacing(3) }}>
-          <div>
-            <Typography variant="h4">{ strings.orderNumber }</Typography>
-            { this.renderFormField("order_number", strings.orderNumber, "number") }
+        <VisibleWithRole role="admin">
+          <Typography style={ { marginTop: theme.spacing(3), marginBottom: theme.spacing(3) } } variant="h3">{ strings.advanced }</Typography>
+          <div style={{ display: "grid", gridAutoFlow: "column", gridGap: theme.spacing(3), marginBottom: theme.spacing(3) }}>
+            <div>
+              <Typography variant="h4">{ strings.orderNumber }</Typography>
+              { this.renderFormField("order_number", strings.orderNumber, "number") }
+            </div>
+            <div>
+              <Typography variant="h4">{ strings.slug }</Typography>
+              { this.renderFormField("slug", strings.slug, "text") }
+            </div>
           </div>
+
           <div>
-            <Typography variant="h4">{ strings.slug }</Typography>
-            { this.renderFormField("slug", strings.slug, "text") }
+            { this.renderStyleTable() }
           </div>
-        </div>
 
-        <div>
-          { this.renderStyleTable() }
-        </div>
+          <Divider style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} />
 
-        <Divider style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} />
-
-        <div>
-          { this.renderPropertiesTable() }
-        </div>
+          <div>
+            { this.renderPropertiesTable() }
+          </div>
+        </VisibleWithRole>
       </div>
     );
   }

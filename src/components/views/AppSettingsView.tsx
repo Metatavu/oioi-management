@@ -14,6 +14,7 @@ import ImagePreview from "../generic/ImagePreview";
 import { AuthState } from "../../types";
 import ApiUtils from "../../utils/ApiUtils";
 import { IconKeys, getLocalizedIconTypeString, getDefaultIconURL } from "../../commons/iconTypeHelper";
+import VisibleWithRole from "../generic/VisibleWithRole";
 
 /**
  * Component Props
@@ -149,9 +150,11 @@ class AppSettingsView extends React.Component<Props, State> {
           open={ this.state.iconDialogOpen }
         />
 
-        <Divider style={ { marginTop: theme.spacing(3), marginBottom: theme.spacing(3) } } />
-        <Typography variant="h4">{ strings.importLabel }</Typography>
-        <input onChange={ e => this.handleWallJsonImport(e.target.files)} type="file"  />
+        <VisibleWithRole role="admin">
+          <Divider style={ { marginTop: theme.spacing(3), marginBottom: theme.spacing(3) } } />
+          <Typography variant="h4">{ strings.importLabel }</Typography>
+          <input onChange={ e => this.handleWallJsonImport(e.target.files)} type="file"  />
+        </VisibleWithRole>
       </div>
     );
   }
@@ -358,14 +361,16 @@ class AppSettingsView extends React.Component<Props, State> {
     return (
       <>
         { icons }
-        <Button
-          style={ { marginTop: theme.spacing(3) }}
-          color="primary"
-          variant="outlined"
-          onClick={ this.toggleDialog }
-        >
-          { strings.applicationSettings.addIcon }
-        </Button>
+        <VisibleWithRole role="admin">
+          <Button
+            style={ { marginTop: theme.spacing(3) }}
+            color="primary"
+            variant="outlined"
+            onClick={ this.toggleDialog }
+          >
+            { strings.applicationSettings.addIcon }
+          </Button>
+        </VisibleWithRole>
       </>
     );
   }

@@ -3,6 +3,7 @@ import { Typography, Card, CardMedia, withStyles, WithStyles, CardActions, CardA
 import styles from "../../styles/card-item";
 import strings from "../../localization/strings";
 import img from "../../resources/images/no-image-available-icon.jpg";
+import VisibleWithRole from "./VisibleWithRole";
 
 interface Props extends WithStyles<typeof styles> {
   /**
@@ -59,15 +60,19 @@ class CardItem extends React.Component<Props, State> {
           </div>
         </CardActionArea>
         <CardActions className={classes.cardActions}>
-          <Button size="small" className={classes.edit} onClick={this.props.editClick}>
-            {strings.edit}
-          </Button>
+          <VisibleWithRole role="admin">
+            <Button size="small" className={classes.edit} onClick={this.props.editClick}>
+              {strings.edit}
+            </Button>
+          </VisibleWithRole>
           <Button size="small" className={classes.details} onClick={this.props.detailsClick}>
             {strings.details}
           </Button>
-          <Button size="small" className={classes.delete} onClick={this.props.deleteClick}>
-            {strings.delete}
-          </Button>
+          <VisibleWithRole role="admin">
+            <Button size="small" className={classes.delete} onClick={this.props.deleteClick}>
+              {strings.delete}
+            </Button>
+          </VisibleWithRole>
         </CardActions>
       </Card>
     );

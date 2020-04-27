@@ -21,6 +21,7 @@ import { AuthState } from "../../types";
 import ApiUtils from "../../utils/ApiUtils";
 import { resourceRules, ResourceSettingsForm } from "../../commons/formRules";
 import ImagePreview from "../generic/ImagePreview";
+import VisibleWithRole from "../generic/VisibleWithRole";
 
 /**
  * Component props
@@ -167,18 +168,20 @@ class PageResourceSettingsView extends React.Component<Props, State> {
           <Divider style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} />
         </div>
 
-        <Typography style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} variant="h3">{ strings.advanced }</Typography>
+        <VisibleWithRole role="admin">
+          <Typography style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} variant="h3">{ strings.advanced }</Typography>
 
-        { this.renderResourceFields() }
+          { this.renderResourceFields() }
 
-        <div>
-          { this.renderStyleTable() }
-          <Divider style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} />
-        </div>
+          <div>
+            { this.renderStyleTable() }
+            <Divider style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} />
+          </div>
 
-        <div>
-          { this.renderPropertiesTable() }
-        </div>
+          <div>
+            { this.renderPropertiesTable() }
+          </div>
+        </VisibleWithRole>
       </div>
     );
   }

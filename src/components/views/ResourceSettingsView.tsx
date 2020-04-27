@@ -17,9 +17,9 @@ import { forwardRef } from "react";
 import { MessageType, initForm, Form, validateForm } from "ts-form-validation";
 import logo from "../../resources/svg/oioi-logo.svg";
 
-import { getLocalizedTypeString } from "../../commons/resourceTypeHelper";
 import { ResourceSettingsForm, resourceRules } from "../../commons/formRules";
 import ImagePreview from "../generic/ImagePreview";
+import VisibleWithRole from "../generic/VisibleWithRole";
 
 /**
  * Component props
@@ -164,26 +164,28 @@ class ResourceSettingsView extends React.Component<Props, State> {
           { dataField }
         </div>
         <Divider style={{ marginBottom: theme.spacing(3), marginTop: theme.spacing(3) }} />
-        <Typography style={{ marginBottom: theme.spacing(3), marginTop: theme.spacing(3) }} variant="h3">{ strings.advanced }</Typography>
-        <div style={{ display: "grid", gridAutoFlow: "column", gridGap: theme.spacing(3), marginBottom: theme.spacing(3) }}>
-          <div>
-            <Typography variant="h4">{ strings.orderNumber }</Typography>
-            { this.renderField("order_number", strings.orderNumber, "number") }
+        <VisibleWithRole role="admin">
+          <Typography style={{ marginBottom: theme.spacing(3), marginTop: theme.spacing(3) }} variant="h3">{ strings.advanced }</Typography>
+          <div style={{ display: "grid", gridAutoFlow: "column", gridGap: theme.spacing(3), marginBottom: theme.spacing(3) }}>
+            <div>
+              <Typography variant="h4">{ strings.orderNumber }</Typography>
+              { this.renderField("order_number", strings.orderNumber, "number") }
+            </div>
+            <div>
+              <Typography variant="h4">{ strings.orderNumber }</Typography>
+              { this.renderField("slug", strings.slug, "text") }
+            </div>
           </div>
+          <Divider style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} />
           <div>
-            <Typography variant="h4">{ strings.orderNumber }</Typography>
-            { this.renderField("slug", strings.slug, "text") }
+            { this.renderStyleTable() }
           </div>
-        </div>
-        <Divider style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} />
-        <div>
-          { this.renderStyleTable() }
-        </div>
-        <Divider style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} />
+          <Divider style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} />
 
-        <div>
-          { this.renderPropertiesTable() }
-        </div>
+          <div>
+            { this.renderPropertiesTable() }
+          </div>
+        </VisibleWithRole>
       </div>
     );
   }
