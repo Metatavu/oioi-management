@@ -177,6 +177,7 @@ class PageResourceSettingsView extends React.Component<Props, State> {
 
           <div>
             { this.renderPropertiesTable() }
+            <Divider style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} />
           </div>
         </VisibleWithRole>
       </div>
