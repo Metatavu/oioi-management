@@ -276,7 +276,8 @@ class ResourceSettingsView extends React.Component<Props, State> {
                 const styles = resourceData["styles"];
                 styles.push(newData);
                 resourceData["styles"] = styles;
-                this.setState({ resourceData: resourceData }, () => resolve());
+                this.setState({ resourceData: resourceData, dataChanged: true }, () => resolve());
+                this.props.confirmationRequired(true);
               }
               resolve();
             }),
@@ -288,7 +289,8 @@ class ResourceSettingsView extends React.Component<Props, State> {
                 const index = styles.indexOf(oldData);
                 styles[index] = newData;
                 resourceData["styles"] = styles;
-                this.setState({ resourceData: resourceData }, () => resolve());
+                this.setState({ resourceData: resourceData, dataChanged: true }, () => resolve());
+                this.props.confirmationRequired(true);
               }
               resolve();
             }),
@@ -300,7 +302,8 @@ class ResourceSettingsView extends React.Component<Props, State> {
                 const index = styles.indexOf(oldData);
                 styles.splice(index, 1);
                 resourceData["styles"] = styles;
-                this.setState({ resourceData: resourceData }, () => resolve());
+                this.setState({ resourceData: resourceData, dataChanged: true }, () => resolve());
+                this.props.confirmationRequired(true);
               }
               resolve();
             })
@@ -351,7 +354,8 @@ class ResourceSettingsView extends React.Component<Props, State> {
                 const properties = resourceData["properties"];
                 properties.push(newData);
                 resourceData["properties"] = properties;
-                this.setState({ resourceData: resourceData }, () => resolve());
+                this.setState({ resourceData: resourceData, dataChanged: true }, () => resolve());
+                this.props.confirmationRequired(true);
               }
               resolve();
             }),
@@ -363,7 +367,8 @@ class ResourceSettingsView extends React.Component<Props, State> {
                 const index = properties.indexOf(oldData);
                 properties[index] = newData;
                 resourceData["properties"] = properties;
-                this.setState({ resourceData: resourceData }, () => resolve());
+                this.setState({ resourceData: resourceData, dataChanged: true }, () => resolve());
+                this.props.confirmationRequired(true);
               }
               resolve();
             }),
@@ -375,7 +380,8 @@ class ResourceSettingsView extends React.Component<Props, State> {
                 const index = properties.indexOf(oldData);
                 properties.splice(index, 1);
                 resourceData["properties"] = properties;
-                this.setState({ resourceData: resourceData }, () => resolve());
+                this.setState({ resourceData: resourceData, dataChanged: true }, () => resolve());
+                this.props.confirmationRequired(true);
               }
               resolve();
             })
@@ -409,7 +415,7 @@ class ResourceSettingsView extends React.Component<Props, State> {
         <TextField
           fullWidth
           name="data"
-          value={ this.state.form.values.data }
+          value={ this.state.resourceData ? this.state.resourceData["data"] : undefined }
           onChange={ this.onDataChange }
           label={ strings.resourceTypes.text }
           multiline
