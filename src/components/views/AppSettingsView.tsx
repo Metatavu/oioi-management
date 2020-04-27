@@ -176,6 +176,7 @@ class AppSettingsView extends React.Component<Props, State> {
           <Divider style={ { marginTop: theme.spacing(3), marginBottom: theme.spacing(3) } } />
           <Typography variant="h4">{ strings.importLabel }</Typography>
           <input onChange={ e => this.handleWallJsonImport(e.target.files)} type="file"  />
+          <Divider style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} />
         </VisibleWithRole>
       </div>
     );

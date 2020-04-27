@@ -248,11 +248,15 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
             </div>
 
             <Divider style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} />
-
-            <div>
-              { this.renderPropertiesTable() }
-            </div>
           </div>
+          <div>
+            { this.renderPropertiesTable() }
+          </div>
+          <Divider style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} />
+          <div>
+            { this.renderStyleTable() }
+          </div>
+          <Divider style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} />
         </VisibleWithRole>
       </div>
     );
