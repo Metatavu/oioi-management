@@ -138,5 +138,6 @@
   "type": "Type",
   "childResources": "Child resources",
   "resourceName": "Resource name",
-  "orderFromLeftToRight": "Order from left to right"
+  "orderFromLeftToRight": "Order from left to right",
+  "iconNameIncorrectWarning": "Icon name should begin with \"icon_\""
 }

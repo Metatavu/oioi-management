@@ -140,6 +140,7 @@ export interface IStrings extends LocalizedStringsMethods {
   childResources: string;
   resourceName: string;
   orderFromLeftToRight: string;
+  iconNameIncorrectWarning: string;
 }
 
 const strings: IStrings = new LocalizedStrings({

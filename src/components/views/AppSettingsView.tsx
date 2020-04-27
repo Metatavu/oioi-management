@@ -361,12 +361,9 @@ class AppSettingsView extends React.Component<Props, State> {
     const allKeys = Object.values(IconKeys);
     iconsMap.forEach((value: string, key: string) => {
       const iconTypeKey = allKeys.find(k => key === k.toString());
-      if (!iconTypeKey) {
-        return;
-      }
       const preview = (
         <div>
-          <Typography variant="h5">{ getLocalizedIconTypeString(iconTypeKey) }</Typography>
+          <Typography variant="h5">{ iconTypeKey ? getLocalizedIconTypeString(iconTypeKey) : key }</Typography>
           <ImagePreview
             key={ key }
             imagePath={ value }
