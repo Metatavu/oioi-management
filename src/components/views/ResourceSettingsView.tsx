@@ -178,11 +178,15 @@ class ResourceSettingsView extends React.Component<Props, State> {
               { this.renderField("slug", strings.slug, "text") }
             </div>
             <Divider style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} />
-
+            </div>
             <div>
               { this.renderPropertiesTable() }
             </div>
-          </div>
+            <Divider style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} />
+            <div>
+              { this.renderPropertiesTable() }
+            </div>
+            <Divider style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} />
         </VisibleWithRole>
       </div>
     );
