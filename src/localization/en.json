@@ -104,7 +104,6 @@
     "image": "Image",
     "video": "Video"
   },
-  "childResources": "Sub resources",
   "applicationSettings": {
     "settings": "Basic application settings",
     "teaserText": "Teaser text",
@@ -137,5 +136,7 @@
   },
   "page": "Page",
   "type": "Type",
+  "childResources": "Child resources",
+  "resourceName": "Resource name",
   "orderFromLeftToRight": "Order from left to right"
 }

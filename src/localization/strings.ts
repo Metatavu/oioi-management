@@ -105,7 +105,6 @@ export interface IStrings extends LocalizedStringsMethods {
     text: string;
     image: string;
   };
-  childResources: string;
   applicationSettings: {
     teaserText: string;
     settings: string;
@@ -138,6 +137,8 @@ export interface IStrings extends LocalizedStringsMethods {
   },
   page: string;
   type: string;
+  childResources: string;
+  resourceName: string;
   orderFromLeftToRight: string;
 }
 

@@ -270,7 +270,11 @@ class PageResourceSettingsView extends React.Component<Props, State> {
                 const styles = resourceData["styles"];
                 styles.push(newData);
                 resourceData["styles"] = styles;
-                this.setState({ resourceData: resourceData }, () => resolve());
+                this.props.confirmationRequired(true);
+                this.setState({
+                  resourceData: resourceData,
+                  dataChanged: true
+                }, () => resolve());
               }
               resolve();
             }),
@@ -282,7 +286,11 @@ class PageResourceSettingsView extends React.Component<Props, State> {
                 const index = styles.indexOf(oldData);
                 styles[index] = newData;
                 resourceData["styles"] = styles;
-                this.setState({ resourceData: resourceData }, () => resolve());
+                this.props.confirmationRequired(true);
+                this.setState({
+                  resourceData: resourceData,
+                  dataChanged: true
+                }, () => resolve());
               }
               resolve();
             }),
@@ -294,7 +302,11 @@ class PageResourceSettingsView extends React.Component<Props, State> {
                 const index = styles.indexOf(oldData);
                 styles.splice(index, 1);
                 resourceData["styles"] = styles;
-                this.setState({ resourceData: resourceData }, () => resolve());
+                this.props.confirmationRequired(true);
+                this.setState({
+                  resourceData: resourceData,
+                  dataChanged: true
+                }, () => resolve());
               }
               resolve();
             })
@@ -345,7 +357,11 @@ class PageResourceSettingsView extends React.Component<Props, State> {
                 const properties = resourceData["properties"];
                 properties.push(newData);
                 resourceData["properties"] = properties;
-                this.setState({ resourceData: resourceData }, () => resolve());
+                this.props.confirmationRequired(true);
+                this.setState({
+                  resourceData: resourceData,
+                  dataChanged: true
+                }, () => resolve());
               }
               resolve();
             }),
@@ -357,7 +373,11 @@ class PageResourceSettingsView extends React.Component<Props, State> {
                 const index = properties.indexOf(oldData);
                 properties[index] = newData;
                 resourceData["properties"] = properties;
-                this.setState({ resourceData: resourceData }, () => resolve());
+                this.props.confirmationRequired(true);
+                this.setState({
+                  resourceData: resourceData,
+                  dataChanged: true
+                }, () => resolve());
               }
               resolve();
             }),
@@ -369,7 +389,11 @@ class PageResourceSettingsView extends React.Component<Props, State> {
                 const index = properties.indexOf(oldData);
                 properties.splice(index, 1);
                 resourceData["properties"] = properties;
-                this.setState({ resourceData: resourceData }, () => resolve());
+                this.props.confirmationRequired(true);
+                this.setState({
+                  resourceData: resourceData,
+                  dataChanged: true
+                }, () => resolve());
               }
               resolve();
             })
@@ -559,7 +583,6 @@ class PageResourceSettingsView extends React.Component<Props, State> {
   private onSaveChanges = () => {
     const { onSave, onSaveChildren } = this.props;
     const { resourceData, childResources, form } = this.state;
-    const properties = resourceData.properties ? [...resourceData.properties] : [];
 
     const resource = {
       name: form.values.name,
@@ -570,14 +593,15 @@ class PageResourceSettingsView extends React.Component<Props, State> {
       id: form.values.id,
       data: resourceData["data"],
       styles: resourceData["styles"],
-      properties: properties.filter(p => !!p.value)
+      properties: resourceData["properties"]
     } as Resource;
 
     onSave(resource);
     childResources && onSaveChildren(childResources);
 
     this.setState({
-      resourceData
+      resourceData,
+      dataChanged: false
     });
   };
 

@@ -103,7 +103,6 @@
     "image": "Kuva",
     "video": "Video"
   },
-  "childResources": "Alisivut",
   "applicationSettings": {
     "settings": "Sovellusasetukset",
     "teaserText": "Teaserteksti",
@@ -136,5 +135,7 @@
   },
   "page": "Sivu",
   "type": "Tyyppi",
+  "childResources": "Aliresurssit",
+  "resourceName": "Resurssin nimi",
   "orderFromLeftToRight": "Järjestys vasemmalta oikealle"
 }
