@@ -2,8 +2,6 @@ import { createStyles } from "@material-ui/core";
 import theme from "../styles/theme";
 import { fade } from "@material-ui/core/styles";
 
-const drawerWidth = 500;
-
 export default createStyles({
 
   root: {
@@ -21,7 +19,6 @@ export default createStyles({
     gridArea: "drawer",
     position: "relative",
     [theme.breakpoints.up("sm")]: {
-      width: drawerWidth,
       flexShrink: 0
     }
   },
@@ -51,10 +48,19 @@ export default createStyles({
     }
   },
 
+  dragger: {
+    width: '9px',
+    cursor: 'ew-resize',
+    padding: '4px 0 0',
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    zIndex: 100,
+  },
+
   drawerPaper: {
     backgroundColor: "#fff",
     position: "absolute",
-    width: drawerWidth,
     height: "100%"
   },
   content: {
@@ -174,6 +180,15 @@ export default createStyles({
 
   imagePreview: {
     backgroundColor: "rgba(38, 50, 56, 0.1)"
+  },
+
+  noMediaContainer: {
+    background: "#ddd",
+    fontSize: "30px",
+    textAlign: "center",
+    padding: "2px",
+    fontFamily: "TTNorms-Black",
+    color: "#fff"
   },
 
   deleteImage: {

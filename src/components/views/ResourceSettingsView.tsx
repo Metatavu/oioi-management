@@ -2,7 +2,6 @@
 import * as React from "react";
 import { withStyles, WithStyles, TextField, Divider, Typography, Button } from "@material-ui/core";
 import MaterialTable from "material-table";
-import AddIcon from "@material-ui/icons/Add";
 import AddCircleIcon from "@material-ui/icons/AddCircle";
 import DeleteIcon from "@material-ui/icons/Delete";
 import CheckIcon from "@material-ui/icons/Check";
@@ -11,11 +10,10 @@ import EditIcon from "@material-ui/icons/Edit";
 import styles from "../../styles/editor-view";
 import strings from "../../localization/strings";
 import theme from "../../styles/theme";
-import { Resource, ResourceToJSON, ResourceType, KeyValueProperty } from "../../generated/client/src";
+import { Resource, ResourceToJSON, ResourceType } from "../../generated/client/src";
 import FileUpload from "../../utils/FileUpload";
 import { forwardRef } from "react";
 import { MessageType, initForm, Form, validateForm } from "ts-form-validation";
-import logo from "../../resources/svg/oioi-logo.svg";
 
 import { ResourceSettingsForm, resourceRules } from "../../commons/formRules";
 import ImagePreview from "../generic/ImagePreview";
@@ -419,13 +417,12 @@ class ResourceSettingsView extends React.Component<Props, State> {
           onChange={ this.onDataChange }
           label={ strings.resourceTypes.text }
           multiline
-          rows="8"
           margin="normal"
           variant="outlined"
         />
       );
     } else {
-      const fileData = this.state.form.values.data || logo;
+      const fileData = this.state.form.values.data || "";
 
       return <>
         <ImagePreview
@@ -433,7 +430,7 @@ class ResourceSettingsView extends React.Component<Props, State> {
           onSave={ this.onFileChange }
           resource={ resource }
           uploadKey={ "data" }
-          onDelete={ this.onPropertyFileDelete }
+          onDelete={ this.onImageFileDelete }
         />
       </>;
     }
@@ -489,13 +486,9 @@ class ResourceSettingsView extends React.Component<Props, State> {
   /**
    * Handles image delete
    */
-  private onPropertyFileDelete = (key?: string) => {
+  private onImageFileDelete = (key?: string) => {
     const { resourceData } = this.state;
-
-    const properties = resourceData.properties ? [...resourceData.properties] : [];
-    const updatedProperties = properties.filter((property: KeyValueProperty) => property.key !== key);
-
-    resourceData.properties = updatedProperties;
+    resourceData["data"] = "";
     this.setState({
       resourceData: { ...resourceData }
     });

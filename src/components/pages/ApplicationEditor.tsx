@@ -69,6 +69,8 @@ interface State {
   rootResource?: Resource;
   treeData?: ResourceTreeItem[];
   confirmationRequired: boolean;
+  treeResizing: boolean;
+  treeWidth: number;
 }
 
 interface ResourceTreeItem extends TreeItemSortable {
@@ -86,8 +88,15 @@ class ApplicationEditor extends React.Component<Props, State> {
     super(props);
     this.state = {
       addResourceDialogOpen: false,
-      confirmationRequired: false
+      confirmationRequired: false,
+      treeResizing: false,
+      treeWidth: 300
     };
+  }
+
+  public componentWillUnmount = () => {
+    document.removeEventListener('mousemove', e => this.handleMousemove(e));
+    document.removeEventListener('mouseup', e => this.handleMouseup(e));
   }
 
   /**
@@ -112,6 +121,10 @@ class ApplicationEditor extends React.Component<Props, State> {
     if (!auth || !auth.token) {
       return;
     }
+
+    document.addEventListener('mousemove', e => this.handleMousemove(e));
+    document.addEventListener('mouseup', e => this.handleMouseup(e));
+
     if (openedResource) {
       openResource(undefined);
     }
@@ -173,7 +186,7 @@ class ApplicationEditor extends React.Component<Props, State> {
     }
     const localString = getLocalizedTypeString(resourceType);
     return (
-      <div className={ classes.root }>
+      <div style={this.state.treeResizing ? { userSelect: "none" } : {}} className={ classes.root }>
         <AppBar elevation={ 0 } position="relative" className={ classes.appBar }>
           <div className={ classes.toolbar }>
             <Typography variant="h3" noWrap>
@@ -197,6 +210,26 @@ class ApplicationEditor extends React.Component<Props, State> {
     );
   }
 
+  private handleMousedown = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+    this.setState({ treeResizing: true });
+  };
+  
+  private handleMousemove = (e: MouseEvent) => {
+    if (!this.state.treeResizing) {
+      return;
+    }
+  
+    let offsetRight = (e.clientX - document.body.offsetLeft);
+    let minWidth = 300;
+    this.setState({ treeWidth: Math.max(minWidth, offsetRight) });
+  };
+  
+  private handleMouseup = (e: MouseEvent )=> {
+    if (this.state.treeResizing) {
+      this.setState({ treeResizing: false });
+    }
+  };
+
   /**
    * Render responsive drawer method
    */
@@ -204,13 +237,22 @@ class ApplicationEditor extends React.Component<Props, State> {
     const { classes } = this.props;
 
     return (
-      <nav className={ classes.drawer } aria-label="mailbox folders">
+      <nav style={{width: this.state.treeWidth}} className={ classes.drawer } aria-label="mailbox folders">
         <Drawer
           classes={ { paper: classes.drawerPaper } }
           variant="permanent"
           anchor="left"
+          PaperProps={{ style: { width: this.state.treeWidth }}}
           open
         >
+          <div
+            id="dragger"
+            style={{left: this.state.treeWidth - 10}}
+            onMouseDown={event => {
+              this.handleMousedown(event);
+            }}
+            className={classes.dragger}
+          />
           { this.renderDrawer() }
         </Drawer>
       </nav>
@@ -755,10 +797,78 @@ class ApplicationEditor extends React.Component<Props, State> {
       treeData: this.treeDataAdd(this.treeItemFromResource(newResource), this.state.treeData || [])
     });
 
+    if (newResource.type == ResourceType.PAGE) {
+      await this.createPagePredefinedResources(newResource.id!);
+    }
+
     if (copyContentFromId) {
       await this.copyContentFrom(copyContentFromId, newResource.id!);
     }
   };
+
+  private createPagePredefinedResources = async (pageId: string) => {
+    const { auth, customerId, deviceId, applicationId } = this.props;
+
+    if (!auth || !auth.token) {
+      return;
+    }
+    const resourcesApi = ApiUtils.getResourcesApi(auth.token);
+    const title = await resourcesApi.createResource({
+      application_id: applicationId,
+      customer_id: customerId,
+      device_id: deviceId,
+      resource: {
+        name: "Otsikko",
+        slug: "title",
+        type: ResourceType.TEXT,
+        order_number: 1,
+        parent_id: pageId
+      }
+    });
+    this.setState({ treeData: this.treeDataAdd(this.treeItemFromResource(title), this.state.treeData || []) });
+
+    const ingress = await resourcesApi.createResource({
+      application_id: applicationId,
+      customer_id: customerId,
+      device_id: deviceId,
+      resource: {
+        name: "Ingressi",
+        slug: "nameText",
+        type: ResourceType.TEXT,
+        order_number: 2,
+        parent_id: pageId
+      }
+    });
+    this.setState({ treeData: this.treeDataAdd(this.treeItemFromResource(ingress), this.state.treeData || []) });
+
+    const content = await resourcesApi.createResource({
+      application_id: applicationId,
+      customer_id: customerId,
+      device_id: deviceId,
+      resource: {
+        name: "Kuvaus",
+        slug: "content",
+        type: ResourceType.TEXT,
+        order_number: 3,
+        parent_id: pageId
+      }
+    });
+    this.setState({ treeData: this.treeDataAdd(this.treeItemFromResource(content), this.state.treeData || []) });
+
+    const background = await resourcesApi.createResource({
+      application_id: applicationId,
+      customer_id: customerId,
+      device_id: deviceId,
+      resource: {
+        name: "Taustakuva",
+        slug: "background",
+        type: ResourceType.IMAGE,
+        order_number: 4,
+        parent_id: pageId
+      }
+    });
+    this.setState({ treeData: this.treeDataAdd(this.treeItemFromResource(background), this.state.treeData || []) });
+  }
 
   /**
    * Copies all content recursively from old parent under new parent

@@ -324,11 +324,19 @@ class AddResourceDialog extends React.Component<Props, State> {
    * Render menu items
    */
   private renderMenuItems = () => {
-    const { parentResourceType } = this.state;
+    const { parentResourceType, siblingResources } = this.state;
     const menuItems: JSX.Element[] = [];
 
     if (parentResourceType) {
       let foundTypes: ResourceTypeObject[] = resolveChildResourceTypes(parentResourceType);
+      const hasLanguageMenu = siblingResources.find(r => r.type == ResourceType.LANGUAGEMENU);
+      const hasIntro = siblingResources.find(r => r.type == ResourceType.INTRO);
+      if (hasLanguageMenu) {
+        foundTypes = foundTypes.filter(type => type.value !== ResourceType.LANGUAGEMENU);
+      }
+      if (hasIntro) {
+        foundTypes = foundTypes.filter(type => type.value !== ResourceType.INTRO);
+      }
       if (foundTypes && foundTypes.length > 0) {
         foundTypes.map(item => {
           const menuItem = <MenuItem value={ item.value } key={ item.value }>{ item.resourceLocal }</MenuItem>;
@@ -346,11 +354,11 @@ class AddResourceDialog extends React.Component<Props, State> {
     if (auth && auth.token && applicationId && customerId && deviceId && parentResourceId) {
       const api = ApiUtils.getResourcesApi(auth.token);
       const found = await api.findResource({
-          application_id: applicationId,
-          customer_id: customerId,
-          device_id: deviceId,
-          resource_id: parentResourceId
-        });
+        application_id: applicationId,
+        customer_id: customerId,
+        device_id: deviceId,
+        resource_id: parentResourceId
+      });
       if (found) {
         this.setState({
           parentResourceType : found.type

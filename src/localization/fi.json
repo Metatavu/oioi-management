@@ -138,5 +138,7 @@
   "childResources": "Aliresurssit",
   "resourceName": "Resurssin nimi",
   "orderFromLeftToRight": "Järjestys vasemmalta oikealle",
-  "iconNameIncorrectWarning": "Ikonin nimen tulisi alkaa \"icon_\""
+  "iconNameIncorrectWarning": "Ikonin nimen tulisi alkaa \"icon_\"",
+  "noMediaPlaceholder": "Ei mediaa",
+  "foregroudImage": "Foreground kuva"
 }

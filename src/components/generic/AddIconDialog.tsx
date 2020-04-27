@@ -148,7 +148,7 @@ class AddIconDialog extends React.Component<Props, State> {
   private getSelectItems = () => {
     const keys = Object.values(IconKeys);
     return keys.map(key => {
-      return <MenuItem value={ key }>{ key }</MenuItem>;
+      return <MenuItem key={ key } value={ key }>{ key }</MenuItem>;
     });
   }
 

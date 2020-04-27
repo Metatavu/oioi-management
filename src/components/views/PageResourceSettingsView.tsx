@@ -16,7 +16,6 @@ import { Resource, ResourceToJSON, ResourceType } from "../../generated/client/s
 import FileUpload from "../../utils/FileUpload";
 import { forwardRef } from "react";
 import { MessageType, initForm, Form, validateForm } from "ts-form-validation";
-import logo from "../../resources/svg/oioi-logo.svg";
 import { AuthState } from "../../types";
 import ApiUtils from "../../utils/ApiUtils";
 import { resourceRules, ResourceSettingsForm } from "../../commons/formRules";
@@ -431,14 +430,14 @@ class PageResourceSettingsView extends React.Component<Props, State> {
     }
 
     const listItems = childResources.map(child =>
-      <>
+      <React.Fragment key={child.id}>
         <Divider style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} />
         <Typography variant="h4" style={{ textTransform: "capitalize", marginBottom: theme.spacing(1) }}>{ child.name }</Typography>
         <div style={{ display: "flex" }}>
           { this.renderChildResourceContentField(child) }
           { this.renderDeleteChild(child) }
         </div>
-      </>
+      </React.Fragment>
     );
 
     return(
@@ -498,6 +497,7 @@ class PageResourceSettingsView extends React.Component<Props, State> {
         return <>
           <TextField
             fullWidth
+            multiline
             value={ resource.data || "" }
             onChange={ this.onHandleChildResourceTextChange(resource) }
             name={ resource.id }
@@ -523,7 +523,7 @@ class PageResourceSettingsView extends React.Component<Props, State> {
       return;
     }
 
-    const previewItem = resource.data || logo;
+    const previewItem = resource.data || "";
     return (
       <ImagePreview
         imagePath={ previewItem }

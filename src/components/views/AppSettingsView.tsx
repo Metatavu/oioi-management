@@ -8,7 +8,6 @@ import { Form, initForm, validateForm, MessageType } from "ts-form-validation";
 import { ApplicationForm, applicationRules, ResourceSettingsForm } from "../../commons/formRules";
 
 import FileUpload from "../../utils/FileUpload";
-import logo from "../../resources/svg/oioi-logo.svg";
 import AddIconDialog from "../generic/AddIconDialog";
 import ImagePreview from "../generic/ImagePreview";
 import { AuthState } from "../../types";
@@ -339,7 +338,7 @@ class AppSettingsView extends React.Component<Props, State> {
   private renderMedia = (key: string) => {
 
     let previewItem: string;
-    previewItem = this.state.resourceMap.get(key) || logo;
+    previewItem = this.state.resourceMap.get(key) || "";
     return (
       <ImagePreview
         imagePath={ previewItem }
@@ -362,7 +361,7 @@ class AppSettingsView extends React.Component<Props, State> {
     iconsMap.forEach((value: string, key: string) => {
       const iconTypeKey = allKeys.find(k => key === k.toString());
       const preview = (
-        <div>
+        <div key={ key }>
           <Typography variant="h5">{ iconTypeKey ? getLocalizedIconTypeString(iconTypeKey) : key }</Typography>
           <ImagePreview
             key={ key }
