@@ -18,7 +18,6 @@ import { MessageType, initForm, Form, validateForm } from "ts-form-validation";
 
 import { AuthState } from "../../types";
 import ApiUtils from "../../utils/ApiUtils";
-import logo from "../../resources/svg/oioi-logo.svg";
 
 import IconButton from "@material-ui/core/IconButton";
 import { resourceRules, ResourceSettingsForm } from "../../commons/formRules";
@@ -214,6 +213,9 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
           </div>
           <div>
             { this.renderUploaderAndPreview(strings.menuImage, "menuImg") }
+          </div>
+          <div>
+            { this.renderUploaderAndPreview(strings.foregroudImage, "foreground") }
           </div>
         </div>
 
@@ -675,7 +677,7 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
     if (!properties) {
       return;
     }
-    const previewItem = this.findImage(properties, uploadKey) || logo;
+    const previewItem = this.findImage(properties, uploadKey) || "";
 
     return <>
         <Typography variant="h4" style={{ marginBottom: theme.spacing(1) }}>{ title }</Typography>
@@ -706,7 +708,7 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
         displayName = key;
       }
       const preview = (
-        <div>
+        <div key={ key }>
           <Typography variant="h5">{ displayName }</Typography>
           <ImagePreview
             key={ key }

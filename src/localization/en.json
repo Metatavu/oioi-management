@@ -139,5 +139,7 @@
   "childResources": "Child resources",
   "resourceName": "Resource name",
   "orderFromLeftToRight": "Order from left to right",
-  "iconNameIncorrectWarning": "Icon name should begin with \"icon_\""
+  "iconNameIncorrectWarning": "Icon name should begin with \"icon_\"",
+  "noMediaPlaceholder": "No media",
+  "foregroudImage": "Foreground image"
 }

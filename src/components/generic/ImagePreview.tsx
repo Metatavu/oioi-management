@@ -63,25 +63,30 @@ class ImagePreview extends React.Component<Props, State> {
     const { imagePath, resource, onSave, uploadKey, classes } = this.props;
     const allowedFileTypes = getAllowedFileTypes(resource.type);
     const video = resource.type === ResourceType.VIDEO;
+    let previewContent = <div className={ classes.noMediaContainer }><h2> { strings.noMediaPlaceholder } </h2></div>;
+    if (imagePath) {
+      previewContent = video ?
+        <ReactPlayer url={ imagePath } controls={ true } style={{ backgroundColor: "#000" }} /> :
+        <img src={ imagePath } alt="File" height="200" className={ classes.imagePreview }/>;
+    }
     return (
       <div className={ classes.imagePreviewElement }>
         <div style={{ marginBottom: theme.spacing(1) }}>
           <div key={ imagePath } onClick={ this.toggleDialog }>
-            { video ?
-              <ReactPlayer url={ imagePath } controls={ true } style={{ backgroundColor: "#000" }} /> :
-              <img src={ imagePath } alt="File" height="200" className={ classes.imagePreview }/>
-            }
+            { previewContent }
           </div>
-          <div className={ classes.deleteImage }>
-            <IconButton 
-              size="small"
-              className={ classes.iconButton }
-              title={ strings.delete }
-              color="secondary"
-              onClick={ () => this.props.onDelete(uploadKey) }>
-              <DeleteIcon />
-            </IconButton>
-          </div>
+          {imagePath && 
+            <div className={ classes.deleteImage }>
+              <IconButton 
+                size="small"
+                className={ classes.iconButton }
+                title={ strings.delete }
+                color="secondary"
+                onClick={ () => this.props.onDelete(uploadKey) }>
+                <DeleteIcon />
+              </IconButton>
+            </div>
+          }
         </div>
         <FileUploader
           resource={ resource }
@@ -123,6 +128,11 @@ class ImagePreview extends React.Component<Props, State> {
    * Toggle dialog
    */
   private toggleDialog = () => {
+    const { imagePath } = this.props;
+    if (!imagePath) {
+      return;
+    }
+
     const open = !this.state.dialogOpen;
     this.setState({ dialogOpen: open });
   }

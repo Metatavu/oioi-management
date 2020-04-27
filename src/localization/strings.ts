@@ -141,6 +141,8 @@ export interface IStrings extends LocalizedStringsMethods {
   resourceName: string;
   orderFromLeftToRight: string;
   iconNameIncorrectWarning: string;
+  noMediaPlaceholder: string;
+  foregroudImage: string;
 }
 
 const strings: IStrings = new LocalizedStrings({
