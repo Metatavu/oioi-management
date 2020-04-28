@@ -41,7 +41,7 @@ export interface Resource {
      * @type {string}
      * @memberof Resource
      */
-    parent_id: string;
+    parent_id?: string;
     /**
      * 
      * @type {number}
@@ -121,7 +121,7 @@ export function ResourceFromJSONTyped(json: any, ignoreDiscriminator: boolean): 
     return {
         
         'id': !exists(json, 'id') ? undefined : json['id'],
-        'parent_id': json['parentId'],
+        'parent_id': !exists(json, 'parentId') ? undefined : json['parentId'],
         'order_number': !exists(json, 'orderNumber') ? undefined : json['orderNumber'],
         'type': ResourceTypeFromJSON(json['type']),
         'styles': !exists(json, 'styles') ? undefined : (json['styles'] as Array<any>).map(KeyValuePropertyFromJSON),

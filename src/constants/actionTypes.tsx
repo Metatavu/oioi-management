@@ -23,16 +23,10 @@ export const SET_DEVICE = "SET_DEVICE";
 export type SET_DEVICE = typeof SET_DEVICE;
 
 /**
- * Customer action type
+ * Application action type
  */
-export const SET_APPLICATIONS = "SET_APPLICATIONS";
-export type SET_APPLICATIONS = typeof SET_APPLICATIONS;
-
-/**
- *
- */
-export const UPDATE_RESOURCES = "UPDATE_RESOURCES";
-export type UPDATE_RESOURCES = typeof UPDATE_RESOURCES;
+export const SET_APPLICATION = "SET_APPLICATION";
+export type SET_APPLICATION = typeof SET_APPLICATION;
 
 /**
  *

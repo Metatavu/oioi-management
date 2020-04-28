@@ -20,7 +20,6 @@ interface Props {
 }
 
 interface State {
-
 }
 
 class IndexPage extends React.Component<Props, State> {
@@ -33,7 +32,7 @@ class IndexPage extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = {
-
+      hasError: false
     };
   }
 
@@ -42,7 +41,7 @@ class IndexPage extends React.Component<Props, State> {
     if (!auth) {
       //TODO: move to env variables
       const keycloak = Keycloak({
-        url: "https://oioi-auth.metatavu.io/auth",
+        url: "https://staging-oioi-auth.metatavu.io/auth",
         realm: "oioi",
         clientId: "management"
       });
@@ -59,11 +58,16 @@ class IndexPage extends React.Component<Props, State> {
     }
   }
 
+  public componentDidCatch() { 
+    this.setState({
+      hasError: true
+    });
+  }
+
   /**
    * Component render method
    */
   public render() {
-
     const { auth } = this.props;
     if (!auth) {
       return null;
@@ -73,49 +77,49 @@ class IndexPage extends React.Component<Props, State> {
       <div className="wrapper">
         <Route
           path="/"
-          exact={false}
+          exact={ false }
           render={ ({ history }) => (
-            <BreadCrumb history={history} />
+            <BreadCrumb level={window.location.pathname.split("/").filter(val => !!val).length} history={ history } />
           )}
         />
         <Header></Header>
-        <div>
+        <>
           <Route
             path="/"
-            exact={true}
+            exact={ true }
             render={ ({ history }) => (
-              <CustomersList history={history} />
+              <CustomersList history={ history } />
             )}
           />
           <Route
             path="/:customerId/devices"
-            exact={true}
+            exact={ true }
             render={ ({ match, history }) => (
-              <DevicesList customerId={match.params.customerId} history={history}/>
+              <DevicesList customerId={ match.params.customerId } history={ history }/>
             )}
           />
           <Route
             path="/:customerId/devices/:deviceId/applications"
-            exact={true}
+            exact={ true }
             render={ ({ match, history }) => (
-              <ApplicationsList 
-                customerId={match.params.customerId} 
-                deviceId={match.params.deviceId}
-                history={history}/>
+              <ApplicationsList
+                customerId={ match.params.customerId }
+                deviceId={ match.params.deviceId }
+                history={ history }/>
             )}
           />
           <Route
             path="/:customerId/devices/:deviceId/applications/:applicationId"
-            exact={true}
-            render={ ({ match,history }) => (
-              <ApplicationEditor 
-              customerId={match.params.customerId} 
-              deviceId={match.params.deviceId}
-              applicationId={match.params.applicationId}
-              history={history} />
+            exact={ true }
+            render={ ({ match, history }) => (
+              <ApplicationEditor
+              customerId={ match.params.customerId }
+              deviceId={ match.params.deviceId }
+              applicationId={ match.params.applicationId }
+              history={ history } />
             )}
           />
-        </div>
+        </>
       </div>
     );
   }

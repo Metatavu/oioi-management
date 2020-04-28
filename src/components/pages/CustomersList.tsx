@@ -10,15 +10,14 @@ import { AuthState } from "../../types";
 import { Dispatch } from "redux";
 import { ReduxActions, ReduxState } from "../../store";
 import { connect } from "react-redux";
-import { Customer, Device, Application } from "../../generated/client/src";
+import { Customer } from "../../generated/client/src";
 import ApiUtils from "../../utils/ApiUtils";
 import strings from "../../localization/strings";
 import DeleteDialog from "../generic/DeleteDialog";
 import { Alert } from "@material-ui/lab";
 import { DialogType } from "../../types/index";
 import { setCustomer } from "../../actions/customer";
-import { setDevice } from "../../actions/device";
-import { setApplications } from "../../actions/applications";
+import VisibleWithRole from "../generic/VisibleWithRole";
 
 /**
  * Component props
@@ -33,8 +32,6 @@ interface Props extends WithStyles<typeof styles> {
    */
   auth: AuthState;
   setCustomer: typeof setCustomer;
-  setDevice: typeof setDevice;
-  setApplications: typeof setApplications;
 }
 
 /**
@@ -152,11 +149,13 @@ class CustomersList extends React.Component<Props, State> {
     const { classes } = this.props;
     return (
       <Grid item>
-        <Card elevation={0} className={classes.addCard}>
-          <CardActionArea className={classes.add} onClick={this.onAddCustomerClick}>
-            <AddIcon className={classes.addIcon} />
-          </CardActionArea>
-        </Card>
+        <VisibleWithRole role="admin">
+          <Card elevation={0} className={classes.addCard}>
+            <CardActionArea className={classes.add} onClick={this.onAddCustomerClick}>
+              <AddIcon className={classes.addIcon} />
+            </CardActionArea>
+          </Card>
+        </VisibleWithRole>
       </Grid>
     );
   }
@@ -186,7 +185,9 @@ class CustomersList extends React.Component<Props, State> {
    * @param customer
    */
   private onEditCustomerConfigurationClick = (customer: Customer) => {
-    this.props.history.push(`/${customer.id}/devices`);
+    const {setCustomer, history} = this.props;
+    setCustomer(customer);
+    history.push(`/${customer.id}/devices`);
   };
 
   /**
@@ -347,9 +348,7 @@ const mapStateToProps = (state: ReduxState) => ({
  */
 const mapDispatchToProps = (dispatch: Dispatch<ReduxActions>) => {
   return {
-    setCustomer: (customer: Customer) => dispatch(setCustomer(customer)),
-    setDevice: (device: Device) => dispatch(setDevice(device)),
-    setApplications: (applications: Application[]) => dispatch(setApplications(applications))
+    setCustomer: (customer: Customer) => dispatch(setCustomer(customer))
   };
 };
 

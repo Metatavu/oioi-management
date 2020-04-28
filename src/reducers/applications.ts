@@ -1,14 +1,14 @@
 import { Reducer } from "redux";
-import { ApplicationsAction } from "../actions/applications";
-import { SET_APPLICATIONS } from "../constants/actionTypes";
+import { ApplicationAction } from "../actions/application";
+import { SET_APPLICATION } from "../constants/actionTypes";
 import { Application } from "../generated/client/src";
 
 interface ApplicationsState {
-  applications?: Application[];
+  application?: Application;
 }
 
 const initialState: ApplicationsState = {
-  applications: undefined
+  application: undefined
 };
 
 /**
@@ -17,12 +17,12 @@ const initialState: ApplicationsState = {
  * @param state state of the applications
  * @param action action of the applications
  */
-export const applicationsReducer: Reducer<ApplicationsState, ApplicationsAction> = (state = initialState, action: ApplicationsAction): ApplicationsState => {
+export const applicationsReducer: Reducer<ApplicationsState, ApplicationAction> = (state = initialState, action: ApplicationAction): ApplicationsState => {
   switch (action.type) {
-    case SET_APPLICATIONS: {
+    case SET_APPLICATION: {
       return {
         ...state,
-        applications: action.applications
+        application: action.application
       };
     }
     default:

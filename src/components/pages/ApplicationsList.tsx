@@ -16,8 +16,9 @@ import ApiUtils from "../../utils/ApiUtils";
 import DeleteDialog from "../generic/DeleteDialog";
 import { Alert } from "@material-ui/lab";
 import { setCustomer } from "../../actions/customer";
-import { setApplications } from "../../actions/applications";
+import { setApplication } from "../../actions/application";
 import { setDevice } from "../../actions/device";
+import VisibleWithRole from "../generic/VisibleWithRole";
 
 /**
  * Component props
@@ -29,19 +30,20 @@ interface Props extends WithStyles<typeof styles> {
   auth: AuthState;
   setCustomer: typeof setCustomer;
   setDevice: typeof setDevice;
-  setApplications: typeof setApplications;
+  setApplication: typeof setApplication;
+  customer?: Customer;
+  device?: Device;
 }
 
 /**
  * Component state
  */
 interface State {
-  customer?: Customer;
-  device?: Device;
   applicationInDialog?: Application;
   applications: Application[];
   deleteDialogOpen: boolean;
   snackbarOpen: boolean;
+  applicationImages?: { id: string, src: string }[];
 }
 
 /**
@@ -67,7 +69,7 @@ class ApplicationsList extends React.Component<Props, State> {
    * Component did mount
    */
   public componentDidMount = async () => {
-    const { auth, customerId, deviceId, setDevice, setCustomer } = this.props;
+    const { auth, customerId, deviceId, setDevice, setCustomer, customer, device } = this.props;
     if (!auth || !auth.token) {
       return;
     }
@@ -75,27 +77,33 @@ class ApplicationsList extends React.Component<Props, State> {
     const customersApi = ApiUtils.getCustomersApi(auth.token);
     const devicesApi = ApiUtils.getDevicesApi(auth.token);
     const applicationsApi = ApiUtils.getApplicationsApi(auth.token);
-    const [customer, device, applications] = await Promise.all([
-      customersApi.findCustomer({ customer_id: customerId }),
-      devicesApi.findDevice({ customer_id: customerId, device_id: deviceId }),
-      applicationsApi.listApplications({ customer_id: customerId, device_id: deviceId })
-    ]);
+    let currentCustomer = customer;
+    if (!currentCustomer || currentCustomer.id !== customerId) {
+      currentCustomer = await customersApi.findCustomer({ customer_id: customerId });
+      setCustomer(currentCustomer);
+    }
+    let currentDevice = device;
+    if (!currentDevice || currentDevice.id !== deviceId) {
+      currentDevice = await devicesApi.findDevice({ customer_id: customerId, device_id: deviceId });
+      setDevice(currentDevice);
+    }
+    const applications = await applicationsApi.listApplications({ customer_id: customerId, device_id: deviceId });
+    const applicationImages = await Promise.all(
+      applications.map( async (app) => { return { id: app.id || "", src: await this.getApplicationImage(app) || "" } })
+    );
 
     this.setState({
-      customer: customer,
-      device: device,
-      applications: applications
+      applications: applications,
+      applicationImages: applicationImages
     });
-    setCustomer(customer);
-    setDevice(device);
   };
 
   /**
    * Component render method
    */
   public render() {
-    const { classes } = this.props;
-    const { customer, device, applications, deleteDialogOpen, applicationInDialog, snackbarOpen } = this.state;
+    const { classes, customer, device } = this.props;
+    const { applications, deleteDialogOpen, applicationInDialog, snackbarOpen } = this.state;
     const cards = applications.map((application, index) => this.renderCard(application, `${index}${application.name}`));
     return (
       <Container maxWidth="xl" className="page-content">
@@ -125,19 +133,47 @@ class ApplicationsList extends React.Component<Props, State> {
   /**
    * Card render method
    */
-  private renderCard(application: Application, key: string) {
+  private renderCard = (application: Application, key: string) => {
+    const { applicationImages } = this.state;
+    const image = applicationImages ? applicationImages.find(item => item.id === application.id) : undefined;
     return (
       <Grid item key={key}>
-        <CardItem
+          <CardItem
           title={application.name}
-          img={img}
+          img={ image ? image.src : img }
           editConfiguration={() => this.onEditConfiguration(application)}
           editClick={() => this.onEditApplicationClick(application)}
           detailsClick={() => this.onEditApplicationClick(application)}
-          deleteClick={() => this.onDeleteOpenModalClick(application)}
-        ></CardItem>
+          deleteClick={() => this.onDeleteOpenModalClick(application)}>
+          </CardItem>
       </Grid>
     );
+  }
+
+  /**
+   * Finds the application image from root resource and returns it
+   * 
+   * @param application application
+   */
+  private getApplicationImage = async (application: Application) => {
+    const { auth, customerId, deviceId } = this.props;
+    if (!auth || !auth.token) {
+      return;
+    }
+    const resourcesApi = ApiUtils.getResourcesApi(auth.token);
+    return resourcesApi.findResource({
+      customer_id: customerId,
+      device_id: deviceId,
+      application_id: application.id || "",
+      resource_id: application.root_resource_id || ""
+    }).then((rootResource) => {
+      if (rootResource && rootResource.properties) {
+        const img = rootResource.properties.find(resource => resource.key === "applicationImage");
+        if (img) {
+          return img.value;
+        }
+      }
+    });
   }
 
   /**
@@ -147,26 +183,30 @@ class ApplicationsList extends React.Component<Props, State> {
     const { classes } = this.props;
     return (
       <Grid item>
-        <Card elevation={0} className={classes.addCard}>
-          <CardActionArea className={classes.add} onClick={this.onAddApplicationClick}>
-            <AddIcon className={classes.addIcon} />
-          </CardActionArea>
-        </Card>
+        <VisibleWithRole role="admin">
+          <Card elevation={0} className={classes.addCard}>
+            <CardActionArea className={classes.add} onClick={this.onAddApplicationClick}>
+              <AddIcon className={classes.addIcon} />
+            </CardActionArea>
+          </Card>
+        </VisibleWithRole>
       </Grid>
     );
   }
 
   private onEditConfiguration = (application: Application) => {
-    const { customerId, deviceId } = this.props;
-    this.props.history.push(`/${customerId}/devices/${deviceId}/applications/${application.id}`);
+    const { customerId, deviceId, history, setApplication } = this.props;
+    setApplication(application);
+    history.push(`/${customerId}/devices/${deviceId}/applications/${application.id}`);
   };
 
   /**
    * Edit application click
    */
   private onEditApplicationClick = (application: Application) => {
-    const { customerId, deviceId } = this.props;
-    this.props.history.push(`/${customerId}/devices/${deviceId}/applications/${application.id}`);
+    const { customerId, deviceId, history, setApplication } = this.props;
+    setApplication(application);
+    history.push(`/${customerId}/devices/${deviceId}/applications/${application.id}`);
   };
 
   /**
@@ -254,7 +294,9 @@ class ApplicationsList extends React.Component<Props, State> {
  * @param state redux state
  */
 const mapStateToProps = (state: ReduxState) => ({
-  auth: state.auth
+  auth: state.auth,
+  customer: state.customer.customer,
+  device: state.device.device
 });
 
 /**
@@ -266,7 +308,7 @@ const mapDispatchToProps = (dispatch: Dispatch<ReduxActions>) => {
   return {
     setCustomer: (customer: Customer) => dispatch(setCustomer(customer)),
     setDevice: (device: Device) => dispatch(setDevice(device)),
-    setApplications: (applications: Application[]) => dispatch(setApplications(applications))
+    setApplication: (application: Application) => dispatch(setApplication(application))
   };
 };
 

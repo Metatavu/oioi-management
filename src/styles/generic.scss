@@ -3,6 +3,7 @@ body {
 }
 
 .wrapper {
+  overflow: hidden;
   height: 100vh;
   display: grid;
   grid-template-rows: auto auto 1fr;

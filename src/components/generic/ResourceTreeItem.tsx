@@ -1,27 +1,25 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import * as React from "react";
 import styles from "../../styles/editor-view";
-import { withStyles, WithStyles, SvgIcon, Icon } from "@material-ui/core";
-import LanguageIcon from "@material-ui/icons/Language";
-import TreeItem from "@material-ui/lab/TreeItem";
-import TransitionComponent from "../generic/TransitionComponent";
+import { withStyles, WithStyles, ListItem, ListItemIcon, ListItemText, ListItemSecondaryAction } from "@material-ui/core";
 import { Resource, ResourceType } from "../../generated/client/src";
-import ApiUtils from "../../utils/ApiUtils";
 import { AuthState } from "../../types";
 import { ReduxState, ReduxActions } from "../../store";
-import DeleteIcon from "@material-ui/icons/Delete";
 import { Dispatch } from "redux";
 import { connect } from "react-redux";
-import strings from "../../localization/strings";
 import { openResource } from "../../actions/resources";
 
-const pageIconPath = <path d="M24 17H1.14441e-05V1.90735e-06H24V17ZM23 1H1V16H23V1Z" />;
-const folderIconPath = (
-  <path d="M17.9999 18H-0.000127792V6H17.9999V18ZM20.9998 15H19.9998V4H2.99982V3H20.9998V15ZM0.999872 7H16.9999V17H0.999872V7ZM24 12H23V0.999998H6V-1.90735e-06H24V12Z" />
-);
-const addIconPath = (
-  <path d="M13 7h-2v4H7v2h4v4h2v-4h4v-2h-4V7zm-1-5C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z" />
-);
+import LanguageIcon from "@material-ui/icons/Language";
+import PageIcon from "@material-ui/icons/CropLandscapeOutlined";
+import IntroIcon from "@material-ui/icons/VideoLibraryOutlined";
+import MenuIcon from "@material-ui/icons/Menu";
+import SlideshowIcon from "@material-ui/icons/SlideshowOutlined";
+import UnknownIcon from "@material-ui/icons/HelpOutlineOutlined";
+import VideoIcon from "@material-ui/icons/PlayCircleOutlineOutlined";
+import TextIcon from "@material-ui/icons/TitleOutlined";
+import PDFIcon from "@material-ui/icons/PictureAsPdfOutlined";
+import ImageIcon from "@material-ui/icons/ImageOutlined";
+import theme from "../../styles/theme";
 
 /**
  * Component props
@@ -31,23 +29,18 @@ interface Props extends WithStyles<typeof styles> {
   deviceId: string;
   applicationId: string;
   resource: Resource;
-  orderNumber: number;
   auth?: AuthState;
   openedResource?: Resource;
   openResource: typeof openResource;
-  onAddClick: (parentResourceId: string, afterSave: (resource: Resource) => void) => void;
   onDelete: (resourceId: string) => void;
-  onOpenResource(resource: Resource): void;
+  onOpenResource: (resource: Resource) => void;
 }
 
 /**
  * Component state
  */
 interface State {
-  open: boolean;
-  resource: Resource;
   parentResourceId?: string;
-  childResources: Resource[];
 }
 
 /**
@@ -61,11 +54,7 @@ class ResourceTreeItemClass extends React.Component<Props, State> {
    */
   constructor(props: Props) {
     super(props);
-    this.state = {
-      open: false,
-      resource: this.props.resource,
-      childResources: []
-    };
+    this.state = {};
   }
 
   /**
@@ -73,136 +62,27 @@ class ResourceTreeItemClass extends React.Component<Props, State> {
    * @param prevProps
    * @param prevState
    */
-  public componentDidUpdate = async (prevProps: Props, prevState: State) => {
-    if (prevProps !== this.props) {
-      const { auth, customerId, deviceId, applicationId } = this.props;
-      if (!auth || !auth.token) {
-        return;
-      }
-
-      const resourcesApi = ApiUtils.getResourcesApi(auth.token);
-      const childResources = await resourcesApi.listResources({
-        customer_id: customerId,
-        device_id: deviceId,
-        application_id: applicationId,
-        parent_id: this.state.resource.id
-      });
-
-      this.setState({
-        open: true,
-        childResources: childResources,
-        resource: this.props.resource
-      });
-    }
-  };
+  public componentDidUpdate = async (prevProps: Props, prevState: State) => {};
 
   /**
    * Component render method
    */
   public render() {
-    const { classes } = this.props;
-    const { resource, childResources } = this.state;
+    const { classes, resource, openedResource } = this.props;
 
-    const treeItemStyles = {
-      iconContainer: classes.treeIconContainer,
-      group: classes.treeGroup,
-      content: classes.treeContent,
-      label: classes.treeLabel
-    };
     const icon = this.renderIconComponentByResourceType(resource.type);
-    const childTreeItems = childResources
-      ? childResources
-          .map(resource => this.renderTreeItem(resource))
-          .sort((a, b) => {
-            return a.props.orderNumber - b.props.orderNumber;
-          })
-      : [];
 
     if (!resource.id) {
       return;
     }
 
-    if (this.isAllowedChildren()) {
-      return (
-        <TreeItem
-          classes={treeItemStyles}
-          TransitionComponent={TransitionComponent}
-          icon={icon}
-          nodeId={resource.id}
-          label={
-            <div>
-              {this.state.resource.name}
-              <DeleteIcon onClick={() => this.onDeleteIconClick()} />
-            </div>
-          }
-          onClick={this.onTreeItemClick}
-        >
-          {this.state.childResources !== [] && childTreeItems}
-          {this.renderAdd()}
-        </TreeItem>
-      );
-    } else {
-      return (
-        <TreeItem
-          classes={treeItemStyles}
-          TransitionComponent={TransitionComponent}
-          icon={icon}
-          nodeId={resource.id}
-          label={
-            <div>
-              {this.state.resource.name}
-              <DeleteIcon onClick={() => this.onDeleteIconClick()} />
-            </div>
-          }
-          onClick={this.onTreeItemClick}
-        />
-      );
-    }
+    return (
+      <ListItem onClick={ this.onTreeItemClick } key={ resource.id } selected={ openedResource && openedResource.id === resource.id }>
+        <ListItemIcon style={{ minWidth: 0, marginRight: theme.spacing(1) }}>{ icon }</ListItemIcon>
+        <ListItemText primary={ resource.name } />
+      </ListItem>
+    );
   }
-
-  /**
-   * Render treeItem method
-   */
-  private renderTreeItem = (resource: Resource) => {
-    const { classes } = this.props;
-    const { customerId, deviceId, applicationId } = this.props;
-    const orderNumber = resource.order_number;
-
-    return (
-      <ResourceTreeItem
-        key={resource.id}
-        resource={resource}
-        orderNumber={orderNumber || 0}
-        customerId={customerId}
-        deviceId={deviceId}
-        applicationId={applicationId}
-        classes={classes}
-        onOpenResource={this.props.onOpenResource}
-        onAddClick={this.props.onAddClick}
-        onDelete={this.onChildDelete}
-      />
-    );
-  };
-
-  /**
-   * Render add resource treeItem method
-   */
-  private renderAdd = () => {
-    const resourceId = this.state.resource.id;
-    if (!resourceId) {
-      return;
-    }
-
-    return (
-      <TreeItem
-        TransitionComponent={TransitionComponent}
-        nodeId={resourceId + "add"}
-        icon={<SvgIcon fontSize="small">{addIconPath}</SvgIcon>}
-        onClick={this.onAddNewResourceClick}
-        label={strings.addNewResource}
-      />
-    );
-  };
 
   /**
    * get icon component by resource type method
@@ -212,61 +92,38 @@ class ResourceTreeItemClass extends React.Component<Props, State> {
   private renderIconComponentByResourceType = (resourceType: ResourceType) => {
     switch (resourceType) {
       case ResourceType.INTRO: {
-        return <SvgIcon fontSize="small">{pageIconPath}</SvgIcon>;
+        return <IntroIcon />;
+      }
+      case ResourceType.PAGE: {
+        return <PageIcon />;
+      }
+      case ResourceType.IMAGE: {
+        return <ImageIcon />;
+      }
+      case ResourceType.VIDEO: {
+        return <VideoIcon />;
+      }
+      case ResourceType.TEXT: {
+        return <TextIcon />;
+      }
+      case ResourceType.PDF: {
+        return <PDFIcon />;
+      }
+      case ResourceType.LANGUAGEMENU: {
+        return <LanguageIcon />;
       }
       case ResourceType.LANGUAGE: {
-        return <LanguageIcon fontSize="small" />;
+        return <LanguageIcon />;
       }
       case ResourceType.MENU: {
-        return <SvgIcon fontSize="small">{folderIconPath}</SvgIcon>;
+        return <MenuIcon />;
+      }
+      case ResourceType.SLIDESHOW : {
+        return <SlideshowIcon />;
       }
       default: {
-        return <SvgIcon fontSize="small">{folderIconPath}</SvgIcon>;
+        return <UnknownIcon />;
       }
-    }
-  };
-
-  /**
-   * Child delete method
-   */
-  private onChildDelete = (childResourceId: string) => {
-    const { childResources } = this.state;
-    const { openedResource, openResource } = this.props;
-
-    if (openedResource && openedResource.id === childResourceId) {
-      openResource(undefined);
-    }
-
-    this.setState({
-      childResources: childResources.filter(c => c.id !== childResourceId)
-    });
-  };
-
-  /**
-   * Delete method
-   */
-  private onDeleteIconClick = async () => {
-    const { auth, customerId, deviceId, applicationId, resource } = this.props;
-    const resourceId = resource.id;
-
-    if (!auth || !auth.token || !resourceId) {
-      return;
-    }
-
-    const resourcesApi = ApiUtils.getResourcesApi(auth.token);
-    const childResources = await resourcesApi.listResources({
-      customer_id: customerId,
-      device_id: deviceId,
-      application_id: applicationId,
-      parent_id: resourceId
-    });
-
-    /**
-     * TODO: prettier delete confirmation
-     */
-    if (window.confirm(`${strings.deleteResourceDialogDescription} ${resource.name} ${childResources && strings.andAllChildren}?`)) {
-      await resourcesApi.deleteResource({ customer_id: customerId, device_id: deviceId, application_id: applicationId, resource_id: resourceId });
-      this.props.onDelete(resourceId);
     }
   };
 
@@ -274,38 +131,7 @@ class ResourceTreeItemClass extends React.Component<Props, State> {
    * On treeItem open method
    */
   private onTreeItemClick = async () => {
-    this.props.onOpenResource(this.state.resource);
-
-    this.setState((prevState: State) => ({
-      open: !prevState.open
-    }));
-  };
-
-  /**
-   * On add new resource click method
-   */
-  private onAddNewResourceClick = () => {
-    const parentResourceId = this.props.resource && this.props.resource.id;
-
-    if (!parentResourceId) {
-      return;
-    }
-
-    this.props.onAddClick(parentResourceId, (resource: Resource) => {
-      this.onSaveNewResource(resource);
-    });
-  };
-
-  /**
-   * On save new resource click method
-   */
-  private onSaveNewResource = async (resource: Resource) => {
-    const { childResources } = this.state;
-    childResources.push(resource);
-
-    this.setState({
-      childResources: [...childResources]
-    });
+    this.props.onOpenResource(this.props.resource);
   };
 
   /**

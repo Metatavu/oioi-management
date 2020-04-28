@@ -12,16 +12,6 @@ export interface OpenResourceAction {
   };
 }
 
-/**
- * Update resource action
- */
-export interface UpdateResourcesAction {
-  type: actionTypes.UPDATE_RESOURCES;
-  payload: {
-    resources: Resource[];
-  };
-}
-
 export interface UpdatedResourceViewAction {
   type: actionTypes.UPDATED_RESOURCE_VIEW;
 }
@@ -39,26 +29,12 @@ export const openResource: ActionCreator<OpenResourceAction> = (resource: Resour
   };
 };
 
-/**
- * Update resources
- * @param resources
- */
-export const updateResources: ActionCreator<UpdateResourcesAction> = (resources: Resource[]) => {
-  return {
-    type: actionTypes.UPDATE_RESOURCES,
-    payload: {
-      resources
-    }
-  };
-};
-
 export const updatedResourceView: ActionCreator<UpdatedResourceViewAction> = () => {
   return {
     type: actionTypes.UPDATED_RESOURCE_VIEW
   };
 };
-
 /**
  * Resource actions
  */
-export type ResourceAction = OpenResourceAction | UpdateResourcesAction | UpdatedResourceViewAction;
+export type ResourceAction = OpenResourceAction | UpdatedResourceViewAction;

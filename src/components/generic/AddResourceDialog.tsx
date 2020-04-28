@@ -21,6 +21,9 @@ import { Resource, ResourceType } from "../../generated/client/src";
 import { FormValidationRules, validateForm, Form, initForm, MessageType } from "ts-form-validation";
 import { AuthState } from "../../types/index";
 import ApiUtils from "../../utils/ApiUtils";
+import { ResourceTypeObject, resolveChildResourceTypes } from "../../commons/resourceTypeHelper";
+
+import slugify from "slugify";
 
 /**
  * Component props
@@ -34,6 +37,7 @@ interface Props extends WithStyles<typeof styles> {
    * Dialog open state
    */
   open: boolean;
+
   /**
    * Parent resource id
    */
@@ -62,7 +66,7 @@ interface Props extends WithStyles<typeof styles> {
   /**
    * Save button click
    */
-  onSave(resource: Resource): void;
+  onSave(resource: Resource, copyFromId?: string): void;
   /**
    * Close handler
    */
@@ -110,7 +114,11 @@ const rules: FormValidationRules<AddResourceForm> = {
  */
 interface State {
   form: Form<AddResourceForm>;
-  resourceType: ResourceType;
+  resourceType?: ResourceType;
+  siblingResources: Resource[];
+  parentResourceType?: ResourceType;
+  addingLanguage: boolean;
+  copyContentFromId?: string;
 }
 
 /**
@@ -134,7 +142,9 @@ class AddResourceDialog extends React.Component<Props, State> {
         },
         rules
       ),
-      resourceType: ResourceType.INTRO
+      resourceType: undefined,
+      addingLanguage: false,
+      siblingResources: []
     };
   }
 
@@ -183,9 +193,11 @@ class AddResourceDialog extends React.Component<Props, State> {
 
       form = validateForm(form);
 
+      this.getResourceType();
       this.setState({
         form,
-        resourceType: ResourceType.INTRO
+        resourceType: undefined,
+        siblingResources: childResources
       });
     }
   };
@@ -196,68 +208,163 @@ class AddResourceDialog extends React.Component<Props, State> {
   public render() {
     const { classes } = this.props;
     const { isFormValid } = this.state.form;
+    const { addingLanguage } = this.state;
 
     return (
       <Dialog
-        fullScreen={false}
-        open={this.props.open}
-        onClose={this.props.handleClose}
+        fullScreen={ false }
+        open={ this.props.open }
+        onClose={ this.props.handleClose }
         aria-labelledby="dialog-title"
-        onBackdropClick={this.onAddResourceDialogBackDropClick}
+        onBackdropClick={ this.onAddResourceDialogBackDropClick }
       >
         <DialogTitle id="dialog-title">
           <div>
-            <Typography variant="h2">{strings.addNewResource}</Typography>
+            <Typography variant="h2">{ strings.addNewResource }</Typography>
           </div>
         </DialogTitle>
         <Divider />
         <DialogContent>
-          <Grid container spacing={2}>
-            <Grid item className={classes.fullWidth}>
-              {this.renderField("name", strings.name, "text")}
+          <Grid container spacing={ 2 }>
+            <Grid item className={ classes.fullWidth }>
+              { this.renderField("name", strings.name, "text") }
+            </Grid>
+            <Grid item className={ classes.fullWidth }>
+              <InputLabel htmlFor="resourceType">{ strings.resourceType }</InputLabel>
+              { this.renderSelect() }
+            </Grid>
+            {addingLanguage && (
+              <Grid item className={ classes.fullWidth }>
+                <InputLabel htmlFor="copyContentFrom"> { strings.copyContentFromLanguageLabel } </InputLabel>
+                { this.renderLanguageSelect() }
+              </Grid>
+            )}
+            <Grid item className={ classes.fullWidth }>
+              { this.renderField("order_number", strings.orderNumber, "number") }
             </Grid>
             <Grid item className={classes.fullWidth}>
-              <InputLabel htmlFor="resourceType">{strings.resourceType}</InputLabel>
-              <Select
-                fullWidth
-                variant="outlined"
-                value={this.state.resourceType}
-                inputProps={{
-                  id: "resourceType"
-                }}
-                onChange={this.onSelectChange}
-                name="type"
-              >
-                <MenuItem value={ResourceType.INTRO}>{strings.intro}</MenuItem>
-                <MenuItem value={ResourceType.LANGUAGE}>{strings.language}</MenuItem>
-                <MenuItem value={ResourceType.MENU}>{strings.menu}</MenuItem>
-                <MenuItem value={ResourceType.SLIDESHOW}>{strings.slideshow}</MenuItem>
-                <MenuItem value={ResourceType.PAGE}>{strings.page}</MenuItem>
-                <MenuItem value={ResourceType.PDF}>{strings.pdf}</MenuItem>
-                <MenuItem value={ResourceType.IMAGE}>{strings.image}</MenuItem>
-                <MenuItem value={ResourceType.TEXT}>{strings.text}</MenuItem>
-                <MenuItem value={ResourceType.VIDEO}>{strings.video}</MenuItem>
-              </Select>
-            </Grid>
-            <Grid item className={classes.fullWidth}>
-              {this.renderField("order_number", strings.orderNumber, "number")}
-            </Grid>
-            <Grid item className={classes.fullWidth}>
-              {this.renderField("slug", strings.slug, "text")}
+              { this.renderField("slug", strings.slug, "text") }
             </Grid>
           </Grid>
         </DialogContent>
         <Divider />
         <DialogActions>
-          <Button variant="outlined" onClick={this.onCloseClick} color="primary">
-            {strings.cancel}
+          <Button variant="outlined" onClick={ this.onCloseClick } color="primary">
+            { strings.cancel }
           </Button>
-          <Button variant="contained" onClick={this.onSaveNewResource} color="primary" autoFocus disabled={!isFormValid}>
-            {strings.save}
+          <Button variant="contained" onClick={ this.onSaveNewResource } color="primary" autoFocus disabled={!isFormValid}>
+            { strings.save }
           </Button>
         </DialogActions>
       </Dialog>
     );
+  }
+
+  /**
+   * Render select
+   */
+  private renderSelect = () => {
+    return <>
+      <Select
+        fullWidth
+        variant="outlined"
+        value={ this.state.resourceType }
+        inputProps={{
+          id: "resourceType"
+        }}
+        onChange={ this.onSelectChange }
+        name="type"
+      >
+        { this.state.parentResourceType && this.renderMenuItems() }
+      </Select>
+    </>;
+  }
+
+  /**
+   * Render select
+   */
+  private renderLanguageSelect = () => {
+    return <>
+      <Select
+        fullWidth
+        displayEmpty
+        variant="outlined"
+        value={ this.state.copyContentFromId }
+        inputProps={{
+          id: "copyContentFrom"
+        }}
+        onChange={ this.onCopyContentFromSelectChange }
+        name="copyContentFrom"
+      >
+        { this.renderLanguageMenuItems() }
+      </Select>
+    </>;
+  }
+
+    /**
+   * Render menu items
+   */
+  private renderLanguageMenuItems = () => {
+    const { siblingResources } = this.state;
+    const menuItems: JSX.Element[] = [];
+    const languageSiblings = siblingResources.filter(res => res.type === ResourceType.LANGUAGE);
+    menuItems.push(
+      <MenuItem value={ undefined } key="do-not-copy"> { strings.dontCopy } </MenuItem>
+    )
+    languageSiblings.forEach(language => {
+      menuItems.push(
+        <MenuItem value={ language.id } key={language.id}>{language.name}</MenuItem>
+      );
+    });
+
+    return menuItems;
+  }
+
+  /**
+   * Render menu items
+   */
+  private renderMenuItems = () => {
+    const { parentResourceType, siblingResources } = this.state;
+    const menuItems: JSX.Element[] = [];
+
+    if (parentResourceType) {
+      let foundTypes: ResourceTypeObject[] = resolveChildResourceTypes(parentResourceType);
+      const hasLanguageMenu = siblingResources.find(r => r.type == ResourceType.LANGUAGEMENU);
+      const hasIntro = siblingResources.find(r => r.type == ResourceType.INTRO);
+      if (hasLanguageMenu) {
+        foundTypes = foundTypes.filter(type => type.value !== ResourceType.LANGUAGEMENU);
+      }
+      if (hasIntro) {
+        foundTypes = foundTypes.filter(type => type.value !== ResourceType.INTRO);
+      }
+      if (foundTypes && foundTypes.length > 0) {
+        foundTypes.map(item => {
+          const menuItem = <MenuItem value={ item.value } key={ item.value }>{ item.resourceLocal }</MenuItem>;
+          return menuItems.push(menuItem);
+        });
+      }
+    }
+
+    return menuItems;
+  }
+
+  private getResourceType = async () => {
+    const { auth, customerId, deviceId, applicationId, parentResourceId } = this.props;
+
+    if (auth && auth.token && applicationId && customerId && deviceId && parentResourceId) {
+      const api = ApiUtils.getResourcesApi(auth.token);
+      const found = await api.findResource({
+        application_id: applicationId,
+        customer_id: customerId,
+        device_id: deviceId,
+        resource_id: parentResourceId
+      });
+      if (found) {
+        this.setState({
+          parentResourceType : found.type
+        });
+      }
+    }
   }
 
   /**
@@ -272,15 +379,15 @@ class AddResourceDialog extends React.Component<Props, State> {
       <TextField
         multiline
         fullWidth
-        type={type}
-        error={message && message.type === MessageType.ERROR}
-        helperText={message && message.message}
-        value={values[key] || ""}
-        onChange={this.onHandleChange(key)}
-        onBlur={this.onHandleBlur(key)}
-        name={key}
+        type={ type }
+        error={ message && message.type === MessageType.ERROR }
+        helperText={ message && message.message }
+        value={ values[key] || "" }
+        onChange={ this.onHandleChange(key) }
+        onBlur={ this.onHandleBlur(key) }
+        name={ key }
         variant="outlined"
-        label={label}
+        label={ label }
       />
     );
   };
@@ -290,6 +397,7 @@ class AddResourceDialog extends React.Component<Props, State> {
    */
   private onSaveNewResource = () => {
     const { onSave, parentResourceId } = this.props;
+    const { copyContentFromId } = this.state;
     const { form } = this.state;
 
     if (!parentResourceId) {
@@ -298,11 +406,11 @@ class AddResourceDialog extends React.Component<Props, State> {
 
     const newResource = {
       ...form.values,
-      type: this.state.resourceType || ResourceType.INTRO,
+      type: this.state.resourceType,
       parent_id: parentResourceId
     } as Resource;
 
-    onSave(newResource);
+    onSave(newResource, copyContentFromId);
 
     this.setState(
       {
@@ -314,7 +422,7 @@ class AddResourceDialog extends React.Component<Props, State> {
           },
           rules
         ),
-        resourceType: ResourceType.INTRO
+        resourceType: undefined
       },
       () => this.props.handleClose()
     );
@@ -334,7 +442,7 @@ class AddResourceDialog extends React.Component<Props, State> {
           },
           rules
         ),
-        resourceType: ResourceType.INTRO
+        resourceType: undefined
       },
       () => this.props.handleClose()
     );
@@ -353,7 +461,7 @@ class AddResourceDialog extends React.Component<Props, State> {
         },
         rules
       ),
-      resourceType: ResourceType.INTRO
+      resourceType: undefined
     });
   };
 
@@ -365,8 +473,20 @@ class AddResourceDialog extends React.Component<Props, State> {
       return;
     }
 
+    const resourceType: ResourceType = e.target.value;
     this.setState({
-      resourceType: e.target.value
+      resourceType: resourceType,
+      addingLanguage: resourceType === ResourceType.LANGUAGE,
+      copyContentFromId: undefined
+    });
+  };
+
+  /**
+   * Handles select element data change
+   */
+  private onCopyContentFromSelectChange = (e: React.ChangeEvent<{ name?: string; value: any }>) => {
+    this.setState({
+      copyContentFromId: e.target.value
     });
   };
 
@@ -407,11 +527,22 @@ class AddResourceDialog extends React.Component<Props, State> {
       [key]: true
     };
 
+    /**
+     * If name changes slugify the name value and put it to url value
+     */
+    if (key === "name" && form.values.name) {
+      const nameValue = form.values.name;
+      form.values.slug = slugify(nameValue, {
+        replacement: "",
+        remove: /[^A-Za-z0-9]+/g,
+        lower: true
+      });
+    }
+
     form = validateForm({
       ...this.state.form,
       filled
     });
-
     this.setState({
       form
     });
