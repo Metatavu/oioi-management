@@ -1,4 +1,4 @@
-const UPLOAD_PATH = "https://staging-oioi-api.metatavu.io/files"
+const UPLOAD_PATH = "https://oioi-api.metatavu.io/files"
 
 /**
  * Utility class for uploading files

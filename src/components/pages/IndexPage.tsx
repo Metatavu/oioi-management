@@ -41,7 +41,7 @@ class IndexPage extends React.Component<Props, State> {
     if (!auth) {
       //TODO: move to env variables
       const keycloak = Keycloak({
-        url: "https://staging-oioi-auth.metatavu.io/auth",
+        url: "https://oioi-auth.metatavu.io/auth",
         realm: "oioi",
         clientId: "management"
       });
