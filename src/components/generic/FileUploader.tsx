@@ -101,6 +101,7 @@ class FileUploader extends React.Component<Props, State> {
         submitButtonText={ strings.fileUpload.upload }
         filesLimit={ 1 }
         maxFileSize={ 4294967296 }
+        showPreviews={ false }
         showPreviewsInDropzone={ false }
       />
     );
