@@ -143,6 +143,10 @@ export interface IStrings extends LocalizedStringsMethods {
   iconNameIncorrectWarning: string;
   noMediaPlaceholder: string;
   foregroudImage: string;
+  inputUrlAddress: string;
+  urlAddressDialogTitle: string;
+  urlAddressDialogContent: string;
+  urlAddressDialogLabel: string;
 }
 
 const strings: IStrings = new LocalizedStrings({

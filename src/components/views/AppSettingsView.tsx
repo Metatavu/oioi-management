@@ -341,8 +341,10 @@ class AppSettingsView extends React.Component<Props, State> {
     previewItem = this.state.resourceMap.get(key) || "";
     return (
       <ImagePreview
+        allowSetUrl={ true }
         imagePath={ previewItem }
         onSave={ this.onPropertyFileChange }
+        onSetUrl={ this.onPropertyFileUrlSet }
         resource={ this.props.rootResource }
         uploadKey={ key }
         onDelete={ this.onPropertyFileDelete }
@@ -366,6 +368,8 @@ class AppSettingsView extends React.Component<Props, State> {
           <ImagePreview
             key={ key }
             imagePath={ value }
+            allowSetUrl={ false }
+            onSetUrl={ () => {} }
             onSave={ this.onIconFileChange }
             resource={ this.props.rootResource }
             uploadKey={ key }
@@ -540,6 +544,20 @@ class AppSettingsView extends React.Component<Props, State> {
     const newUri = await this.upload(files, customerId);
     const tempMap = this.state.resourceMap;
     tempMap.set(key, newUri);
+    this.setState({
+      resourceMap: tempMap,
+      dataChanged: true
+    });
+
+    this.onUpdateResource();
+  };
+
+  /**
+   * Handles image change
+   */
+  private onPropertyFileUrlSet = async (url: string, key: string) => {
+    const tempMap = this.state.resourceMap;
+    tempMap.set(key, url);
     this.setState({
       resourceMap: tempMap,
       dataChanged: true

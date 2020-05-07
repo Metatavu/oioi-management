@@ -19,12 +19,20 @@ interface Props extends WithStyles<typeof styles> {
   resource: Resource;
   uploadKey: string;
 
+  allowSetUrl: boolean;
   /**
    * Save given files to parent component with key
    * @param files files to save
    * @param key property key
    */
   onSave(files: File[], key?: string): void;
+
+  /**
+   * Save set url
+   * @param url url to set
+   * @param key property key
+   */
+  onSetUrl(url: string, key?: string): void;
 
   /**
    * Delete given property from parent component
@@ -60,7 +68,7 @@ class ImagePreview extends React.Component<Props, State> {
    * Component render method
    */
   public render() {
-    const { imagePath, resource, onSave, uploadKey, classes } = this.props;
+    const { imagePath, resource, onSave, uploadKey, classes, onSetUrl, allowSetUrl } = this.props;
     const allowedFileTypes = getAllowedFileTypes(resource.type);
     const video = resource.type === ResourceType.VIDEO;
     let previewContent = <div className={ classes.noMediaContainer }><h2> { strings.noMediaPlaceholder } </h2></div>;
@@ -89,9 +97,11 @@ class ImagePreview extends React.Component<Props, State> {
           }
         </div>
         <FileUploader
+          allowSetUrl={ allowSetUrl }
           resource={ resource }
           allowedFileTypes={ allowedFileTypes }
           onSave={ onSave }
+          onSetUrl={ onSetUrl }
           uploadKey={ uploadKey }
         />
 
