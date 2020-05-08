@@ -141,5 +141,9 @@
   "orderFromLeftToRight": "Order from left to right",
   "iconNameIncorrectWarning": "Icon name should begin with \"icon_\"",
   "noMediaPlaceholder": "No media",
-  "foregroudImage": "Foreground image"
+  "foregroudImage": "Foreground image",
+  "inputUrlAddress": "Input URL",
+  "urlAddressDialogTitle": "Input resource url",
+  "urlAddressDialogContent": "Input direct URL address to resource.",
+  "urlAddressDialogLabel": "URL Address"
 }

@@ -427,7 +427,9 @@ class ResourceSettingsView extends React.Component<Props, State> {
       return <>
         <ImagePreview
           imagePath={ fileData }
+          allowSetUrl={ true }
           onSave={ this.onFileChange }
+          onSetUrl={ this.onSetFileUrl }
           resource={ resource }
           uploadKey={ "data" }
           onDelete={ this.onImageFileDelete }
@@ -476,6 +478,20 @@ class ResourceSettingsView extends React.Component<Props, State> {
     } else {
       resourceData["data"] = undefined;
     }
+    this.setState({
+      resourceData: resourceData
+    });
+
+    this.onUpdateResource();
+  };
+
+  /**
+   * Handles file change
+   * @param url url to set
+   */
+  private onSetFileUrl = async (url: string) => {
+    const { resourceData } = this.state;
+    resourceData["data"] = url;
     this.setState({
       resourceData: resourceData
     });

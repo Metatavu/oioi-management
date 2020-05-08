@@ -528,8 +528,10 @@ class PageResourceSettingsView extends React.Component<Props, State> {
       <ImagePreview
         imagePath={ previewItem }
         resource={ resource }
+        allowSetUrl={ true }
         onDelete={ this.onChildResourceFileDelete }
         onSave={ this.onChildResourceFileChange }
+        onSetUrl={ this.onChildResourceSetFileUrl }
         uploadKey={ resource.id }
       />
     );
@@ -688,6 +690,29 @@ class PageResourceSettingsView extends React.Component<Props, State> {
 
     const response = await FileUpload.uploadFile(file, customerId);
     const updatedChildResource: Resource = { ...childResources[resourceIndex], data: response.uri };
+    this.updateChildResource(updatedChildResource);
+
+    return 200;
+  };
+
+   /**
+   * Handles child resource file change
+   * 
+   * @param url url
+   * @param key resource id
+   */
+  private onChildResourceSetFileUrl = async (url: string, resourceId: string) => {
+    const { childResources } = this.state;
+    if (!childResources) {
+      return 500;
+    }
+
+    const resourceIndex: number = childResources.findIndex(resource => resource.id === resourceId);
+    if (resourceIndex === -1) {
+      return 500;
+    }
+
+    const updatedChildResource: Resource = { ...childResources[resourceIndex], data: url };
     this.updateChildResource(updatedChildResource);
 
     return 200;
