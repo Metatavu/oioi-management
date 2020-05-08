@@ -171,7 +171,7 @@ class FileUploader extends React.Component<Props, State> {
             autoFocus
             label={ strings.urlAddressDialogLabel }
             type="url"
-            onChange={this.handleResourceUrlChange}
+            onChange={ this.handleResourceUrlChange }
             value={this.state.resourceUrl || ""}
             fullWidth
           />
