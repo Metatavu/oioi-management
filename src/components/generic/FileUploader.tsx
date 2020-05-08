@@ -141,7 +141,7 @@ class FileUploader extends React.Component<Props, State> {
     return (
       <Menu
         keepMounted
-        open={this.state.contextMenuOpen}
+        open={ this.state.contextMenuOpen }
         onClose={this.handleContextMenuClose}
         anchorReference="anchorPosition"
         anchorPosition={
