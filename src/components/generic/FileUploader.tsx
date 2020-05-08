@@ -177,7 +177,7 @@ class FileUploader extends React.Component<Props, State> {
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => this.closeUrlDialog()} color="primary">
+          <Button onClick={ () => this.closeUrlDialog() } color="primary">
             { strings.cancel }
           </Button>
           <Button onClick={() => this.handleSetUrl()} color="primary">
