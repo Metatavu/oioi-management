@@ -101,7 +101,7 @@ class FileUploader extends React.Component<Props, State> {
         </Button>
         { this.renderUploadDialog() }
         <VisibleWithRole role="admin">
-          {this.props.allowSetUrl &&
+          { this.props.allowSetUrl &&
           <>
             { this.renderContextMenu(localizedUploadText) }
             { this.renderUrlDialog() }
