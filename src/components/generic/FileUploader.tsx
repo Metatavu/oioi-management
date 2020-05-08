@@ -161,7 +161,7 @@ class FileUploader extends React.Component<Props, State> {
    */
   private renderUrlDialog = () => {
     return (
-      <Dialog open={this.state.urlDialogOpen} onClose={() => this.closeUrlDialog()} aria-labelledby="url-dialog-title">
+      <Dialog open={ this.state.urlDialogOpen } onClose={ () => this.closeUrlDialog() } aria-labelledby="url-dialog-title">
         <DialogTitle id="url-dialog-title"> {strings.urlAddressDialogTitle} </DialogTitle>
         <DialogContent>
           <DialogContentText>
