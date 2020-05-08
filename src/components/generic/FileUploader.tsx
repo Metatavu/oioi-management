@@ -172,7 +172,7 @@ class FileUploader extends React.Component<Props, State> {
             label={ strings.urlAddressDialogLabel }
             type="url"
             onChange={ this.handleResourceUrlChange }
-            value={this.state.resourceUrl || ""}
+            value={ this.state.resourceUrl || "" }
             fullWidth
           />
         </DialogContent>
