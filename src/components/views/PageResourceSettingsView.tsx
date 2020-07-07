@@ -584,7 +584,7 @@ class PageResourceSettingsView extends React.Component<Props, State> {
   /**
    * Handles save changes to resource and child resources
    */
-  private onSaveChanges = () => {
+  private onSaveChanges = async () => {
     const { onSave, onSaveChildren } = this.props;
     const { resourceData, childResources, form } = this.state;
 
@@ -600,7 +600,7 @@ class PageResourceSettingsView extends React.Component<Props, State> {
       properties: resourceData["properties"]
     } as Resource;
 
-    onSave(resource);
+    await onSave(resource);
     childResources && onSaveChildren(childResources);
 
     this.setState({
