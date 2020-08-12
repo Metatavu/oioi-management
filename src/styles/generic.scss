@@ -19,8 +19,39 @@ body {
 }
 
 .page-content {
+  overflow: hidden;
+  max-height: 100%;
+  height: 100%;
+  padding-bottom: 50px;
   padding-top: 50px;
   @media screen and (max-width: 600px) {
     padding-top: 25px;
   }
 }
+
+.card-list {
+  overflow-y: auto;
+  max-height: calc(100% - 50px);
+  margin-bottom: 0;
+}
+
+ /* width */
+ ::-webkit-scrollbar {
+  width: 10px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: rgba(0,0,0,0);
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 10px;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+} 
