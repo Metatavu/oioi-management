@@ -108,7 +108,7 @@ class DevicesList extends React.Component<Props, State> {
         <Typography className={classes.heading} variant="h2">
           {customer ? customer.name : strings.loading} / {strings.devices}
         </Typography>
-        <Grid container spacing={5} direction="row">
+        <Grid container spacing={5} direction="row" className="card-list">
           {cards}
           {this.renderAdd()}
         </Grid>
