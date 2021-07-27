@@ -140,5 +140,9 @@
   "orderFromLeftToRight": "Järjestys vasemmalta oikealle",
   "iconNameIncorrectWarning": "Ikonin nimen tulisi alkaa \"icon_\"",
   "noMediaPlaceholder": "Ei mediaa",
-  "foregroudImage": "Foreground kuva"
+  "foregroudImage": "Foreground kuva",
+  "inputUrlAddress": "Syötä URL",
+  "urlAddressDialogTitle": "Syötä resurssin URL-osoite",
+  "urlAddressDialogContent": "Syötä suora URL-osoite resurssiin.",
+  "urlAddressDialogLabel": "URL-osoite"
 }

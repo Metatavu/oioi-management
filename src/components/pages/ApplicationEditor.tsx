@@ -827,27 +827,13 @@ class ApplicationEditor extends React.Component<Props, State> {
     });
     this.setState({ treeData: this.treeDataAdd(this.treeItemFromResource(title), this.state.treeData || []) });
 
-    const ingress = await resourcesApi.createResource({
-      application_id: applicationId,
-      customer_id: customerId,
-      device_id: deviceId,
-      resource: {
-        name: "Ingressi",
-        slug: "nameText",
-        type: ResourceType.TEXT,
-        order_number: 2,
-        parent_id: pageId
-      }
-    });
-    this.setState({ treeData: this.treeDataAdd(this.treeItemFromResource(ingress), this.state.treeData || []) });
-
     const content = await resourcesApi.createResource({
       application_id: applicationId,
       customer_id: customerId,
       device_id: deviceId,
       resource: {
-        name: "Kuvaus",
-        slug: "content",
+        name: "Leipäteksti",
+        slug: "text_content",
         type: ResourceType.TEXT,
         order_number: 3,
         parent_id: pageId

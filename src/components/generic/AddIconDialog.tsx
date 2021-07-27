@@ -121,9 +121,11 @@ class AddIconDialog extends React.Component<Props, State> {
             </Grid>
             <Grid item className={ classes.fullWidth }>
               <FileUploader
+                allowSetUrl={false}
                 resource={ this.props.resource }
                 allowedFileTypes={ [] }
                 onSave={ this.onPropertyFileChange }
+                onSetUrl={() => {}}
                 uploadKey={ this.state.customInput ? "icon_" : ""}
               />
             </Grid>

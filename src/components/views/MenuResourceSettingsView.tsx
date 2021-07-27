@@ -683,7 +683,9 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
         <Typography variant="h4" style={{ marginBottom: theme.spacing(1) }}>{ title }</Typography>
         <ImagePreview
           imagePath={ previewItem }
+          allowSetUrl={ true }
           onSave={ this.onPropertyFileChange }
+          onSetUrl={ this.onPropertyFileSetUrl }
           resource={ resource }
           uploadKey={ uploadKey }
           onDelete={ this.onPropertyFileDelete }
@@ -713,7 +715,9 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
           <ImagePreview
             key={ key }
             imagePath={ value }
+            allowSetUrl={ false }
             onSave={ this.onIconFileChange }
+            onSetUrl={ () => {} }
             resource={ this.props.resource }
             uploadKey={ key }
             onDelete={ this.onIconFileDelete }
@@ -778,6 +782,19 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
     const newUri = await this.upload(files, customerId);
     const tempMap = this.state.resourceMap;
     tempMap.set(key, newUri);
+    this.setState({
+      resourceMap: tempMap,
+      dataChanged: true
+    });
+    this.onUpdateResource();
+  };
+
+  /**
+   * Handles image change
+   */
+  private onPropertyFileSetUrl = async (url: string, key: string) => {
+    const tempMap = this.state.resourceMap;
+    tempMap.set(key, url);
     this.setState({
       resourceMap: tempMap,
       dataChanged: true
