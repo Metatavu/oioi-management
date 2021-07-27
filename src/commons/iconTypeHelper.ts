@@ -39,13 +39,13 @@ export const getLocalizedIconTypeString = (type: IconKeys): string => ({
  */
 export const getDefaultIconURL = (type: IconKeys): string => ({
   [IconKeys.ICONHOME] : "https://oioi-static.metatavu.io/default_icon_home.png",
-  [IconKeys.ICONHOMEACTIVE]: "https://oioi-static.metatavu.io/default_icon_home.png",
+  [IconKeys.ICONHOMEACTIVE]: "https://oioi-static.metatavu.io/default_icon_home_active.png",
   [IconKeys.ICONBACK] : "https://oioi-static.metatavu.io/default_icon_back.png",
-  [IconKeys.ICONBACKACTIVE] : "https://oioi-static.metatavu.io/default_icon_back.png",
+  [IconKeys.ICONBACKACTIVE] : "https://oioi-static.metatavu.io/default_icon_back_active.png",
   [IconKeys.ICONFORWARD]: "https://oioi-static.metatavu.io/default_icon_forward.png",
-  [IconKeys.ICONFORWARDACTIVE] : "https://oioi-static.metatavu.io/default_icon_forward.png",
+  [IconKeys.ICONFORWARDACTIVE] : "https://oioi-static.metatavu.io/default_icon_forward_active.png",
   [IconKeys.ICONCLOSE]: "https://oioi-static.metatavu.io/default_icon_close.png",
-  [IconKeys.ICONCLOSEACTIVE]: "https://oioi-static.metatavu.io/default_icon_close.png",
+  [IconKeys.ICONCLOSEACTIVE]: "https://oioi-static.metatavu.io/default_icon_close_active.png",
   [IconKeys.ICONEXITAPP] : "https://oioi-static.metatavu.io/default_icon_close_app.png",
-  [IconKeys.ICONEXITAPPACTIVE]: "https://oioi-static.metatavu.io/default_icon_close_app.png",
+  [IconKeys.ICONEXITAPPACTIVE]: "https://oioi-static.metatavu.io/default_icon_close_app_active.png",
 })[type];
