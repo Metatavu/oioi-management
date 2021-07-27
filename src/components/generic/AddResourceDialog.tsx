@@ -329,8 +329,8 @@ class AddResourceDialog extends React.Component<Props, State> {
 
     if (parentResourceType) {
       let foundTypes: ResourceTypeObject[] = resolveChildResourceTypes(parentResourceType);
-      const hasLanguageMenu = siblingResources.find(r => r.type == ResourceType.LANGUAGEMENU);
-      const hasIntro = siblingResources.find(r => r.type == ResourceType.INTRO);
+      const hasLanguageMenu = siblingResources.find(r => r.type === ResourceType.LANGUAGEMENU);
+      const hasIntro = siblingResources.find(r => r.type === ResourceType.INTRO);
       if (hasLanguageMenu) {
         foundTypes = foundTypes.filter(type => type.value !== ResourceType.LANGUAGEMENU);
       }

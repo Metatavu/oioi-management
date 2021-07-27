@@ -21,6 +21,11 @@
     "whitespace": [true, "check-branch", "check-operator", "check-typecast", "check-preblock", "check-postbrace"]
   },
   "linterOptions": {
-    "exclude": ["config/**/*.js", "node_modules/**/*.ts", "coverage/lcov-report/*.js"]
+    "exclude": [
+      "config/**/*.js",
+      "node_modules/**/*.ts",
+      "coverage/lcov-report/*.js",
+      "src/generated/client/*"
+    ]
   }
 }

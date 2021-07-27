@@ -131,7 +131,7 @@ class FileUploader extends React.Component<Props, State> {
   private handleSave = async (files: File[]) => {
     this.setState({ uploading: true })
     this.closeDialog();
-    await this.props.onSave(files, this.props.uploadKey);
+    this.props.onSave(files, this.props.uploadKey);
     this.setState({ uploading: false });
   }
 }

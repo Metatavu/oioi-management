@@ -6,8 +6,14 @@ import { Device } from "../../generated/client/src/models/Device";
 import strings from "../../localization/strings";
 import styles from "../../styles/dialog";
 
+/**
+ * Union type for all items that can be deleted
+ */
 type DeleteItem = Device | Application | Customer | undefined;
 
+/**
+ * Component properties
+ */
 interface Props extends WithStyles<typeof styles> {
   open: boolean;
   title: string;
@@ -16,54 +22,65 @@ interface Props extends WithStyles<typeof styles> {
   handleClose(): void;
 }
 
-interface State {}
+/**
+ * Delete dialog component
+ *
+ * @param props component properties
+ */
+const DeleteDialog: React.FC<Props> = ({
+  deleteClick,
+  handleClose,
+  itemToDelete,
+  open,
+  title
+}) => {
 
-class DeleteDialog extends React.Component<Props, State> {
   /**
-   * Constructor
-   * @param props component properties
+   * Component render
    */
-  constructor(props: Props) {
-    super(props);
-  }
-
-  /**
-   * Component render method
-   */
-  public render() {
-    return (
-      <Dialog fullScreen={false} open={this.props.open} onClose={this.props.handleClose} aria-labelledby="dialog-title">
-        <DialogTitle>
-          <div>
-            <Typography variant="h2">{this.props.title}</Typography>
-          </div>
-        </DialogTitle>
-        <Divider />
-        <DialogContent>
-          <Grid container spacing={2} justify="center">
-            <Grid item>
-              <Button variant="outlined" onClick={this.props.handleClose} color="primary">
-                {strings.cancel}
-              </Button>
-            </Grid>
-            <Grid item>
-              <Button variant="contained" onClick={this.onDelete} color="primary" autoFocus>
-                {strings.confirm}
-              </Button>
-            </Grid>
+  return (
+    <Dialog
+      fullScreen={ false }
+      open={ open }
+      onClose={ handleClose }
+    >
+      <DialogTitle>
+        <div>
+          <Typography variant="h2">
+            { title }
+          </Typography>
+        </div>
+      </DialogTitle>
+      <Divider />
+      <DialogContent>
+        <Grid
+          container
+          spacing={ 2 }
+          justify="center"
+        >
+          <Grid item>
+            <Button
+              variant="outlined"
+              onClick={ handleClose }
+              color="primary"
+            >
+              { strings.cancel }
+            </Button>
           </Grid>
-        </DialogContent>
-      </Dialog>
-    );
-  }
-
-  /**
-   * Handles delete button click
-   */
-  private onDelete = () => {
-    const { deleteClick, itemToDelete } = this.props;
-    deleteClick(itemToDelete);
-  };
+          <Grid item>
+            <Button
+              variant="contained"
+              color="primary"
+              autoFocus
+              onClick={ () => deleteClick(itemToDelete) }
+            >
+              { strings.confirm }
+            </Button>
+          </Grid>
+        </Grid>
+      </DialogContent>
+    </Dialog>
+  );
 }
 
 export default withStyles(styles)(DeleteDialog);

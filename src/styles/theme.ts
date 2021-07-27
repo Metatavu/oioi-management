@@ -1,5 +1,5 @@
 import { createMuiTheme, responsiveFontSizes } from "@material-ui/core";
-import { blueGrey, grey, red } from "@material-ui/core/colors";
+import { blueGrey, grey } from "@material-ui/core/colors";
 
 let theme = createMuiTheme();
 theme = responsiveFontSizes(theme);

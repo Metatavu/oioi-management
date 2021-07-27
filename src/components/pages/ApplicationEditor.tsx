@@ -797,7 +797,7 @@ class ApplicationEditor extends React.Component<Props, State> {
       treeData: this.treeDataAdd(this.treeItemFromResource(newResource), this.state.treeData || [])
     });
 
-    if (newResource.type == ResourceType.PAGE) {
+    if (newResource.type === ResourceType.PAGE) {
       await this.createPagePredefinedResources(newResource.id!);
     }
 

@@ -402,20 +402,14 @@ class AppSettingsView extends React.Component<Props, State> {
     const props = rootResource.properties;
 
     const iconKeys = Object.values(IconKeys);
-    iconKeys.map(iconKey => {
-      if (!initIconsMap.has(iconKey)) {
-        initIconsMap.set(iconKey, getDefaultIconURL(iconKey));
-      }
-    });
+    iconKeys.forEach(iconKey => !initIconsMap.has(iconKey) && initIconsMap.set(iconKey, getDefaultIconURL(iconKey)));
 
     if (props) {
-      props.map(p => {
-        if (p.key.startsWith("icon_") || initIconsMap.has(p.key)) {
-          initIconsMap.set(p.key, p.value);
-        } else {
-          initResourceMap.set(p.key, p.value);
-        }
-      });
+      props.forEach(({ key, value }) =>
+        key.startsWith("icon_") || initIconsMap.has(key) ?
+          initIconsMap.set(key, value) :
+          initResourceMap.set(key, value)
+      );
     }
 
     this.setState({
