@@ -1,4 +1,4 @@
-import { 
+import {
   Configuration,
   CustomersApi,
   DevicesApi,
@@ -9,7 +9,7 @@ import {
 import Noty from "noty";
 import strings from "../localization/strings";
 
-const API_BASE_PATH = "https://oioi-api.metatavu.io/v1"
+const API_BASE_PATH = process.env.REACT_APP_API_BASE_URL || "https://staging-oioi-api.metatavu.io/v1";
 
 /**
  * Utility class for loading api with predefined configuration
@@ -18,7 +18,7 @@ export default class ApiUtils {
 
   /**
    * Gets initialized customers api
-   * 
+   *
    * @param token access token
    */
   public static getCustomersApi(token: string) {
@@ -27,7 +27,7 @@ export default class ApiUtils {
 
   /**
    * Gets initialized applications api
-   * 
+   *
    * @param token access token
    */
   public static getApplicationsApi(token: string) {
@@ -36,7 +36,7 @@ export default class ApiUtils {
 
   /**
    * Gets initialized devices api
-   * 
+   *
    * @param token access token
    */
   public static getDevicesApi(token: string) {
@@ -45,7 +45,7 @@ export default class ApiUtils {
 
   /**
    * Gets initialized devices api
-   * 
+   *
    * @param token access token
    */
   public static getResourcesApi(token: string) {
@@ -54,8 +54,8 @@ export default class ApiUtils {
 
   /**
    * Gets api configuration
-   * 
-   * @param token acess token
+   *
+   * @param token access token
    */
   private static getConfiguration(token: string) {
     return new Configuration({
