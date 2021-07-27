@@ -34,7 +34,7 @@ export const getLocalizedIconTypeString = (type: IconKeys): string => ({
 })[type];
 
 /**
- * Get localized string for each icon key
+ * Get default icon url for each icon key
  * @param type icon key
  */
 export const getDefaultIconURL = (type: IconKeys): string => ({
