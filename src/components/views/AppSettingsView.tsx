@@ -203,9 +203,16 @@ class AppSettingsView extends React.Component<Props, State> {
       }
       const data = JSON.parse(e.target.result as string)
       const topLevel = data.root.children;
+
       this.setState({ importingContent: true });
+
       const imported = await this.importWallJsonItems(rootResource.id!, topLevel);
+      if (imported) {
+        await this.importRootProperties(data);
+      }
+
       this.setState({ importDone: imported });
+
       setTimeout(() => window.location.reload(), 3000);
     }
     reader.readAsText(file);
@@ -235,6 +242,41 @@ class AppSettingsView extends React.Component<Props, State> {
     }
 
     return true;
+  }
+
+  /**
+   * Imports root properties from the wall JSON data
+   * 
+   * @param data wall JSON data
+   */
+  private importRootProperties = async (data: any) => {
+    const { auth, application, customerId, deviceId, rootResource } = this.props;
+    if (!auth || !auth.token) {
+      return false;
+    }
+
+    const resourcesApi = ApiUtils.getResourcesApi(auth.token);
+    const importProperties: { [ key: string]: string } = data.root.properties || {};
+    const importPropertyKeys = Object.keys(importProperties);
+
+    const rootProperties = (rootResource.properties || [])
+      .filter((rootProperty: KeyValueProperty) => !importPropertyKeys.includes(rootProperty.key));
+
+    importPropertyKeys.forEach(importPropertyKey => {
+      const importPropertyValue = importProperties[importPropertyKey];
+      importPropertyValue && rootProperties.push({
+        key: importPropertyKey,
+        value: importPropertyValue
+      });
+    });
+
+    await resourcesApi.updateResource({
+      resource: { ...rootResource, properties: rootProperties },
+      application_id: application.id!,
+      customer_id: customerId,
+      device_id: deviceId,
+      resource_id: rootResource.id!
+    });    
   }
 
   /**
