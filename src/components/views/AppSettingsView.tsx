@@ -260,9 +260,7 @@ class AppSettingsView extends React.Component<Props, State> {
     const importPropertyKeys = Object.keys(importProperties);
 
     const rootProperties = (rootResource.properties || [])
-      .filter((rootProperty: KeyValueProperty) => {
-        return !importPropertyKeys.includes(rootProperty.key);
-      });
+      .filter((rootProperty: KeyValueProperty) => !importPropertyKeys.includes(rootProperty.key));
 
     importPropertyKeys.forEach(importPropertyKey => {
       const importPropertyValue = importProperties[importPropertyKey];
