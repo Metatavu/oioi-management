@@ -89,7 +89,7 @@
     "changePDF": "Vaihda PDF-tiedosto",
     "upload": "Lähetä",
     "cancel": "Peruuta",
-    "dropFileHere": "Pudota tiedosto tähän tai valitse klikkaamalla. Tiedoston maksimikoko on 300mt.",
+    "dropFileHere": "Pudota tiedosto tähän tai valitse klikkaamalla. Tiedoston maksimikoko on 300 Mt.",
     "uploadFile": "Lisää tiedosto"
   },
   "resourceTypes": {
