@@ -408,7 +408,7 @@ class AppSettingsView extends React.Component<Props, State> {
         <div key={ key }>
           <Typography variant="h5">{ iconTypeKey ? getLocalizedIconTypeString(iconTypeKey) : key }</Typography>
           <ImagePreview
-            uploadButtonText={ !!rootResource ? strings.fileUpload.changeImage : strings.fileUpload.addImage }
+            uploadButtonText={ rootResource ? strings.fileUpload.changeImage : strings.fileUpload.addImage }
             key={ key }
             imagePath={ value }
             allowSetUrl={ false }
