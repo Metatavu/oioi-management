@@ -2,9 +2,7 @@ import * as React from "react";
 import { withStyles, WithStyles, Button, CircularProgress, Menu, MenuItem, Dialog, DialogTitle, DialogContent, DialogContentText, TextField, DialogActions } from "@material-ui/core";
 import styles from "../../styles/dialog";
 import { DropzoneDialog } from "material-ui-dropzone";
-import { Resource } from "../../generated/client/src";
 import strings from "../../localization/strings";
-import { resolveUploadLocalizationString } from "../../commons/resourceTypeHelper";
 import { ChangeEvent } from "react";
 import VisibleWithRole from "./VisibleWithRole";
 
