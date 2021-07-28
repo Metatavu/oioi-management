@@ -682,7 +682,7 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
     return <>
         <Typography variant="h4" style={{ marginBottom: theme.spacing(1) }}>{ title }</Typography>
         <ImagePreview
-          uploadButtonText={ !!previewItem ? strings.fileUpload.changeMedia : strings.fileUpload.addMedia }
+          uploadButtonText={ previewItem ? strings.fileUpload.changeMedia : strings.fileUpload.addMedia }
           imagePath={ previewItem }
           allowSetUrl={ true }
           onSave={ this.onPropertyFileChange }
