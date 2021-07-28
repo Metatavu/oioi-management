@@ -163,7 +163,6 @@ class AppSettingsView extends React.Component<Props, State> {
         <div className={ classes.gridRow }>
           { this.renderIconList() }
         </div>
-
         <AddIconDialog
           resource={ this.props.rootResource }
           onSave={ this.onIconFileChange }
@@ -341,6 +340,7 @@ class AppSettingsView extends React.Component<Props, State> {
     previewItem = this.state.resourceMap.get(key) || "";
     return (
       <ImagePreview
+        uploadButtonText={ !!previewItem ? strings.fileUpload.changeImage : strings.fileUpload.addImage }
         allowSetUrl={ true }
         imagePath={ previewItem }
         onSave={ this.onPropertyFileChange }
@@ -357,7 +357,7 @@ class AppSettingsView extends React.Component<Props, State> {
    */
   private renderIconList = () => {
     const { iconsMap } = this.state;
-    const { classes } = this.props;
+    const { classes, rootResource } = this.props;
     const icons: JSX.Element[] = [];
     const allKeys = Object.values(IconKeys);
     iconsMap.forEach((value: string, key: string) => {
@@ -366,12 +366,13 @@ class AppSettingsView extends React.Component<Props, State> {
         <div key={ key }>
           <Typography variant="h5">{ iconTypeKey ? getLocalizedIconTypeString(iconTypeKey) : key }</Typography>
           <ImagePreview
+            uploadButtonText={ !!rootResource ? strings.fileUpload.changeImage : strings.fileUpload.addImage }
             key={ key }
             imagePath={ value }
             allowSetUrl={ false }
             onSetUrl={ () => {} }
             onSave={ this.onIconFileChange }
-            resource={ this.props.rootResource }
+            resource={ rootResource }
             uploadKey={ key }
             onDelete={ this.onIconFileDelete }
           />

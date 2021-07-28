@@ -91,6 +91,8 @@ export interface IStrings extends LocalizedStringsMethods {
     changePDF: string;
     upload: string;
     cancel: string;
+    dropFileHere: string;
+    uploadFile: string;
   };
   resourceTypes: {
     root: string;

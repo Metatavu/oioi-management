@@ -13,10 +13,9 @@ import VisibleWithRole from "./VisibleWithRole";
  */
 interface Props extends WithStyles<typeof styles> {
   uploadKey?: string;
-  resource: Resource;
   allowedFileTypes: string[];
   allowSetUrl: boolean,
-
+  uploadButtonText: string;
   /**
    * Save files to resource
    * @param files files
@@ -77,11 +76,8 @@ class FileUploader extends React.Component<Props, State> {
    * Component render method
    */
   public render() {
-    const { resource, classes } = this.props;
-    const localStrings = resolveUploadLocalizationString(resource.type);
-    if (!localStrings.fileUploadLocal) {
-      localStrings.fileUploadLocal = [strings.fileUpload.addFile, strings.fileUpload.changeFile];
-    }
+    const { classes, uploadButtonText } = this.props;
+
     if (this.state.uploading) {
       return (
         <div className={ classes.imageUploadLoaderContainer }>
@@ -90,20 +86,24 @@ class FileUploader extends React.Component<Props, State> {
       );
     }
 
-    const localizedUploadText = !resource.data ? localStrings.fileUploadLocal[0] : localStrings.fileUploadLocal[1];
     /**
      * TODO: Add custom icons to resolveLocalizationString
      */
     return (
       <>
-        <Button onContextMenu={this.handleContextMenu} variant="outlined" color="secondary" onClick={ () => this.openDialog() }>
-          { localizedUploadText }
+        <Button
+          onContextMenu={ this.handleContextMenu }
+          variant="outlined"
+          color="secondary"
+          onClick={ () => this.openDialog() }
+        >
+          { uploadButtonText }
         </Button>
         { this.renderUploadDialog() }
         <VisibleWithRole role="admin">
           { this.props.allowSetUrl &&
           <>
-            { this.renderContextMenu(localizedUploadText) }
+            { this.renderContextMenu() }
             { this.renderUrlDialog() }
           </>
           }
@@ -116,15 +116,16 @@ class FileUploader extends React.Component<Props, State> {
    * Render upload dialog
    */
   private renderUploadDialog = () => {
-    const { allowedFileTypes, resource } = this.props;
+    const { allowedFileTypes } = this.props;
 
     return (
       <DropzoneDialog
-        key={ resource.id }
         acceptedFiles={ allowedFileTypes }
         open={ this.state.dialogOpen }
         onClose={ this.closeDialog }
         onSave={ this.handleSave }
+        dialogTitle={ strings.fileUpload.uploadFile }
+        dropzoneText={ strings.fileUpload.dropFileHere }
         cancelButtonText={ strings.fileUpload.cancel }
         submitButtonText={ strings.fileUpload.upload }
         filesLimit={ 1 }
@@ -137,7 +138,9 @@ class FileUploader extends React.Component<Props, State> {
   /**
    * Renders context menu
    */
-  private renderContextMenu = (localizedUploadText: string) => {
+  private renderContextMenu = () => {
+    const { uploadButtonText } = this.props;
+
     return (
       <Menu
         keepMounted
@@ -150,7 +153,7 @@ class FileUploader extends React.Component<Props, State> {
             : undefined
         }
       >
-        <MenuItem onClick={() => this.openDialog() }>{ localizedUploadText }</MenuItem>
+        <MenuItem onClick={() => this.openDialog() }>{ uploadButtonText }</MenuItem>
         <MenuItem onClick={() => this.openUrlDialog() }> { strings.inputUrlAddress } </MenuItem>
       </Menu>
     );
@@ -161,8 +164,14 @@ class FileUploader extends React.Component<Props, State> {
    */
   private renderUrlDialog = () => {
     return (
-      <Dialog open={ this.state.urlDialogOpen } onClose={ () => this.closeUrlDialog() } aria-labelledby="url-dialog-title">
-        <DialogTitle id="url-dialog-title"> {strings.urlAddressDialogTitle} </DialogTitle>
+      <Dialog
+        open={ this.state.urlDialogOpen }
+        onClose={ () => this.closeUrlDialog() }
+        aria-labelledby="url-dialog-title"
+      >
+        <DialogTitle id="url-dialog-title">
+          { strings.urlAddressDialogTitle }
+        </DialogTitle>
         <DialogContent>
           <DialogContentText>
             { strings.urlAddressDialogContent }

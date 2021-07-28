@@ -18,7 +18,7 @@ interface Props extends WithStyles<typeof styles> {
   imagePath: string;
   resource: Resource;
   uploadKey: string;
-
+  uploadButtonText: string;
   allowSetUrl: boolean;
   /**
    * Save given files to parent component with key
@@ -68,7 +68,7 @@ class ImagePreview extends React.Component<Props, State> {
    * Component render method
    */
   public render() {
-    const { imagePath, resource, onSave, uploadKey, classes, onSetUrl, allowSetUrl } = this.props;
+    const { imagePath, resource, onSave, uploadKey, classes, onSetUrl, allowSetUrl, uploadButtonText } = this.props;
     const allowedFileTypes = getAllowedFileTypes(resource.type);
     const video = resource.type === ResourceType.VIDEO;
     let previewContent = <div className={ classes.noMediaContainer }><h2> { strings.noMediaPlaceholder } </h2></div>;
@@ -97,8 +97,8 @@ class ImagePreview extends React.Component<Props, State> {
           }
         </div>
         <FileUploader
+          uploadButtonText={ uploadButtonText }
           allowSetUrl={ allowSetUrl }
-          resource={ resource }
           allowedFileTypes={ allowedFileTypes }
           onSave={ onSave }
           onSetUrl={ onSetUrl }

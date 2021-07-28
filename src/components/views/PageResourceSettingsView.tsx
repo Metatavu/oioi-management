@@ -524,8 +524,10 @@ class PageResourceSettingsView extends React.Component<Props, State> {
     }
 
     const previewItem = resource.data || "";
+    
     return (
       <ImagePreview
+        uploadButtonText={ !!previewItem ? strings.fileUpload.changeFile : strings.fileUpload.addFile }
         imagePath={ previewItem }
         resource={ resource }
         allowSetUrl={ true }
