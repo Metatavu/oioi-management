@@ -382,7 +382,7 @@ class AppSettingsView extends React.Component<Props, State> {
     previewItem = this.state.resourceMap.get(key) || "";
     return (
       <ImagePreview
-        uploadButtonText={ !!previewItem ? strings.fileUpload.changeImage : strings.fileUpload.addImage }
+        uploadButtonText={ previewItem ? strings.fileUpload.changeImage : strings.fileUpload.addImage }
         allowSetUrl={ true }
         imagePath={ previewItem }
         onSave={ this.onPropertyFileChange }
