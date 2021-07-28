@@ -68,7 +68,16 @@ class ImagePreview extends React.Component<Props, State> {
    * Component render method
    */
   public render() {
-    const { imagePath, resource, onSave, uploadKey, classes, onSetUrl, allowSetUrl, uploadButtonText } = this.props;
+    const {
+      imagePath,
+      resource,
+      onSave,
+      uploadKey,
+      classes,
+      onSetUrl,
+      allowSetUrl,
+      uploadButtonText
+    } = this.props;
     const allowedFileTypes = getAllowedFileTypes(resource.type);
     const video = resource.type === ResourceType.VIDEO;
     let previewContent = <div className={ classes.noMediaContainer }><h2> { strings.noMediaPlaceholder } </h2></div>;
