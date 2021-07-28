@@ -241,6 +241,7 @@ class ApplicationEditor extends React.Component<Props, State> {
   private renderSavingOverlay = () => {
     const { classes } = this.props;
     const { isSaving } = this.state;
+
     return (
       <Fade in={ isSaving }>
         <Box className={ classes.savingDialogRoot }>
