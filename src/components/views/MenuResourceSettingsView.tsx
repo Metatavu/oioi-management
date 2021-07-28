@@ -682,6 +682,7 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
     return <>
         <Typography variant="h4" style={{ marginBottom: theme.spacing(1) }}>{ title }</Typography>
         <ImagePreview
+          uploadButtonText={ previewItem ? strings.fileUpload.changeMedia : strings.fileUpload.addMedia }
           imagePath={ previewItem }
           allowSetUrl={ true }
           onSave={ this.onPropertyFileChange }
@@ -698,7 +699,7 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
    */
   private renderIconList = () => {
     const { iconsMap } = this.state;
-    const { classes } = this.props; 
+    const { classes, resource } = this.props; 
     const icons: JSX.Element[] = [];
     const allKeys = Object.values(IconKeys);
     iconsMap.forEach((value: string, key: string) => {
@@ -713,12 +714,13 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
         <div key={ key }>
           <Typography variant="h5">{ displayName }</Typography>
           <ImagePreview
+            uploadButtonText={ resource ? strings.fileUpload.changeImage : strings.fileUpload.addImage }
             key={ key }
             imagePath={ value }
             allowSetUrl={ false }
             onSave={ this.onIconFileChange }
             onSetUrl={ () => {} }
-            resource={ this.props.resource }
+            resource={ resource }
             uploadKey={ key }
             onDelete={ this.onIconFileDelete }
             />
