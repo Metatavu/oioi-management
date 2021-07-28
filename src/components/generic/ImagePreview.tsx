@@ -80,7 +80,11 @@ class ImagePreview extends React.Component<Props, State> {
     } = this.props;
     const allowedFileTypes = getAllowedFileTypes(resource.type);
     const video = resource.type === ResourceType.VIDEO;
-    let previewContent = <div className={ classes.noMediaContainer }><h2> { strings.noMediaPlaceholder } </h2></div>;
+    let previewContent = (
+      <div className={ classes.noMediaContainer }>
+        <h2>{ strings.noMediaPlaceholder }</h2>
+      </div>
+    );
     if (imagePath) {
       previewContent = video ?
         <ReactPlayer url={ imagePath } controls={ true } style={{ backgroundColor: "#000" }} /> :
