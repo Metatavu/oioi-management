@@ -714,7 +714,7 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
         <div key={ key }>
           <Typography variant="h5">{ displayName }</Typography>
           <ImagePreview
-            uploadButtonText={ !!resource ? strings.fileUpload.changeImage : strings.fileUpload.addImage }
+            uploadButtonText={ resource ? strings.fileUpload.changeImage : strings.fileUpload.addImage }
             key={ key }
             imagePath={ value }
             allowSetUrl={ false }
