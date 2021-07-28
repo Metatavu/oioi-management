@@ -80,15 +80,17 @@
     "addMedia": "Lisää media",
     "changeMedia": "Vaihda media",
     "addImage": "Lisää kuva",
-    "changeImage": "Vaihda kuvaa",
+    "changeImage": "Vaihda kuva",
     "addFile": "Lisää tiedosto",
-    "changeFile": "Vaihda tiedostoa",
+    "changeFile": "Vaihda tiedosto",
     "addVideo": "Lisää video",
-    "changeVideo": "Vaihda videota",
+    "changeVideo": "Vaihda video",
     "addPDF": "Lisää PDF-tiedosto",
-    "changePDF": "Vaihda PDF-tiedostoa",
+    "changePDF": "Vaihda PDF-tiedosto",
     "upload": "Lähetä",
-    "cancel": "Peruuta"
+    "cancel": "Peruuta",
+    "dropFileHere": "Pudota tiedosto tähän tai valitse klikkaamalla. Tiedoston maksimikoko on 300 Mt.",
+    "uploadFile": "Lisää tiedosto"
   },
   "resourceTypes": {
     "root": "Root",

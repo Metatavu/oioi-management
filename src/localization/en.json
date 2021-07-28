@@ -89,7 +89,9 @@
     "addPDF": "Add PDF file",
     "changePDF": "Change PDF file",
     "upload": "Upload",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "dropFileHere": "Drop the file here or click and select from file system. Max file size 300 MB.",
+    "uploadFile": "Upload file"
   },
   "resourceTypes": {
     "root": "Root",
