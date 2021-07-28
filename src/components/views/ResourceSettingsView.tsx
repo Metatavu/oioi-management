@@ -426,7 +426,7 @@ class ResourceSettingsView extends React.Component<Props, State> {
 
       return <>
         <ImagePreview
-          uploadButtonText={ !!fileData ? strings.fileUpload.changeFile : strings.fileUpload.addFile }
+          uploadButtonText={ fileData ? strings.fileUpload.changeFile : strings.fileUpload.addFile }
           imagePath={ fileData }
           allowSetUrl={ true }
           onSave={ this.onFileChange }
