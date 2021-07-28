@@ -266,12 +266,10 @@ class AppSettingsView extends React.Component<Props, State> {
 
     importPropertyKeys.forEach(importPropertyKey => {
       const importPropertyValue = importProperties[importPropertyKey];
-      if (importPropertyValue) {
-        rootProperties.push({
-          key: importPropertyKey,
-          value: importPropertyValue
-        });
-      }
+      importPropertyValue && rootProperties.push({
+        key: importPropertyKey,
+        value: importPropertyValue
+      });
     });
 
     await resourcesApi.updateResource({
