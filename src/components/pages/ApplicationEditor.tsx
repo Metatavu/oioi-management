@@ -957,9 +957,9 @@ class ApplicationEditor extends React.Component<Props, State> {
     if (!auth || !auth.token || !resourceId || !treeData) {
       return;
     }
-    this.setState({
-      isSaving: true
-    })
+
+    this.setState({ isSaving: true });
+
     const resourcesApi = ApiUtils.getResourcesApi(auth.token);
     const updatedResource = await resourcesApi.updateResource({
       resource: resource,
