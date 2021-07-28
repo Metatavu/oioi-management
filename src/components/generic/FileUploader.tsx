@@ -93,7 +93,7 @@ class FileUploader extends React.Component<Props, State> {
           onContextMenu={ this.handleContextMenu }
           variant="outlined"
           color="secondary"
-          onClick={ () => this.openDialog() }
+          onClick={ this.openDialog }
         >
           { uploadButtonText }
         </Button>
