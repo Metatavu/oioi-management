@@ -1,58 +1,32 @@
 import * as React from "react";
 import { AuthState } from "../../types";
-import { Dispatch } from "redux";
-import { ReduxActions, ReduxState } from "../../store";
+import { ReduxState } from "../../store";
 import { connect } from "react-redux";
 
 /**
  * Component props
  */
 interface Props {
-
   /**
    * Auth
    */
   auth: AuthState;
-
   /**
    * Role name
    */
   role: string;
-
   children?: React.ReactNode;
 }
 
 /**
- * Component state
- */
-interface State { }
-
-/**
  * Shows content only if user has specified role
+ *
+ * @param props component properties
  */
-class VisibleWithRole extends React.Component<Props, State> {
-  /**
-   * Constructor
-   *
-   * @param props component properties
-   */
-  constructor(props: Props) {
-    super(props);
-    this.state = {
-    };
-  }
-
-  /**
-   * Component render method
-   */
-  public render() {
-    const { auth, role } = this.props;
-    if (auth && auth.hasRealmRole(role)) {
-      return this.props.children;
-    }
-
-    return null;
-  }
+const VisibleWithRole: React.FC<Props> = ({ auth, role, children }) => {
+  return auth && auth.hasRealmRole(role) ?
+    <>{ children }</> :
+    null;
 }
 
 /**
@@ -64,13 +38,4 @@ const mapStateToProps = (state: ReduxState) => ({
   auth: state.auth
 });
 
-/**
- * Function for declaring dispatch functions
- *
- * @param dispatch
- */
-const mapDispatchToProps = (dispatch: Dispatch<ReduxActions>) => {
-  return { };
-};
-
-export default connect(mapStateToProps, mapDispatchToProps)(VisibleWithRole);
+export default connect(mapStateToProps)(VisibleWithRole);

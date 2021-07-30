@@ -215,7 +215,7 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
             { this.renderUploaderAndPreview(strings.menuImage, "menuImg") }
           </div>
           <div>
-            { this.renderUploaderAndPreview(strings.foregroudImage, "foreground") }
+            { this.renderUploaderAndPreview(strings.foregroundImage, "foreground") }
           </div>
         </div>
 
@@ -623,7 +623,7 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
     const { classes } = this.props;
 
     if (!childResources) {
-      return <div />;
+      return null;
     }
 
     const listItems = childResources.map(resource => {
@@ -633,7 +633,7 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
           <TableCell align="left">{ getLocalizedTypeString(resource.type) }</TableCell>
           <TableCell align="center">{ resource.order_number }</TableCell>
           <TableCell align="right">
-            <IconButton 
+            <IconButton
               size="small"
               className={ classes.iconButton }
               color="primary"
@@ -674,24 +674,32 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
    * @param uploadKey upload key
    */
   private renderUploaderAndPreview = (title: string, uploadKey: string) => {
+    const { resource } = this.props;
     const { properties } = this.state.form.values;
 
-    if (properties) {
-      return (
-        <>
-          <Typography variant="h4" style={{ marginBottom: theme.spacing(1) }}>
-            { title }
-          </Typography>
-          <ImagePreview
-            imagePath={ this.findImage(properties, uploadKey) || "" }
-            onSave={ this.onPropertyFileChange }
-            resource={ this.props.resource }
-            uploadKey={ uploadKey }
-            onDelete={ this.onPropertyFileDelete }
-          />
-        </>
-      );
+    if (!properties) {
+      return;
     }
+
+    const previewItem = this.findImage(properties, uploadKey) || "";
+
+    return (
+      <>
+        <Typography variant="h4" style={{ marginBottom: theme.spacing(1) }}>
+          { title }
+        </Typography>
+        <ImagePreview
+          uploadButtonText={ previewItem ? strings.fileUpload.changeMedia : strings.fileUpload.addMedia }
+          imagePath={ previewItem }
+          allowSetUrl={ true }
+          onSave={ this.onPropertyFileChange }
+          onSetUrl={ this.onPropertyFileSetUrl }
+          resource={ resource }
+          uploadKey={ uploadKey }
+          onDelete={ this.onPropertyFileDelete }
+        />
+      </>
+    );
   };
 
   /**
@@ -699,7 +707,7 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
    */
   private renderIconList = () => {
     const { iconsMap } = this.state;
-    const { classes } = this.props;
+    const { classes, resource } = this.props;
     const icons: JSX.Element[] = [];
 
     iconsMap.forEach((value, key) => {
@@ -714,10 +722,13 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
             { displayName }
           </Typography>
           <ImagePreview
+            uploadButtonText={ resource ? strings.fileUpload.changeImage : strings.fileUpload.addImage }
             key={ key }
             imagePath={ value }
+            allowSetUrl={ false }
             onSave={ this.onIconFileChange }
-            resource={ this.props.resource }
+            onSetUrl={ () => {} }
+            resource={ resource }
             uploadKey={ key }
             onDelete={ this.onIconFileDelete }
             />
@@ -789,11 +800,24 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
   };
 
   /**
+   * Handles image change
+   */
+  private onPropertyFileSetUrl = async (url: string, key: string) => {
+    const tempMap = this.state.resourceMap;
+    tempMap.set(key, url);
+    this.setState({
+      resourceMap: tempMap,
+      dataChanged: true
+    });
+    this.onUpdateResource();
+  };
+
+  /**
    * Handles icon change
    */
   private onIconFileChange = async (files: File[], key: string) => {
     const { customerId } = this.props;
-    
+
     const newUri = await this.upload(files, customerId);
     const tempMap = this.state.iconsMap;
     tempMap.set(key, newUri);

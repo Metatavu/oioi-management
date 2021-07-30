@@ -18,13 +18,21 @@ interface Props extends WithStyles<typeof styles> {
   imagePath: string;
   resource: Resource;
   uploadKey: string;
-
+  uploadButtonText: string;
+  allowSetUrl: boolean;
   /**
    * Save given files to parent component with key
    * @param files files to save
    * @param key property key
    */
   onSave(files: File[], key?: string): void;
+
+  /**
+   * Save set url
+   * @param url url to set
+   * @param key property key
+   */
+  onSetUrl(url: string, key?: string): void;
 
   /**
    * Delete given property from parent component
@@ -60,10 +68,23 @@ class ImagePreview extends React.Component<Props, State> {
    * Component render method
    */
   public render() {
-    const { imagePath, resource, onSave, uploadKey, classes } = this.props;
+    const {
+      imagePath,
+      resource,
+      onSave,
+      uploadKey,
+      classes,
+      onSetUrl,
+      allowSetUrl,
+      uploadButtonText
+    } = this.props;
     const allowedFileTypes = getAllowedFileTypes(resource.type);
     const video = resource.type === ResourceType.VIDEO;
-    let previewContent = <div className={ classes.noMediaContainer }><h2> { strings.noMediaPlaceholder } </h2></div>;
+    let previewContent = (
+      <div className={ classes.noMediaContainer }>
+        <h2>{ strings.noMediaPlaceholder }</h2>
+      </div>
+    );
     if (imagePath) {
       previewContent = video ?
         <ReactPlayer url={ imagePath } controls={ true } style={{ backgroundColor: "#000" }} /> :
@@ -89,9 +110,11 @@ class ImagePreview extends React.Component<Props, State> {
           }
         </div>
         <FileUploader
-          resource={ resource }
+          uploadButtonText={ uploadButtonText }
+          allowSetUrl={ allowSetUrl }
           allowedFileTypes={ allowedFileTypes }
           onSave={ onSave }
+          onSetUrl={ onSetUrl }
           uploadKey={ uploadKey }
         />
 

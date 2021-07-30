@@ -45,7 +45,7 @@
   "normal": "Normal",
   "save": "Save",
   "selectLanguage": "Select language",
-  "serialNubmerOptional": "Serial number (optional)",
+  "serialNumberOptional": "Serial number (optional)",
   "loading": "Loading...",
   "apikey": "API Key",
   "resourceSettings": "Resource settings",
@@ -89,7 +89,9 @@
     "addPDF": "Add PDF file",
     "changePDF": "Change PDF file",
     "upload": "Upload",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "dropFileHere": "Drop the file here or click and select from file system. Max file size 300 MB.",
+    "uploadFile": "Upload file"
   },
   "resourceTypes": {
     "root": "Root",
@@ -111,7 +113,7 @@
     "icon": "Application icon",
     "icons": "Application icons",
     "addIconSelect": "Add/replace default icon",
-    "addIconTextField": "Add icon with new name",
+    "addIconTextField": "Icon name",
     "returnDelay": "Reset delay",
     "id": "Application id",
     "addIcon": "Add icon"
@@ -139,7 +141,11 @@
   "childResources": "Child resources",
   "resourceName": "Resource name",
   "orderFromLeftToRight": "Order from left to right",
-  "iconNameIncorrectWarning": "Icon name should begin with \"icon_\"",
+  "iconNamePrefixNotice": "Icon name is automatically extended with prefix \"icon_\".",
   "noMediaPlaceholder": "No media",
-  "foregroudImage": "Foreground image"
+  "foregroundImage": "Foreground image",
+  "inputUrlAddress": "Input URL",
+  "urlAddressDialogTitle": "Input resource url",
+  "urlAddressDialogContent": "Input direct URL address to resource.",
+  "urlAddressDialogLabel": "URL Address"
 }
