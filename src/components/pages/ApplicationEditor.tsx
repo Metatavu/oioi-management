@@ -12,7 +12,9 @@ import {
   CircularProgress,
   ListItemIcon,
   ListItemText,
-  ListItemSecondaryAction
+  ListItemSecondaryAction,
+  Fade,
+  Box
 } from "@material-ui/core";
 import { History } from "history";
 import AppSettingsView from "../views/AppSettingsView";
@@ -69,6 +71,7 @@ interface State {
   confirmationRequired: boolean;
   treeResizing: boolean;
   treeWidth: number;
+  isSaving: boolean;
 }
 
 interface ResourceTreeItem extends TreeItemSortable {
@@ -85,6 +88,7 @@ class ApplicationEditor extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = {
+      isSaving: false,
       addResourceDialogOpen: false,
       confirmationRequired: false,
       treeResizing: false,
@@ -211,6 +215,7 @@ class ApplicationEditor extends React.Component<Props, State> {
         </AppBar>
         { this.renderResponsiveDrawer() }
         { this.renderEditor() }
+        { this.renderSavingOverlay() }
       </div>
     );
   }
@@ -234,6 +239,25 @@ class ApplicationEditor extends React.Component<Props, State> {
       this.setState({ treeResizing: false });
     }
   };
+
+  /**
+   * Render saving overlay
+   */
+  private renderSavingOverlay = () => {
+    const { classes } = this.props;
+    const { isSaving } = this.state;
+
+    return (
+      <Fade in={ isSaving }>
+        <Box className={ classes.savingDialogRoot }>
+          <CircularProgress />
+          <Box mt={ 2 }>
+            <Typography>{ strings.saving }</Typography>
+          </Box>
+        </Box>
+      </Fade>
+    );
+  }
 
   /**
    * Render responsive drawer method
@@ -945,6 +969,9 @@ class ApplicationEditor extends React.Component<Props, State> {
     if (!auth || !auth.token || !resourceId || !treeData) {
       return;
     }
+
+    this.setState({ isSaving: true });
+
     const resourcesApi = ApiUtils.getResourcesApi(auth.token);
     const updatedResource = await resourcesApi.updateResource({
       resource: resource,
@@ -962,6 +989,7 @@ class ApplicationEditor extends React.Component<Props, State> {
     }
     updatedResourceView();
     this.setState({
+      isSaving: false,
       confirmationRequired: false,
       treeData: this.updateTreeData(updatedResource, treeData)
     });

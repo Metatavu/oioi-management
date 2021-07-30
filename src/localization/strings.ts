@@ -46,6 +46,7 @@ export interface IStrings extends LocalizedStringsMethods {
   menuImage: string;
   normal: string;
   save: string;
+  saving: string;
   selectLanguage: string;
   serialNumberOptional: string;
   loading: string;
