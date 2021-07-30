@@ -24,7 +24,7 @@ import { ReduxState, ReduxActions } from "../../store";
 import { Dispatch } from "redux";
 import { connect } from "react-redux";
 import { AuthState } from "../../types";
-import ApiUtils from "../../utils/ApiUtils";
+import ApiUtils from "../../utils/api";
 import { Customer, Device, Application, Resource, ResourceType } from "../../generated/client/src";
 import ResourceTreeItem from "../generic/ResourceTreeItem";
 import AddResourceDialog from "../generic/AddResourceDialog";

@@ -12,12 +12,12 @@ import styles from "../../styles/editor-view";
 import strings from "../../localization/strings";
 import theme from "../../styles/theme";
 import { Resource, ResourceToJSON, KeyValueProperty, ResourceType } from "../../generated/client/src";
-import FileUpload from "../../utils/FileUpload";
+import FileUpload from "../../utils/file-upload";
 import { forwardRef } from "react";
 import { MessageType, initForm, Form, validateForm } from "ts-form-validation";
 
 import { AuthState } from "../../types";
-import ApiUtils from "../../utils/ApiUtils";
+import ApiUtils from "../../utils/api";
 
 import IconButton from "@material-ui/core/IconButton";
 import { resourceRules, ResourceSettingsForm } from "../../commons/formRules";

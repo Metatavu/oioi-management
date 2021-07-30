@@ -11,7 +11,7 @@ import { Dispatch } from "redux";
 import { ReduxActions, ReduxState } from "../../store";
 import { connect } from "react-redux";
 import { Customer } from "../../generated/client/src";
-import ApiUtils from "../../utils/ApiUtils";
+import ApiUtils from "../../utils/api";
 import strings from "../../localization/strings";
 import DeleteDialog from "../generic/DeleteDialog";
 import { Alert } from "@material-ui/lab";

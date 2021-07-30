@@ -1,4 +1,4 @@
-const UPLOAD_PATH = process.env.REACT_APP_FILE_UPLOAD_PATH || "https://staging-oioi-api.metatavu.io/files";
+import { Config } from "../app/config";
 
 /**
  * Utility class for uploading files
@@ -27,12 +27,19 @@ export default class FileUpload {
 
   };
 
+  /**
+   * Uploads file to S3
+   *
+   * @param file file
+   * @param folder folder to upload the file
+   * @returns response JSON
+   */
   public static async uploadFile(file: File, folder: string) {
     const formData = new FormData();
     formData.append("file", file);
     formData.append("folder", folder);
 
-    const response = await fetch(UPLOAD_PATH, {
+    const response = await fetch(Config.get().files.uploadPath, {
       method: "POST",
       body: formData
     });

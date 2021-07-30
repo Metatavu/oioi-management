@@ -12,7 +12,7 @@ import { ReduxState, ReduxActions } from "../../store";
 import { Dispatch } from "redux";
 import { connect } from "react-redux";
 import { AuthState } from "../../types";
-import ApiUtils from "../../utils/ApiUtils";
+import ApiUtils from "../../utils/api";
 import DeleteDialog from "../generic/DeleteDialog";
 import { Alert } from "@material-ui/lab";
 import { setCustomer } from "../../actions/customer";

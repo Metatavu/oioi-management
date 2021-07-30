@@ -4,7 +4,7 @@ import styles from "../../styles/dialog";
 import { DropzoneArea } from "material-ui-dropzone";
 import { Customer } from "../../generated/client/src";
 import strings from "../../localization/strings";
-import FileUpload from "../../utils/FileUpload";
+import FileUpload from "../../utils/file-upload";
 import { DialogType } from "../../types/index";
 import { FormValidationRules, validateForm, Form, initForm, MessageType } from "ts-form-validation";
 
