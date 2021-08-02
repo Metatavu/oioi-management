@@ -18,6 +18,7 @@ export interface LogoutAction {
 
 /**
  * Redux login action generator
+ *
  * @param keycloak Keycloak instance
  * @returns Redux login action
  */
