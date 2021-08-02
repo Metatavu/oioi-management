@@ -268,7 +268,7 @@ class ResourceSettingsView extends React.Component<Props, State> {
         data={ resourceData["styles"] }
         editable={{
           onRowAdd: newData =>
-            new Promise((resolve, reject) => {
+            new Promise<void>((resolve, reject) => {
               {
                 const { resourceData } = this.state;
                 const styles = resourceData["styles"];
@@ -280,7 +280,7 @@ class ResourceSettingsView extends React.Component<Props, State> {
               resolve();
             }),
           onRowUpdate: (newData, oldData) =>
-            new Promise((resolve, reject) => {
+            new Promise<void>((resolve, reject) => {
               {
                 const { resourceData } = this.state;
                 const styles = resourceData["styles"];
@@ -293,7 +293,7 @@ class ResourceSettingsView extends React.Component<Props, State> {
               resolve();
             }),
           onRowDelete: oldData =>
-            new Promise((resolve, reject) => {
+            new Promise<void>((resolve, reject) => {
               {
                 const { resourceData } = this.state;
                 const styles = resourceData["styles"];
@@ -346,7 +346,7 @@ class ResourceSettingsView extends React.Component<Props, State> {
         data={resourceData["properties"]}
         editable={{
           onRowAdd: newData =>
-            new Promise((resolve, reject) => {
+            new Promise<void>((resolve, reject) => {
               {
                 const { resourceData } = this.state;
                 const properties = resourceData["properties"];
@@ -358,7 +358,7 @@ class ResourceSettingsView extends React.Component<Props, State> {
               resolve();
             }),
           onRowUpdate: (newData, oldData) =>
-            new Promise((resolve, reject) => {
+            new Promise<void>((resolve, reject) => {
               {
                 const { resourceData } = this.state;
                 const properties = resourceData["properties"];
@@ -371,7 +371,7 @@ class ResourceSettingsView extends React.Component<Props, State> {
               resolve();
             }),
           onRowDelete: oldData =>
-            new Promise((resolve, reject) => {
+            new Promise<void>((resolve, reject) => {
               {
                 const { resourceData } = this.state;
                 const properties = resourceData["properties"];

@@ -1,6 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import * as React from "react";
-// tslint:disable-next-line: max-line-length
 import {
   Typography,
   Divider,
@@ -16,7 +14,7 @@ import {
   ListItemText,
   ListItemSecondaryAction,
   Fade,
-  Box,
+  Box
 } from "@material-ui/core";
 import { History } from "history";
 import AppSettingsView from "../views/AppSettingsView";
@@ -108,26 +106,27 @@ class ApplicationEditor extends React.Component<Props, State> {
    */
   public componentDidMount = async () => {
 
-    const { auth,
-            customerId,
-            deviceId,
-            applicationId,
-            setDevice,
-            setCustomer,
-            setApplication,
-            customer,
-            device,
-            application,
-            openResource,
-            openedResource
-          } = this.props;
+    const {
+      auth,
+      customerId,
+      deviceId,
+      applicationId,
+      setDevice,
+      setCustomer,
+      setApplication,
+      customer,
+      device,
+      application,
+      openResource,
+      openedResource
+    } = this.props;
 
     if (!auth || !auth.token) {
       return;
     }
 
-    document.addEventListener('mousemove', e => this.handleMousemove(e));
-    document.addEventListener('mouseup', e => this.handleMouseup(e));
+    document.addEventListener("mousemove", this.handleMousemove);
+    document.addEventListener("mouseup", this.handleMouseup);
 
     if (openedResource) {
       openResource(undefined);
@@ -166,6 +165,12 @@ class ApplicationEditor extends React.Component<Props, State> {
     });
   };
 
+  /**
+   * Component did update life cycle method
+   *
+   * @param prevProps previous properties
+   * @param prevState previous state
+   */
   public componentDidUpdate = async (prevProps: Props, prevState: State) => {
     const prevRootResourceId = prevState.rootResource ? prevState.rootResource.id : undefined
     if (this.state.rootResource && this.state.rootResource.id !== prevRootResourceId) {
@@ -182,7 +187,7 @@ class ApplicationEditor extends React.Component<Props, State> {
    * Component render method
    */
   public render() {
-    const { classes, openedResource, resourceViewUpdated } = this.props;
+    const { classes, openedResource } = this.props;
     let resourceType = ResourceType.ROOT;
 
     if (openedResource) {
@@ -218,17 +223,17 @@ class ApplicationEditor extends React.Component<Props, State> {
   private handleMousedown = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
     this.setState({ treeResizing: true });
   };
-  
+
   private handleMousemove = (e: MouseEvent) => {
     if (!this.state.treeResizing) {
       return;
     }
-  
+
     let offsetRight = (e.clientX - document.body.offsetLeft);
     let minWidth = 300;
     this.setState({ treeWidth: Math.max(minWidth, offsetRight) });
   };
-  
+
   private handleMouseup = (e: MouseEvent )=> {
     if (this.state.treeResizing) {
       this.setState({ treeResizing: false });
@@ -401,7 +406,7 @@ class ApplicationEditor extends React.Component<Props, State> {
 
   /**
    * Sets tree data
-   * 
+   *
    * @param data updated tree data object
    */
   private setTreeData = (data: ResourceTreeItem[]) => {
@@ -488,7 +493,7 @@ class ApplicationEditor extends React.Component<Props, State> {
 
   /**
    * Returns boolean value based on check whether item can be dragged
-   * 
+   *
    * @param data tree data object
    */
   private canDrag = (data: ExtendedNodeData) => {
@@ -573,9 +578,16 @@ class ApplicationEditor extends React.Component<Props, State> {
 
   /**
    * Render treeItem method
+   *
+   * @param resource resource
    */
   private renderTreeItem = (resource: Resource) => {
-    const { classes, customerId, deviceId, applicationId, openedResource } = this.props;
+    const {
+      classes,
+      customerId,
+      deviceId,
+      applicationId
+    } = this.props;
 
     return (
       <ResourceTreeItem
@@ -602,7 +614,7 @@ class ApplicationEditor extends React.Component<Props, State> {
         <main className={ classes.content }>
           <CircularProgress />
         </main>
-      ); 
+      );
     }
     if (openedResource) {
       return (
@@ -735,7 +747,7 @@ class ApplicationEditor extends React.Component<Props, State> {
 
   /**
    * Deletes item and all of it's children from the tree
-   * 
+   *
    * @param id id of the deleted item
    * @param data array of current search level
    */
@@ -779,7 +791,7 @@ class ApplicationEditor extends React.Component<Props, State> {
 
   /**
    * Renders add button under the chosen resource
-   * 
+   *
    * @param data tree data object
    * @param resource resource
    */
@@ -821,7 +833,7 @@ class ApplicationEditor extends React.Component<Props, State> {
       treeData: this.treeDataAdd(this.treeItemFromResource(newResource), this.state.treeData || [])
     });
 
-    if (newResource.type == ResourceType.PAGE) {
+    if (newResource.type === ResourceType.PAGE) {
       await this.createPagePredefinedResources(newResource.id!);
     }
 
@@ -971,7 +983,7 @@ class ApplicationEditor extends React.Component<Props, State> {
     if (updatedResource.type !== ResourceType.ROOT) {
       openResource(updatedResource);
     } else {
-      this.setState({ 
+      this.setState({
         rootResource: updatedResource,
       });
     }
@@ -985,7 +997,7 @@ class ApplicationEditor extends React.Component<Props, State> {
 
   /**
    * Updates tree data when resource is updated
-   * 
+   *
    * @param resource updated resource
    * @param data tree data object
    */
@@ -1030,7 +1042,7 @@ class ApplicationEditor extends React.Component<Props, State> {
 
   /**
    * Updates child resources
-   * 
+   *
    * @param data tree data object
    * @param resources child resources
    */

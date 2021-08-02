@@ -267,7 +267,7 @@ class PageResourceSettingsView extends React.Component<Props, State> {
         data={resourceData["styles"]}
         editable={{
           onRowAdd: newData =>
-            new Promise((resolve, reject) => {
+            new Promise<void>((resolve, reject) => {
               {
                 const { resourceData } = this.state;
                 const styles = resourceData["styles"];
@@ -282,7 +282,7 @@ class PageResourceSettingsView extends React.Component<Props, State> {
               resolve();
             }),
           onRowUpdate: (newData, oldData) =>
-            new Promise((resolve, reject) => {
+            new Promise<void>((resolve, reject) => {
               {
                 const { resourceData } = this.state;
                 const styles = resourceData["styles"];
@@ -298,7 +298,7 @@ class PageResourceSettingsView extends React.Component<Props, State> {
               resolve();
             }),
           onRowDelete: oldData =>
-            new Promise((resolve, reject) => {
+            new Promise<void>((resolve, reject) => {
               {
                 const { resourceData } = this.state;
                 const styles = resourceData["styles"];
@@ -354,7 +354,7 @@ class PageResourceSettingsView extends React.Component<Props, State> {
         data={resourceData["properties"]}
         editable={{
           onRowAdd: newData =>
-            new Promise((resolve, reject) => {
+            new Promise<void>((resolve, reject) => {
               {
                 const { resourceData } = this.state;
                 const properties = resourceData["properties"];
@@ -369,7 +369,7 @@ class PageResourceSettingsView extends React.Component<Props, State> {
               resolve();
             }),
           onRowUpdate: (newData, oldData) =>
-            new Promise((resolve, reject) => {
+            new Promise<void>((resolve, reject) => {
               {
                 const { resourceData } = this.state;
                 const properties = resourceData["properties"];
@@ -385,7 +385,7 @@ class PageResourceSettingsView extends React.Component<Props, State> {
               resolve();
             }),
           onRowDelete: oldData =>
-            new Promise((resolve, reject) => {
+            new Promise<void>((resolve, reject) => {
               {
                 const { resourceData } = this.state;
                 const properties = resourceData["properties"];
@@ -524,7 +524,7 @@ class PageResourceSettingsView extends React.Component<Props, State> {
     }
 
     const previewItem = resource.data || "";
-    
+
     return (
       <ImagePreview
         uploadButtonText={ previewItem ? strings.fileUpload.changeFile : strings.fileUpload.addFile }
@@ -615,7 +615,7 @@ class PageResourceSettingsView extends React.Component<Props, State> {
 
   /**
    * Updates child resource
-   * 
+   *
    * @param childResource child resource
    */
   private updateChildResource = (childResource: Resource) => {
@@ -673,7 +673,7 @@ class PageResourceSettingsView extends React.Component<Props, State> {
 
   /**
    * Handles child resource file change
-   * 
+   *
    * @param files files
    * @param key resource id
    */
@@ -699,7 +699,7 @@ class PageResourceSettingsView extends React.Component<Props, State> {
 
    /**
    * Handles child resource file change
-   * 
+   *
    * @param url url
    * @param key resource id
    */

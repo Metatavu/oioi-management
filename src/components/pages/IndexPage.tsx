@@ -46,19 +46,22 @@ class IndexPage extends React.Component<Props, State> {
         clientId: process.env.REACT_APP_KEYCLOAK_CLIENT_ID || "management"
       });
 
-      keycloak.init({onLoad: "login-required"}).success((authenticated) => {
+      keycloak.init({
+        onLoad: "login-required",
+        checkLoginIframe: false
+      }).success((authenticated) => {
         if (authenticated) {
           login(keycloak);
         } else {
           //TODO: display login error
         }
-      }).error((e) => {
+      }).error(e => {
         //TODO: display login error
       });
     }
   }
 
-  public componentDidCatch() { 
+  public componentDidCatch() {
     this.setState({
       hasError: true
     });

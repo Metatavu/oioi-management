@@ -7,26 +7,26 @@ import { ChangeEvent } from "react";
 import VisibleWithRole from "./VisibleWithRole";
 
 /**
- * Component props
+ * Component properties
  */
 interface Props extends WithStyles<typeof styles> {
   uploadKey?: string;
   allowedFileTypes: string[];
-  allowSetUrl: boolean,
+  allowSetUrl?: boolean;
   uploadButtonText: string;
   /**
    * Save files to resource
    * @param files files
    * @param key  upload key
    */
-  onSave(files: File[], key?: string): void;
+  onSave: (files: File[], key?: string) => void;
 
   /**
    * Directly sets resource url
    * @param url url to set
    * @param key key
    */
-  onSetUrl(url: string, key?: string): void;
+  onSetUrl?: (url: string, key?: string) => void;
 }
 
 /**
@@ -59,27 +59,21 @@ class FileUploader extends React.Component<Props, State> {
       contextMenuOpen: false,
       urlDialogOpen: false,
       contextMenuX: null,
-      contextMenuY: null,
+      contextMenuY: null
     };
   }
-
-  /**
-   * Component did update
-   */
-  public componentDidUpdate = (prevProps: Props, prevState: State) => {
-
-  };
 
   /**
    * Component render method
    */
   public render() {
-    const { classes, uploadButtonText } = this.props;
+    const { classes, uploadButtonText, allowSetUrl } = this.props;
+    const { uploading } = this.state;
 
-    if (this.state.uploading) {
+    if (uploading) {
       return (
         <div className={ classes.imageUploadLoaderContainer }>
-          <CircularProgress color="secondary" style={{ alignSelf: "center" }}></CircularProgress>
+          <CircularProgress color="secondary" style={{ alignSelf: "center" }}/>
         </div>
       );
     }
@@ -99,11 +93,11 @@ class FileUploader extends React.Component<Props, State> {
         </Button>
         { this.renderUploadDialog() }
         <VisibleWithRole role="admin">
-          { this.props.allowSetUrl &&
-          <>
-            { this.renderContextMenu() }
-            { this.renderUrlDialog() }
-          </>
+          { allowSetUrl &&
+            <>
+              { this.renderContextMenu() }
+              { this.renderUrlDialog() }
+            </>
           }
         </VisibleWithRole>
       </>
@@ -138,6 +132,7 @@ class FileUploader extends React.Component<Props, State> {
    */
   private renderContextMenu = () => {
     const { uploadButtonText } = this.props;
+    const { contextMenuX, contextMenuY } = this.state;
 
     return (
       <Menu
@@ -146,13 +141,17 @@ class FileUploader extends React.Component<Props, State> {
         onClose={ this.handleContextMenuClose }
         anchorReference="anchorPosition"
         anchorPosition={
-          this.state.contextMenuY !== null && this.state.contextMenuX !== null
-            ? { top: this.state.contextMenuY, left: this.state.contextMenuX }
+          contextMenuY !== null && contextMenuX !== null
+            ? { top: contextMenuY, left: contextMenuX }
             : undefined
         }
       >
-        <MenuItem onClick={() => this.openDialog() }>{ uploadButtonText }</MenuItem>
-        <MenuItem onClick={() => this.openUrlDialog() }> { strings.inputUrlAddress } </MenuItem>
+        <MenuItem onClick={ this.openDialog }>
+          { uploadButtonText }
+        </MenuItem>
+        <MenuItem onClick={ this.openUrlDialog }>
+          { strings.inputUrlAddress }
+        </MenuItem>
       </Menu>
     );
   }
@@ -161,13 +160,14 @@ class FileUploader extends React.Component<Props, State> {
    * Renders dialog for directly setting the url
    */
   private renderUrlDialog = () => {
+    const { urlDialogOpen, resourceUrl } = this.state;
+
     return (
       <Dialog
-        open={ this.state.urlDialogOpen }
+        open={ urlDialogOpen }
         onClose={ this.closeUrlDialog }
-        aria-labelledby="url-dialog-title"
       >
-        <DialogTitle id="url-dialog-title">
+        <DialogTitle>
           { strings.urlAddressDialogTitle }
         </DialogTitle>
         <DialogContent>
@@ -179,15 +179,15 @@ class FileUploader extends React.Component<Props, State> {
             label={ strings.urlAddressDialogLabel }
             type="url"
             onChange={ this.handleResourceUrlChange }
-            value={ this.state.resourceUrl || "" }
+            value={ resourceUrl || "" }
             fullWidth
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={ () => this.closeUrlDialog() } color="primary">
+          <Button onClick={ this.closeUrlDialog } color="primary">
             { strings.cancel }
           </Button>
-          <Button onClick={ () => this.handleSetUrl() } color="primary">
+          <Button onClick={ this.handleSetUrl } color="primary">
             { strings.update }
           </Button>
         </DialogActions>
@@ -197,11 +197,11 @@ class FileUploader extends React.Component<Props, State> {
 
   /**
    * Handles resource url change
+   *
+   * @param event React change event
    */
   private handleResourceUrlChange = (event: ChangeEvent<HTMLInputElement>) => {
-    this.setState({
-      resourceUrl: event.target.value
-    });
+    this.setState({ resourceUrl: event.target.value });
   }
 
   /**
@@ -218,16 +218,14 @@ class FileUploader extends React.Component<Props, State> {
    * Closes dialog for setting resource url
    */
   private closeUrlDialog = () => {
-    this.setState({
-      urlDialogOpen: false
-    });
+    this.setState({ urlDialogOpen: false });
   }
 
   /**
    * Handles closing context menu
    */
   private handleContextMenuClose = () => {
-    this.setState({contextMenuOpen: false});
+    this.setState({ contextMenuOpen: false });
   }
 
   /**
@@ -238,8 +236,8 @@ class FileUploader extends React.Component<Props, State> {
     this.setState({
       contextMenuOpen: true,
       contextMenuX: event.clientX - 2,
-      contextMenuY: event.clientY - 4,
-    })
+      contextMenuY: event.clientY - 4
+    });
   }
 
   /**
@@ -256,16 +254,16 @@ class FileUploader extends React.Component<Props, State> {
    * Close upload image dialog
    */
   private closeDialog = () => {
-    this.setState({
-      dialogOpen: false
-    });
+    this.setState({ dialogOpen: false });
   }
 
   /**
    * Handle direct url setting
    */
   private handleSetUrl = async () => {
+    const { onSetUrl } = this.props;
     const { resourceUrl } = this.state;
+
     if (!resourceUrl) {
       return;
     }
@@ -274,7 +272,7 @@ class FileUploader extends React.Component<Props, State> {
     this.closeDialog();
     this.closeUrlDialog();
     this.handleContextMenuClose();
-    await this.props.onSetUrl(resourceUrl, this.props.uploadKey);
+    onSetUrl && onSetUrl(resourceUrl, this.props.uploadKey);
     this.setState({ uploading: false });
   }
 
@@ -287,7 +285,7 @@ class FileUploader extends React.Component<Props, State> {
     this.closeDialog();
     this.closeUrlDialog();
     this.handleContextMenuClose();
-    await this.props.onSave(files, this.props.uploadKey);
+    this.props.onSave(files, this.props.uploadKey);
     this.setState({ uploading: false });
   }
 }

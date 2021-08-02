@@ -233,7 +233,7 @@ class AppSettingsView extends React.Component<Props, State> {
         application_id: application.id!,
         customer_id: customerId,
         device_id: deviceId,
-        resource: this.translateWallItemToResource(parentId, i, item) 
+        resource: this.translateWallItemToResource(parentId, i, item)
       });
       if (item.children.length > 0) {
         await this.importWallJsonItems(createdResource.id!, item.children);
@@ -245,7 +245,7 @@ class AppSettingsView extends React.Component<Props, State> {
 
   /**
    * Imports root properties from the wall JSON data
-   * 
+   *
    * @param data wall JSON data
    */
   private importRootProperties = async (data: any) => {
@@ -275,7 +275,7 @@ class AppSettingsView extends React.Component<Props, State> {
       customer_id: customerId,
       device_id: deviceId,
       resource_id: rootResource.id!
-    });    
+    });
   }
 
   /**
@@ -449,20 +449,14 @@ class AppSettingsView extends React.Component<Props, State> {
     const props = rootResource.properties;
 
     const iconKeys = Object.values(IconKeys);
-    iconKeys.map(iconKey => {
-      if (!initIconsMap.has(iconKey)) {
-        initIconsMap.set(iconKey, getDefaultIconURL(iconKey));
-      }
-    });
+    iconKeys.forEach(iconKey => !initIconsMap.has(iconKey) && initIconsMap.set(iconKey, getDefaultIconURL(iconKey)));
 
     if (props) {
-      props.map(p => {
-        if (p.key.startsWith("icon_") || initIconsMap.has(p.key)) {
-          initIconsMap.set(p.key, p.value);
-        } else {
-          initResourceMap.set(p.key, p.value);
-        }
-      });
+      props.forEach(({ key, value }) =>
+        key.startsWith("icon_") || initIconsMap.has(key) ?
+          initIconsMap.set(key, value) :
+          initResourceMap.set(key, value)
+      );
     }
 
     this.setState({

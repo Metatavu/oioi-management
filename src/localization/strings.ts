@@ -1,4 +1,6 @@
 import LocalizedStrings, { LocalizedStringsMethods } from "localized-strings";
+import en from "./en.json";
+import fi from "./fi.json";
 
 export interface IStrings extends LocalizedStringsMethods {
   active: string;
@@ -143,18 +145,15 @@ export interface IStrings extends LocalizedStringsMethods {
   childResources: string;
   resourceName: string;
   orderFromLeftToRight: string;
-  iconNameIncorrectWarning: string;
+  iconNamePrefixNotice: string;
   noMediaPlaceholder: string;
-  foregroudImage: string;
+  foregroundImage: string;
   inputUrlAddress: string;
   urlAddressDialogTitle: string;
   urlAddressDialogContent: string;
   urlAddressDialogLabel: string;
 }
 
-const strings: IStrings = new LocalizedStrings({
-  en: require("./en.json"),
-  fi: require("./fi.json")
-});
+const strings: IStrings = new LocalizedStrings({ en, fi });
 
 export default strings;
