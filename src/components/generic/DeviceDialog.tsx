@@ -7,7 +7,7 @@ import { Device } from "../../generated/client/src";
 import { DialogType } from "../../types";
 import { KeyValueProperty } from "../../generated/client/src/models/KeyValueProperty";
 import { FormValidationRules, MessageType, validateForm, initForm, Form } from "ts-form-validation";
-import FileUpload from "../../utils/FileUpload";
+import FileUpload from "../../utils/file-upload";
 
 /**
  * Component props

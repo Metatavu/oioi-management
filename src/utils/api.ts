@@ -5,11 +5,9 @@ import {
   ApplicationsApi,
   ResourcesApi
 } from "../generated/client/src";
-
 import Noty from "noty";
 import strings from "../localization/strings";
-
-const API_BASE_PATH = process.env.REACT_APP_API_BASE_URL || "https://staging-oioi-api.metatavu.io/v1";
+import { Config } from "../app/config";
 
 /**
  * Utility class for loading api with predefined configuration
@@ -59,7 +57,7 @@ export default class ApiUtils {
    */
   private static getConfiguration(token: string) {
     return new Configuration({
-      basePath: API_BASE_PATH,
+      basePath: Config.get().api.baseUrl,
       accessToken: token,
       middleware: [{ post: async (context) => {
         if (!context.response.ok) {

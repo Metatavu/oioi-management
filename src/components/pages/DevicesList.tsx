@@ -7,7 +7,7 @@ import CardItem from "../generic/CardItem";
 import DeviceDialog from "../generic/DeviceDialog";
 import strings from "../../localization/strings";
 import { Device, Customer } from "../../generated/client/src";
-import ApiUtils from "../../utils/ApiUtils";
+import ApiUtils from "../../utils/api";
 import { AuthState, DialogType } from "../../types";
 import { ReduxState, ReduxActions } from "../../store";
 import { Dispatch } from "redux";

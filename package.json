@@ -13,6 +13,7 @@
     "@types/react-sortable-tree": "^0.3.11",
     "@types/react-sortable-tree-theme-file-explorer": "0.0.0",
     "@types/react-sticky": "^6.0.3",
+    "envalid": "^7.1.1",
     "keycloak-js": "^7.0.1",
     "localized-strings": "^0.2.4",
     "material-table": "^1.57.2",

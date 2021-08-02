@@ -10,3 +10,20 @@ export type DeviceState = Device;
 export type ApplicationsState = Application[];
 
 export type DialogType = "edit" | "show" | "new";
+
+/**
+ * Configuration
+ */
+export interface Configuration {
+  auth: {
+    url: string;
+    realm: string;
+    clientId: string;
+  };
+  api: {
+    baseUrl: string;
+  };
+  files: {
+    uploadPath: string;
+  };
+}

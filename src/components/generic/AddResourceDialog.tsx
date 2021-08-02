@@ -20,7 +20,7 @@ import strings from "../../localization/strings";
 import { Resource, ResourceType } from "../../generated/client/src";
 import { FormValidationRules, validateForm, Form, initForm, MessageType } from "ts-form-validation";
 import { AuthState } from "../../types/index";
-import ApiUtils from "../../utils/ApiUtils";
+import ApiUtils from "../../utils/api";
 import { ResourceTypeObject, resolveChildResourceTypes } from "../../commons/resourceTypeHelper";
 
 import slugify from "slugify";
