@@ -125,8 +125,8 @@ class ApplicationEditor extends React.Component<Props, State> {
       return;
     }
 
-    document.addEventListener('mousemove', this.handleMousemove);
-    document.addEventListener('mouseup', this.handleMouseup);
+    document.addEventListener("mousemove", this.handleMousemove);
+    document.addEventListener("mouseup", this.handleMouseup);
 
     if (openedResource) {
       openResource(undefined);
