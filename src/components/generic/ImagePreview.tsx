@@ -96,9 +96,9 @@ class ImagePreview extends React.Component<Props, State> {
           <div key={ imagePath } onClick={ this.toggleDialog }>
             { previewContent }
           </div>
-          {imagePath && 
+          {imagePath &&
             <div className={ classes.deleteImage }>
-              <IconButton 
+              <IconButton
                 size="small"
                 className={ classes.iconButton }
                 title={ strings.delete }

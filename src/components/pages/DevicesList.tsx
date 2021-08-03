@@ -100,35 +100,47 @@ class DevicesList extends React.Component<Props, State> {
    */
   public render() {
     const { classes, customer } = this.props;
-    const { deviceInDialog, dialogType, editorDialogOpen, deleteDialogOpen, snackbarOpen } = this.state;
-    const cards = this.state.devices.map((device: Device, index) => this.renderCard(device, `${index}${device.name}`));
+    const {
+      devices,
+      deviceInDialog,
+      dialogType,
+      editorDialogOpen,
+      deleteDialogOpen,
+      snackbarOpen
+    } = this.state;
+
+    const cards = devices.map((device, index) => this.renderCard(device, `${index}${device.name}`));
 
     return (
       <Container maxWidth="xl" className="page-content">
-        <Typography className={classes.heading} variant="h2">
-          {customer ? customer.name : strings.loading} / {strings.devices}
+        <Typography className={ classes.heading } variant="h2">
+          { customer ? customer.name : strings.loading } / { strings.devices }
         </Typography>
-        <Grid container spacing={5} direction="row" className="card-list">
-          {cards}
-          {this.renderAdd()}
+        <Grid container spacing={ 5 } direction="row" className="card-list">
+          { cards }
+          { this.renderAdd() }
         </Grid>
         <DeviceDialog
-          open={editorDialogOpen}
-          device={deviceInDialog}
-          dialogType={dialogType}
-          saveClick={this.onSaveOrUpdateDeviceClick}
-          handleClose={this.onDialogCloseClick}
+          open={ editorDialogOpen }
+          device={ deviceInDialog }
+          dialogType={ dialogType }
+          saveClick={ this.onSaveOrUpdateDeviceClick }
+          handleClose={ this.onDialogCloseClick }
         />
         <DeleteDialog
-          open={deleteDialogOpen}
-          deleteClick={this.onDeleteDeviceClick}
-          itemToDelete={deviceInDialog || undefined}
-          handleClose={this.onDeleteDialogCloseClick}
-          title={strings.deleteConfirmation}
+          open={ deleteDialogOpen }
+          deleteClick={ this.onDeleteDeviceClick }
+          itemToDelete={ deviceInDialog }
+          handleClose={ this.onDeleteDialogCloseClick }
+          title={ strings.deleteConfirmation }
         />
-        <Snackbar open={snackbarOpen} autoHideDuration={6000} onClose={this.onSnackbarClose}>
-          <Alert onClose={this.onSnackbarClose} severity="success">
-            {strings.deleteSuccess}
+        <Snackbar
+          open={ snackbarOpen }
+          autoHideDuration={ 6000 }
+          onClose={ this.onSnackbarClose }
+        >
+          <Alert onClose={ this.onSnackbarClose } severity="success">
+            { strings.deleteSuccess }
           </Alert>
         </Snackbar>
       </Container>
@@ -137,17 +149,20 @@ class DevicesList extends React.Component<Props, State> {
 
   /**
    * Card render method
+   *
+   * @param device device
+   * @param key key
    */
   private renderCard(device: Device, key: string) {
     return (
-      <Grid key={key} item>
+      <Grid key={ key } item>
         <CardItem
-          title={device.name}
-          img={device.image_url}
-          editConfiguration={() => this.onEditDeviceConfigurationClick(device)}
-          editClick={() => this.onEditDeviceClick(device)}
-          detailsClick={() => this.onDeviceDetailsClick(device)}
-          deleteClick={() => this.onDeleteOpenModalClick(device)}
+          title={ device.name }
+          img={ device.image_url }
+          editConfiguration={ () => this.onEditDeviceConfigurationClick(device) }
+          editClick={ () => this.onEditDeviceClick(device) }
+          detailsClick={ () => this.onDeviceDetailsClick(device) }
+          deleteClick={ () => this.onDeleteOpenModalClick(device) }
         ></CardItem>
       </Grid>
     );
@@ -158,12 +173,13 @@ class DevicesList extends React.Component<Props, State> {
    */
   private renderAdd() {
     const { classes } = this.props;
+
     return (
       <Grid item>
         <VisibleWithRole role="admin">
-          <Card elevation={0} className={classes.addCard}>
-            <CardActionArea className={classes.add} onClick={this.onAddDeviceClick}>
-              <AddIcon className={classes.addIcon} />
+          <Card elevation={ 0 } className={ classes.addCard }>
+            <CardActionArea className={ classes.add } onClick={ this.onAddDeviceClick }>
+              <AddIcon className={ classes.addIcon } />
             </CardActionArea>
           </Card>
         </VisibleWithRole>
@@ -173,7 +189,8 @@ class DevicesList extends React.Component<Props, State> {
 
   /**
    * Edit device configuration method
-   * @param device
+   *
+   * @param device device
    */
   private onEditDeviceConfigurationClick = (device: Device) => {
     const { customerId, setDevice, history } = this.props;
@@ -183,7 +200,8 @@ class DevicesList extends React.Component<Props, State> {
 
   /**
    * Edit device method
-   * @param device
+   *
+   * @param device device
    */
   private onEditDeviceClick = (device: Device) => {
     this.setState({
@@ -195,7 +213,8 @@ class DevicesList extends React.Component<Props, State> {
 
   /**
    * Show device details method
-   * @param device
+   *
+   * @param device device
    */
   private onDeviceDetailsClick = (device: Device) => {
     this.setState({
@@ -209,12 +228,17 @@ class DevicesList extends React.Component<Props, State> {
    * Add device method
    */
   private onAddDeviceClick = () => {
-    this.setState({ dialogType: "new", editorDialogOpen: true, deviceInDialog: undefined });
+    this.setState({
+      dialogType: "new",
+      editorDialogOpen: true,
+      deviceInDialog: undefined
+    });
   };
 
   /**
    * Delete open modal click
-   * @param device
+   *
+   * @param device device
    */
   private onDeleteOpenModalClick = (device: Device) => {
     this.setState({
@@ -225,20 +249,22 @@ class DevicesList extends React.Component<Props, State> {
 
   /**
    * Delete device method
-   * @param device
+   *
+   * @param device device
    */
   private onDeleteDeviceClick = async (device: Device) => {
     const { auth, customerId } = this.props;
+    const { devices } = this.state;
+
     if (!auth || !auth.token || !device.id) {
       return;
     }
 
-    const devicesApi = ApiUtils.getDevicesApi(auth.token);
-    await devicesApi.deleteDevice({
+    await ApiUtils.getDevicesApi(auth.token).deleteDevice({
       customer_id: customerId,
       device_id: device.id
     });
-    const { devices } = this.state;
+
     this.setState({
       snackbarOpen: true,
       deleteDialogOpen: false,
@@ -248,43 +274,43 @@ class DevicesList extends React.Component<Props, State> {
 
   /**
    * Save device method
-   * @param device
-   * @param dialogType
+   *
+   * @param device device
+   * @param dialogType dialog type
    */
   private onSaveOrUpdateDeviceClick = async (device: Device, dialogType: DialogType) => {
     switch (dialogType) {
       case "new":
         this.saveNewDevice(device);
-        break;
-
+      break;
       case "edit":
-        if (device.id) {
-          this.updateDevice(device, device.id);
-        }
-        break;
+        device.id && this.updateDevice(device, device.id);
+      break;
       default:
-        break;
+      break;
     }
   };
 
   /**
    * Save new device method
-   * @param device
+   *
+   * @param device device
    */
   private saveNewDevice = async (device: Device) => {
     const { auth, customerId } = this.props;
+    const { devices } = this.state;
+
     if (!auth || !auth.token) {
       return;
     }
 
-    const devicesApi = ApiUtils.getDevicesApi(auth.token);
-    const newDevice = await devicesApi.createDevice({
+    const newDevice = await ApiUtils.getDevicesApi(auth.token).createDevice({
       customer_id: customerId,
       device: device
     });
 
-    const { devices } = this.state;
     devices.push(newDevice);
+
     this.setState({
       devices: devices,
       editorDialogOpen: false
@@ -293,50 +319,38 @@ class DevicesList extends React.Component<Props, State> {
 
   /**
    * Updates device
-   * @param device
-   * @param id
+   *
+   * @param device device
+   * @param id device id
    */
   private updateDevice = async (device: Device, id: string) => {
     const { auth, customerId } = this.props;
+    const { devices } = this.state;
+
     if (!auth || !auth.token) {
       return;
     }
 
-    const devicesApi = ApiUtils.getDevicesApi(auth.token);
-
-    const updatedDevice = await devicesApi.updateDevice({
+    const updatedDevice = await ApiUtils.getDevicesApi(auth.token).updateDevice({
       device_id: id,
       customer_id: customerId,
       device: device
     });
 
-    const { devices } = this.state;
-
-    /**
-     * Creates updated list by removing old device from list and pushing updated device to list in stead
-     */
-    const updateDeviceList = [...devices].filter(dev => dev.id !== id);
-    updateDeviceList.push(updatedDevice);
-
     this.setState({
-      devices: updateDeviceList,
+      devices: devices.map(device => device.id === updatedDevice.id ? updatedDevice : device),
       editorDialogOpen: false
     });
   };
 
   /**
-   * Snack bar close click
-   * @param event
-   * @param reason
+   * Snackbar close click
+   *
+   * @param event event
+   * @param reason reason
    */
   private onSnackbarClose = (event?: React.SyntheticEvent, reason?: string) => {
-    if (reason === "clickaway") {
-      return;
-    }
-
-    this.setState({
-      snackbarOpen: false
-    });
+    reason !== "clickaway" && this.setState({ snackbarOpen: false });
   };
 
   /**
@@ -345,7 +359,10 @@ class DevicesList extends React.Component<Props, State> {
    * TODO: handle prompt if unsaved
    */
   private onDialogCloseClick = () => {
-    this.setState({ editorDialogOpen: false, deviceInDialog: undefined });
+    this.setState({
+      editorDialogOpen: false,
+      deviceInDialog: undefined
+    });
   };
 
   /**
@@ -359,7 +376,7 @@ class DevicesList extends React.Component<Props, State> {
 /**
  * Maps redux state to props
  *
- * @param state redux state
+ * @param state Redux state
  */
 const mapStateToProps = (state: ReduxState) => ({
   auth: state.auth,
@@ -369,13 +386,11 @@ const mapStateToProps = (state: ReduxState) => ({
 /**
  * Function for declaring dispatch functions
  *
- * @param dispatch
+ * @param dispatch Redux dispatch
  */
-const mapDispatchToProps = (dispatch: Dispatch<ReduxActions>) => {
-  return {
-    setCustomer: (customer: Customer) => dispatch(setCustomer(customer)),
-    setDevice: (device: Device) => dispatch(setDevice(device)),
-  };
-};
+const mapDispatchToProps = (dispatch: Dispatch<ReduxActions>) => ({
+  setCustomer: (customer: Customer) => dispatch(setCustomer(customer)),
+  setDevice: (device: Device) => dispatch(setDevice(device))
+});
 
 export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(DevicesList));
