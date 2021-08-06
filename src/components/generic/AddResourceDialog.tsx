@@ -20,7 +20,7 @@ import strings from "../../localization/strings";
 import { Resource, ResourceType } from "../../generated/client/src";
 import { FormValidationRules, validateForm, Form, initForm, MessageType } from "ts-form-validation";
 import { AuthState } from "../../types/index";
-import ApiUtils from "../../utils/ApiUtils";
+import ApiUtils from "../../utils/api";
 import { ResourceTypeObject, resolveChildResourceTypes } from "../../commons/resourceTypeHelper";
 
 import slugify from "slugify";
@@ -329,8 +329,8 @@ class AddResourceDialog extends React.Component<Props, State> {
 
     if (parentResourceType) {
       let foundTypes: ResourceTypeObject[] = resolveChildResourceTypes(parentResourceType);
-      const hasLanguageMenu = siblingResources.find(r => r.type == ResourceType.LANGUAGEMENU);
-      const hasIntro = siblingResources.find(r => r.type == ResourceType.INTRO);
+      const hasLanguageMenu = siblingResources.find(r => r.type === ResourceType.LANGUAGEMENU);
+      const hasIntro = siblingResources.find(r => r.type === ResourceType.INTRO);
       if (hasLanguageMenu) {
         foundTypes = foundTypes.filter(type => type.value !== ResourceType.LANGUAGEMENU);
       }

@@ -215,5 +215,19 @@ export default createStyles({
 
   deleteButton: {
     backgroundColor: "#e85874"
+  },
+
+  savingDialogRoot: {
+    display: "flex",
+    flexDirection: "column",
+    backgroundColor: "rgba(255,255,255,0.9)",
+    position: "fixed",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 2000,
+    alignItems: "center",
+    justifyContent: "center"
   }
 });

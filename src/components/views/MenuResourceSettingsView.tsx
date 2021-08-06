@@ -12,12 +12,12 @@ import styles from "../../styles/editor-view";
 import strings from "../../localization/strings";
 import theme from "../../styles/theme";
 import { Resource, ResourceToJSON, KeyValueProperty, ResourceType } from "../../generated/client/src";
-import FileUpload from "../../utils/FileUpload";
+import FileUpload from "../../utils/file-upload";
 import { forwardRef } from "react";
 import { MessageType, initForm, Form, validateForm } from "ts-form-validation";
 
 import { AuthState } from "../../types";
-import ApiUtils from "../../utils/ApiUtils";
+import ApiUtils from "../../utils/api";
 
 import IconButton from "@material-ui/core/IconButton";
 import { resourceRules, ResourceSettingsForm } from "../../commons/formRules";
@@ -215,7 +215,7 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
             { this.renderUploaderAndPreview(strings.menuImage, "menuImg") }
           </div>
           <div>
-            { this.renderUploaderAndPreview(strings.foregroudImage, "foreground") }
+            { this.renderUploaderAndPreview(strings.foregroundImage, "foreground") }
           </div>
         </div>
 
@@ -458,7 +458,7 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
         data={resourceData["styles"]}
         editable={{
           onRowAdd: newData =>
-            new Promise((resolve, reject) => {
+            new Promise<void>((resolve, reject) => {
               {
                 const { resourceData } = this.state;
                 const styles = resourceData["styles"];
@@ -473,7 +473,7 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
               resolve();
             }),
           onRowUpdate: (newData, oldData) =>
-            new Promise((resolve, reject) => {
+            new Promise<void>((resolve, reject) => {
               {
                 const { resourceData } = this.state;
                 const styles = resourceData["styles"];
@@ -489,7 +489,7 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
               resolve();
             }),
           onRowDelete: oldData =>
-            new Promise((resolve, reject) => {
+            new Promise<void>((resolve, reject) => {
               {
                 const { resourceData } = this.state;
                 const styles = resourceData["styles"];
@@ -545,7 +545,7 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
         data={ resourceData["properties"] }
         editable={{
           onRowAdd: newData =>
-            new Promise((resolve, reject) => {
+            new Promise<void>((resolve, reject) => {
               {
                 const { resourceData, resourceMap, iconsMap } = this.state;
                 const properties = resourceData["properties"];
@@ -561,7 +561,7 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
               resolve();
             }),
           onRowUpdate: (newData, oldData) =>
-            new Promise((resolve, reject) => {
+            new Promise<void>((resolve, reject) => {
               {
                 const { resourceData } = this.state;
                 const properties = resourceData["properties"];
@@ -579,7 +579,7 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
               resolve();
             }),
           onRowDelete: oldData =>
-            new Promise((resolve, reject) => {
+            new Promise<void>((resolve, reject) => {
               {
                 const { resourceData, iconsMap, resourceMap } = this.state;
                 const properties = resourceData["properties"];
@@ -623,7 +623,7 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
     const { classes } = this.props;
 
     if (!childResources) {
-      return <div />;
+      return null;
     }
 
     const listItems = childResources.map(resource => {
@@ -633,7 +633,7 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
           <TableCell align="left">{ getLocalizedTypeString(resource.type) }</TableCell>
           <TableCell align="center">{ resource.order_number }</TableCell>
           <TableCell align="right">
-            <IconButton 
+            <IconButton
               size="small"
               className={ classes.iconButton }
               color="primary"
@@ -669,19 +669,27 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
 
   /**
    * Render file uploaders for background image and custom icons
+   *
+   * @param title title
+   * @param uploadKey upload key
    */
   private renderUploaderAndPreview = (title: string, uploadKey: string) => {
-    const resource = this.props.resource;
+    const { resource } = this.props;
+    const { properties } = this.state.form.values;
 
-    const properties = this.state.form.values.properties;
     if (!properties) {
       return;
     }
+
     const previewItem = this.findImage(properties, uploadKey) || "";
 
-    return <>
-        <Typography variant="h4" style={{ marginBottom: theme.spacing(1) }}>{ title }</Typography>
+    return (
+      <>
+        <Typography variant="h4" style={{ marginBottom: theme.spacing(1) }}>
+          { title }
+        </Typography>
         <ImagePreview
+          uploadButtonText={ previewItem ? strings.fileUpload.changeMedia : strings.fileUpload.addMedia }
           imagePath={ previewItem }
           allowSetUrl={ true }
           onSave={ this.onPropertyFileChange }
@@ -690,7 +698,8 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
           uploadKey={ uploadKey }
           onDelete={ this.onPropertyFileDelete }
         />
-      </>;
+      </>
+    );
   };
 
   /**
@@ -698,34 +707,35 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
    */
   private renderIconList = () => {
     const { iconsMap } = this.state;
-    const { classes } = this.props; 
+    const { classes, resource } = this.props;
     const icons: JSX.Element[] = [];
-    const allKeys = Object.values(IconKeys);
-    iconsMap.forEach((value: string, key: string) => {
-      let displayName;
-      const iconTypeKey = allKeys.find(k => key === k.toString());
-      if (iconTypeKey) {
-        displayName = getLocalizedIconTypeString(iconTypeKey);
-      } else {
-        displayName = key;
-      }
-      const preview = (
+
+    iconsMap.forEach((value, key) => {
+      const iconTypeKey = Object.values(IconKeys).find(k => key === k.toString());
+      const displayName = iconTypeKey ?
+        getLocalizedIconTypeString(iconTypeKey) :
+        key;
+
+      icons.push(
         <div key={ key }>
-          <Typography variant="h5">{ displayName }</Typography>
+          <Typography variant="h5">
+            { displayName }
+          </Typography>
           <ImagePreview
+            uploadButtonText={ resource ? strings.fileUpload.changeImage : strings.fileUpload.addImage }
             key={ key }
             imagePath={ value }
             allowSetUrl={ false }
             onSave={ this.onIconFileChange }
             onSetUrl={ () => {} }
-            resource={ this.props.resource }
+            resource={ resource }
             uploadKey={ key }
             onDelete={ this.onIconFileDelete }
             />
         </div>
       );
-      icons.push(preview);
     });
+
     return (
       <div className={ classes.gridRow }>
         { icons }
@@ -750,7 +760,7 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
     const allKeys = Object.values(IconKeys);
 
     if (props) {
-      props.map(p => {
+      props.forEach(p => {
         const iconTypeKey = allKeys.find(k => p.key === k.toString());
         if (p.key.startsWith("icon_") || iconTypeKey ) {
           initIconsMap.set(p.key, p.value);
@@ -807,7 +817,7 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
    */
   private onIconFileChange = async (files: File[], key: string) => {
     const { customerId } = this.props;
-    
+
     const newUri = await this.upload(files, customerId);
     const tempMap = this.state.iconsMap;
     tempMap.set(key, newUri);

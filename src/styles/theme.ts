@@ -1,5 +1,5 @@
 import { createMuiTheme, responsiveFontSizes } from "@material-ui/core";
-import { blueGrey, grey, red } from "@material-ui/core/colors";
+import { blueGrey, grey } from "@material-ui/core/colors";
 
 let theme = createMuiTheme();
 theme = responsiveFontSizes(theme);
@@ -72,6 +72,55 @@ export default createMuiTheme({
     }
   },
   overrides: {
+    MuiCssBaseline: {
+      "@global": {
+        "body": {
+          margin: 0
+        },
+        ".wrapper": {
+          overflow: "hidden",
+          height: "100vh",
+          display: "grid",
+          gridTemplateRows: "auto auto 1fr",
+          gridTemplateAreas: `
+            "header"
+            "breadcrumb"
+            "content"
+          `
+        },
+        ".content": {
+          gridArea: "content"
+        },
+        ".page-content": {
+          overflow: "hidden",
+          maxHeight: "100%",
+          height: "100%",
+          paddingBottom: 50,
+          paddingTop: 50,
+          "@media screen and (max-width: 600px)": {
+            paddingTop: 25
+          }
+        },
+        ".card-list": {
+          overflowY: "auto",
+          maxHeight: "calc(100% - 50px)",
+          marginBottom: 0
+        },
+        "::-webkit-scrollbar": {
+          width: 10
+        },
+        "::-webkit-scrollbar-track": {
+          background: "rgba(0,0,0,0)"
+        },
+        "::-webkit-scrollbar-thumb": {
+          background: "#888",
+          borderRadius: 10
+        },
+        "::-webkit-scrollbar-thumb:hover": {
+          background: "#555"
+        }
+      }
+    },
     MuiButton: {
       root: {
         borderRadius: 0,

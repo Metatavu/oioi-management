@@ -7,11 +7,11 @@ import { Application, Resource, KeyValueProperty } from "../../generated/client/
 import { Form, initForm, validateForm, MessageType } from "ts-form-validation";
 import { ApplicationForm, applicationRules, ResourceSettingsForm } from "../../commons/formRules";
 
-import FileUpload from "../../utils/FileUpload";
+import FileUpload from "../../utils/file-upload";
 import AddIconDialog from "../generic/AddIconDialog";
 import ImagePreview from "../generic/ImagePreview";
 import { AuthState } from "../../types";
-import ApiUtils from "../../utils/ApiUtils";
+import ApiUtils from "../../utils/api";
 import { IconKeys, getLocalizedIconTypeString, getDefaultIconURL } from "../../commons/iconTypeHelper";
 import VisibleWithRole from "../generic/VisibleWithRole";
 import AddIcon from "@material-ui/icons/Add";
@@ -163,7 +163,6 @@ class AppSettingsView extends React.Component<Props, State> {
         <div className={ classes.gridRow }>
           { this.renderIconList() }
         </div>
-
         <AddIconDialog
           resource={ this.props.rootResource }
           onSave={ this.onIconFileChange }
@@ -203,9 +202,16 @@ class AppSettingsView extends React.Component<Props, State> {
       }
       const data = JSON.parse(e.target.result as string)
       const topLevel = data.root.children;
+
       this.setState({ importingContent: true });
+
       const imported = await this.importWallJsonItems(rootResource.id!, topLevel);
+      if (imported) {
+        await this.importRootProperties(data);
+      }
+
       this.setState({ importDone: imported });
+
       setTimeout(() => window.location.reload(), 3000);
     }
     reader.readAsText(file);
@@ -227,7 +233,7 @@ class AppSettingsView extends React.Component<Props, State> {
         application_id: application.id!,
         customer_id: customerId,
         device_id: deviceId,
-        resource: this.translateWallItemToResource(parentId, i, item) 
+        resource: this.translateWallItemToResource(parentId, i, item)
       });
       if (item.children.length > 0) {
         await this.importWallJsonItems(createdResource.id!, item.children);
@@ -235,6 +241,41 @@ class AppSettingsView extends React.Component<Props, State> {
     }
 
     return true;
+  }
+
+  /**
+   * Imports root properties from the wall JSON data
+   *
+   * @param data wall JSON data
+   */
+  private importRootProperties = async (data: any) => {
+    const { auth, application, customerId, deviceId, rootResource } = this.props;
+    if (!auth || !auth.token) {
+      return false;
+    }
+
+    const resourcesApi = ApiUtils.getResourcesApi(auth.token);
+    const importProperties: { [ key: string]: string } = data.root.properties || {};
+    const importPropertyKeys = Object.keys(importProperties);
+
+    const rootProperties = (rootResource.properties || [])
+      .filter((rootProperty: KeyValueProperty) => !importPropertyKeys.includes(rootProperty.key));
+
+    importPropertyKeys.forEach(importPropertyKey => {
+      const importPropertyValue = importProperties[importPropertyKey];
+      importPropertyValue && rootProperties.push({
+        key: importPropertyKey,
+        value: importPropertyValue
+      });
+    });
+
+    await resourcesApi.updateResource({
+      resource: { ...rootResource, properties: rootProperties },
+      application_id: application.id!,
+      customer_id: customerId,
+      device_id: deviceId,
+      resource_id: rootResource.id!
+    });
   }
 
   /**
@@ -341,6 +382,7 @@ class AppSettingsView extends React.Component<Props, State> {
     previewItem = this.state.resourceMap.get(key) || "";
     return (
       <ImagePreview
+        uploadButtonText={ previewItem ? strings.fileUpload.changeImage : strings.fileUpload.addImage }
         allowSetUrl={ true }
         imagePath={ previewItem }
         onSave={ this.onPropertyFileChange }
@@ -357,7 +399,7 @@ class AppSettingsView extends React.Component<Props, State> {
    */
   private renderIconList = () => {
     const { iconsMap } = this.state;
-    const { classes } = this.props;
+    const { classes, rootResource } = this.props;
     const icons: JSX.Element[] = [];
     const allKeys = Object.values(IconKeys);
     iconsMap.forEach((value: string, key: string) => {
@@ -366,12 +408,13 @@ class AppSettingsView extends React.Component<Props, State> {
         <div key={ key }>
           <Typography variant="h5">{ iconTypeKey ? getLocalizedIconTypeString(iconTypeKey) : key }</Typography>
           <ImagePreview
+            uploadButtonText={ rootResource ? strings.fileUpload.changeImage : strings.fileUpload.addImage }
             key={ key }
             imagePath={ value }
             allowSetUrl={ false }
             onSetUrl={ () => {} }
             onSave={ this.onIconFileChange }
-            resource={ this.props.rootResource }
+            resource={ rootResource }
             uploadKey={ key }
             onDelete={ this.onIconFileDelete }
           />
@@ -406,20 +449,14 @@ class AppSettingsView extends React.Component<Props, State> {
     const props = rootResource.properties;
 
     const iconKeys = Object.values(IconKeys);
-    iconKeys.map(iconKey => {
-      if (!initIconsMap.has(iconKey)) {
-        initIconsMap.set(iconKey, getDefaultIconURL(iconKey));
-      }
-    });
+    iconKeys.forEach(iconKey => !initIconsMap.has(iconKey) && initIconsMap.set(iconKey, getDefaultIconURL(iconKey)));
 
     if (props) {
-      props.map(p => {
-        if (p.key.startsWith("icon_") || initIconsMap.has(p.key)) {
-          initIconsMap.set(p.key, p.value);
-        } else {
-          initResourceMap.set(p.key, p.value);
-        }
-      });
+      props.forEach(({ key, value }) =>
+        key.startsWith("icon_") || initIconsMap.has(key) ?
+          initIconsMap.set(key, value) :
+          initResourceMap.set(key, value)
+      );
     }
 
     this.setState({
