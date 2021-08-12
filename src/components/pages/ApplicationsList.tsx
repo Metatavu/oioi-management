@@ -110,23 +110,27 @@ class ApplicationsList extends React.Component<Props, State> {
     return (
       <AppLayout>
         <Container maxWidth="xl" className="page-content">
-          <Typography className={classes.heading} variant="h2">
-            {customer ? customer.name : strings.loading} / {device ? device.name : strings.loading} / {strings.applications}
+          <Typography className={ classes.heading } variant="h2">
+            { customer ? customer.name : strings.loading } / { device ? device.name : strings.loading } / { strings.applications }
           </Typography>
-          <Grid container spacing={5} direction="row" className="card-list">
-            {cards}
-            {this.renderAdd()}
+          <Grid container spacing={ 5 } direction="row" className="card-list">
+            { cards }
+            { this.renderAdd() }
           </Grid>
           <DeleteDialog
-            open={deleteDialogOpen}
-            deleteClick={this.onDeleteApplicationClick}
-            itemToDelete={applicationInDialog}
-            handleClose={this.onDeleteDialogCloseClick}
-            title={strings.deleteConfirmation}
+            open={ deleteDialogOpen }
+            deleteClick={ this.onDeleteApplicationClick }
+            itemToDelete={ applicationInDialog }
+            handleClose={ this.onDeleteDialogCloseClick }
+            title={ strings.deleteConfirmation }
           />
-          <Snackbar open={snackbarOpen} autoHideDuration={6000} onClose={this.onSnackbarClose}>
-            <Alert onClose={this.onSnackbarClose} severity="success">
-              {strings.deleteSuccess}
+          <Snackbar
+            open={ snackbarOpen }
+            autoHideDuration={ 6000 }
+            onClose={ this.onSnackbarClose }
+          >
+            <Alert onClose={ this.onSnackbarClose } severity="success">
+              { strings.deleteSuccess }
             </Alert>
           </Snackbar>
         </Container>
