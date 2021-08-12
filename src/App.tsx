@@ -1,6 +1,5 @@
 import React from "react";
-import { BrowserRouter, Route } from "react-router-dom";
-import IndexPage from "./components/pages/IndexPage";
+import { BrowserRouter, Route, Switch } from "react-router-dom";
 import { ThemeProvider } from "@material-ui/styles";
 import { CssBaseline } from "@material-ui/core";
 import { Provider as ReduxProvider } from "react-redux";
@@ -11,6 +10,11 @@ import { createStore } from "redux";
 import { ReduxState, ReduxActions, rootReducer } from "./store";
 import strings from "./localization/strings";
 import AccessTokenRefresh from "./components/containers/access-token-refresh";
+import AppLayout from "./components/layouts/app-layout";
+import ApplicationEditor from "./components/pages/ApplicationEditor";
+import DevicesList from "./components/pages/DevicesList";
+import CustomersList from "./components/pages/CustomersList";
+import ApplicationsList from "./components/pages/ApplicationsList";
 
 /**
  * Redux store
@@ -33,7 +37,47 @@ const App: React.FC = () => {
         <AccessTokenRefresh>
           <BrowserRouter>
             <div className="App">
-              <Route path="/" component={ IndexPage }/>
+              <Switch>
+                <Route
+                  path="/"
+                  exact
+                  render={({ history }) => (
+                    <CustomersList history={ history } />
+                  )}
+                />
+                <Route
+                  path="/:customerId/devices"
+                  exact
+                  render={({ match, history }) => (
+                    <DevicesList
+                      customerId={ match.params.customerId }
+                      history={ history }
+                    />
+                  )}
+                />
+                <Route
+                  path="/:customerId/devices/:deviceId/applications"
+                  exact
+                  render={({ match, history }) => (
+                    <ApplicationsList
+                      customerId={ match.params.customerId }
+                      deviceId={ match.params.deviceId }
+                      history={ history }/>
+                  )}
+                />
+                <Route
+                  path="/:customerId/devices/:deviceId/applications/:applicationId"
+                  exact
+                  render={({ match, history }) => (
+                    <ApplicationEditor
+                      customerId={ match.params.customerId }
+                      deviceId={ match.params.deviceId }
+                      applicationId={ match.params.applicationId }
+                      history={ history }
+                    />
+                  )}
+                />
+              </Switch>
             </div>
           </BrowserRouter>
         </AccessTokenRefresh>

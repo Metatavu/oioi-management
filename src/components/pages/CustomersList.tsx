@@ -18,6 +18,7 @@ import { Alert } from "@material-ui/lab";
 import { DialogType } from "../../types/index";
 import { setCustomer } from "../../actions/customer";
 import VisibleWithRole from "../generic/VisibleWithRole";
+import AppLayout from "../layouts/app-layout";
 
 /**
  * Component props
@@ -92,35 +93,40 @@ class CustomersList extends React.Component<Props, State> {
     const cards = this.state.customers.map((customer, index) => this.renderCard(customer, `${index}${customer.name}`));
 
     return (
-      <Container maxWidth="xl" className="page-content">
-        <Typography className={classes.heading} variant="h2">
-          {strings.customers}
-        </Typography>
-        <Grid container spacing={5} direction="row" className="card-list">
-          {cards}
-          {this.renderAddCustomer()}
-        </Grid>
-        <CustomerDialog
-          open={editorDialogOpen}
-          customer={customerInDialog}
-          dialogType={dialogType}
-          saveClick={this.onSaveOrUpdateCustomerClick}
-          handleClose={this.onDialogCloseClick}
-        />
-
-        <DeleteDialog
-          open={deleteDialogOpen}
-          deleteClick={this.onDeleteCustomerClick}
-          itemToDelete={customerInDialog}
-          handleClose={this.onDeleteDialogCloseClick}
-          title={strings.deleteConfirmation}
-        />
-        <Snackbar open={snackbarOpen} autoHideDuration={6000} onClose={this.onSnackbarClose}>
-          <Alert onClose={this.onSnackbarClose} severity="success">
-            {strings.deleteSuccess}
-          </Alert>
-        </Snackbar>
-      </Container>
+      <AppLayout>
+        <Container maxWidth="xl" className="page-content">
+          <Typography className={ classes.heading } variant="h2">
+            { strings.customers }
+          </Typography>
+          <Grid container spacing={ 5 } direction="row" className="card-list">
+            { cards }
+            { this.renderAddCustomer() }
+          </Grid>
+          <CustomerDialog
+            open={ editorDialogOpen }
+            customer={ customerInDialog }
+            dialogType={ dialogType }
+            saveClick={ this.onSaveOrUpdateCustomerClick }
+            handleClose={ this.onDialogCloseClick }
+          />
+          <DeleteDialog
+            open={ deleteDialogOpen }
+            deleteClick={ this.onDeleteCustomerClick }
+            itemToDelete={ customerInDialog }
+            handleClose={ this.onDeleteDialogCloseClick }
+            title={ strings.deleteConfirmation }
+          />
+          <Snackbar
+            open={ snackbarOpen }
+            autoHideDuration={ 6000 }
+            onClose={ this.onSnackbarClose }
+          >
+            <Alert onClose={ this.onSnackbarClose } severity="success">
+              { strings.deleteSuccess }
+            </Alert>
+          </Snackbar>
+        </Container>
+      </AppLayout>
     );
   }
 

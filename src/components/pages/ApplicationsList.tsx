@@ -19,6 +19,7 @@ import { setCustomer } from "../../actions/customer";
 import { setApplication } from "../../actions/application";
 import { setDevice } from "../../actions/device";
 import VisibleWithRole from "../generic/VisibleWithRole";
+import AppLayout from "../layouts/app-layout";
 
 /**
  * Component props
@@ -105,28 +106,35 @@ class ApplicationsList extends React.Component<Props, State> {
     const { classes, customer, device } = this.props;
     const { applications, deleteDialogOpen, applicationInDialog, snackbarOpen } = this.state;
     const cards = applications.map((application, index) => this.renderCard(application, `${index}${application.name}`));
+
     return (
-      <Container maxWidth="xl" className="page-content">
-        <Typography className={classes.heading} variant="h2">
-          {customer ? customer.name : strings.loading} / {device ? device.name : strings.loading} / {strings.applications}
-        </Typography>
-        <Grid container spacing={5} direction="row" className="card-list">
-          {cards}
-          {this.renderAdd()}
-        </Grid>
-        <DeleteDialog
-          open={deleteDialogOpen}
-          deleteClick={this.onDeleteApplicationClick}
-          itemToDelete={applicationInDialog}
-          handleClose={this.onDeleteDialogCloseClick}
-          title={strings.deleteConfirmation}
-        />
-        <Snackbar open={snackbarOpen} autoHideDuration={6000} onClose={this.onSnackbarClose}>
-          <Alert onClose={this.onSnackbarClose} severity="success">
-            {strings.deleteSuccess}
-          </Alert>
-        </Snackbar>
-      </Container>
+      <AppLayout>
+        <Container maxWidth="xl" className="page-content">
+          <Typography className={ classes.heading } variant="h2">
+            { customer ? customer.name : strings.loading } / { device ? device.name : strings.loading } / { strings.applications }
+          </Typography>
+          <Grid container spacing={ 5 } direction="row" className="card-list">
+            { cards }
+            { this.renderAdd() }
+          </Grid>
+          <DeleteDialog
+            open={ deleteDialogOpen }
+            deleteClick={ this.onDeleteApplicationClick }
+            itemToDelete={ applicationInDialog }
+            handleClose={ this.onDeleteDialogCloseClick }
+            title={ strings.deleteConfirmation }
+          />
+          <Snackbar
+            open={ snackbarOpen }
+            autoHideDuration={ 6000 }
+            onClose={ this.onSnackbarClose }
+          >
+            <Alert onClose={ this.onSnackbarClose } severity="success">
+              { strings.deleteSuccess }
+            </Alert>
+          </Snackbar>
+        </Container>
+      </AppLayout>
     );
   }
 

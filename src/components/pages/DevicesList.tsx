@@ -17,6 +17,7 @@ import { Alert } from "@material-ui/lab";
 import { setDevice } from "../../actions/device";
 import { setCustomer } from "../../actions/customer";
 import VisibleWithRole from "../generic/VisibleWithRole";
+import AppLayout from "../layouts/app-layout";
 
 /**
  * Component props
@@ -112,38 +113,40 @@ class DevicesList extends React.Component<Props, State> {
     const cards = devices.map((device, index) => this.renderCard(device, `${index}${device.name}`));
 
     return (
-      <Container maxWidth="xl" className="page-content">
-        <Typography className={ classes.heading } variant="h2">
-          { customer ? customer.name : strings.loading } / { strings.devices }
-        </Typography>
-        <Grid container spacing={ 5 } direction="row" className="card-list">
-          { cards }
-          { this.renderAdd() }
-        </Grid>
-        <DeviceDialog
-          open={ editorDialogOpen }
-          device={ deviceInDialog }
-          dialogType={ dialogType }
-          saveClick={ this.onSaveOrUpdateDeviceClick }
-          handleClose={ this.onDialogCloseClick }
-        />
-        <DeleteDialog
-          open={ deleteDialogOpen }
-          deleteClick={ this.onDeleteDeviceClick }
-          itemToDelete={ deviceInDialog }
-          handleClose={ this.onDeleteDialogCloseClick }
-          title={ strings.deleteConfirmation }
-        />
-        <Snackbar
-          open={ snackbarOpen }
-          autoHideDuration={ 6000 }
-          onClose={ this.onSnackbarClose }
-        >
-          <Alert onClose={ this.onSnackbarClose } severity="success">
-            { strings.deleteSuccess }
-          </Alert>
-        </Snackbar>
-      </Container>
+      <AppLayout>
+        <Container maxWidth="xl" className="page-content">
+          <Typography className={ classes.heading } variant="h2">
+            { customer ? customer.name : strings.loading } / { strings.devices }
+          </Typography>
+          <Grid container spacing={ 5 } direction="row" className="card-list">
+            { cards }
+            { this.renderAdd() }
+          </Grid>
+          <DeviceDialog
+            open={ editorDialogOpen }
+            device={ deviceInDialog }
+            dialogType={ dialogType }
+            saveClick={ this.onSaveOrUpdateDeviceClick }
+            handleClose={ this.onDialogCloseClick }
+          />
+          <DeleteDialog
+            open={ deleteDialogOpen }
+            deleteClick={ this.onDeleteDeviceClick }
+            itemToDelete={ deviceInDialog }
+            handleClose={ this.onDeleteDialogCloseClick }
+            title={ strings.deleteConfirmation }
+          />
+          <Snackbar
+            open={ snackbarOpen }
+            autoHideDuration={ 6000 }
+            onClose={ this.onSnackbarClose }
+          >
+            <Alert onClose={ this.onSnackbarClose } severity="success">
+              { strings.deleteSuccess }
+            </Alert>
+          </Snackbar>
+        </Container>
+      </AppLayout>
     );
   }
 
