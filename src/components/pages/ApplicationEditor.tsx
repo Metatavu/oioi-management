@@ -212,7 +212,7 @@ class ApplicationEditor extends React.Component<Props, State> {
                 variant="contained"
                 disabled={ !openedResource }
                 onClick={ this.onChildDelete }
-                >
+              >
                 { strings.delete }
               </Button>
             </div>
