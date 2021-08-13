@@ -10,11 +10,12 @@ import { ApplicationForm, applicationRules, ResourceSettingsForm } from "../../c
 import FileUpload from "../../utils/file-upload";
 import AddIconDialog from "../generic/AddIconDialog";
 import ImagePreview from "../generic/ImagePreview";
-import { AuthState } from "../../types";
+import { AuthState, ErrorContextType } from "../../types";
 import ApiUtils from "../../utils/api";
 import { IconKeys, getLocalizedIconTypeString, getDefaultIconURL } from "../../commons/iconTypeHelper";
 import VisibleWithRole from "../generic/VisibleWithRole";
 import AddIcon from "@material-ui/icons/Add";
+import { ErrorContext } from "../containers/ErrorHandler";
 
 /**
  * Component Props
@@ -42,10 +43,14 @@ interface State {
   importDone: boolean;
   dataChanged: boolean;
 }
+
 /**
  * Creates Application setting view component
  */
 class AppSettingsView extends React.Component<Props, State> {
+
+  static contextType: React.Context<ErrorContextType> = ErrorContext;
+
   /**
    * Constructor
    *
@@ -70,9 +75,9 @@ class AppSettingsView extends React.Component<Props, State> {
   }
 
   /**
-   * Component did mount
+   * Component did mount life cycle handler
    */
-  public componentDidMount() {
+  public componentDidMount = () => {
     const { application, rootResource } = this.props;
 
     let applicationForm = initForm<ApplicationForm>(
@@ -86,9 +91,16 @@ class AppSettingsView extends React.Component<Props, State> {
     this.updateMaps(rootResource, applicationForm);
   }
 
+  /**
+   * Component did update life cycle handler
+   *
+   * @param prevProps previous props 
+   * @param prevState previous state
+   */
   public componentDidUpdate = (prevProps: Props, prevState: State) => {
     const { rootResource } = this.props;
     let { applicationForm } = this.state;
+
     if (prevProps.rootResource !== this.props.rootResource) {
       applicationForm = validateForm(applicationForm);
       this.updateMaps(rootResource, applicationForm);
@@ -219,25 +231,37 @@ class AppSettingsView extends React.Component<Props, State> {
 
   /**
    * Imports wall json items
+   *
+   * @param parentId parent ID
+   * @param items list of items
+   * @returns boolean promise
    */
   private importWallJsonItems = async (parentId: string, items: any[]): Promise<boolean> => {
     const { auth, application, customerId, deviceId } = this.props;
+
     if (!auth || !auth.token) {
       return false;
     }
 
     const resourcesApi = ApiUtils.getResourcesApi(auth.token);
-    for(let i = 0; i < items.length; i++) {
-      let item = items[i];
-      let createdResource = await resourcesApi.createResource({
-        application_id: application.id!,
-        customer_id: customerId,
-        device_id: deviceId,
-        resource: this.translateWallItemToResource(parentId, i, item)
-      });
-      if (item.children.length > 0) {
-        await this.importWallJsonItems(createdResource.id!, item.children);
+
+    try {
+      for(let i = 0; i < items.length; i++) {
+        const item = items[i];
+        const createdResource = await resourcesApi.createResource({
+          application_id: application.id!,
+          customer_id: customerId,
+          device_id: deviceId,
+          resource: this.translateWallItemToResource(parentId, i, item)
+        });
+  
+        if (item.children.length > 0) {
+          await this.importWallJsonItems(createdResource.id!, item.children);
+        }
       }
+    } catch (error) {
+      this.context.setError(strings.errorManagement.resource.create, error);
+      return false;
     }
 
     return true;
@@ -250,16 +274,16 @@ class AppSettingsView extends React.Component<Props, State> {
    */
   private importRootProperties = async (data: any) => {
     const { auth, application, customerId, deviceId, rootResource } = this.props;
+
     if (!auth || !auth.token) {
       return false;
     }
 
-    const resourcesApi = ApiUtils.getResourcesApi(auth.token);
-    const importProperties: { [ key: string]: string } = data.root.properties || {};
+    const importProperties: { [ key: string ]: string } = data.root.properties || {};
     const importPropertyKeys = Object.keys(importProperties);
 
     const rootProperties = (rootResource.properties || [])
-      .filter((rootProperty: KeyValueProperty) => !importPropertyKeys.includes(rootProperty.key));
+      .filter(rootProperty => !importPropertyKeys.includes(rootProperty.key));
 
     importPropertyKeys.forEach(importPropertyKey => {
       const importPropertyValue = importProperties[importPropertyKey];
@@ -269,17 +293,26 @@ class AppSettingsView extends React.Component<Props, State> {
       });
     });
 
-    await resourcesApi.updateResource({
-      resource: { ...rootResource, properties: rootProperties },
-      application_id: application.id!,
-      customer_id: customerId,
-      device_id: deviceId,
-      resource_id: rootResource.id!
-    });
+    try {
+      await ApiUtils.getResourcesApi(auth.token).updateResource({
+        resource: { ...rootResource, properties: rootProperties },
+        application_id: application.id!,
+        customer_id: customerId,
+        device_id: deviceId,
+        resource_id: rootResource.id!
+      });
+    } catch (error) {
+      this.context.setError(strings.errorManagement.resource.update, error);
+    }
   }
 
   /**
    * Translates wall json item to resource
+   *
+   * @param parentId parent id
+   * @param index index
+   * @param item item
+   * @returns translated resource
    */
   private translateWallItemToResource = (parentId: string, index: number, item: any): Resource => {
     return {
@@ -296,37 +329,41 @@ class AppSettingsView extends React.Component<Props, State> {
 
   /**
    * Translates wall json item properties to resource properties
+   *
+   * @param item item
+   * @returns list of key value properties
    */
   private translateWallItemProperties = (item: any): KeyValueProperty[] => {
-    const properties: KeyValueProperty[] = [];
-    const keys = Object.keys(item.properties);
-    keys.forEach(key => properties.push({key: key, value: item.properties[key]}));
-    return properties;
+    return Object.keys(item.properties).map(key => {
+      return { key: key, value: item.properties[key] };
+    });
   }
 
   /**
    * Translates wall json item styles to resource styles
    */
   private translateWallItemStyles = (item: any): KeyValueProperty[] => {
-    const styles: KeyValueProperty[] = [];
-    const keys = Object.keys(item.styles);
-    keys.forEach(key => styles.push({key: key, value: item.styles[key]}));
-    return styles;
+    return Object.keys(item.styles).map(key => {
+      return { key: key, value: item.styles[key] };
+    });
   }
 
   /**
-   * Render text fields
+   * Renders text fields
    */
   private renderFields = () => {
-
     return (
       <>
         <div style={{ marginBottom: theme.spacing(3) }}>
-          <Typography variant="h4" style={{ marginBottom: theme.spacing(1) }}>{ strings.applicationName }</Typography>
+          <Typography variant="h4" style={{ marginBottom: theme.spacing(1) }}>
+            { strings.applicationName }
+          </Typography>
           { this.renderTextField(strings.applicationName, 1, "text", "name") }
         </div>
         <div style={{ marginBottom: theme.spacing(3) }}>
-          <Typography variant="h4" style={{ marginBottom: theme.spacing(1) }}>{ strings.applicationSettings.teaserText }</Typography>
+          <Typography variant="h4" style={{ marginBottom: theme.spacing(1) }}>
+            { strings.applicationSettings.teaserText }
+          </Typography>
           { this.renderTextField(strings.applicationSettings.teaserText, 8, "text", undefined, "teaserText") }
         </div>
       </>
@@ -335,8 +372,20 @@ class AppSettingsView extends React.Component<Props, State> {
 
   /**
    * Render text fields with given form keys
+   *
+   * @param label text field label
+   * @param rows rows
+   * @param type text field type
+   * @param appKey key of ApplicationForm
+   * @param resourceKey key of ResourceSettingsForm
    */
-  private renderTextField = (label: string, rows: number, type: string, appKey?: keyof ApplicationForm, resourceKey?: keyof ResourceSettingsForm) => {
+  private renderTextField = (
+    label: string,
+    rows: number,
+    type: string,
+    appKey?: keyof ApplicationForm,
+    resourceKey?: keyof ResourceSettingsForm
+  ) => {
     if (appKey) {
       const values = this.state.applicationForm.values;
       const { messages: { [appKey]: message } } = this.state.applicationForm;
@@ -375,11 +424,12 @@ class AppSettingsView extends React.Component<Props, State> {
 
   /**
    * Render media elements
+   *
+   * @param key key
    */
   private renderMedia = (key: string) => {
 
-    let previewItem: string;
-    previewItem = this.state.resourceMap.get(key) || "";
+    const previewItem = this.state.resourceMap.get(key) || "";
     return (
       <ImagePreview
         uploadButtonText={ previewItem ? strings.fileUpload.changeImage : strings.fileUpload.addImage }
@@ -400,6 +450,7 @@ class AppSettingsView extends React.Component<Props, State> {
   private renderIconList = () => {
     const { iconsMap } = this.state;
     const { classes, rootResource } = this.props;
+
     const icons: JSX.Element[] = [];
     const allKeys = Object.values(IconKeys);
     iconsMap.forEach((value: string, key: string) => {
@@ -422,6 +473,7 @@ class AppSettingsView extends React.Component<Props, State> {
       );
       icons.push(preview);
     });
+
     return (
       <>
         { icons }
@@ -650,13 +702,26 @@ class AppSettingsView extends React.Component<Props, State> {
     this.onUpdateResource();
   };
 
-  private async upload(files: File[], customerId: string) {
+  /**
+   * Uploads file
+   *
+   * @param files list of files
+   * @param customerId customer id
+   * @returns new URI
+   */
+  private async upload(files: File[], customerId: string): Promise<string> {
     let newUri = "";
     const file = files[0];
+
     if (file) {
-      const response = await FileUpload.uploadFile(file, customerId);
-      newUri = response.uri;
+      try {
+        const response = await FileUpload.uploadFile(file, customerId);
+        newUri = response.uri;
+      } catch (error) {
+        this.context.setError(strings.errorManagement.file.upload, error);
+      }
     }
+
     return newUri;
   }
 

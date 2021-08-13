@@ -53,6 +53,8 @@ export default class ApiUtils {
   /**
    * Gets api configuration
    *
+   * TODO: Remove Noty library
+   *
    * @param token access token
    */
   private static getConfiguration(token: string) {
@@ -60,34 +62,7 @@ export default class ApiUtils {
       basePath: Config.get().api.baseUrl,
       accessToken: token,
       middleware: [{ post: async (context) => {
-        if (!context.response.ok) {
-          let errorContent = strings.unknownErrorMessage;
-          switch (context.response.status) {
-            case 400:
-              errorContent = strings.badRequestErrorMessage;
-            break;
-            case 403:
-              errorContent = strings.forbiddenErrorMessage;
-            break;
-            case 404:
-              errorContent = strings.notFoundErrorMessage;
-            break;
-            case 500:
-              errorContent = strings.internalErrorMessage;
-            break;
-            case 502:
-            case 503:
-            case 504:
-              errorContent = strings.unavailableErrorMessage;
-            break;
-          }
-          new Noty({
-            type: "error",
-            text: errorContent,
-            layout: "bottomLeft",
-            timeout: 5000
-          }).show();
-        } else {
+        if (context.response.ok) {
           let method = context.init.method || "";
           method = method.toLowerCase();
           let messageContent = undefined;
@@ -112,6 +87,7 @@ export default class ApiUtils {
             }).show();
           }
         }
+
         return context.response;
       }}]
     });

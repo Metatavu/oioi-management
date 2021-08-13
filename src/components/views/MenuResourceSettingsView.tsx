@@ -16,7 +16,7 @@ import FileUpload from "../../utils/file-upload";
 import { forwardRef } from "react";
 import { MessageType, initForm, Form, validateForm } from "ts-form-validation";
 
-import { AuthState } from "../../types";
+import { AuthState, ErrorContextType } from "../../types";
 import ApiUtils from "../../utils/api";
 
 import IconButton from "@material-ui/core/IconButton";
@@ -26,6 +26,7 @@ import AddIconDialog from "../generic/AddIconDialog";
 import { IconKeys, getLocalizedIconTypeString } from "../../commons/iconTypeHelper";
 import VisibleWithRole from "../generic/VisibleWithRole";
 import { getLocalizedTypeString } from "../../commons/resourceTypeHelper";
+import { ErrorContext } from "../containers/ErrorHandler";
 
 /**
  * Component props
@@ -38,16 +39,7 @@ interface Props extends WithStyles<typeof styles> {
   customerId: string;
   resourcesUpdated: number;
   confirmationRequired: (value: boolean) => void;
-  /**
-   * Update resource
-   * @param resource resource to update
-   */
   onUpdate: (resource: Resource) => void;
-
-  /**
-   * Delete resource
-   * @param resource resource to delete
-   */
   onDelete: (resource: Resource) => void;
 }
 
@@ -66,7 +58,12 @@ interface State {
   iconDialogOpen: boolean;
 }
 
+/**
+ * Component for menu resource settings view
+ */
 class MenuResourceSettingsView extends React.Component<Props, State> {
+
+  static contextType: React.Context<ErrorContextType> = ErrorContext;
 
   /**
    * Constructor
@@ -96,89 +93,28 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
   }
 
   /**
-   * Component did mount
+   * Component did mount life cycle handler
    */
   public componentDidMount = async () => {
-
-    const { auth, customerId, deviceId, applicationId, resource } = this.props;
-    const resourceId = resource.id;
-
-    if (!auth || !auth.token || !resourceId) {
-      return;
-    }
-    let form = initForm<ResourceSettingsForm>(
-      {
-        ...this.props.resource,
-      },
-      resourceRules
-    );
-
-    form = validateForm(form);
-    const { initResourceMap, initIconsMap } = this.updateMaps(resource);
-
-    const resourcesApi = ApiUtils.getResourcesApi(auth.token);
-    const childResources = await resourcesApi.listResources({
-      customer_id: customerId,
-      device_id: deviceId,
-      application_id: applicationId,
-      parent_id: resourceId
-    });
-
-    this.setState({
-      form,
-      resourceId: resourceId,
-      resourceData: ResourceToJSON(this.props.resource),
-      childResources: childResources,
-      resourceMap: initResourceMap,
-      iconsMap: initIconsMap
-    });
+    await this.fetchData(false);
   }
 
   /**
    * Component did update method
+   *
+   * @param prevProps previous props
+   * @param prevState previous state
    */
   public componentDidUpdate = async (prevProps: Props, prevState: State) => {
     if (prevProps.resource !== this.props.resource || prevProps.resourcesUpdated !== this.props.resourcesUpdated) {
-
-      const { auth, customerId, deviceId, applicationId, resource } = this.props;
-      const resourceId = resource.id;
-
-      if (!auth || !auth.token || !resourceId) {
-        return;
-      }
-
-      const resourcesApi = ApiUtils.getResourcesApi(auth.token);
-      const childResources = await resourcesApi.listResources({
-        customer_id: customerId,
-        device_id: deviceId,
-        application_id: applicationId,
-        parent_id: resourceId
-      });
-      let form = initForm<ResourceSettingsForm>(
-        {
-          ...resource,
-        },
-        resourceRules
-      );
-
-      form = validateForm(form);
-      const { initResourceMap, initIconsMap } = this.updateMaps(resource);
-
-      this.setState({
-        updated: true,
-        form,
-        resourceData: ResourceToJSON(resource),
-        childResources: childResources,
-        resourceMap: initResourceMap,
-        iconsMap: initIconsMap
-      });
+      await this.fetchData(true);
     }
   }
 
   /**
    * Component render method
    */
-  public render() {
+  public render = () => {
     const { updated, dataChanged } = this.state;
     const { classes } = this.props;
 
@@ -949,21 +885,30 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
 
   /**
    * Upload file to S3
+   *
    * @param files list of files
    * @param customerId customer id
+   * @returns new URI
    */
-  private async upload(files: File[], customerId: string) {
+  private async upload(files: File[], customerId: string): Promise<string> {
     let newUri = "";
     const file = files[0];
+
     if (file) {
-      const response = await FileUpload.uploadFile(file, customerId);
-      newUri = response.uri;
+      try {
+        const response = await FileUpload.uploadFile(file, customerId);
+        newUri = response.uri;
+      } catch (error) {
+        this.context.setError(strings.errorManagement.file.upload, error);
+      }
     }
+
     return newUri;
   }
 
   /**
    * Push all property key value pairs from state maps to properties array
+   *
    * @param properties
    */
   private getPropertiesToUpdate(properties: KeyValueProperty[]) {
@@ -994,7 +939,10 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
    * @param oldData old data from table
    * @param newData new data from table
    */
-  private updateMapsOnTableDataChange = (oldData: ({ key: string; } & { value: string; }) | undefined, newData: { key: string; } & { value: string; }) => {
+  private updateMapsOnTableDataChange = (
+    oldData: ({ key: string; } & { value: string; }) | undefined,
+    newData: { key: string; } & { value: string; }
+  ) => {
     const { resourceMap, iconsMap } = this.state;
 
     if (oldData) {
@@ -1025,11 +973,15 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
 
   /**
    * Adds resource to map
+   *
    * @param newData new data
    * @param iconsMap icons map
    * @param resourceMap resource map
    */
-  private addResourceToMap(newData: { key: string; } & { value: string; }, iconsMap: Map<string, string>, resourceMap: Map<string, string>) {
+  private addResourceToMap(
+    newData: { key: string; } & { value: string; },
+    iconsMap: Map<string, string>, resourceMap: Map<string, string>
+  ) {
     if (newData.key.startsWith("icon_")) {
       iconsMap.set(newData.key, newData.value);
     } else {
@@ -1039,15 +991,64 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
 
   /**
    * Deletes resource from map
+   *
    * @param oldData  old data
    * @param iconsMap icons map
    * @param resourceMap resource map
    */
-  private deleteResourceFromMap(oldData: { key: string; } & { value: string; }, iconsMap: Map<string, string>, resourceMap: Map<string, string>) {
+  private deleteResourceFromMap(
+    oldData: { key: string; } & { value: string; },
+    iconsMap: Map<string, string>, resourceMap: Map<string, string>
+  ) {
     if (oldData.key.startsWith("icon_")) {
       iconsMap.delete(oldData.key);
     } else {
       resourceMap.delete(oldData.key);
+    }
+  }
+
+  /**
+   * Fetches data
+   *
+   * @param updated updated
+   */
+  private fetchData = async (updated: boolean) => {
+    const { auth, customerId, deviceId, applicationId, resource } = this.props;
+    const resourceId = resource.id;
+
+    if (!auth || !auth.token || !resourceId) {
+      return;
+    }
+
+    let form = initForm<ResourceSettingsForm>(
+      {
+        ...resource,
+      },
+      resourceRules
+    );
+
+    form = validateForm(form);
+    const { initResourceMap, initIconsMap } = this.updateMaps(resource);
+
+    try {
+      const childResources = await ApiUtils.getResourcesApi(auth.token).listResources({
+        customer_id: customerId,
+        device_id: deviceId,
+        application_id: applicationId,
+        parent_id: resourceId
+      });
+  
+      this.setState({
+        form: form,
+        updated: updated,
+        resourceId: resourceId,
+        resourceData: ResourceToJSON(this.props.resource),
+        childResources: childResources,
+        resourceMap: initResourceMap,
+        iconsMap: initIconsMap
+      });
+    } catch (error) {
+      this.context.setError(strings.errorManagement.resource.list, error);
     }
   }
 }

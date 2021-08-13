@@ -4,34 +4,20 @@ import styles from "../../styles/dialog";
 import { DropzoneArea } from "material-ui-dropzone";
 import strings from "../../localization/strings";
 import { Device } from "../../generated/client/src";
-import { DialogType } from "../../types";
+import { DialogType, ErrorContextType } from "../../types";
 import { KeyValueProperty } from "../../generated/client/src/models/KeyValueProperty";
 import { FormValidationRules, MessageType, validateForm, initForm, Form } from "ts-form-validation";
 import FileUpload from "../../utils/file-upload";
+import { ErrorContext } from "../containers/ErrorHandler";
 
 /**
  * Component properties
  */
 interface Props extends WithStyles<typeof styles> {
-  /**
-   * Dialog open
-   */
   open: boolean;
-  /**
-   * Dialog type
-   */
   dialogType: DialogType;
-  /**
-   * Chosen device
-   */
   device?: Device;
-  /**
-   * Save button click
-   */
   saveClick(device: Device, dialogType: DialogType): void;
-  /**
-   * Close handler
-   */
   handleClose(): void;
 }
 
@@ -90,6 +76,9 @@ interface State {
  * Creates Device dialog component
  */
 class DeviceDialog extends React.Component<Props, State> {
+
+  static contextType: React.Context<ErrorContextType> = ErrorContext;
+
   /**
    * Constructor
    *
@@ -419,9 +408,13 @@ class DeviceDialog extends React.Component<Props, State> {
    * @param files files
    */
   private onImageChange = async (files: File[]) => {
-    const response = await FileUpload.uploadFile(files[0], "deviceImages");
-
-    this.setState({ image_url: response.uri });
+    
+    try {
+      const response = await FileUpload.uploadFile(files[0], "deviceImages");
+      this.setState({ image_url: response.uri });
+    } catch (error) {
+      this.context.setError(strings.errorManagement.file.upload, error);
+    }
   };
 }
 
