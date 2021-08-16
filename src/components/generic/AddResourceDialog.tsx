@@ -191,7 +191,7 @@ class AddResourceDialog extends React.Component<Props, State> {
             onClick={ this.onSaveNewResource }
             color="primary"
             autoFocus
-            disabled={!isFormValid}
+            disabled={ !isFormValid }
           >
             { strings.save }
           </Button>
