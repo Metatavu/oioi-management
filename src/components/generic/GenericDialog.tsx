@@ -10,17 +10,8 @@ interface Props {
   title: string;
   positiveButtonText: string;
   cancelButtonText?: string;
-  /**
-   * On close handler
-   */
   onClose: () => void;
-  /**
-   * On cancel handler
-   */
   onCancel: () => void;
-  /**
-   * On confirm handler
-   */
   onConfirm: () => void | Promise<void>;
   open: boolean;
   error: boolean;
@@ -45,7 +36,8 @@ const GenericDialog: React.FC<Props> = ({
   fullScreen,
   fullWidth,
   disableEnforceFocus,
-  disabled
+  disabled,
+  children
 }) => {
   return (
     <Dialog
@@ -70,7 +62,7 @@ const GenericDialog: React.FC<Props> = ({
         </IconButton>
       </DialogTitle>
       <DialogContent>
-        { this.props.children }
+        { children }
       </DialogContent>
       <DialogActions>
         { cancelButtonText &&
@@ -93,3 +85,5 @@ const GenericDialog: React.FC<Props> = ({
     </Dialog>
   );
 }
+
+export default GenericDialog;
