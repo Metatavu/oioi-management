@@ -9,12 +9,12 @@ import theme from "./styles/theme";
 import { createStore } from "redux";
 import { ReduxState, ReduxActions, rootReducer } from "./store";
 import strings from "./localization/strings";
-import AccessTokenRefresh from "./components/containers/access-token-refresh";
-import AppLayout from "./components/layouts/app-layout";
+import AccessTokenRefresh from "./components/containers/AccessTokenRefresh";
 import ApplicationEditor from "./components/pages/ApplicationEditor";
 import DevicesList from "./components/pages/DevicesList";
 import CustomersList from "./components/pages/CustomersList";
 import ApplicationsList from "./components/pages/ApplicationsList";
+import ErrorHandler from "./components/containers/ErrorHandler";
 
 /**
  * Redux store
@@ -33,54 +33,56 @@ const App: React.FC = () => {
   return (
     <ReduxProvider store={ store }>
       <ThemeProvider theme={ theme }>
-        <CssBaseline />
-        <AccessTokenRefresh>
-          <BrowserRouter>
-            <div className="App">
-              <Switch>
-                <Route
-                  path="/"
-                  exact
-                  render={({ history }) => (
-                    <CustomersList history={ history } />
-                  )}
-                />
-                <Route
-                  path="/:customerId/devices"
-                  exact
-                  render={({ match, history }) => (
-                    <DevicesList
-                      customerId={ match.params.customerId }
-                      history={ history }
-                    />
-                  )}
-                />
-                <Route
-                  path="/:customerId/devices/:deviceId/applications"
-                  exact
-                  render={({ match, history }) => (
-                    <ApplicationsList
-                      customerId={ match.params.customerId }
-                      deviceId={ match.params.deviceId }
-                      history={ history }/>
-                  )}
-                />
-                <Route
-                  path="/:customerId/devices/:deviceId/applications/:applicationId"
-                  exact
-                  render={({ match, history }) => (
-                    <ApplicationEditor
-                      customerId={ match.params.customerId }
-                      deviceId={ match.params.deviceId }
-                      applicationId={ match.params.applicationId }
-                      history={ history }
-                    />
-                  )}
-                />
-              </Switch>
-            </div>
-          </BrowserRouter>
-        </AccessTokenRefresh>
+        <CssBaseline/>
+        <ErrorHandler>
+          <AccessTokenRefresh>
+            <BrowserRouter>
+              <div className="App">
+                <Switch>
+                  <Route
+                    path="/"
+                    exact
+                    render={({ history }) => (
+                      <CustomersList history={ history } />
+                    )}
+                  />
+                  <Route
+                    path="/:customerId/devices"
+                    exact
+                    render={({ match, history }) => (
+                      <DevicesList
+                        customerId={ match.params.customerId }
+                        history={ history }
+                      />
+                    )}
+                  />
+                  <Route
+                    path="/:customerId/devices/:deviceId/applications"
+                    exact
+                    render={({ match, history }) => (
+                      <ApplicationsList
+                        customerId={ match.params.customerId }
+                        deviceId={ match.params.deviceId }
+                        history={ history }/>
+                    )}
+                  />
+                  <Route
+                    path="/:customerId/devices/:deviceId/applications/:applicationId"
+                    exact
+                    render={({ match, history }) => (
+                      <ApplicationEditor
+                        customerId={ match.params.customerId }
+                        deviceId={ match.params.deviceId }
+                        applicationId={ match.params.applicationId }
+                        history={ history }
+                      />
+                    )}
+                  />
+                </Switch>
+              </div>
+            </BrowserRouter>
+          </AccessTokenRefresh>
+        </ErrorHandler>
       </ThemeProvider>
     </ReduxProvider>
   );

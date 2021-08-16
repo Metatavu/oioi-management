@@ -78,6 +78,25 @@
   "importInProgress": "Importing content, please wait and dont do anything.",
   "importDone": "Success, page will refresh automatically after few seconds",
   "importLabel": "Import contents from JSON - file",
+  "playback": "Playback",
+  "autoplay": "Automatic play",
+  "loop": "Loop",
+  "slideTimeOnScreen": "Slide time on screen",
+  "menuIcon": "Menu icon",
+  "replacedIcons": "Replaced icons",
+  "page": "Page",
+  "type": "Type",
+  "childResources": "Child resources",
+  "resourceName": "Resource name",
+  "orderFromLeftToRight": "Order from left to right",
+  "iconNamePrefixNotice": "Icon name is automatically extended with prefix \"icon_\".",
+  "noMediaPlaceholder": "No media",
+  "foregroundImage": "Foreground image",
+  "inputUrlAddress": "Input URL",
+  "urlAddressDialogTitle": "Input resource url",
+  "urlAddressDialogContent": "Input direct URL address to resource.",
+  "urlAddressDialogLabel": "URL Address",
+
   "fileUpload": {
     "addMedia": "Add media",
     "changeMedia": "Change media",
@@ -94,6 +113,7 @@
     "dropFileHere": "Drop the file here or click and select from file system. Max file size 300 MB.",
     "uploadFile": "Upload file"
   },
+
   "resourceTypes": {
     "root": "Root",
     "page": "Page",
@@ -107,6 +127,7 @@
     "image": "Image",
     "video": "Video"
   },
+
   "applicationSettings": {
     "settings": "Basic application settings",
     "teaserText": "Teaser text",
@@ -119,12 +140,7 @@
     "id": "Application id",
     "addIcon": "Add icon"
   },
-  "playback": "Playback",
-  "autoplay": "Automatic play",
-  "loop": "Loop",
-  "slideTimeOnScreen": "Slide time on screen",
-  "menuIcon": "Menu icon",
-  "replacedIcons": "Replaced icons",
+
   "iconKeys": {
     "iconHome": "Home normal",
     "iconHomeActive": "Home active",
@@ -137,16 +153,45 @@
     "iconExitApp": "Close app normal",
     "iconExitAppActive": "Close app active"
   },
-  "page": "Page",
-  "type": "Type",
-  "childResources": "Child resources",
-  "resourceName": "Resource name",
-  "orderFromLeftToRight": "Order from left to right",
-  "iconNamePrefixNotice": "Icon name is automatically extended with prefix \"icon_\".",
-  "noMediaPlaceholder": "No media",
-  "foregroundImage": "Foreground image",
-  "inputUrlAddress": "Input URL",
-  "urlAddressDialogTitle": "Input resource url",
-  "urlAddressDialogContent": "Input direct URL address to resource.",
-  "urlAddressDialogLabel": "URL Address"
+
+  "errorManagement": {
+    "title": "Error",
+    "customer": {
+      "list": "Error while listing customers",
+      "create": "Error while creating new customer",
+      "find": "Error while loading customer data",
+      "update": "Error while updating customer data",
+      "delete": "Error while deleting customer"
+    },
+    "device": {
+      "list": "Error while listing devices",
+      "create": "Error while creating new device",
+      "find": "Error while loading device data",
+      "update": "Error while updating device data",
+      "delete": "Error while deleting device"
+    },
+    "application": {
+      "list": "Error while listing applications",
+      "create": "Error while creating new application",
+      "find": "Error while loading application data",
+      "update": "Error while updating data for application {0}",
+      "delete": "Error while deleting application"
+    },
+    "resource": {
+      "list": "Error while listing resources",
+      "listChild": "Error while listing child resources",
+      "create": "Error while creating new resource",
+      "find": "Error while loading resource data",
+      "update": "Error while updating resource data",
+      "updateChild": "Error while updating child resource data",
+      "delete": "Error while deleting resource {0}"
+    },
+    "file": {
+      "upload": "Error while uploading file: {0}"
+    },
+    "auth": {
+      "init": "Error while authenticating",
+      "refresh": "Error while refreshing authentication"
+    }
+  }
 }

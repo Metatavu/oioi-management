@@ -16,11 +16,12 @@ import { Resource, ResourceToJSON, ResourceType } from "../../generated/client/s
 import FileUpload from "../../utils/file-upload";
 import { forwardRef } from "react";
 import { MessageType, initForm, Form, validateForm } from "ts-form-validation";
-import { AuthState } from "../../types";
+import { AuthState, ErrorContextType } from "../../types";
 import ApiUtils from "../../utils/api";
 import { resourceRules, ResourceSettingsForm } from "../../commons/formRules";
 import ImagePreview from "../generic/ImagePreview";
 import VisibleWithRole from "../generic/VisibleWithRole";
+import { ErrorContext } from "../containers/ErrorHandler";
 
 /**
  * Component props
@@ -32,35 +33,10 @@ interface Props extends WithStyles<typeof styles> {
   resource: Resource;
   resourcesUpdated: number;
   customerId: string;
-
-  /**
-   * Add child
-   */
   onAddChild: (parentId: string) => void;
-
-  /**
-   * Save resource to parent
-   * @param resource resource to save
-   */
   onSave: (resource: Resource) => void;
-
-  /**
-   * Save child resource
-   * @param childResource child resource to save
-   */
   onSaveChildren: (childResources: Resource[]) => void;
-
-  /**
-   * Delete resource
-   * @param resource resource to delete
-   */
   onDelete: (resource: Resource) => void;
-
-  /**
-   * Delete child resource
-   * @param resource resource to delete
-   * @param nextOpenResource
-   */
   onDeleteChild: (resource: Resource, nextOpenResource?: Resource) => void;
   confirmationRequired: (value: boolean) => void;
 }
@@ -77,7 +53,13 @@ interface State {
   dataChanged: boolean;
 }
 
+/**
+ * Component for page resource settings view
+ */
 class PageResourceSettingsView extends React.Component<Props, State> {
+
+  static contextType: React.Context<ErrorContextType> = ErrorContext;
+
   /**
    * Constructor
    *
@@ -103,7 +85,7 @@ class PageResourceSettingsView extends React.Component<Props, State> {
   }
 
   /**
-   * Component did mount
+   * Component did mount life cycle handler
    */
   public componentDidMount = async () => {
     const { auth } = this.props;
@@ -115,7 +97,10 @@ class PageResourceSettingsView extends React.Component<Props, State> {
   }
 
   /**
-   * Component did update method
+   * Component did update  life cycle handler
+   *
+   * @param prevProps previous props
+   * @param prevState previous state
    */
   public componentDidUpdate = async (prevProps: Props, prevState: State) => {
     if (prevProps.resource !== this.props.resource || prevProps.resourcesUpdated !== this.props.resourcesUpdated) {
@@ -131,7 +116,7 @@ class PageResourceSettingsView extends React.Component<Props, State> {
   /**
    * Component render method
    */
-  public render() {
+  public render = () => {
     const { loading, dataChanged } = this.state;
     const { classes } = this.props;
 
@@ -574,15 +559,16 @@ class PageResourceSettingsView extends React.Component<Props, State> {
       return;
     }
 
-    const resourcesApi = ApiUtils.getResourcesApi(auth.token);
-    const childResources = await resourcesApi.listResources({
-      customer_id: customerId,
-      device_id: deviceId,
-      application_id: applicationId,
-      parent_id: resourceId
-    });
-
-    return childResources;
+    try {
+      return await ApiUtils.getResourcesApi(auth.token).listResources({
+        customer_id: customerId,
+        device_id: deviceId,
+        application_id: applicationId,
+        parent_id: resourceId
+      });
+    } catch (error) {
+      this.context.setError(strings.errorManagement.resource.listChild, error);
+    }
   }
 
   /**
@@ -604,7 +590,7 @@ class PageResourceSettingsView extends React.Component<Props, State> {
       properties: resourceData["properties"]
     } as Resource;
 
-    await onSave(resource);
+    onSave(resource);
     childResources && onSaveChildren(childResources);
 
     this.setState({
@@ -681,6 +667,7 @@ class PageResourceSettingsView extends React.Component<Props, State> {
     const { customerId } = this.props;
     const { childResources } = this.state;
     const file = files[0];
+
     if (!file || !childResources) {
       return 500;
     }
@@ -690,14 +677,19 @@ class PageResourceSettingsView extends React.Component<Props, State> {
       return 500;
     }
 
-    const response = await FileUpload.uploadFile(file, customerId);
-    const updatedChildResource: Resource = { ...childResources[resourceIndex], data: response.uri };
-    this.updateChildResource(updatedChildResource);
+    try {
+      const response = await FileUpload.uploadFile(file, customerId);
+      const updatedChildResource: Resource = { ...childResources[resourceIndex], data: response.uri };
+      this.updateChildResource(updatedChildResource);
+    } catch (error) {
+      this.context.setError(strings.errorManagement.file.upload, error);
+      return 500;
+    }
 
     return 200;
   };
 
-   /**
+  /**
    * Handles child resource file change
    *
    * @param url url

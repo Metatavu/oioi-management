@@ -18,6 +18,8 @@ import { MessageType, initForm, Form, validateForm } from "ts-form-validation";
 import { ResourceSettingsForm, resourceRules } from "../../commons/formRules";
 import ImagePreview from "../generic/ImagePreview";
 import VisibleWithRole from "../generic/VisibleWithRole";
+import { ErrorContextType } from "../../types";
+import { ErrorContext } from "../containers/ErrorHandler";
 
 /**
  * Component props
@@ -25,17 +27,7 @@ import VisibleWithRole from "../generic/VisibleWithRole";
 interface Props extends WithStyles<typeof styles> {
   resource: Resource;
   customerId: string;
-
-  /**
-   * Update resource
-   * @param resource resource to update
-   */
   onUpdate: (resource: Resource) => void;
-
-  /**
-   * Delete resource
-   * @param resource resource to delete
-   */
   onDelete: (resource: Resource) => void;
   confirmationRequired: (value: boolean) => void;
 }
@@ -51,7 +43,13 @@ interface State {
   dataChanged: boolean;
 }
 
+/**
+ * Component for resource settings view
+ */
 class ResourceSettingsView extends React.Component<Props, State> {
+
+  static contextType: React.Context<ErrorContextType> = ErrorContext;
+
   /**
    * Constructor
    *
@@ -78,9 +76,9 @@ class ResourceSettingsView extends React.Component<Props, State> {
   }
 
   /**
-   * Component did mount
+   * Component did mount life cycle handler
    */
-  public componentDidMount() {
+  public componentDidMount = () => {
     const resourceId = this.props.resource.id;
     if (!resourceId) {
       return;
@@ -102,9 +100,12 @@ class ResourceSettingsView extends React.Component<Props, State> {
   }
 
   /**
-   * Component did update method
+   * Component did update life cycle handler
+   *
+   * @param prevProps previous props
+   * @param prevState previous state
    */
-  public componentDidUpdate(prevProps: Props, prevState: State) {
+  public componentDidUpdate = (prevProps: Props, prevState: State) => {
     if (prevProps.resource !== this.props.resource) {
       const { resource } = this.props;
       let form = initForm<ResourceSettingsForm>(
@@ -126,7 +127,7 @@ class ResourceSettingsView extends React.Component<Props, State> {
   /**
    * Component render method
    */
-  public render() {
+  public render = () => {
     const { updated, dataChanged } = this.state;
     const { classes } = this.props;
 
@@ -474,25 +475,29 @@ class ResourceSettingsView extends React.Component<Props, State> {
 
     const file = files[0];
     if (file) {
-      const response = await FileUpload.uploadFile(file, customerId);
-      resourceData["data"] = response.uri;
+      try {
+        const response = await FileUpload.uploadFile(file, customerId);
+        resourceData["data"] = response.uri;
+      } catch (error) {
+        this.context.setError(strings.errorManagement.file.upload, error);
+        return;
+      }
     } else {
       resourceData["data"] = undefined;
     }
-    this.setState({
-      resourceData: resourceData
-    });
-
+    this.setState({ resourceData: resourceData });
     this.onUpdateResource();
   };
 
   /**
    * Handles file change
+   *
    * @param url url to set
    */
   private onSetFileUrl = async (url: string) => {
     const { resourceData } = this.state;
     resourceData["data"] = url;
+
     this.setState({
       resourceData: resourceData
     });

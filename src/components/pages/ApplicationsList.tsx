@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import * as React from "react";
 import { Container, Typography, Grid, Card, withStyles, WithStyles, CardActionArea, Snackbar } from "@material-ui/core";
 import img from "../../resources/images/infowall.png";
@@ -11,7 +10,7 @@ import { Customer, Device, Application } from "../../generated/client/src";
 import { ReduxState, ReduxActions } from "../../store";
 import { Dispatch } from "redux";
 import { connect } from "react-redux";
-import { AuthState } from "../../types";
+import { AuthState, ErrorContextType } from "../../types";
 import ApiUtils from "../../utils/api";
 import DeleteDialog from "../generic/DeleteDialog";
 import { Alert } from "@material-ui/lab";
@@ -20,6 +19,7 @@ import { setApplication } from "../../actions/application";
 import { setDevice } from "../../actions/device";
 import VisibleWithRole from "../generic/VisibleWithRole";
 import AppLayout from "../layouts/app-layout";
+import { ErrorContext } from "../containers/ErrorHandler";
 
 /**
  * Component props
@@ -51,6 +51,9 @@ interface State {
  * Creates list of applications
  */
 class ApplicationsList extends React.Component<Props, State> {
+
+  static contextType: React.Context<ErrorContextType> = ErrorContext;
+
   /**
    * Constructor
    *
@@ -70,33 +73,7 @@ class ApplicationsList extends React.Component<Props, State> {
    * Component did mount
    */
   public componentDidMount = async () => {
-    const { auth, customerId, deviceId, setDevice, setCustomer, customer, device } = this.props;
-    if (!auth || !auth.token) {
-      return;
-    }
-
-    const customersApi = ApiUtils.getCustomersApi(auth.token);
-    const devicesApi = ApiUtils.getDevicesApi(auth.token);
-    const applicationsApi = ApiUtils.getApplicationsApi(auth.token);
-    let currentCustomer = customer;
-    if (!currentCustomer || currentCustomer.id !== customerId) {
-      currentCustomer = await customersApi.findCustomer({ customer_id: customerId });
-      setCustomer(currentCustomer);
-    }
-    let currentDevice = device;
-    if (!currentDevice || currentDevice.id !== deviceId) {
-      currentDevice = await devicesApi.findDevice({ customer_id: customerId, device_id: deviceId });
-      setDevice(currentDevice);
-    }
-    const applications = await applicationsApi.listApplications({ customer_id: customerId, device_id: deviceId });
-    const applicationImages = await Promise.all(
-      applications.map( async (app) => { return { id: app.id || "", src: await this.getApplicationImage(app) || "" } })
-    );
-
-    this.setState({
-      applications: applications,
-      applicationImages: applicationImages
-    });
+    await this.fetchData();
   };
 
   /**
@@ -121,7 +98,7 @@ class ApplicationsList extends React.Component<Props, State> {
             open={ deleteDialogOpen }
             deleteClick={ this.onDeleteApplicationClick }
             itemToDelete={ applicationInDialog }
-            handleClose={ this.onDeleteDialogCloseClick }
+            handleClose={ () => this.setState({ deleteDialogOpen: false }) }
             title={ strings.deleteConfirmation }
           />
           <Snackbar
@@ -144,44 +121,19 @@ class ApplicationsList extends React.Component<Props, State> {
   private renderCard = (application: Application, key: string) => {
     const { applicationImages } = this.state;
     const image = applicationImages ? applicationImages.find(item => item.id === application.id) : undefined;
+
     return (
-      <Grid item key={key}>
-          <CardItem
-          title={application.name}
+      <Grid item key={ key }>
+        <CardItem
+          title={ application.name }
           img={ image ? image.src : img }
-          editConfiguration={() => this.onEditConfiguration(application)}
-          editClick={() => this.onEditApplicationClick(application)}
-          detailsClick={() => this.onEditApplicationClick(application)}
-          deleteClick={() => this.onDeleteOpenModalClick(application)}>
-          </CardItem>
+          editConfiguration={ () => this.onEditConfiguration(application )}
+          editClick={ () => this.onEditApplicationClick(application )}
+          detailsClick={ () => this.onEditApplicationClick(application )}
+          deleteClick={ () => this.onDeleteOpenModalClick(application )}>
+        </CardItem>
       </Grid>
     );
-  }
-
-  /**
-   * Finds the application image from root resource and returns it
-   * 
-   * @param application application
-   */
-  private getApplicationImage = async (application: Application) => {
-    const { auth, customerId, deviceId } = this.props;
-    if (!auth || !auth.token) {
-      return;
-    }
-    const resourcesApi = ApiUtils.getResourcesApi(auth.token);
-    return resourcesApi.findResource({
-      customer_id: customerId,
-      device_id: deviceId,
-      application_id: application.id || "",
-      resource_id: application.root_resource_id || ""
-    }).then((rootResource) => {
-      if (rootResource && rootResource.properties) {
-        const img = rootResource.properties.find(resource => resource.key === "applicationImage");
-        if (img) {
-          return img.value;
-        }
-      }
-    });
   }
 
   /**
@@ -189,12 +141,13 @@ class ApplicationsList extends React.Component<Props, State> {
    */
   private renderAdd() {
     const { classes } = this.props;
+
     return (
       <Grid item>
         <VisibleWithRole role="admin">
-          <Card elevation={0} className={classes.addCard}>
-            <CardActionArea className={classes.add} onClick={this.onAddApplicationClick}>
-              <AddIcon className={classes.addIcon} />
+          <Card elevation={ 0 } className={ classes.addCard }>
+            <CardActionArea className={ classes.add } onClick={ this.onAddApplicationClick }>
+              <AddIcon className={ classes.addIcon }/>
             </CardActionArea>
           </Card>
         </VisibleWithRole>
@@ -202,42 +155,60 @@ class ApplicationsList extends React.Component<Props, State> {
     );
   }
 
+  /**
+   * Event handler for edit configuration
+   *
+   * @param application selected application
+   */
   private onEditConfiguration = (application: Application) => {
     const { customerId, deviceId, history, setApplication } = this.props;
+
     setApplication(application);
     history.push(`/${customerId}/devices/${deviceId}/applications/${application.id}`);
   };
 
   /**
-   * Edit application click
+   * Event handler for edit application click
+   *
+   * @param application clicked application
    */
   private onEditApplicationClick = (application: Application) => {
     const { customerId, deviceId, history, setApplication } = this.props;
+
     setApplication(application);
     history.push(`/${customerId}/devices/${deviceId}/applications/${application.id}`);
   };
 
   /**
-   * Delete application click
+   * Event handler for delete application click
+   *
+   * @param application application to delete
    */
   private onDeleteApplicationClick = async (application: Application) => {
     const { auth, customerId, deviceId } = this.props;
+    const { applications } = this.state;
+
     if (!auth || !auth.token || !application.id) {
       return;
     }
 
-    const applicationsApi = ApiUtils.getApplicationsApi(auth.token);
-    await applicationsApi.deleteApplication({
-      customer_id: customerId,
-      device_id: deviceId,
-      application_id: application.id
-    });
-    const { applications } = this.state;
-    this.setState({
-      snackbarOpen: true,
-      deleteDialogOpen: false,
-      applications: applications.filter(c => c.id !== application.id)
-    });
+    try {
+      await ApiUtils.getApplicationsApi(auth.token).deleteApplication({
+        customer_id: customerId,
+        device_id: deviceId,
+        application_id: application.id
+      });
+  
+      this.setState({
+        snackbarOpen: true,
+        deleteDialogOpen: false,
+        applications: applications.filter(c => c.id !== application.id)
+      });
+    } catch (error) {
+      this.context.setError(strings.errorManagement.application.delete, error);
+    }
+
+    this.reset();
   };
 
   /**
@@ -251,49 +222,137 @@ class ApplicationsList extends React.Component<Props, State> {
   };
 
   /**
-   * Add application click
+   * Event handler for add application click
    */
   private onAddApplicationClick = async () => {
     const { auth, customerId, deviceId } = this.props;
+
     if (!auth || !auth.token) {
       return;
     }
 
-    const applicationData: Application = {
-      name: "New Application"
-    };
+    try {
+      const application = await ApiUtils.getApplicationsApi(auth.token).createApplication({
+        customer_id: customerId,
+        device_id: deviceId,
+        application: {
+          name: "New Application"
+        }
+      });
 
-    const applicationsApi = ApiUtils.getApplicationsApi(auth.token);
-    const application = await applicationsApi.createApplication({
-      customer_id: customerId,
-      device_id: deviceId,
-      application: applicationData
-    });
-
-    this.onEditApplicationClick(application);
+      this.onEditApplicationClick(application);
+    } catch (error) {
+      this.context.setError(strings.errorManagement.application.create, error);
+    }
   };
 
   /**
    * Snack bar close click
+   *
+   * @param event React synthetic event
+   * @param reason reason
    */
   private onSnackbarClose = (event?: React.SyntheticEvent, reason?: string) => {
     if (reason === "clickaway") {
       return;
     }
 
-    this.setState({
-      snackbarOpen: false
-    });
+    this.setState({ snackbarOpen: false });
   };
 
   /**
-   * Delete dialog close click
+   * Finds the application image from root resource and returns it
+   * 
+   * @param application application
    */
-  private onDeleteDialogCloseClick = () => {
+  private getApplicationImage = async (application: Application) => {
+    const { auth, customerId, deviceId } = this.props;
+
+    if (!auth || !auth.token) {
+      return;
+    }
+
+    try {
+      return ApiUtils.getResourcesApi(auth.token).findResource({
+        customer_id: customerId,
+        device_id: deviceId,
+        application_id: application.id || "",
+        resource_id: application.root_resource_id || ""
+      }).then((rootResource) => {
+        if (rootResource && rootResource.properties) {
+          const img = rootResource.properties.find(resource => resource.key === "applicationImage");
+          if (img) {
+            return img.value;
+          }
+        }
+      });
+    } catch (error) {
+      this.context.setError(strings.errorManagement.resource.find, error);
+    }
+  }
+
+  /**
+   * Resets state values
+   */
+  private reset = () => {
     this.setState({
+      snackbarOpen: true,
       deleteDialogOpen: false
     });
-  };
+  }
+
+  /**
+   * Fetches initial data
+   */
+  private fetchData = async () => {
+    const { auth, customerId, deviceId, setDevice, setCustomer, customer, device } = this.props;
+
+    if (!auth || !auth.token) {
+      return;
+    }
+
+    const { token } = auth;
+    const { setError } = this.context;
+
+    if (!customer || customer.id !== customerId) {
+      try {
+        const findCustomer = await ApiUtils.getCustomersApi(token).findCustomer({ customer_id: customerId });
+        setCustomer(findCustomer);
+      } catch (error) {
+        setError(strings.errorManagement.customer.find, error);
+        return;
+      }
+    }
+
+    if (!device || device.id !== deviceId) {
+      try {
+        const foundDevice = await ApiUtils.getDevicesApi(token).findDevice({ customer_id: customerId, device_id: deviceId });
+        setDevice(foundDevice);
+      } catch (error) {
+        setError(strings.errorManagement.device.find, error);
+        return;
+      }
+    }
+
+    try {
+      const applications = await ApiUtils.getApplicationsApi(token).listApplications({ customer_id: customerId, device_id: deviceId });
+      const applicationImages = await Promise.all(
+        applications.map(async app => {
+          return {
+            id: app.id || "",
+            src: await this.getApplicationImage(app) || ""
+          }
+        })
+      );
+      this.setState({
+        applications: applications,
+        applicationImages: applicationImages
+      });
+    } catch (error) {
+      setError(strings.errorManagement.application.list, error);
+      return;
+    }
+  }
 }
 
 /**

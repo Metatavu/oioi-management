@@ -78,6 +78,25 @@
   "importInProgress": "Sisältöä tuodaan, odota äläkä tee mitään.",
   "importDone": "Onnistui, sivu ladataan uudelleen hetken kuluttua.",
   "importLabel": "Tuo sisältö json tiedostosta.",
+  "playback": "Toisto",
+  "autoplay": "Automaattinen toisto",
+  "loop": "Looppi",
+  "slideTimeOnScreen": "Siirtymäaika",
+  "menuIcon": "Menu ikoni",
+  "replacedIcons": "Korvatut ikonit",
+  "page": "Sivu",
+  "type": "Tyyppi",
+  "childResources": "Aliresurssit",
+  "resourceName": "Resurssin nimi",
+  "orderFromLeftToRight": "Järjestys vasemmalta oikealle",
+  "iconNamePrefixNotice": "Ikonin nimeen lisätään automaattisesti etuliite \"icon_\".",
+  "noMediaPlaceholder": "Ei mediaa",
+  "foregroundImage": "Foreground kuva",
+  "inputUrlAddress": "Syötä URL",
+  "urlAddressDialogTitle": "Syötä resurssin URL-osoite",
+  "urlAddressDialogContent": "Syötä suora URL-osoite resurssiin.",
+  "urlAddressDialogLabel": "URL-osoite",
+
   "fileUpload": {
     "addMedia": "Lisää media",
     "changeMedia": "Vaihda media",
@@ -94,6 +113,7 @@
     "dropFileHere": "Pudota tiedosto tähän tai valitse klikkaamalla. Tiedoston maksimikoko on 300 Mt.",
     "uploadFile": "Lisää tiedosto"
   },
+
   "resourceTypes": {
     "root": "Root",
     "page": "Sivu",
@@ -107,6 +127,7 @@
     "image": "Kuva",
     "video": "Video"
   },
+
   "applicationSettings": {
     "settings": "Sovellusasetukset",
     "teaserText": "Teaserteksti",
@@ -119,12 +140,7 @@
     "id": "Sovelluksen id",
     "addIcon": "Lisää ikoni"
   },
-  "playback": "Toisto",
-  "autoplay": "Automaattinen toisto",
-  "loop": "Looppi",
-  "slideTimeOnScreen": "Siirtymäaika",
-  "menuIcon": "Menu ikoni",
-  "replacedIcons": "Korvatut ikonit",
+
   "iconKeys": {
     "iconHome": "Koti normaali",
     "iconHomeActive": "Koti aktiivinen",
@@ -137,16 +153,45 @@
     "iconExitApp": "Sulje sovellus",
     "iconExitAppActive": "Sulje sovellus aktiivinen"
   },
-  "page": "Sivu",
-  "type": "Tyyppi",
-  "childResources": "Aliresurssit",
-  "resourceName": "Resurssin nimi",
-  "orderFromLeftToRight": "Järjestys vasemmalta oikealle",
-  "iconNamePrefixNotice": "Ikonin nimeen lisätään automaattisesti etuliite \"icon_\".",
-  "noMediaPlaceholder": "Ei mediaa",
-  "foregroundImage": "Foreground kuva",
-  "inputUrlAddress": "Syötä URL",
-  "urlAddressDialogTitle": "Syötä resurssin URL-osoite",
-  "urlAddressDialogContent": "Syötä suora URL-osoite resurssiin.",
-  "urlAddressDialogLabel": "URL-osoite"
+
+  "errorManagement": {
+    "title": "Virhe",
+    "customer": {
+      "list": "Virhe listattaessa asiakkaita",
+      "create": "Virhe luotaessa uutta asiakkasta",
+      "find": "Virhe haettaessa asiakkaan tietoja",
+      "update": "Virhe päivitettäessä asiakkaan tietoja",
+      "delete": "Virhe poistaessa asiakkasta"
+    },
+    "device": {
+      "list": "Virhe listattaessa laitteita",
+      "create": "Virhe luotaessa uutta laitetta",
+      "find": "Virhe haettaessa laitteen tietoja",
+      "update": "Virhe päivitettäessä laitteen tietoja",
+      "delete": "Virhe poistaessa laitetta"
+    },
+    "application": {
+      "list": "Virhe listattaessa sovelluksia",
+      "create": "Virhe luotaessa uutta sovellusta",
+      "find": "Virhe haettaessa sovelluksen tietoja",
+      "update": "Virhe päivittäessä sovellusta {0}",
+      "delete": "Virhe poistaessa sovellusta"
+    },
+    "resource": {
+      "list": "Virhe listattaessa resursseja",
+      "listChild": "Virhe listattaessa alaresursseja",
+      "create": "Virhe luotaessa uutta resurssia",
+      "find": "Virhe haettaessa resurssin tietoja",
+      "update": "Virhe päivittäessä resurssin tietoja",
+      "updateChild": "Virhe päivittäessä alaresurssin tietoja",
+      "delete": "Virhe poistettaessa resurssia {0}"
+    },
+    "file": {
+      "upload": "Virhe lähetettäessä tiedostoa: {0}"
+    },
+    "auth": {
+      "init": "Kirjautumisessa tapahtui virhe",
+      "refresh": "Autentikoinnin päivityksessä tapahtui virhe"
+    }
+  }
 }

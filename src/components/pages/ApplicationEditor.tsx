@@ -7,7 +7,7 @@ import styles from "../../styles/editor-view";
 import { ReduxState, ReduxActions } from "../../store";
 import { Dispatch } from "redux";
 import { connect } from "react-redux";
-import { AuthState } from "../../types";
+import { AuthState, ErrorContextType } from "../../types";
 import ApiUtils from "../../utils/api";
 import { Customer, Device, Application, Resource, ResourceType } from "../../generated/client/src";
 import ResourceTreeItem from "../generic/ResourceTreeItem";
@@ -26,6 +26,7 @@ import PageResourceSettingsView from "../views/PageResourceSettingsView";
 import theme from "../../styles/theme";
 import { getLocalizedTypeString } from "../../commons/resourceTypeHelper";
 import AppLayout from "../layouts/app-layout";
+import { ErrorContext } from "../containers/ErrorHandler";
 
 /**
  * Component properties
@@ -71,9 +72,12 @@ interface ResourceTreeItem extends TreeItemSortable {
 }
 
 /**
- * Application editor
+ * Component for application editor
  */
 class ApplicationEditor extends React.Component<Props, State> {
+
+  static contextType: React.Context<ErrorContextType> = ErrorContext;
+
   /**
    * Constructor
    *
@@ -94,33 +98,15 @@ class ApplicationEditor extends React.Component<Props, State> {
    * Component will unmount life cycle method
    */
   public componentWillUnmount = () => {
-    document.removeEventListener('mousemove', this.handleMousemove);
-    document.removeEventListener('mouseup', this.handleMouseup);
+    document.removeEventListener("mousemove", this.handleMousemove);
+    document.removeEventListener("mouseup", this.handleMouseup);
   }
 
   /**
    * Component did mount life cycle method
    */
   public componentDidMount = async () => {
-
-    const {
-      auth,
-      customerId,
-      deviceId,
-      applicationId,
-      setDevice,
-      setCustomer,
-      setApplication,
-      customer,
-      device,
-      application,
-      openResource,
-      openedResource
-    } = this.props;
-
-    if (!auth || !auth.token) {
-      return;
-    }
+    const { openResource, openedResource } = this.props;
 
     document.addEventListener("mousemove", this.handleMousemove);
     document.addEventListener("mouseup", this.handleMouseup);
@@ -128,38 +114,9 @@ class ApplicationEditor extends React.Component<Props, State> {
     if (openedResource) {
       openResource(undefined);
     }
-    const customersApi = ApiUtils.getCustomersApi(auth.token);
-    const devicesApi = ApiUtils.getDevicesApi(auth.token);
-    const applicationsApi = ApiUtils.getApplicationsApi(auth.token);
-    const resourcesApi = ApiUtils.getResourcesApi(auth.token);
 
-    let currentCustomer = customer;
-    if (!currentCustomer || currentCustomer.id !== customerId) {
-      currentCustomer = await customersApi.findCustomer({ customer_id: customerId });
-      setCustomer(currentCustomer);
-    }
-    let currentDevice = device;
-    if (!currentDevice || currentDevice.id !== deviceId) {
-      currentDevice = await devicesApi.findDevice({ customer_id: customerId, device_id: deviceId });
-      setDevice(currentDevice);
-    }
-
-    let currentApplication = application;
-    if (!currentApplication || currentApplication.id !== applicationId) {
-      currentApplication = await applicationsApi.findApplication({ customer_id: customerId, device_id: deviceId, application_id: applicationId });
-      setApplication(currentApplication);
-    }
-
-    const rootResource = await resourcesApi.findResource({
-      customer_id: customerId,
-      device_id: deviceId,
-      application_id: applicationId,
-      resource_id: currentApplication.root_resource_id!
-    });
-
-    this.setState({
-      rootResource: rootResource
-    });
+    await this.fetchData();
+    await this.loadTree();
   };
 
   /**
@@ -170,9 +127,11 @@ class ApplicationEditor extends React.Component<Props, State> {
    */
   public componentDidUpdate = async (prevProps: Props, prevState: State) => {
     const prevRootResourceId = prevState.rootResource ? prevState.rootResource.id : undefined
+
     if (this.state.rootResource && this.state.rootResource.id !== prevRootResourceId) {
       await this.loadTree();
     }
+
     if (prevProps.openedResource && !this.props.openedResource) {
       this.setState({
         treeData: this.treeDataRenderAddButton(this.state.treeData || [], undefined)
@@ -350,7 +309,7 @@ class ApplicationEditor extends React.Component<Props, State> {
               className={ classes.treeWrapper }
               rowHeight={ 48 }
               treeData={ treeData }
-              onChange={ this.setTreeData }
+              onChange={ treeData => this.setState({ treeData: treeData }) }
               onMoveNode={ this.moveResource }
               canDrop={ this.canDrop }
               canDrag={ this.canDrag }
@@ -380,6 +339,162 @@ class ApplicationEditor extends React.Component<Props, State> {
   };
 
   /**
+   * Render treeItem method
+   *
+   * @param resource resource
+   */
+  private renderTreeItem = (resource: Resource) => {
+    const {
+      classes,
+      customerId,
+      deviceId,
+      applicationId
+    } = this.props;
+
+    return (
+      <ResourceTreeItem
+        key={ resource.id }
+        resource={ resource }
+        customerId={ customerId }
+        deviceId={ deviceId }
+        applicationId={ applicationId }
+        classes={ classes }
+        onOpenResource={ this.onOpenResourceClick }
+        onDelete={ this.onChildDelete }
+      />
+    );
+  };
+
+  /**
+   * Render editor method
+   */
+  private renderEditor = () => {
+    const { classes, customerId, deviceId, openedResource, application, auth } = this.props;
+    const { rootResource } = this.state;
+
+    if (!rootResource) {
+      return (
+        <main className={ classes.content }>
+          <CircularProgress />
+        </main>
+      );
+    }
+
+    if (openedResource) {
+      return (
+        <main className={ classes.content }>
+          { this.renderResourceSettingsView(openedResource, customerId) }
+        </main>
+      );
+    } else if (application) {
+      return (
+        <main className={ classes.content }>
+          <AppSettingsView
+            auth={ auth }
+            application={ application }
+            confirmationRequired={ this.confirmationRequired }
+            onUpdateApplication={ this.onUpdateApplication }
+            onUpdateRootResource={ this.onUpdateResource }
+            rootResource={ rootResource }
+            customerId={ customerId }
+            deviceId={ deviceId }
+          />
+        </main>
+      );
+    } else {
+      return <main className={ classes.content }/>;
+    }
+  };
+
+  /**
+   * Renders resource settings view
+   *
+   * @param resource resource
+   * @param customerId customer ID
+   */
+  private renderResourceSettingsView = (resource: Resource, customerId: string) => {
+    const { auth, deviceId, applicationId, resourceViewUpdated } = this.props;
+
+    switch (resource.type) {
+      case ResourceType.MENU:
+      case ResourceType.LANGUAGE:
+      case ResourceType.LANGUAGEMENU:
+      case ResourceType.SLIDESHOW:
+      case ResourceType.INTRO:
+        return <MenuResourceSettingsView
+          resource={ resource }
+          customerId={ customerId }
+          confirmationRequired={ this.confirmationRequired }
+          onUpdate={ this.onUpdateResource }
+          onDelete={ this.onDeleteResource }
+          resourcesUpdated={ resourceViewUpdated }
+          auth={ auth }
+          deviceId={ deviceId }
+          applicationId={ applicationId }
+        />;
+      case ResourceType.PAGE:
+        return <PageResourceSettingsView
+          resource={ resource }
+          customerId={ customerId }
+          resourcesUpdated={ resourceViewUpdated }
+          confirmationRequired={ this.confirmationRequired }
+          onAddChild={ this.onAddNewResourceClick }
+          onSave={ this.onUpdateResource }
+          onSaveChildren={ this.onUpdateChildResources }
+          onDelete={ this.onDeleteResource }
+          onDeleteChild={ this.onDeleteResource }
+          auth={ auth }
+          deviceId={ deviceId }
+          applicationId={ applicationId }
+        />;
+      default:
+        return <ResourceSettingsView
+          resource={ resource }
+          customerId={ customerId }
+          onUpdate={ this.onUpdateResource }
+          onDelete={ this.onDeleteResource }
+          confirmationRequired={ this.confirmationRequired }
+        />;
+    }
+  }
+
+  /**
+   * Render add resource treeItem method
+   *
+   * @param parent_id parent ID
+   */
+  private renderAdd = (parent_id?: string) => {
+    const { classes } = this.props;
+    const { treeData } = this.state;
+
+    if (!parent_id) {
+      return;
+    }
+
+    if (parent_id === this.props.application!.root_resource_id) {
+      if (treeData && (!treeData.find(data => data.resource && data.resource.type === ResourceType.INTRO) || !treeData.find(data => data.resource && data.resource.type === ResourceType.LANGUAGEMENU))) {
+        return (
+          <>
+            <ListItem className={ classes.treeAddItem } onClick={ () => this.onAddNewResourceClick(parent_id) } key={ parent_id + "add" }>
+              <ListItemIcon style={ { minWidth: 0, marginRight: theme.spacing(1) } }><AddIcon /></ListItemIcon>
+              <ListItemText className={ classes.addResourceBtnText } primary={ strings.addNewIntroOrLanguageMenu } />
+            </ListItem>
+          </>
+        );
+      } else {
+        return;
+      }
+    }
+
+    return (
+      <ListItem className={ classes.treeAddItem } onClick={ () => this.onAddNewResourceClick(parent_id) } key={ parent_id + "add" }>
+        <ListItemIcon style={ { minWidth: 0, marginRight: theme.spacing(1) } }><AddIcon /></ListItemIcon>
+        <ListItemText className={ classes.addResourceBtnText } primary={ strings.addNew } />
+      </ListItem>
+    );
+  };
+
+  /**
    * Loads entire tree
    */
   private loadTree = async () => {
@@ -390,22 +505,33 @@ class ApplicationEditor extends React.Component<Props, State> {
       return;
     }
 
-    const topLevelResources = await ApiUtils.getResourcesApi(auth.token).listResources({
-      application_id: application.id!,
-      customer_id: customer.id!,
-      device_id: device.id!,
-      parent_id: rootResource.id
-    });
+    let topLevelResources: Resource[] = []; 
+    try {
+      topLevelResources = await ApiUtils.getResourcesApi(auth.token).listResources({
+        application_id: application.id!,
+        customer_id: customer.id!,
+        device_id: device.id!,
+        parent_id: rootResource.id
+      });
+    } catch (error) {
+      this.context.setError(strings.errorManagement.resource.list, error);
+      return;
+    }
 
-    const treeData: ResourceTreeItem[] = await Promise.all(
-      topLevelResources.map(async resource => ({
-        title: this.renderTreeItem(resource),
-        children: await this.loadTreeChildren(resource.id || ""),
-        resource: resource
-      }))
-    );
-
-    this.setState({ treeData: treeData });
+    try {
+      const treeData: ResourceTreeItem[] = [];
+      for (const resource of topLevelResources) {
+        treeData.push({
+          title: this.renderTreeItem(resource),
+          children: await this.loadTreeChildren(resource.id || ""),
+          resource: resource
+        });
+      }
+  
+      this.setState({ treeData: treeData });
+    } catch (error) {
+      this.context.setError(strings.errorManagement.resource.listChild, error);
+    }
   }
 
   /**
@@ -431,26 +557,17 @@ class ApplicationEditor extends React.Component<Props, State> {
         application_id: applicationId,
         parent_id: parent_id
       });
+
+      return await Promise.all(
+        childResources.map(async resource => ({
+          title: this.renderTreeItem(resource),
+          children: await this.loadTreeChildren(resource.id || ""),
+          resource: resource
+        }))
+      );
     } catch (error) {
-      // no children found
+      return Promise.reject(error);
     }
-
-    return await Promise.all(
-      childResources.map(async resource => ({
-        title: this.renderTreeItem(resource),
-        children: await this.loadTreeChildren(resource.id || ""),
-        resource: resource
-      }))
-    );
-  }
-
-  /**
-   * Sets tree data
-   *
-   * @param treeData updated tree data object
-   */
-  private setTreeData = (treeData: ResourceTreeItem[]) => {
-    this.setState({ treeData: treeData });
   }
 
   /**
@@ -477,8 +594,8 @@ class ApplicationEditor extends React.Component<Props, State> {
       if (treeData && data.nextParentNode && data.nextParentNode.children && Array.isArray(data.nextParentNode.children)) {
         data.nextParentNode.children
         .filter(child => !!child.resource)
-        .forEach(({ resource }, index) =>
-          resourcesApi.updateResource({
+        .map(async ({ resource }, index) =>
+          await resourcesApi.updateResource({
             customer_id: customerId,
             device_id: deviceId,
             application_id: applicationId,
@@ -501,8 +618,8 @@ class ApplicationEditor extends React.Component<Props, State> {
       } else if (treeData) {
         (treeData as TreeItemSortable[])
           .filter(child => !!child.resource)
-          .forEach(({ resource }, index) =>
-            resourcesApi.updateResource({
+          .map(async ({ resource }, index) =>
+            await resourcesApi.updateResource({
               resource: {
                 ...resource,
                 order_number: index + 1
@@ -525,7 +642,7 @@ class ApplicationEditor extends React.Component<Props, State> {
         });
       }
     } catch (error) {
-      console.log(error);
+      this.context.setError(strings.errorManagement.resource.update, error);
     }
   }
 
@@ -645,160 +762,6 @@ class ApplicationEditor extends React.Component<Props, State> {
   }
 
   /**
-   * Render treeItem method
-   *
-   * @param resource resource
-   */
-  private renderTreeItem = (resource: Resource) => {
-    const {
-      classes,
-      customerId,
-      deviceId,
-      applicationId
-    } = this.props;
-
-    return (
-      <ResourceTreeItem
-        key={ resource.id }
-        resource={ resource }
-        customerId={ customerId }
-        deviceId={ deviceId }
-        applicationId={ applicationId }
-        classes={ classes }
-        onOpenResource={ this.onOpenResourceClick }
-        onDelete={ this.onChildDelete }
-      />
-    );
-  };
-
-  /**
-   * Render editor method
-   */
-  private renderEditor = () => {
-    const { classes, customerId, deviceId, openedResource, application, auth } = this.props;
-    const { rootResource } = this.state;
-
-    if (!rootResource) {
-      return (
-        <main className={ classes.content }>
-          <CircularProgress />
-        </main>
-      );
-    }
-
-    if (openedResource) {
-      return (
-        <main className={ classes.content }>
-          { this.renderResourceSettingsView(openedResource, customerId) }
-        </main>
-      );
-    } else if (application) {
-      return (
-        <main className={ classes.content }>
-          <AppSettingsView
-            auth={ auth }
-            application={ application }
-            confirmationRequired={ this.confirmationRequired }
-            onUpdateApplication={ this.onUpdateApplication }
-            onUpdateRootResource={ this.onUpdateResource }
-            rootResource={ rootResource }
-            customerId={ customerId }
-            deviceId={ deviceId }
-          />
-        </main>
-      );
-    } else {
-      return <main className={ classes.content }></main>;
-    }
-  };
-
-  /**
-   * Renders resource settings view
-   *
-   * @param resource resource
-   * @param customerId customer ID
-   */
-  private renderResourceSettingsView = (resource: Resource, customerId: string) => {
-    const { auth, deviceId, applicationId, resourceViewUpdated } = this.props;
-
-    switch (resource.type) {
-      case ResourceType.MENU:
-      case ResourceType.LANGUAGE:
-      case ResourceType.LANGUAGEMENU:
-      case ResourceType.SLIDESHOW:
-      case ResourceType.INTRO:
-        return <MenuResourceSettingsView
-          resource={ resource }
-          customerId={ customerId }
-          confirmationRequired={ this.confirmationRequired }
-          onUpdate={ this.onUpdateResource }
-          onDelete={ this.onDeleteResource }
-          resourcesUpdated={ resourceViewUpdated }
-          auth={ auth }
-          deviceId={ deviceId }
-          applicationId={ applicationId }
-        />;
-      case ResourceType.PAGE:
-        return <PageResourceSettingsView
-          resource={ resource }
-          customerId={ customerId }
-          resourcesUpdated={ resourceViewUpdated }
-          confirmationRequired={ this.confirmationRequired }
-          onAddChild={ this.onAddNewResourceClick }
-          onSave={ this.onUpdateResource }
-          onSaveChildren={ this.onUpdateChildResources }
-          onDelete={ this.onDeleteResource }
-          onDeleteChild={ this.onDeleteResource }
-          auth={ auth }
-          deviceId={ deviceId }
-          applicationId={ applicationId }
-        />;
-      default:
-        return <ResourceSettingsView
-          resource={ resource }
-          customerId={ customerId }
-          onUpdate={ this.onUpdateResource }
-          onDelete={ this.onDeleteResource }
-          confirmationRequired={ this.confirmationRequired }
-        />;
-    }
-  }
-
-  /**
-   * Render add resource treeItem method
-   */
-  private renderAdd = (parent_id?: string) => {
-    const { classes } = this.props;
-    const { treeData } = this.state;
-
-    if (!parent_id) {
-      return;
-    }
-
-    if (parent_id === this.props.application!.root_resource_id) {
-      if (treeData && (!treeData.find(data => data.resource && data.resource.type === ResourceType.INTRO) || !treeData.find(data => data.resource && data.resource.type === ResourceType.LANGUAGEMENU))) {
-        return (
-          <>
-            <ListItem className={ classes.treeAddItem } onClick={ () => this.onAddNewResourceClick(parent_id) } key={ parent_id + "add" }>
-              <ListItemIcon style={ { minWidth: 0, marginRight: theme.spacing(1) } }><AddIcon /></ListItemIcon>
-              <ListItemText className={ classes.addResourceBtnText } primary={ strings.addNewIntroOrLanguageMenu } />
-            </ListItem>
-          </>
-        );
-      } else {
-        return;
-      }
-    }
-
-    return (
-      <ListItem className={ classes.treeAddItem } onClick={ () => this.onAddNewResourceClick(parent_id) } key={ parent_id + "add" }>
-        <ListItemIcon style={ { minWidth: 0, marginRight: theme.spacing(1) } }><AddIcon /></ListItemIcon>
-        <ListItemText className={ classes.addResourceBtnText } primary={ strings.addNew } />
-      </ListItem>
-    );
-  };
-
-  /**
    * Child delete
    */
   private onChildDelete = async () => {
@@ -816,32 +779,44 @@ class ApplicationEditor extends React.Component<Props, State> {
     if (!auth || !auth.token) {
       return;
     }
-    const resourcesApi = ApiUtils.getResourcesApi(auth.token);
+
     if (openedResource && window.confirm(`${strings.deleteResourceDialogDescription} ${openedResource.name} ${ strings.andAllChildren}?`)) {
       const childResourceId = openedResource.id;
       openResource(undefined);
       updatedResourceView();
       if (childResourceId) {
-        await resourcesApi.deleteResource({ customer_id: customerId, device_id: deviceId, application_id: applicationId, resource_id: openedResource.id || "" });
-        this.setState({
-          treeData: this.treeDataDelete(childResourceId, treeData || [])
-        });
+        try {
+          await ApiUtils.getResourcesApi(auth.token).deleteResource({
+            customer_id: customerId,
+            device_id: deviceId,
+            application_id: applicationId,
+            resource_id: openedResource.id || ""
+          });
+
+          this.setState({
+            treeData: this.treeDataDelete(childResourceId, treeData || [])
+          });
+        } catch (error) {
+          this.context.setError(
+            strings.formatString(strings.errorManagement.resource.delete, openedResource.name),
+            error
+          );
+        }
       }
     }
   };
 
   /**
-   * Deletes item and all of it's children from the tree
+   * Deletes item and all of it"s children from the tree
    *
    * @param id id of the deleted item
    * @param data array of current search level
    */
-  private treeDataDelete = (id: string, data: ResourceTreeItem[]): ResourceTreeItem[] => {
-    return  data.filter(item => !item.resource || (item.resource.id !== id))
-    .map(item => {
-      return { ...item, children: (item.children) ? this.treeDataDelete(id, item.children as ResourceTreeItem[]) : [] };
-    });
-  }
+  private treeDataDelete = (id: string, data: ResourceTreeItem[]): ResourceTreeItem[] => (
+    data.filter(item => !item.resource || (item.resource.id !== id))
+      .map(item => ({ ...item, children: (item.children) ? this.treeDataDelete(id, item.children as ResourceTreeItem[]) : [] })
+    )
+  );
 
   /**
    * on add resource click method
@@ -863,6 +838,7 @@ class ApplicationEditor extends React.Component<Props, State> {
   private onOpenResourceClick = async (resource: Resource) => {
     const { openResource } = this.props;
     const { confirmationRequired, treeData } = this.state;
+
     if (confirmationRequired) {
       if (window.confirm(`${strings.continueWithoutSaving}`)) {
         openResource(resource);
@@ -872,6 +848,7 @@ class ApplicationEditor extends React.Component<Props, State> {
       }
       return;
     }
+
     openResource(resource);
     this.setState({
       treeData: this.treeDataRenderAddButton(treeData || [], resource || "")
@@ -888,18 +865,24 @@ class ApplicationEditor extends React.Component<Props, State> {
     if (!resource) {
       return data.filter(item => item.resource).map((item) => { return {...item, children: item.children && Array.isArray(item.children) ? this.treeDataRenderAddButton(item.children, resource) : []} })
     }
+
     return data
-    .filter(item => item.resource)
-    .map((item) => {
-      if (resource.id === item.resource!.id && this.canHaveChildren(item as TreeItemSortable)) {
-        return {...item, children: item.children && Array.isArray(item.children) ? [...this.treeDataRenderAddButton(item.children as ResourceTreeItem[], resource), { title: this.renderAdd(resource.id) }] : [{ title: this.renderAdd(resource.id) }]}
-      }
-      return {...item, children: item.children ? this.treeDataRenderAddButton(item.children as ResourceTreeItem[], resource) : [] };
-    });
+      .filter(item => item.resource)
+      .map((item) => {
+        if (resource.id === item.resource!.id && this.canHaveChildren(item as TreeItemSortable)) {
+          return {
+            ...item,
+            children: item.children && Array.isArray(item.children) ?
+              [...this.treeDataRenderAddButton(item.children as ResourceTreeItem[], resource), { title: this.renderAdd(resource.id) }] :
+              [{ title: this.renderAdd(resource.id) }]
+          }
+        }
+        return { ...item, children: item.children ? this.treeDataRenderAddButton(item.children as ResourceTreeItem[], resource) : [] };
+      });
   }
 
   /**
-   * on save new resource method
+   * Event handler for save new resource click
    *
    * @param resource resource
    * @param copyContentFromId if content should be copied from ID
@@ -911,77 +894,92 @@ class ApplicationEditor extends React.Component<Props, State> {
       return;
     }
 
-    const resourcesApi = ApiUtils.getResourcesApi(auth.token);
-    const newResource = await resourcesApi.createResource({
-      customer_id: customerId,
-      device_id: deviceId,
-      application_id: applicationId,
-      resource: resource
-    });
+    const { setError } = this.context;
 
-    updatedResourceView();
-    this.setState({
-      addResourceDialogOpen: false,
-      treeData: this.treeDataAdd(this.treeItemFromResource(newResource), this.state.treeData || [])
-    });
+    try {
+      const newResource = await ApiUtils.getResourcesApi(auth.token).createResource({
+        customer_id: customerId,
+        device_id: deviceId,
+        application_id: applicationId,
+        resource: resource
+      });
 
-    if (newResource.type === ResourceType.PAGE) {
-      await this.createPagePredefinedResources(newResource.id!);
-    }
 
-    if (copyContentFromId) {
-      await this.copyContentFrom(copyContentFromId, newResource.id!);
+      updatedResourceView();
+      this.setState({
+        addResourceDialogOpen: false,
+        treeData: this.treeDataAdd(this.treeItemFromResource(newResource), this.state.treeData || [])
+      });
+
+      if (newResource.type === ResourceType.PAGE) {
+        await this.createPagePredefinedResources(newResource.id!);
+      }
+
+      if (copyContentFromId) {
+        await this.copyContentFrom(copyContentFromId, newResource.id!);
+      }
+    } catch (error) {
+      setError(strings.errorManagement.resource.create, error);
+      return;
     }
   };
 
+  /**
+   * Creates page with pre-defined resources
+   *
+   * @param pageId page id 
+   */
   private createPagePredefinedResources = async (pageId: string) => {
+      const title = await this.createResource("Otsikko", "title", ResourceType.TEXT, 1, pageId);
+      const content = await this.createResource("Leipäteksti", "text_content", ResourceType.TEXT, 3, pageId);
+      const background = await this.createResource("Taustakuva", "background", ResourceType.IMAGE, 4, pageId);
+  
+      if (!title || !content || !background) {
+        return;
+      }
+  
+      const treeData = this.state.treeData || [];
+
+      this.setState({ treeData: this.treeDataAdd(this.treeItemFromResource(title), treeData) });
+      this.setState({ treeData: this.treeDataAdd(this.treeItemFromResource(content), treeData) });
+      this.setState({ treeData: this.treeDataAdd(this.treeItemFromResource(background), treeData) });
+  }
+
+  /**
+   * Creates single resource with given parameters
+   *
+   * @param name resource name 
+   * @param slug resource slug
+   * @param type resource type
+   * @param orderNumber resource order number
+   * @param pageId resource page ID
+   * @returns Promise of created resource
+   */
+  private createResource = async (name: string, slug: string, type: ResourceType, orderNumber: number, pageId: string): Promise<Resource | undefined> => {
     const { auth, customerId, deviceId, applicationId } = this.props;
 
     if (!auth || !auth.token) {
       return;
     }
+
     const resourcesApi = ApiUtils.getResourcesApi(auth.token);
-    const title = await resourcesApi.createResource({
-      application_id: applicationId,
-      customer_id: customerId,
-      device_id: deviceId,
-      resource: {
-        name: "Otsikko",
-        slug: "title",
-        type: ResourceType.TEXT,
-        order_number: 1,
-        parent_id: pageId
-      }
-    });
-    this.setState({ treeData: this.treeDataAdd(this.treeItemFromResource(title), this.state.treeData || []) });
 
-    const content = await resourcesApi.createResource({
-      application_id: applicationId,
-      customer_id: customerId,
-      device_id: deviceId,
-      resource: {
-        name: "Leipäteksti",
-        slug: "text_content",
-        type: ResourceType.TEXT,
-        order_number: 3,
-        parent_id: pageId
-      }
-    });
-    this.setState({ treeData: this.treeDataAdd(this.treeItemFromResource(content), this.state.treeData || []) });
-
-    const background = await resourcesApi.createResource({
-      application_id: applicationId,
-      customer_id: customerId,
-      device_id: deviceId,
-      resource: {
-        name: "Taustakuva",
-        slug: "background",
-        type: ResourceType.IMAGE,
-        order_number: 4,
-        parent_id: pageId
-      }
-    });
-    this.setState({ treeData: this.treeDataAdd(this.treeItemFromResource(background), this.state.treeData || []) });
+    try {
+      return await resourcesApi.createResource({
+        application_id: applicationId,
+        customer_id: customerId,
+        device_id: deviceId,
+        resource: {
+          name: name,
+          slug: slug,
+          type: type,
+          order_number: orderNumber,
+          parent_id: pageId
+        }
+      });
+    } catch (error) {
+      return Promise.reject(strings.errorManagement.resource.create)
+    }
   }
 
   /**
@@ -996,6 +994,7 @@ class ApplicationEditor extends React.Component<Props, State> {
     if (!auth || !auth.token) {
       return;
     }
+
     const resourcesApi = ApiUtils.getResourcesApi(auth.token);
     const resources = await resourcesApi.listResources({
       application_id: applicationId,
@@ -1004,19 +1003,18 @@ class ApplicationEditor extends React.Component<Props, State> {
       parent_id: oldParentId
     });
 
-    for (let i = 0; i < resources.length; i++) {
-      let res = resources[i];
-      let copy = { ...res, id: undefined, parent_id: newParentId }
-      let created = await resourcesApi.createResource({
+    for (const res of resources) {
+      const copy = { ...res, id: undefined, parent_id: newParentId }
+      const created = await resourcesApi.createResource({
         application_id: applicationId,
         customer_id: customerId,
         device_id: deviceId,
         resource: copy
       });
+
       this.setState({ treeData: this.treeDataAdd(this.treeItemFromResource(created), this.state.treeData || []) });
       await this.copyContentFrom(res.id!, created.id!);
     }
-
   }
 
   /**
@@ -1041,12 +1039,19 @@ class ApplicationEditor extends React.Component<Props, State> {
    */
   private treeDataAdd = (newItem: ResourceTreeItem, data: ResourceTreeItem[]): ResourceTreeItem[] => {
     const { application } = this.props;
+
     if (newItem.resource!.parent_id === application!.root_resource_id) {
-      return [...data.filter(item => item.resource), newItem];
+      return [ ...data.filter(item => item.resource), newItem ];
     }
+
     return data.map((item) => {
       if (item.resource && item.children && Array.isArray(item.children)) {
-        return {...item, children: item.resource.id === newItem.resource!.parent_id ? [...item.children.filter(item => item.resource) as ResourceTreeItem[], newItem, { title: this.renderAdd(newItem.resource!.parent_id)} as ResourceTreeItem] as ResourceTreeItem[] : this.treeDataAdd(newItem, item.children as ResourceTreeItem[])};
+        return {
+          ...item,
+          children: item.resource.id === newItem.resource!.parent_id ?
+            [...item.children.filter(item => item.resource) as ResourceTreeItem[], newItem, { title: this.renderAdd(newItem.resource!.parent_id)} as ResourceTreeItem] as ResourceTreeItem[] :
+            this.treeDataAdd(newItem, item.children as ResourceTreeItem[])
+        };
       } else {
         return item;
       }
@@ -1063,33 +1068,38 @@ class ApplicationEditor extends React.Component<Props, State> {
     const { auth, customerId, deviceId, applicationId, openResource, updatedResourceView } = this.props;
     const { treeData } = this.state;
     const resourceId = resource.id;
+
     if (!auth || !auth.token || !resourceId || !treeData) {
       return;
     }
 
     this.setState({ isSaving: true });
 
-    const resourcesApi = ApiUtils.getResourcesApi(auth.token);
-    const updatedResource = await resourcesApi.updateResource({
-      resource: resource,
-      customer_id: customerId,
-      device_id: deviceId,
-      application_id: applicationId,
-      resource_id: resourceId
-    });
-    if (updatedResource.type !== ResourceType.ROOT) {
-      openResource(updatedResource);
-    } else {
-      this.setState({
-        rootResource: updatedResource,
+    try {
+      const updatedResource = await ApiUtils.getResourcesApi(auth.token).updateResource({
+        resource: resource,
+        customer_id: customerId,
+        device_id: deviceId,
+        application_id: applicationId,
+        resource_id: resourceId
       });
+  
+      if (updatedResource.type !== ResourceType.ROOT) {
+        openResource(updatedResource);
+      } else {
+        this.setState({ rootResource: updatedResource });
+      }
+
+      updatedResourceView();
+      this.setState({
+        isSaving: false,
+        confirmationRequired: false,
+        treeData: this.updateTreeData(updatedResource, treeData)
+      });
+    } catch (error) {
+      this.context.setError(strings.errorManagement.resource.update, error);
+      this.clear();
     }
-    updatedResourceView();
-    this.setState({
-      isSaving: false,
-      confirmationRequired: false,
-      treeData: this.updateTreeData(updatedResource, treeData)
-    });
   };
 
   /**
@@ -1100,11 +1110,21 @@ class ApplicationEditor extends React.Component<Props, State> {
    * @returns updated list of resource tree items
    */
   private updateTreeData = (resource: Resource, data: ResourceTreeItem[]): ResourceTreeItem[] => {
-    return data.map((item) => {
+    return data.map(item => {
       if (item.resource && item.resource.id === resource.id) {
-        return {...item, resource: resource, title: this.renderTreeItem(resource)};
+        return {
+          ...item,
+          resource: resource,
+          title: this.renderTreeItem(resource)
+        };
       }
-      return {...item, children: item.children ? this.updateTreeData(resource, item.children as ResourceTreeItem[]) : []};
+
+      return {
+        ...item,
+        children: item.children ?
+          this.updateTreeData(resource, item.children as ResourceTreeItem[]) :
+          []
+      };
     });
   }
 
@@ -1116,26 +1136,33 @@ class ApplicationEditor extends React.Component<Props, State> {
   private onUpdateChildResources = async (childResources: Resource[]) => {
     const { auth, customerId, deviceId, applicationId, updatedResourceView } = this.props;
     const { treeData } = this.state;
+
     if (!auth || !auth.token) {
       return;
     }
 
-    const resourcesApi = ApiUtils.getResourcesApi(auth.token);
-    const updateChildResourcePromises = childResources.map(resource =>
-      resourcesApi.updateResource({
-        resource: resource,
-        customer_id: customerId,
-        device_id: deviceId,
-        application_id: applicationId,
-        resource_id: resource.id!
-      })
-    );
+    try {
+      const updatedResources: Resource[] = [];
+      for (const resource of childResources) {
+        updatedResources.push(
+          await ApiUtils.getResourcesApi(auth.token).updateResource({
+            resource: resource,
+            customer_id: customerId,
+            device_id: deviceId,
+            application_id: applicationId,
+            resource_id: resource.id!
+          })
+        );
+      }
 
-    const resources = await Promise.all(updateChildResourcePromises);
-    updatedResourceView();
-    this.setState({
-      treeData: this.treeDataUpdateChildResources(treeData || [], resources)
-    });
+      updatedResourceView();
+      this.setState({
+        treeData: this.treeDataUpdateChildResources(treeData || [], updatedResources)
+      });
+    } catch (error) {
+      this.context.setError(strings.errorManagement.resource.updateChild);
+    }
+
   }
 
   /**
@@ -1146,11 +1173,30 @@ class ApplicationEditor extends React.Component<Props, State> {
    * @returns updated list of resource tree items
    */
   private treeDataUpdateChildResources = (data: ResourceTreeItem[], resources: Resource[]): ResourceTreeItem[] => {
-    return data.map((item) => {
+    return data.map(item => {
       if (resources.length > 0 && item.resource && resources[0].parent_id === item.resource.id) {
-        return {...item, children: item.children && Array.isArray(item.children) ? item.children.map((child, index) => { return {...child, title: child.resource ? this.renderTreeItem(resources[index]) : this.renderAdd(resources[0].parent_id), resource: child.resource ? resources[index] : undefined } }) : []};
+        return {
+          ...item,
+          children:
+            item.children && Array.isArray(item.children) ?
+            item.children.map((child, index) => {
+              return {
+                ...child,
+                title: child.resource ?
+                  this.renderTreeItem(resources[index]) :
+                  this.renderAdd(resources[0].parent_id), resource: child.resource ? resources[index] : undefined
+              } 
+            }) :
+            []
+        };
       }
-      return {...item, children: item.children && Array.isArray(item.children) ? this.treeDataUpdateChildResources(item.children, resources) : []};
+      return {
+        ...item,
+        children:
+          item.children && Array.isArray(item.children) ?
+          this.treeDataUpdateChildResources(item.children, resources) :
+          []
+      };
     });
   }
 
@@ -1169,12 +1215,21 @@ class ApplicationEditor extends React.Component<Props, State> {
     }
 
     const resourcesApi = ApiUtils.getResourcesApi(auth.token);
-    const childResources = await resourcesApi.listResources({
-      customer_id: customerId,
-      device_id: deviceId,
-      application_id: applicationId,
-      parent_id: resourceId
-    });
+    const { setError } = this.context;
+
+    let childResources: Resource[] = [];
+    try {
+      childResources = await resourcesApi.listResources({
+        customer_id: customerId,
+        device_id: deviceId,
+        application_id: applicationId,
+        parent_id: resourceId
+      });
+    } catch (error) {
+      setError(strings.errorManagement.resource.listChild, error);
+      return;
+    }
+
 
     /**
      * TODO: prettier delete confirmation
@@ -1182,13 +1237,24 @@ class ApplicationEditor extends React.Component<Props, State> {
     const hasChildren = childResources.length > 0;
     const subjectToDelete = hasChildren ? `${resource.name} ${strings.andAllChildren}` : resource.name;
     if (window.confirm(`${strings.deleteResourceDialogDescription} ${subjectToDelete}?`)) {
-      await resourcesApi.deleteResource({ customer_id: customerId, device_id: deviceId, application_id: applicationId, resource_id: resourceId });
-      openResource(nextOpenResource);
-      this.setState({
-        treeData: this.treeDataDelete(resource.id || "", this.state.treeData || [])
-      });
 
-      updatedResourceView();
+      try {
+        await resourcesApi.deleteResource({
+          customer_id: customerId,
+          device_id: deviceId,
+          application_id: applicationId,
+          resource_id: resourceId
+        });
+        openResource(nextOpenResource);
+
+        this.setState({
+          treeData: this.treeDataDelete(resource.id || "", this.state.treeData || [])
+        });
+  
+        updatedResourceView();
+      } catch (error) {
+        setError(strings.errorManagement.resource.delete, error);
+      }
     }
   };
 
@@ -1215,15 +1281,23 @@ class ApplicationEditor extends React.Component<Props, State> {
       return;
     }
 
-    const applicationsApi = ApiUtils.getApplicationsApi(auth.token);
-    const updatedApplication = await applicationsApi.updateApplication({
-      application: application,
-      customer_id: customerId,
-      device_id: deviceId,
-      application_id: applicationId
-    });
+    try {
+      const updatedApplication = await ApiUtils.getApplicationsApi(auth.token).updateApplication({
+        application: application,
+        customer_id: customerId,
+        device_id: deviceId,
+        application_id: applicationId
+      });
+  
+      setApplication(updatedApplication);
+    } catch (error) {
+      this.context.setError(
+        strings.formatString(strings.errorManagement.application.update, application.name),
+        error
+      );
+    }
 
-    setApplication(updatedApplication);
+    this.clear();
   };
 
   /**
@@ -1234,6 +1308,96 @@ class ApplicationEditor extends React.Component<Props, State> {
   private onDialogCloseClick = () => {
     this.setState({ addResourceDialogOpen: false });
   };
+
+  /**
+   * Clear confirmation dialog
+   */
+  private clear = () => {
+    this.setState({
+      confirmationRequired: false,
+      isSaving: false
+    });
+  }
+
+  /**
+   * Fetches initial data
+   */
+  private fetchData = async () => {
+    const {
+      auth,
+      customerId,
+      deviceId,
+      applicationId,
+      customer,
+      device,
+      application,
+      setDevice,
+      setCustomer,
+      setApplication,
+    } = this.props;
+
+    if (!auth || !auth.token) {
+      return;
+    }
+
+    const token = auth.token;
+    const { setError } = this.context;
+
+    if (!customer || customer.id !== customerId) {
+      try {
+        const foundCustomer = await ApiUtils.getCustomersApi(token).findCustomer({ customer_id: customerId });
+        setCustomer(foundCustomer);
+      } catch (error) {
+        setError(strings.errorManagement.customer.find, error);
+        return;
+      }
+    }
+
+    if (!device || device.id !== deviceId) {
+      try {
+        const foundDevice = await ApiUtils.getDevicesApi(token).findDevice({ customer_id: customerId, device_id: deviceId });
+        setDevice(foundDevice);
+      } catch (error) {
+        setError(strings.errorManagement.device.find, error);
+        return;
+      }
+    }
+
+    let currentApplication = application;
+    if (!application || application.id !== applicationId) {
+      try {
+        currentApplication = await ApiUtils.getApplicationsApi(token).findApplication({
+          customer_id: customerId,
+          device_id: deviceId,
+          application_id: applicationId
+        });
+  
+        setApplication(currentApplication);
+      } catch (error) {
+        setError(strings.errorManagement.application.find, error);
+        return;
+      }
+    }
+
+    if (!currentApplication) {
+      return;
+    }
+
+    try {
+      const rootResource = await ApiUtils.getResourcesApi(token).findResource({
+        customer_id: customerId,
+        device_id: deviceId,
+        application_id: applicationId,
+        resource_id: currentApplication.root_resource_id!
+      });
+
+      console.log("fetch", rootResource);
+
+      this.setState({ rootResource: rootResource });
+    } catch (error) {
+      setError(strings.errorManagement.resource.find, error);
+    }
+  }
 }
 
 /**

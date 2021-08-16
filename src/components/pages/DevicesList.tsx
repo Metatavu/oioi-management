@@ -8,7 +8,7 @@ import DeviceDialog from "../generic/DeviceDialog";
 import strings from "../../localization/strings";
 import { Device, Customer } from "../../generated/client/src";
 import ApiUtils from "../../utils/api";
-import { AuthState, DialogType } from "../../types";
+import { AuthState, DialogType, ErrorContextType } from "../../types";
 import { ReduxState, ReduxActions } from "../../store";
 import { Dispatch } from "redux";
 import { connect } from "react-redux";
@@ -18,23 +18,15 @@ import { setDevice } from "../../actions/device";
 import { setCustomer } from "../../actions/customer";
 import VisibleWithRole from "../generic/VisibleWithRole";
 import AppLayout from "../layouts/app-layout";
+import { ErrorContext } from "../containers/ErrorHandler";
 
 /**
  * Component props
  */
 interface Props extends WithStyles<typeof styles> {
-  /**
-   * Router history
-   */
   history: History;
-  /**
-   * Customer id
-   */
   customerId: string;
   customer?: Customer
-  /**
-   * Auth
-   */
   auth: AuthState;
   setCustomer: typeof setCustomer;
   setDevice: typeof setDevice;
@@ -53,9 +45,12 @@ interface State {
 }
 
 /**
- * Creates list of devices
+ * Component for device list
  */
 class DevicesList extends React.Component<Props, State> {
+
+  static contextType: React.Context<ErrorContextType> = ErrorContext;
+
   /**
    * Constructor
    *
@@ -74,32 +69,16 @@ class DevicesList extends React.Component<Props, State> {
   }
 
   /**
-   * Component did mount
+   * Component did mount life cycle handler
    */
   public componentDidMount = async () => {
-    const { auth, customerId, setCustomer, customer } = this.props;
-    if (!auth || !auth.token) {
-      return;
-    }
-
-    const customersApi = ApiUtils.getCustomersApi(auth.token);
-    const devicesApi = ApiUtils.getDevicesApi(auth.token);
-    let currentCustomer = customer;
-    if (!currentCustomer || currentCustomer.id !== customerId) {
-      currentCustomer = await customersApi.findCustomer({ customer_id: customerId });
-      setCustomer(currentCustomer);
-    }
-
-    const devices = await devicesApi.listDevices({ customer_id: customerId });
-    this.setState({
-      devices: devices
-    });
+    this.fetchData();
   };
 
   /**
    * Component render method
    */
-  public render() {
+  public render = () => {
     const { classes, customer } = this.props;
     const {
       devices,
@@ -174,7 +153,7 @@ class DevicesList extends React.Component<Props, State> {
   /**
    * Add device render method
    */
-  private renderAdd() {
+  private renderAdd = () => {
     const { classes } = this.props;
 
     return (
@@ -197,6 +176,7 @@ class DevicesList extends React.Component<Props, State> {
    */
   private onEditDeviceConfigurationClick = (device: Device) => {
     const { customerId, setDevice, history } = this.props;
+
     setDevice(device);
     history.push(`/${customerId}/devices/${device.id}/applications`);
   };
@@ -263,16 +243,18 @@ class DevicesList extends React.Component<Props, State> {
       return;
     }
 
-    await ApiUtils.getDevicesApi(auth.token).deleteDevice({
-      customer_id: customerId,
-      device_id: device.id
-    });
+    try {
+      await ApiUtils.getDevicesApi(auth.token).deleteDevice({
+        customer_id: customerId,
+        device_id: device.id
+      });
+  
+      this.setState({ devices: devices.filter(c => c.id !== device.id) });
+    } catch (error) {
+      this.context.setError(strings.errorManagement.device.delete, error);
+    }
 
-    this.setState({
-      snackbarOpen: true,
-      deleteDialogOpen: false,
-      devices: devices.filter(c => c.id !== device.id)
-    });
+    this.reset();
   };
 
   /**
@@ -307,17 +289,20 @@ class DevicesList extends React.Component<Props, State> {
       return;
     }
 
-    const newDevice = await ApiUtils.getDevicesApi(auth.token).createDevice({
-      customer_id: customerId,
-      device: device
-    });
+    try {
+      const newDevice = await ApiUtils.getDevicesApi(auth.token).createDevice({
+        customer_id: customerId,
+        device: device
+      });
 
-    devices.push(newDevice);
+      this.setState({
+        devices: [ ...devices, newDevice ]
+      });
+    } catch (error) {
+      this.context.setError(strings.errorManagement.device.create, error);
+    }
 
-    this.setState({
-      devices: devices,
-      editorDialogOpen: false
-    });
+    this.reset();
   };
 
   /**
@@ -334,16 +319,19 @@ class DevicesList extends React.Component<Props, State> {
       return;
     }
 
-    const updatedDevice = await ApiUtils.getDevicesApi(auth.token).updateDevice({
-      device_id: id,
-      customer_id: customerId,
-      device: device
-    });
+    try {
+      const updatedDevice = await ApiUtils.getDevicesApi(auth.token).updateDevice({
+        device_id: id,
+        customer_id: customerId,
+        device: device
+      });
+  
+      this.setState({ devices: devices.map(device => device.id === updatedDevice.id ? updatedDevice : device) });
+    } catch (error) {
+      this.context.setError(strings.errorManagement.device.update, error);
+    }
 
-    this.setState({
-      devices: devices.map(device => device.id === updatedDevice.id ? updatedDevice : device),
-      editorDialogOpen: false
-    });
+    this.reset();
   };
 
   /**
@@ -374,6 +362,48 @@ class DevicesList extends React.Component<Props, State> {
   private onDeleteDialogCloseClick = () => {
     this.setState({ deleteDialogOpen: false });
   };
+
+  /**
+   * Resets state values
+   */
+  private reset = () => {
+    this.setState({
+      deleteDialogOpen: false,
+      snackbarOpen: false,
+      editorDialogOpen: false
+    });
+  }
+
+  /**
+   * Fetches initial data
+   */
+  private fetchData = async () => {
+    const { auth, customerId, setCustomer, customer } = this.props;
+
+    if (!auth || !auth.token) {
+      return;
+    }
+
+    const { setError } = this.context;
+
+    if (!customer || customer.id !== customerId) {
+      try {
+        const currentCustomer = await ApiUtils.getCustomersApi(auth.token).findCustomer({ customer_id: customerId });
+        setCustomer(currentCustomer);
+      } catch (error) {
+        setError(strings.errorManagement.customer.find, error);
+        return;
+      }
+    }
+
+    try {
+      const devices = await ApiUtils.getDevicesApi(auth.token).listDevices({ customer_id: customerId });
+      this.setState({ devices: devices });
+    } catch (error) {
+      setError(strings.errorManagement.device.list, error);
+      return;
+    }
+  }
 }
 
 /**

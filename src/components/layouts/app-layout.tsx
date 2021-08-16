@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, Toolbar } from "@material-ui/core";
+import { Box } from "@material-ui/core";
 import { useEditorLayoutStyles } from "../../styles/layouts/app-layout";
 import Header from "../generic/Header";
 import BreadCrumb from "../generic/BreadCrumb";

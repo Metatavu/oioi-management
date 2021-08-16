@@ -27,3 +27,11 @@ export interface Configuration {
     uploadPath: string;
   };
 }
+
+/**
+ * Interface for error context type
+ */
+export interface ErrorContextType {
+  error?: string;
+  setError: (message: string, error?: any) => void;
+}

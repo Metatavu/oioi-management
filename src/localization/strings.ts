@@ -81,6 +81,28 @@ export interface IStrings extends LocalizedStringsMethods {
   importInProgress: string;
   importDone: string;
   importLabel: string;
+  playback: string;
+  autoplay: string;
+  loop: string;
+  slideTimeOnScreen: string;
+  menuIcon: string;
+  replacedIcons: string;
+  page: string;
+  type: string;
+  childResources: string;
+  resourceName: string;
+  orderFromLeftToRight: string;
+  iconNamePrefixNotice: string;
+  noMediaPlaceholder: string;
+  foregroundImage: string;
+  inputUrlAddress: string;
+  urlAddressDialogTitle: string;
+  urlAddressDialogContent: string;
+  urlAddressDialogLabel: string;
+
+  /**
+   * Translations related to file upload
+   */
   fileUpload: {
     addMedia: string;
     changeMedia: string;
@@ -97,6 +119,10 @@ export interface IStrings extends LocalizedStringsMethods {
     dropFileHere: string;
     uploadFile: string;
   };
+
+  /**
+   * Translations related to resource types
+   */
   resourceTypes: {
     root: string;
     video: string;
@@ -110,6 +136,10 @@ export interface IStrings extends LocalizedStringsMethods {
     text: string;
     image: string;
   };
+
+  /**
+   * Translations related to application settings
+   */
   applicationSettings: {
     teaserText: string;
     settings: string;
@@ -122,12 +152,10 @@ export interface IStrings extends LocalizedStringsMethods {
     id: string;
     addIcon: string;
   };
-  playback: string;
-  autoplay: string;
-  loop: string;
-  slideTimeOnScreen: string;
-  menuIcon: string;
-  replacedIcons: string;
+
+  /**
+   * Translations related to icon keys
+   */
   iconKeys: {
     iconHome: string;
     iconHomeActive: string;
@@ -139,19 +167,52 @@ export interface IStrings extends LocalizedStringsMethods {
     iconCloseActive: string;
     iconExitApp: string;
     iconExitAppActive: string;
-  },
-  page: string;
-  type: string;
-  childResources: string;
-  resourceName: string;
-  orderFromLeftToRight: string;
-  iconNamePrefixNotice: string;
-  noMediaPlaceholder: string;
-  foregroundImage: string;
-  inputUrlAddress: string;
-  urlAddressDialogTitle: string;
-  urlAddressDialogContent: string;
-  urlAddressDialogLabel: string;
+  };
+
+  /**
+   * Translations related to error management
+   */
+  errorManagement: {
+    title: string;
+    customer: {
+      list: string;
+      create: string;
+      find: string;
+      update: string;
+      delete: string;
+    };
+    device: {
+      list:  string;
+      create: string;
+      find: string;
+      update: string;
+      delete: string;
+    };
+    application: {
+      list:  string;
+      create: string;
+      find: string;
+      update: string;
+      delete: string;
+    };
+    resource: {
+      list: string;
+      listChild: string;
+      create: string;
+      find: string;
+      update: string;
+      updateChild: string;
+      delete: string;
+    };
+    file: {
+      upload: string;
+    };
+    auth: {
+      init: string;
+      refresh: string;
+    };
+  };
+
 }
 
 const strings: IStrings = new LocalizedStrings({ en, fi });

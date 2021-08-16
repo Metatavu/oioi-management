@@ -6,7 +6,7 @@ import styles from "../../styles/card-item";
 import { History } from "history";
 import CardItem from "../generic/CardItem";
 import CustomerDialog from "../generic/CustomerDialog";
-import { AuthState } from "../../types";
+import { AuthState, ErrorContextType } from "../../types";
 import { Dispatch } from "redux";
 import { ReduxActions, ReduxState } from "../../store";
 import { connect } from "react-redux";
@@ -19,18 +19,13 @@ import { DialogType } from "../../types/index";
 import { setCustomer } from "../../actions/customer";
 import VisibleWithRole from "../generic/VisibleWithRole";
 import AppLayout from "../layouts/app-layout";
+import { ErrorContext } from "../containers/ErrorHandler";
 
 /**
  * Component props
  */
 interface Props extends WithStyles<typeof styles> {
-  /**
-   * Props history
-   */
   history: History;
-  /**
-   * Auth
-   */
   auth: AuthState;
   setCustomer: typeof setCustomer;
 }
@@ -48,9 +43,12 @@ interface State {
 }
 
 /**
- * Creates list of customers
+ * Component for customer list
  */
 class CustomersList extends React.Component<Props, State> {
+
+  static contextType: React.Context<ErrorContextType> = ErrorContext;
+
   /**
    * Constructor
    *
@@ -72,22 +70,13 @@ class CustomersList extends React.Component<Props, State> {
    * Component did mount
    */
   public componentDidMount = async () => {
-    const { auth } = this.props;
-    if (!auth || !auth.token) {
-      return;
-    }
-
-    const customersApi = ApiUtils.getCustomersApi(auth.token);
-    const customers = await customersApi.listCustomers();
-    this.setState({
-      customers: customers
-    });
+    await this.fetchData();
   };
 
   /**
    * Component render method
    */
-  public render() {
+  public render = () => {
     const { classes } = this.props;
     const { editorDialogOpen, deleteDialogOpen, customerInDialog, snackbarOpen, dialogType } = this.state;
     const cards = this.state.customers.map((customer, index) => this.renderCard(customer, `${index}${customer.name}`));
@@ -113,7 +102,7 @@ class CustomersList extends React.Component<Props, State> {
             open={ deleteDialogOpen }
             deleteClick={ this.onDeleteCustomerClick }
             itemToDelete={ customerInDialog }
-            handleClose={ this.onDeleteDialogCloseClick }
+            handleClose={ () => this.setState({ deleteDialogOpen: false }) }
             title={ strings.deleteConfirmation }
           />
           <Snackbar
@@ -132,18 +121,21 @@ class CustomersList extends React.Component<Props, State> {
 
   /**
    * Card render method
+   *
+   * @param customer customer
+   * @param key key
    */
-  private renderCard(customer: Customer, key: string) {
+  private renderCard = (customer: Customer, key: string) => {
     return (
-      <Grid key={key} item>
+      <Grid key={ key } item>
         <CardItem
-          title={customer.name}
-          img={customer.image_url || img}
-          editConfiguration={() => this.onEditCustomerConfigurationClick(customer)}
-          editClick={() => this.onEditCustomerClick(customer)}
-          detailsClick={() => this.onCustomerDetailsClick(customer)}
-          deleteClick={() => this.onDeleteOpenModalClick(customer)}
-        ></CardItem>
+          title={ customer.name }
+          img={ customer.image_url || img }
+          editConfiguration={ () => this.onEditCustomerConfigurationClick(customer) }
+          editClick={ () => this.onEditCustomerClick(customer) }
+          detailsClick={ () => this.onCustomerDetailsClick(customer) }
+          deleteClick={ () => this.onDeleteOpenModalClick(customer) }
+        />
       </Grid>
     );
   }
@@ -153,12 +145,13 @@ class CustomersList extends React.Component<Props, State> {
    */
   private renderAddCustomer() {
     const { classes } = this.props;
+
     return (
       <Grid item>
         <VisibleWithRole role="admin">
-          <Card elevation={0} className={classes.addCard}>
-            <CardActionArea className={classes.add} onClick={this.onAddCustomerClick}>
-              <AddIcon className={classes.addIcon} />
+          <Card elevation={ 0 } className={ classes.addCard }>
+            <CardActionArea className={ classes.add } onClick={ this.onAddCustomerClick }>
+              <AddIcon className={ classes.addIcon }/>
             </CardActionArea>
           </Card>
         </VisibleWithRole>
@@ -168,8 +161,9 @@ class CustomersList extends React.Component<Props, State> {
 
   /**
    * Handles save or update on customer modal component
-   * @param customer
-   * @param dialogType
+   *
+   * @param customer customer
+   * @param dialogType dialog type
    */
   private onSaveOrUpdateCustomerClick = async (customer: Customer, dialogType: DialogType) => {
     switch (dialogType) {
@@ -188,17 +182,20 @@ class CustomersList extends React.Component<Props, State> {
 
   /**
    * Handles edit customer configuration
-   * @param customer
+   *
+   * @param customer customer
    */
   private onEditCustomerConfigurationClick = (customer: Customer) => {
-    const {setCustomer, history} = this.props;
+    const { setCustomer, history } = this.props;
+
     setCustomer(customer);
     history.push(`/${customer.id}/devices`);
   };
 
   /**
    * Edit customer method
-   * @param customer
+   *
+   * @param customer customer
    */
   private onEditCustomerClick = (customer: Customer) => {
     this.setState({
@@ -210,7 +207,8 @@ class CustomersList extends React.Component<Props, State> {
 
   /**
    * Handles customer details click
-   * @param customer
+   *
+   * @param customer customer
    */
   private onCustomerDetailsClick = (customer: Customer) => {
     this.setState({
@@ -222,27 +220,31 @@ class CustomersList extends React.Component<Props, State> {
 
   /**
    * Delete customer method
-   * @param customer
+   *
+   * @param customer customer
    */
   private onDeleteCustomerClick = async (customer: Customer) => {
     const { auth } = this.props;
+    const { customers } = this.state;
+
     if (!auth || !auth.token || !customer.id) {
       return;
     }
 
-    const customersApi = ApiUtils.getCustomersApi(auth.token);
-    await customersApi.deleteCustomer({ customer_id: customer.id });
-    const { customers } = this.state;
-    this.setState({
-      customers: customers.filter(c => c.id !== customer.id),
-      snackbarOpen: true,
-      deleteDialogOpen: false
-    });
+    try {
+      await ApiUtils.getCustomersApi(auth.token).deleteCustomer({ customer_id: customer.id });
+      this.setState({ customers: customers.filter(c => c.id !== customer.id) });
+    } catch (error) {
+      this.context.setError(strings.errorManagement.customer.delete, error);
+    }
+
+    this.reset();
   };
 
   /**
    * Delete open modal click
-   * @param customer
+   *
+   * @param customer customer
    */
   private onDeleteOpenModalClick = (customer: Customer) => {
     this.setState({
@@ -260,50 +262,53 @@ class CustomersList extends React.Component<Props, State> {
 
   /**
    * Save customer method
-   * @param customer
+   *
+   * @param customer customer
    */
   private saveCustomer = async (customer: Customer) => {
     const { auth } = this.props;
+    const { customers } = this.state;
+
     if (!auth || !auth.token) {
       return;
     }
 
-    const customersApi = ApiUtils.getCustomersApi(auth.token);
-    const newCustomer = await customersApi.createCustomer({ customer: customer });
+    try {
+      const newCustomer = await ApiUtils.getCustomersApi(auth.token).createCustomer({ customer: customer });
+      this.setState({ customers: [ ...customers, newCustomer ] });
+    } catch (error) {
+      this.context.setError(strings.errorManagement.customer.create, error);
+    }
 
-    const { customers } = this.state;
-    customers.push(newCustomer);
-    this.setState({
-      customers: customers,
-      editorDialogOpen: false
-    });
+    this.reset();
   };
 
   /**
    * Updates customer method
-   * @param customer
-   * @param id
+   *
+   * @param customer customer
+   * @param id customer id
    */
   private updateCustomer = async (customer: Customer, id: string) => {
     const { auth } = this.props;
+    const { customers } = this.state;
+
     if (!auth || !auth.token) {
       return;
     }
 
-    const customersApi = ApiUtils.getCustomersApi(auth.token);
-    const updateCustomer = await customersApi.updateCustomer({
-      customer_id: id,
-      customer: customer
-    });
+    try {
+      const updatedCustomer = await ApiUtils.getCustomersApi(auth.token).updateCustomer({
+        customer_id: id,
+        customer: customer
+      });
+  
+      this.setState({ customers: customers.map(c => c.id !== customer.id ? customer : updatedCustomer) });
+    } catch (error) {
+      this.context.setError(strings.errorManagement.customer.update, error);
+    }
 
-    const { customers } = this.state;
-    const updateCustomerList = [...customers].filter(cus => cus.id !== id);
-    updateCustomerList.push(updateCustomer);
-
-    this.setState({
-      customers: updateCustomerList,
-      editorDialogOpen: false
-    });
+    this.reset();
   };
 
   /**
@@ -316,9 +321,7 @@ class CustomersList extends React.Component<Props, State> {
       return;
     }
 
-    this.setState({
-      snackbarOpen: false
-    });
+    this.setState({ snackbarOpen: false });
   };
 
   /**
@@ -331,10 +334,32 @@ class CustomersList extends React.Component<Props, State> {
   };
 
   /**
-   * Delete dialog close click
+   * Resets state values
    */
-  private onDeleteDialogCloseClick = () => {
-    this.setState({ deleteDialogOpen: false });
+  private reset = () => {
+    this.setState({
+      snackbarOpen: true,
+      deleteDialogOpen: false,
+      editorDialogOpen: false
+    });
+  }
+
+  /**
+   * Fetches initial data
+   */
+  private fetchData = async () => {
+    const { auth } = this.props;
+
+    if (!auth || !auth.token) {
+      return;
+    }
+
+    try {
+      const customers = await ApiUtils.getCustomersApi(auth.token).listCustomers();
+      this.setState({ customers: customers });
+    } catch (error) {
+      this.context.setError(strings.errorManagement.customer.list, error);
+    }
   };
 }
 

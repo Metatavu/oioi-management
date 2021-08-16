@@ -5,32 +5,18 @@ import { DropzoneArea } from "material-ui-dropzone";
 import { Customer } from "../../generated/client/src";
 import strings from "../../localization/strings";
 import FileUpload from "../../utils/file-upload";
-import { DialogType } from "../../types/index";
+import { DialogType, ErrorContextType } from "../../types/index";
 import { FormValidationRules, validateForm, Form, initForm, MessageType } from "ts-form-validation";
+import { ErrorContext } from "../containers/ErrorHandler";
 
+/**
+ * Component properties
+ */
 interface Props extends WithStyles<typeof styles> {
-  /**
-   * Dialog open state
-   */
   open: boolean;
-
-  /**
-   * Dialog type
-   */
   dialogType: DialogType;
-
-  /**
-   * Customer
-   */
   customer?: Customer;
-
-  /**
-   * Save button click
-   */
   saveClick(customer: Customer, dialogType: DialogType): void;
-  /**
-   * Close handler
-   */
   handleClose(): void;
 }
 
@@ -50,6 +36,9 @@ const rules: FormValidationRules<CustomerForm> = {
   }
 };
 
+/**
+ * Component state
+ */
 interface State {
   form: Form<CustomerForm>;
 }
@@ -58,6 +47,9 @@ interface State {
  * Creates customer dialog component
  */
 class CustomerDialog extends React.Component<Props, State> {
+
+  static contextType: React.Context<ErrorContextType> = ErrorContext;
+
   /**
    * Constructor
    *
@@ -74,80 +66,95 @@ class CustomerDialog extends React.Component<Props, State> {
         rules
       )
     };
-  }
+  };
 
   /**
-   * Component did update
+   * Component did update life cycle handler
+   *
+   * @param prevProps previous props
+   * @param prevState previous state
    */
   public componentDidUpdate = (prevProps: Props, prevState: State) => {
-    if (prevProps.customer !== this.props.customer) {
+    const { customer } = this.props;
+
+    if (prevProps.customer !== customer) {
       let form = initForm<CustomerForm>(
         {
-          name: this.props.customer ? this.props.customer.name : "",
-          ...this.props.customer
+          name: customer ? customer.name : "",
+          ...customer
         },
         rules
       );
 
       form = validateForm(form);
 
-      this.setState({
-        form
-      });
+      this.setState({ form: form });
     }
   };
 
   /**
    * Component render method
    */
-  public render() {
-    const { classes, dialogType } = this.props;
+  public render = () => {
+    const { classes, dialogType, open, handleClose } = this.props;
     const { isFormValid } = this.state.form;
 
     return (
       <Dialog
-        fullScreen={false}
-        open={this.props.open}
-        onClose={this.props.handleClose}
+        fullScreen={ false }
+        open={ open }
+        onClose={ handleClose }
         aria-labelledby="dialog-title"
-        onBackdropClick={this.onCustomerDialogBackDropClick}
+        onBackdropClick={ this.onCustomerDialogBackDropClick }
       >
         <DialogTitle id="dialog-title">
           <div>
-            <Typography variant="h2">{this.renderDialogTitle(dialogType)}</Typography>
+            <Typography variant="h2">
+              { this.renderDialogTitle(dialogType) }
+            </Typography>
           </div>
         </DialogTitle>
         <Divider />
         <DialogContent>
-          <Grid container spacing={2}>
-            <Grid item className={classes.fullWidth}>
-              {this.renderField("name", strings.name)}
+          <Grid container spacing={ 2 }>
+            <Grid item className={ classes.fullWidth }>
+              { this.renderField("name", strings.name) }
             </Grid>
-            <Grid item className={classes.fullWidth}>
-              {dialogType !== "show" && (
+            <Grid item className={ classes.fullWidth }>
+              { dialogType !== "show" &&
                 <>
-                  <Typography variant="subtitle1">{strings.customerLogo}</Typography>
+                  <Typography variant="subtitle1">{ strings.customerLogo }</Typography>
                   <DropzoneArea
-                    dropzoneClass={classes.dropzone}
-                    dropzoneParagraphClass={classes.dropzoneText}
-                    dropzoneText={strings.dropFile}
-                    onChange={this.onImageChange}
+                    dropzoneClass={ classes.dropzone }
+                    dropzoneParagraphClass={ classes.dropzoneText }
+                    dropzoneText={ strings.dropFile }
+                    onChange={ this.onImageChange }
                   />
                 </>
-              )}
+              }
             </Grid>
           </Grid>
         </DialogContent>
         <Divider />
         <DialogActions>
-          <Button variant="outlined" onClick={this.onCloseClick} color="primary">
-            {strings.cancel}
+          <Button
+            variant="outlined"
+            onClick={ this.onCloseClick }
+            color="primary"
+          >
+            { strings.cancel }
           </Button>
-          {dialogType !== "show" && (
-            <Button variant="contained" onClick={this.onSave} color="primary" autoFocus disabled={!isFormValid}>
-              {dialogType === "edit" ? strings.update : strings.save}
+          { dialogType !== "show" &&
+            <Button
+              variant="contained"
+              onClick={ this.onSave }
+              color="primary"
+              autoFocus
+              disabled={ !isFormValid }
+            >
+              { dialogType === "edit" ? strings.update : strings.save }
             </Button>
-          )}
+          }
         </DialogActions>
       </Dialog>
     );
@@ -158,29 +165,28 @@ class CustomerDialog extends React.Component<Props, State> {
    */
   private renderField = (key: keyof CustomerForm, label: string) => {
     const { dialogType } = this.props;
-    const {
-      values,
-      messages: { [key]: message }
-    } = this.state.form;
+    const { values, messages: { [key]: message } } = this.state.form;
+
     return (
       <TextField
         multiline
         fullWidth
-        error={message && message.type === MessageType.ERROR}
-        helperText={message && message.message}
-        value={values[key]}
-        onChange={this.onHandleChange(key)}
-        onBlur={this.onHandleBlur(key)}
-        name={key}
+        error= {message && message.type === MessageType.ERROR }
+        helperText={ message && message.message }
+        value= {values[key] }
+        onChange={ this.onHandleChange(key) }
+        onBlur={ this.onHandleBlur(key) }
+        name={ key }
         variant="outlined"
-        label={label}
-        disabled={dialogType === "show"}
+        label={ label }
+        disabled={ dialogType === "show" }
       />
     );
   };
 
   /**
    * Renders dialog title by type
+   *
    * @param dialogType
    */
   private renderDialogTitle = (dialogType: DialogType) => {
@@ -189,10 +195,7 @@ class CustomerDialog extends React.Component<Props, State> {
         return strings.editCustomer;
       case "show":
         return strings.customerInformation;
-
       case "new":
-        return strings.addNewCustomer;
-
       default:
         return strings.addNewCustomer;
     }
@@ -224,9 +227,10 @@ class CustomerDialog extends React.Component<Props, State> {
   };
 
   /**
-   * Handles textfields change events
-   * @param key
-   * @param event
+   * Handles text fields change events
+   *
+   * @param key key of CustomerForm
+   * @param event React change event
    */
   private onHandleChange = (key: keyof CustomerForm) => (event: React.ChangeEvent<HTMLInputElement>) => {
     const values = {
@@ -239,19 +243,16 @@ class CustomerDialog extends React.Component<Props, State> {
         ...this.state.form,
         values
       },
-      {
-        usePreprocessor: false
-      }
+      { usePreprocessor: false }
     );
 
-    this.setState({
-      form
-    });
+    this.setState({ form: form });
   };
 
   /**
-   * Handles fields blur event
-   * @param key
+   * Event handler for text fields blur event
+   *
+   * @param key key of CustomerForm
    */
   private onHandleBlur = (key: keyof CustomerForm) => () => {
     let form = { ...this.state.form };
@@ -265,28 +266,35 @@ class CustomerDialog extends React.Component<Props, State> {
       filled
     });
 
-    this.setState({
-      form
-    });
+    this.setState({ form: form });
   };
 
   /**
    * Handles image changes
-   * @param files
+   *
+   * @param files list of files
    */
   private onImageChange = async (files: File[]) => {
     const file = files[0];
-    const response = await FileUpload.uploadFile(file, "customerImages");
 
-    this.setState({
-      form: {
-        ...this.state.form,
-        values: {
-          ...this.state.form.values,
-          image_url: response.uri
+    try {
+      const response = await FileUpload.uploadFile(file, "customerImages");
+
+      this.setState({
+        form: {
+          ...this.state.form,
+          values: {
+            ...this.state.form.values,
+            image_url: response.uri
+          }
         }
-      }
-    });
+      });
+    } catch (error) {
+      this.context.setError(
+        strings.formatString(strings.errorManagement.file.upload, file.name),
+        error
+      );
+    }
   };
 
   /**
@@ -307,6 +315,9 @@ class CustomerDialog extends React.Component<Props, State> {
     );
   };
 
+  /**
+   * Event handler for customer dialog back drop click
+   */
   private onCustomerDialogBackDropClick = () => {
     this.setState({
       form: initForm<CustomerForm>(
