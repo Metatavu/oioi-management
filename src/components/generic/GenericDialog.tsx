@@ -10,24 +10,20 @@ interface Props {
   title: string;
   positiveButtonText: string;
   cancelButtonText?: string;
-
   /**
    * On close handler
    */
   onClose: () => void;
-
   /**
    * On cancel handler
    */
   onCancel: () => void;
-
   /**
    * On confirm handler
    */
   onConfirm: () => void | Promise<void>;
   open: boolean;
   error: boolean;
-
   fullScreen?: boolean;
   fullWidth?: boolean;
   disableEnforceFocus?: boolean;
@@ -35,89 +31,65 @@ interface Props {
 }
 
 /**
- * Interface representing component state
- */
-interface State {
-}
-
-/**
  * React component displaying confirm dialogs
  */
-export default class GenericDialog extends React.Component<Props, State> {
-
-  /**
-   * Constructor
-   *
-   * @param props component properties
-   */
-  constructor(props: Props) {
-    super(props);
-    this.state = { };
-  }
-
-  /**
-   * Component render method
-   */
-  public render = () => {
-    const {
-      open,
-      positiveButtonText,
-      cancelButtonText,
-      onClose,
-      onCancel,
-      title,
-      onConfirm,
-      error,
-      fullScreen,
-      fullWidth,
-      disableEnforceFocus,
-      disabled
-    } = this.props;
-
-    return (
-      <Dialog
-        disableEnforceFocus={ disableEnforceFocus }
-        open={ open }
-        onClose={ onClose }
-        aria-labelledby="alert-dialog-title"
-        aria-describedby="alert-dialog-description"
-        fullScreen={ fullScreen }
-        fullWidth={ fullWidth }
+const GenericDialog: React.FC<Props> = ({
+  open,
+  positiveButtonText,
+  cancelButtonText,
+  onClose,
+  onCancel,
+  title,
+  onConfirm,
+  error,
+  fullScreen,
+  fullWidth,
+  disableEnforceFocus,
+  disabled
+}) => {
+  return (
+    <Dialog
+      disableEnforceFocus={ disableEnforceFocus }
+      open={ open }
+      onClose={ onClose }
+      aria-labelledby="alert-dialog-title"
+      aria-describedby="alert-dialog-description"
+      fullScreen={ fullScreen }
+      fullWidth={ fullWidth }
+    >
+      <DialogTitle
+        disableTypography
+        id="alert-dialog-title"
       >
-        <DialogTitle
-          disableTypography
-          id="alert-dialog-title"
+        { title }
+        <IconButton
+          size="small"
+          onClick={ onCancel }
         >
-          { title }
-          <IconButton
-            size="small"
-            onClick={ onCancel }
-          >
-            <CloseIcon />
-          </IconButton>
-        </DialogTitle>
-        <DialogContent>
-          { this.props.children }
-        </DialogContent>
-        <DialogActions>
-          { cancelButtonText &&
-            <Button
-              onClick={ onCancel }
-              color="secondary"
-            >
-              { cancelButtonText }
-            </Button>
-          }
+          <CloseIcon />
+        </IconButton>
+      </DialogTitle>
+      <DialogContent>
+        { this.props.children }
+      </DialogContent>
+      <DialogActions>
+        { cancelButtonText &&
           <Button
-            disabled={ error || disabled }
-            onClick={ onConfirm }
-            color="primary"
-            autoFocus
+            onClick={ onCancel }
+            color="secondary"
           >
-            { positiveButtonText }
+            { cancelButtonText }
           </Button>
-        </DialogActions>
-      </Dialog>
-    );
-  }
+        }
+        <Button
+          disabled={ error || disabled }
+          onClick={ onConfirm }
+          color="primary"
+          autoFocus
+        >
+          { positiveButtonText }
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
 }

@@ -88,7 +88,7 @@ class CustomerDialog extends React.Component<Props, State> {
 
       form = validateForm(form);
 
-      this.setState({ form });
+      this.setState({ form: form });
     }
   };
 

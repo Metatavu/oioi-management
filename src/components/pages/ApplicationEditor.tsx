@@ -282,8 +282,6 @@ class ApplicationEditor extends React.Component<Props, State> {
     } = this.props;
     const { treeData, parentResourceId } = this.state;
 
-    console.log("treeData", treeData);
-
     return (
       <>
         <List disablePadding>
@@ -374,9 +372,6 @@ class ApplicationEditor extends React.Component<Props, State> {
     const { classes, customerId, deviceId, openedResource, application, auth } = this.props;
     const { rootResource } = this.state;
 
-    console.log("rootResource", rootResource);
-
-
     if (!rootResource) {
       return (
         <main className={ classes.content }>
@@ -407,7 +402,7 @@ class ApplicationEditor extends React.Component<Props, State> {
         </main>
       );
     } else {
-      return <main className={ classes.content }></main>;
+      return <main className={ classes.content }/>;
     }
   };
 
@@ -465,6 +460,8 @@ class ApplicationEditor extends React.Component<Props, State> {
 
   /**
    * Render add resource treeItem method
+   *
+   * @param parent_id parent ID
    */
   private renderAdd = (parent_id?: string) => {
     const { classes } = this.props;
@@ -597,7 +594,7 @@ class ApplicationEditor extends React.Component<Props, State> {
       if (treeData && data.nextParentNode && data.nextParentNode.children && Array.isArray(data.nextParentNode.children)) {
         data.nextParentNode.children
         .filter(child => !!child.resource)
-        .map( async ({ resource }, index) =>
+        .map(async ({ resource }, index) =>
           await resourcesApi.updateResource({
             customer_id: customerId,
             device_id: deviceId,
@@ -621,7 +618,7 @@ class ApplicationEditor extends React.Component<Props, State> {
       } else if (treeData) {
         (treeData as TreeItemSortable[])
           .filter(child => !!child.resource)
-          .map( async ({ resource }, index) =>
+          .map(async ({ resource }, index) =>
             await resourcesApi.updateResource({
               resource: {
                 ...resource,
@@ -1312,6 +1309,9 @@ class ApplicationEditor extends React.Component<Props, State> {
     this.setState({ addResourceDialogOpen: false });
   };
 
+  /**
+   * Clear confirmation dialog
+   */
   private clear = () => {
     this.setState({
       confirmationRequired: false,

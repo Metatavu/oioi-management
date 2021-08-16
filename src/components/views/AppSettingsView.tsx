@@ -334,18 +334,20 @@ class AppSettingsView extends React.Component<Props, State> {
    * @returns list of key value properties
    */
   private translateWallItemProperties = (item: any): KeyValueProperty[] => {
-    return Object.keys(item.properties).map(key => {
-      return { key: key, value: item.properties[key] };
-    });
+    return Object.keys(item.properties).map(key => ({
+      key: key,
+      value: item.properties[key]
+    }));
   }
 
   /**
    * Translates wall json item styles to resource styles
    */
   private translateWallItemStyles = (item: any): KeyValueProperty[] => {
-    return Object.keys(item.styles).map(key => {
-      return { key: key, value: item.styles[key] };
-    });
+    return Object.keys(item.styles).map(key => ({
+      key: key,
+      value: item.styles[key]
+    }));
   }
 
   /**

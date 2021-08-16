@@ -57,7 +57,7 @@ const ErrorHandler: React.FC = ({ children }) => {
         onCancel={ () => setError(undefined) }
         onConfirm={ () => setError(undefined) }
         title={ strings.errorManagement.title }
-        positiveButtonText={ "OK" }
+        positiveButtonText="OK"
       >
         { error &&
           <Typography>{ error }</Typography>
