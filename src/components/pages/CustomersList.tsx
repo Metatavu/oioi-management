@@ -126,6 +126,7 @@ class CustomersList extends React.Component<Props, State> {
    * @param key key
    */
   private renderCard = (customer: Customer, key: string) => {
+
     return (
       <Grid key={ key } item>
         <CardItem
@@ -302,8 +303,10 @@ class CustomersList extends React.Component<Props, State> {
         customer_id: id,
         customer: customer
       });
-  
-      this.setState({ customers: customers.map(c => c.id !== customer.id ? customer : updatedCustomer) });
+
+      this.setState({
+        customers: customers.map(c => c.id !== customer.id ? c : updatedCustomer)
+      });
     } catch (error) {
       this.context.setError(strings.errorManagement.customer.update, error);
     }

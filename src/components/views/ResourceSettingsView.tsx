@@ -18,13 +18,16 @@ import { MessageType, initForm, Form, validateForm } from "ts-form-validation";
 import { ResourceSettingsForm, resourceRules } from "../../commons/formRules";
 import ImagePreview from "../generic/ImagePreview";
 import VisibleWithRole from "../generic/VisibleWithRole";
-import { ErrorContextType } from "../../types";
+import { AuthState, ErrorContextType } from "../../types";
 import { ErrorContext } from "../containers/ErrorHandler";
+import { connect } from "react-redux";
+import { ReduxState } from "../../store";
 
 /**
  * Component props
  */
 interface Props extends WithStyles<typeof styles> {
+  auth: AuthState;
   resource: Resource;
   customerId: string;
   onUpdate: (resource: Resource) => void;
@@ -467,17 +470,30 @@ class ResourceSettingsView extends React.Component<Props, State> {
 
   /**
    * Handles file change
+   *
    * @param files files to change
+   * @param callback file upload progress callback function
    */
-  private onFileChange = async (files: File[]) => {
-    const { customerId } = this.props;
+  private onFileChange = async (files: File[], callback: (progress: number) => void) => {
+    const { auth } = this.props;
     const { resourceData } = this.state;
 
+    if (!auth || !auth.token) {
+      return;
+    }
+
     const file = files[0];
+
     if (file) {
       try {
-        const response = await FileUpload.uploadFile(file, customerId);
-        resourceData["data"] = response.uri;
+        const response = await FileUpload.getPresignedPostData(file, auth.token);
+        if (response.error) {
+          throw new Error(response.message);
+        }
+
+        const { data, basePath } = response;
+        await FileUpload.uploadFileToS3(data, file, callback);
+        resourceData["data"] = `${basePath}/${data.fields.key}`;
       } catch (error) {
         this.context.setError(strings.errorManagement.file.upload, error);
         return;
@@ -485,6 +501,7 @@ class ResourceSettingsView extends React.Component<Props, State> {
     } else {
       resourceData["data"] = undefined;
     }
+
     this.setState({ resourceData: resourceData });
     this.onUpdateResource();
   };
@@ -554,9 +571,10 @@ class ResourceSettingsView extends React.Component<Props, State> {
   };
 
   /**
-   * Handles textfields change events
-   * @param key
-   * @param event
+   * Handles text fields change events
+   *
+   * @param key key
+   * @param event React change event
    */
   private onHandleChange = (key: keyof ResourceSettingsForm) => (event: React.ChangeEvent<HTMLInputElement>) => {
     const values = {
@@ -607,4 +625,13 @@ class ResourceSettingsView extends React.Component<Props, State> {
   };
 }
 
-export default withStyles(styles)(ResourceSettingsView);
+/**
+ * Maps redux state to props
+ *
+ * @param state redux state
+ */
+const mapStateToProps = (state: ReduxState) => ({
+  auth: state.auth
+});
+
+export default connect(mapStateToProps)(withStyles(styles)(ResourceSettingsView));

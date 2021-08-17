@@ -13,23 +13,9 @@ import { Alert } from "@material-ui/lab";
  * Component props
  */
 interface Props extends WithStyles<typeof styles> {
-  /**
-   * Dialog open state
-   */
   open: boolean;
-  /**
-   * Current resources under root resource
-   */
   resource: Resource;
-
-  /**
-   * Save button click
-   */
-  onSave(files: File[], key?: string): void;
-
-  /**
-   * Toggle add icon dialog
-   */
+  onSave: (files: File[], callback: (progress: number) => void, key: string) => void;
   onToggle(): void;
 }
 
@@ -41,6 +27,7 @@ interface State {
   newFiles?: File[];
   propertyName?: string;
   customInput: boolean;
+  progress?: number;
 }
 
 /**
@@ -62,7 +49,12 @@ class AddIconDialog extends React.Component<Props, State> {
     };
   }
 
-  componentDidUpdate = (prevProps: Props) => {
+  /**
+   * Component did update life cycle handler
+   *
+   * @param prevProps previous props
+   */
+  public componentDidUpdate = (prevProps: Props) => {
     if (!prevProps.open && this.props.open) {
       this.setState({ iconName: "" });
     }
@@ -71,7 +63,7 @@ class AddIconDialog extends React.Component<Props, State> {
   /**
    * Component render method
    */
-  public render() {
+  public render = () => {
     const { classes, open, onToggle } = this.props;
     const { iconName, newFiles } = this.state;
 
@@ -184,6 +176,21 @@ class AddIconDialog extends React.Component<Props, State> {
   }
 
   /**
+   * Callback function that Updates file upload progress
+   *
+   * @param progress upload progress
+   */
+  private updateProgress = (progress: number) => {
+    this.setState({ progress: Math.floor(progress) });
+
+    if (progress < 100) {
+      return;
+    }
+
+    this.clearAndClose();
+  }
+
+  /**
    * Handle save click
    */
   private handleSave = () => {
@@ -198,7 +205,7 @@ class AddIconDialog extends React.Component<Props, State> {
       remove: /[^A-Za-z0-9_]+/g,
     });
 
-    this.props.onSave(newFiles, propertyName);
+    this.props.onSave(newFiles, this.updateProgress, propertyName);
     this.clearAndClose();
   }
 

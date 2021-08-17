@@ -1,10 +1,11 @@
 import * as React from "react";
-import { withStyles, WithStyles, Button, CircularProgress, Menu, MenuItem, Dialog, DialogTitle, DialogContent, DialogContentText, TextField, DialogActions } from "@material-ui/core";
+import { withStyles, WithStyles, Button, CircularProgress, Menu, MenuItem, Dialog, DialogTitle, DialogContent, DialogContentText, TextField, DialogActions, LinearProgress, Typography } from "@material-ui/core";
 import styles from "../../styles/dialog";
-import { DropzoneDialog } from "material-ui-dropzone";
+import { DropzoneArea } from "material-ui-dropzone";
 import strings from "../../localization/strings";
 import { ChangeEvent } from "react";
 import VisibleWithRole from "./VisibleWithRole";
+import GenericDialog from "./GenericDialog";
 
 /**
  * Component properties
@@ -14,18 +15,7 @@ interface Props extends WithStyles<typeof styles> {
   allowedFileTypes: string[];
   allowSetUrl?: boolean;
   uploadButtonText: string;
-  /**
-   * Save files to resource
-   * @param files files
-   * @param key  upload key
-   */
-  onSave: (files: File[], key?: string) => void;
-
-  /**
-   * Directly sets resource url
-   * @param url url to set
-   * @param key key
-   */
+  onSave: (files: File[], callback: (progress: number) => void, key?: string) => void;
   onSetUrl?: (url: string, key?: string) => void;
 }
 
@@ -40,6 +30,7 @@ interface State {
   contextMenuX: null | number;
   contextMenuY: null | number;
   resourceUrl?: string;
+  progress?: number;
 }
 
 /**
@@ -66,7 +57,7 @@ class FileUploader extends React.Component<Props, State> {
   /**
    * Component render method
    */
-  public render() {
+  public render = () => {
     const { classes, uploadButtonText, allowSetUrl } = this.props;
     const { uploading } = this.state;
 
@@ -109,21 +100,38 @@ class FileUploader extends React.Component<Props, State> {
    */
   private renderUploadDialog = () => {
     const { allowedFileTypes } = this.props;
+    const { progress } = this.state;
 
     return (
-      <DropzoneDialog
-        acceptedFiles={ allowedFileTypes }
+      <GenericDialog
         open={ this.state.dialogOpen }
+        error={ false }
         onClose={ this.closeDialog }
-        onSave={ this.handleSave }
-        dialogTitle={ strings.fileUpload.uploadFile }
-        dropzoneText={ strings.fileUpload.dropFileHere }
+        onCancel={ this.closeDialog }
+        onConfirm={ this.closeDialog  }
+        title={ strings.fileUpload.uploadFile }
         cancelButtonText={ strings.fileUpload.cancel }
-        submitButtonText={ strings.fileUpload.upload }
-        filesLimit={ 1 }
-        maxFileSize={ 314572800 }
-        showPreviewsInDropzone={ false }
-      />
+        fullWidth={ true }
+        ignoreOutsideClicks={ true }
+      >
+        { progress ?
+          (
+            <>
+              <LinearProgress variant="determinate" value={ progress }/>
+              <Typography>{ `${progress}%` }</Typography>
+            </>
+          ) :
+          <DropzoneArea
+            acceptedFiles={ allowedFileTypes }
+            clearOnUnmount
+            dropzoneText={ strings.fileUpload.uploadFile }
+            onDrop={ this.handleSave }
+            showPreviewsInDropzone={ false }
+            maxFileSize={ (314572800) * 1000000 }
+            filesLimit={ 1 }
+          />
+        }
+      </GenericDialog>
     );
   }
 
@@ -132,12 +140,12 @@ class FileUploader extends React.Component<Props, State> {
    */
   private renderContextMenu = () => {
     const { uploadButtonText } = this.props;
-    const { contextMenuX, contextMenuY } = this.state;
+    const { contextMenuX, contextMenuY, contextMenuOpen } = this.state;
 
     return (
       <Menu
         keepMounted
-        open={ this.state.contextMenuOpen }
+        open={ contextMenuOpen }
         onClose={ this.handleContextMenuClose }
         anchorReference="anchorPosition"
         anchorPosition={
@@ -230,6 +238,8 @@ class FileUploader extends React.Component<Props, State> {
 
   /**
    * Handles opening context menu
+   *
+   * @param event React mouse event
    */
   private handleContextMenu = (event: React.MouseEvent<HTMLElement>) => {
     event.preventDefault();
@@ -254,14 +264,14 @@ class FileUploader extends React.Component<Props, State> {
    * Close upload image dialog
    */
   private closeDialog = () => {
-    this.setState({ dialogOpen: false });
+    this.setState({ dialogOpen: false, progress: 0 });
   }
 
   /**
    * Handle direct url setting
    */
   private handleSetUrl = async () => {
-    const { onSetUrl } = this.props;
+    const { onSetUrl, uploadKey } = this.props;
     const { resourceUrl } = this.state;
 
     if (!resourceUrl) {
@@ -272,20 +282,37 @@ class FileUploader extends React.Component<Props, State> {
     this.closeDialog();
     this.closeUrlDialog();
     this.handleContextMenuClose();
-    onSetUrl && onSetUrl(resourceUrl, this.props.uploadKey);
+    onSetUrl && onSetUrl(resourceUrl, uploadKey);
     this.setState({ uploading: false });
   }
 
   /**
+   * Callback function that Updates file upload progress
+   *
+   * @param progress upload progress
+   */
+  private updateProgress = (progress: number) => {
+    this.setState({ progress: Math.floor(progress) });
+
+    if (progress < 100) {
+      return;
+    }
+
+    this.closeDialog();
+  }
+
+  /**
    * Handle save/upload
-   * TODO: Add some kind of progress indicator
+   *
+   * @param files list of files
    */
   private handleSave = async (files: File[]) => {
-    this.setState({ uploading: true })
-    this.closeDialog();
+    const { onSave, uploadKey } = this.props;
+
+    this.setState({ uploading: true, progress: 0 })
     this.closeUrlDialog();
     this.handleContextMenuClose();
-    this.props.onSave(files, this.props.uploadKey);
+    onSave(files, this.updateProgress, uploadKey);
     this.setState({ uploading: false });
   }
 }
