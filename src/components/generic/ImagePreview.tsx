@@ -20,24 +20,8 @@ interface Props extends WithStyles<typeof styles> {
   uploadKey: string;
   uploadButtonText: string;
   allowSetUrl: boolean;
-  /**
-   * Save given files to parent component with key
-   * @param files files to save
-   * @param key property key
-   */
-  onSave(files: File[], key?: string): void;
-
-  /**
-   * Save set url
-   * @param url url to set
-   * @param key property key
-   */
+  onSave(files: File[], callback: (progress: number) => void, key?: string): void;
   onSetUrl(url: string, key?: string): void;
-
-  /**
-   * Delete given property from parent component
-   * @param key property to remove
-   */
   onDelete(key?: string): void;
 }
 
@@ -67,7 +51,7 @@ class ImagePreview extends React.Component<Props, State> {
   /**
    * Component render method
    */
-  public render() {
+  public render = () => {
     const {
       imagePath,
       resource,
@@ -96,7 +80,7 @@ class ImagePreview extends React.Component<Props, State> {
           <div key={ imagePath } onClick={ this.toggleDialog }>
             { previewContent }
           </div>
-          {imagePath &&
+          { imagePath &&
             <div className={ classes.deleteImage }>
               <IconButton
                 size="small"

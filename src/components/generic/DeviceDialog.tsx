@@ -1,10 +1,10 @@
 import * as React from "react";
-import { withStyles, WithStyles, Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, Divider, Grid, Typography, Box } from "@material-ui/core";
+import { withStyles, WithStyles, Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, Divider, Grid, Typography, Box, LinearProgress } from "@material-ui/core";
 import styles from "../../styles/dialog";
 import { DropzoneArea } from "material-ui-dropzone";
 import strings from "../../localization/strings";
 import { Device } from "../../generated/client/src";
-import { DialogType, ErrorContextType } from "../../types";
+import { AuthState, DialogType, ErrorContextType } from "../../types";
 import { KeyValueProperty } from "../../generated/client/src/models/KeyValueProperty";
 import { FormValidationRules, MessageType, validateForm, initForm, Form } from "ts-form-validation";
 import FileUpload from "../../utils/file-upload";
@@ -14,6 +14,7 @@ import { ErrorContext } from "../containers/ErrorHandler";
  * Component properties
  */
 interface Props extends WithStyles<typeof styles> {
+  auth: AuthState;
   open: boolean;
   dialogType: DialogType;
   device?: Device;
@@ -70,6 +71,7 @@ const rules: FormValidationRules<DeviceForm> = {
 interface State {
   form: Form<DeviceForm>;
   image_url?: string;
+  progress?: number;
 }
 
 /**
@@ -137,9 +139,9 @@ class DeviceDialog extends React.Component<Props, State> {
   /**
    * Component render method
    */
-  public render() {
+  public render = () => {
     const { classes, open, dialogType, handleClose } = this.props;
-    const { isFormValid } = this.state.form;
+    const { progress, form } = this.state;
 
     return (
       <Dialog
@@ -216,7 +218,7 @@ class DeviceDialog extends React.Component<Props, State> {
               onClick={ this.onSave }
               color="primary"
               autoFocus
-              disabled={ !isFormValid }
+              disabled={ !form.isFormValid || (progress !== undefined && progress < 100) }
             >
               { dialogType === "edit" ? strings.update : strings.save }
             </Button>
@@ -230,7 +232,16 @@ class DeviceDialog extends React.Component<Props, State> {
    * Renders device image
    */
   private renderDeviceImage = () => {
-    const { image_url } = this.state;
+    const { image_url, progress } = this.state;
+
+    if (progress) {
+      return (
+        <>
+          <LinearProgress variant="determinate" value={ progress }/>
+          <Typography>{ `${progress}%` }</Typography>
+        </>
+      );
+    }
 
     if (!image_url) {
       return (
@@ -403,17 +414,47 @@ class DeviceDialog extends React.Component<Props, State> {
   };
 
   /**
+   * Callback function that Updates file upload progress
+   *
+   * @param progress upload progress
+   */
+  private updateProgress = (progress: number) => {
+    this.setState({ progress: Math.floor(progress) });
+
+    if (progress < 100) {
+      return;
+    }
+
+    this.setState({ progress: undefined });
+  }
+
+  /**
    * Event handler for image change
    *
    * @param files files
+   * @param callback file upload progress callback function
    */
   private onImageChange = async (files: File[]) => {
-    
-    try {
-      const response = await FileUpload.uploadFile(files[0], "deviceImages");
-      this.setState({ image_url: response.uri });
-    } catch (error) {
-      this.context.setError(strings.errorManagement.file.upload, error);
+    const { auth } = this.props;
+
+    if (!auth || !auth.token) {
+      return;
+    }
+    const file = files[0];
+
+    if (file) {
+      try {
+        const response = await FileUpload.getPresignedPostData(file, auth.token);
+        if (response.error) {
+          throw new Error(response.message);
+        }
+  
+        const { data, basePath } = response;
+        await FileUpload.uploadFileToS3(data, file, this.updateProgress);
+        this.setState({ image_url: `${basePath}/${data.fields.key}` });
+      } catch (error) {
+        this.context.setError(strings.errorManagement.file.upload, error);
+      }
     }
   };
 }

@@ -35,3 +35,18 @@ export interface ErrorContextType {
   error?: string;
   setError: (message: string, error?: any) => void;
 }
+
+/**
+ * Pre-signed POST data response from S3
+ */
+export type PreSignedPostDataResponse =
+  { error: false; basePath: string; data: PreSignedPostData; } |
+  { error: true; message: string; };
+
+/**
+ * Pre-signed POST data for uploading images to S3
+ */
+export interface PreSignedPostData {
+  url: string;
+  fields: Record<string, string>;
+}

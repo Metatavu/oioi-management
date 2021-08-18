@@ -79,7 +79,7 @@ class DevicesList extends React.Component<Props, State> {
    * Component render method
    */
   public render = () => {
-    const { classes, customer } = this.props;
+    const { classes, customer, auth } = this.props;
     const {
       devices,
       deviceInDialog,
@@ -102,6 +102,7 @@ class DevicesList extends React.Component<Props, State> {
             { this.renderAdd() }
           </Grid>
           <DeviceDialog
+            auth={ auth }
             open={ editorDialogOpen }
             device={ deviceInDialog }
             dialogType={ dialogType }

@@ -1391,8 +1391,6 @@ class ApplicationEditor extends React.Component<Props, State> {
         resource_id: currentApplication.root_resource_id!
       });
 
-      console.log("fetch", rootResource);
-
       this.setState({ rootResource: rootResource });
     } catch (error) {
       setError(strings.errorManagement.resource.find, error);

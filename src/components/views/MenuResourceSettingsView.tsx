@@ -721,11 +721,13 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
 
   /**
    * Handles image change
+   *
+   * @param files files to change
+   * @param callback file upload progress callback function
+   * @param key key
    */
-  private onPropertyFileChange = async (files: File[], key: string) => {
-    const { customerId } = this.props;
-
-    const newUri = await this.upload(files, customerId);
+  private onPropertyFileChange = async (files: File[], callback: (progress: number) => void, key: string) => {
+    const newUri = await this.upload(files, callback);
     const tempMap = this.state.resourceMap;
     tempMap.set(key, newUri);
     this.setState({
@@ -737,6 +739,9 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
 
   /**
    * Handles image change
+   *
+   * @param url url
+   * @param key key
    */
   private onPropertyFileSetUrl = async (url: string, key: string) => {
     const tempMap = this.state.resourceMap;
@@ -750,11 +755,14 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
 
   /**
    * Handles icon change
+   *
+   * @param files files to change
+   * @param callback file upload progress callback function
+   * @param key key
    */
-  private onIconFileChange = async (files: File[], key: string) => {
-    const { customerId } = this.props;
+  private onIconFileChange = async (files: File[], callback: (progress: number) => void, key: string) => {
 
-    const newUri = await this.upload(files, customerId);
+    const newUri = await this.upload(files, callback);
     const tempMap = this.state.iconsMap;
     tempMap.set(key, newUri);
     this.setState({
@@ -845,7 +853,7 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
   };
 
   /**
-   * Handles textfields change events
+   * Handles text fields change events
    * @param key
    * @param event
    */
@@ -887,17 +895,29 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
    * Upload file to S3
    *
    * @param files list of files
-   * @param customerId customer id
+   * @param callback file upload progress callback function
    * @returns new URI
    */
-  private async upload(files: File[], customerId: string): Promise<string> {
+  private async upload(files: File[], callback: (progress: number) => void): Promise<string> {
+    const { auth } = this.props;
+
     let newUri = "";
+    if (!auth || !auth.token) {
+      return newUri;
+    }
+
     const file = files[0];
 
     if (file) {
       try {
-        const response = await FileUpload.uploadFile(file, customerId);
-        newUri = response.uri;
+        const response = await FileUpload.getPresignedPostData(file, auth.token);
+        if (response.error) {
+          throw new Error(response.message);
+        }
+
+        const { data, basePath } = response;
+        await FileUpload.uploadFileToS3(data, file, callback);
+        newUri = `${basePath}/${data.fields.key}`;
       } catch (error) {
         this.context.setError(strings.errorManagement.file.upload, error);
       }

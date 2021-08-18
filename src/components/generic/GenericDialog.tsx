@@ -8,7 +8,7 @@ import CloseIcon from "@material-ui/icons/Close";
  */
 interface Props {
   title: string;
-  positiveButtonText: string;
+  positiveButtonText?: string;
   cancelButtonText?: string;
   onClose: () => void;
   onCancel: () => void;
@@ -19,6 +19,7 @@ interface Props {
   fullWidth?: boolean;
   disableEnforceFocus?: boolean;
   disabled?: boolean;
+  ignoreOutsideClicks?: boolean;
 }
 
 /**
@@ -37,13 +38,28 @@ const GenericDialog: React.FC<Props> = ({
   fullWidth,
   disableEnforceFocus,
   disabled,
+  ignoreOutsideClicks,
   children
 }) => {
+
+  /**
+   * Event handler for on close click
+   *
+   * @param reason reason why dialog was closed
+   */
+  const onCloseClick = (reason: string) => {
+    if (ignoreOutsideClicks && (reason === "backdropClick" || reason === "escapeKeyDown")) {
+      return;
+    }
+
+    onClose();
+  }
+
   return (
     <Dialog
       disableEnforceFocus={ disableEnforceFocus }
       open={ open }
-      onClose={ onClose }
+      onClose={ (event, reason) => onCloseClick(reason) }
       aria-labelledby="alert-dialog-title"
       aria-describedby="alert-dialog-description"
       fullScreen={ fullScreen }
@@ -73,6 +89,7 @@ const GenericDialog: React.FC<Props> = ({
             { cancelButtonText }
           </Button>
         }
+        { positiveButtonText &&
         <Button
           disabled={ error || disabled }
           onClick={ onConfirm }
@@ -81,6 +98,7 @@ const GenericDialog: React.FC<Props> = ({
         >
           { positiveButtonText }
         </Button>
+        }
       </DialogActions>
     </Dialog>
   );

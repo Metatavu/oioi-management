@@ -661,32 +661,37 @@ class PageResourceSettingsView extends React.Component<Props, State> {
    * Handles child resource file change
    *
    * @param files files
-   * @param key resource id
+   * @param callback file upload progress callback function
+   * @param resourceId resource id
    */
-  private onChildResourceFileChange = async (files: File[], resourceId: string) => {
-    const { customerId } = this.props;
+  private onChildResourceFileChange = async (files: File[], callback: (progress: number) => void, resourceId: string) => {
+    const { customerId, auth } = this.props;
     const { childResources } = this.state;
     const file = files[0];
 
-    if (!file || !childResources) {
-      return 500;
+    if (!file || !childResources || !auth || !auth.token) {
+      return;
     }
 
     const resourceIndex: number = childResources.findIndex(resource => resource.id === resourceId);
     if (resourceIndex === -1) {
-      return 500;
+      return;
     }
 
     try {
-      const response = await FileUpload.uploadFile(file, customerId);
-      const updatedChildResource: Resource = { ...childResources[resourceIndex], data: response.uri };
+      const response = await FileUpload.getPresignedPostData(file, auth.token);
+      if (response.error) {
+        throw new Error(response.message);
+      }
+
+      const { data, basePath } = response;
+      await FileUpload.uploadFileToS3(data, file, callback);
+      const updatedChildResource: Resource = { ...childResources[resourceIndex], data: `${basePath}/${data.fields.key}` };
       this.updateChildResource(updatedChildResource);
     } catch (error) {
       this.context.setError(strings.errorManagement.file.upload, error);
-      return 500;
+      return;
     }
-
-    return 200;
   };
 
   /**
