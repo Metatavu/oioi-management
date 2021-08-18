@@ -128,6 +128,7 @@ export interface IStrings extends LocalizedStringsMethods {
     video: string;
     page: string;
     slideshow: string;
+    slideshowPdf: string;
     intro: string;
     languageMenu: string;
     language: string;
