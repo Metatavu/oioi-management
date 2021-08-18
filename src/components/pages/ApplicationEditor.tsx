@@ -303,7 +303,7 @@ class ApplicationEditor extends React.Component<Props, State> {
         { treeData &&
           <>
             { application &&
-              this.renderAdd(application.root_resource_id)
+              this.renderAdd(application.rootResourceId)
             }
             <SortableTree
               className={ classes.treeWrapper }
@@ -329,7 +329,7 @@ class ApplicationEditor extends React.Component<Props, State> {
           customerId={ customer ? customer.id : "" }
           deviceId={ device ? device.id : "" }
           applicationId={ application ? application.id : "" }
-          rootResourceId={ application ? application.root_resource_id : "" }
+          rootResourceId={ application ? application.rootResourceId : "" }
           parentResourceId={ parentResourceId || "" }
           onSave={ this.onSaveNewResourceClick }
           handleClose={ this.onDialogCloseClick }
@@ -461,21 +461,21 @@ class ApplicationEditor extends React.Component<Props, State> {
   /**
    * Render add resource treeItem method
    *
-   * @param parent_id parent ID
+   * @param parentId parent ID
    */
-  private renderAdd = (parent_id?: string) => {
+  private renderAdd = (parentId?: string) => {
     const { classes } = this.props;
     const { treeData } = this.state;
 
-    if (!parent_id) {
+    if (!parentId) {
       return;
     }
 
-    if (parent_id === this.props.application!.root_resource_id) {
+    if (parentId === this.props.application!.rootResourceId) {
       if (treeData && (!treeData.find(data => data.resource && data.resource.type === ResourceType.INTRO) || !treeData.find(data => data.resource && data.resource.type === ResourceType.LANGUAGEMENU))) {
         return (
           <>
-            <ListItem className={ classes.treeAddItem } onClick={ () => this.onAddNewResourceClick(parent_id) } key={ parent_id + "add" }>
+            <ListItem className={ classes.treeAddItem } onClick={ () => this.onAddNewResourceClick(parentId) } key={ parentId + "add" }>
               <ListItemIcon style={ { minWidth: 0, marginRight: theme.spacing(1) } }><AddIcon /></ListItemIcon>
               <ListItemText className={ classes.addResourceBtnText } primary={ strings.addNewIntroOrLanguageMenu } />
             </ListItem>
@@ -487,7 +487,7 @@ class ApplicationEditor extends React.Component<Props, State> {
     }
 
     return (
-      <ListItem className={ classes.treeAddItem } onClick={ () => this.onAddNewResourceClick(parent_id) } key={ parent_id + "add" }>
+      <ListItem className={ classes.treeAddItem } onClick={ () => this.onAddNewResourceClick(parentId) } key={ parentId + "add" }>
         <ListItemIcon style={ { minWidth: 0, marginRight: theme.spacing(1) } }><AddIcon /></ListItemIcon>
         <ListItemText className={ classes.addResourceBtnText } primary={ strings.addNew } />
       </ListItem>
@@ -508,10 +508,10 @@ class ApplicationEditor extends React.Component<Props, State> {
     let topLevelResources: Resource[] = []; 
     try {
       topLevelResources = await ApiUtils.getResourcesApi(auth.token).listResources({
-        application_id: application.id!,
-        customer_id: customer.id!,
-        device_id: device.id!,
-        parent_id: rootResource.id
+        applicationId: application.id!,
+        customerId: customer.id!,
+        deviceId: device.id!,
+        parentId: rootResource.id
       });
     } catch (error) {
       this.context.setError(strings.errorManagement.resource.list, error);
@@ -539,7 +539,7 @@ class ApplicationEditor extends React.Component<Props, State> {
    *
    * @param parentId id of tree item parent
    */
-  private loadTreeChildren = async (parent_id: string): Promise<ResourceTreeItem[]> => {
+  private loadTreeChildren = async (parentId: string): Promise<ResourceTreeItem[]> => {
     const { auth, customerId, deviceId, applicationId } = this.props;
     const data: ResourceTreeItem[] = [];
 
@@ -552,10 +552,10 @@ class ApplicationEditor extends React.Component<Props, State> {
 
     try {
       childResources = await resourcesApi.listResources({
-        customer_id: customerId,
-        device_id: deviceId,
-        application_id: applicationId,
-        parent_id: parent_id
+        customerId: customerId,
+        deviceId: deviceId,
+        applicationId: applicationId,
+        parentId: parentId
       });
 
       return await Promise.all(
@@ -596,14 +596,14 @@ class ApplicationEditor extends React.Component<Props, State> {
         .filter(child => !!child.resource)
         .map(async ({ resource }, index) =>
           await resourcesApi.updateResource({
-            customer_id: customerId,
-            device_id: deviceId,
-            application_id: applicationId,
-            resource_id: resource.id || "",
+            customerId: customerId,
+            deviceId: deviceId,
+            applicationId: applicationId,
+            resourceId: resource.id || "",
             resource: {
               ...resource,
-              order_number: index + 1,
-              parent_id: data.nextParentNode!.resource.id
+              orderNumber: index + 1,
+              parentId: data.nextParentNode!.resource.id
             }
           })
         );
@@ -611,7 +611,7 @@ class ApplicationEditor extends React.Component<Props, State> {
         this.setState({
           treeData: this.treeDataRearrange(
             treeData,
-            application && application.root_resource_id || "",
+            application && application.rootResourceId || "",
             data.nextParentNode.resource.id
           )
         });
@@ -622,16 +622,16 @@ class ApplicationEditor extends React.Component<Props, State> {
             await resourcesApi.updateResource({
               resource: {
                 ...resource,
-                order_number: index + 1
+                orderNumber: index + 1
               },
-              customer_id: customerId,
-              device_id: deviceId,
-              application_id: applicationId,
-              resource_id: resource.id || ""
+              customerId: customerId,
+              deviceId: deviceId,
+              applicationId: applicationId,
+              resourceId: resource.id || ""
             })
           );
 
-        const rootResourceId = application && application.root_resource_id || "";
+        const rootResourceId = application && application.rootResourceId || "";
 
         this.setState({
           treeData: this.treeDataRearrange(
@@ -650,24 +650,24 @@ class ApplicationEditor extends React.Component<Props, State> {
    * Rearranges tree data layer
    *
    * @param treeData current tree data layer
-   * @param parent_id parent id of the current layer
-   * @param changes_id parent id of the layer that needs to be rearranged
+   * @param parentId parent id of the current layer
+   * @param changesId parent id of the layer that needs to be rearranged
    */
-  private treeDataRearrange = (treeData: ResourceTreeItem[], parent_id: string, changes_id: string): ResourceTreeItem[] => {
-    if (parent_id === changes_id) {
+  private treeDataRearrange = (treeData: ResourceTreeItem[], parentId: string, changesId: string): ResourceTreeItem[] => {
+    if (parentId === changesId) {
       const arrangedTreeData = treeData
         .filter(data => !!data.resource)
-        .sort((a, b) => (a.resource!.order_number || 0) - (b.resource!.order_number || 0));
+        .sort((a, b) => (a.resource!.orderNumber || 0) - (b.resource!.orderNumber || 0));
 
       return [
         ...arrangedTreeData,
-        { title: this.renderAdd(changes_id) }
+        { title: this.renderAdd(changesId) }
       ];
     }
     return treeData.map((data) => ({
       ...data,
       children: data.children && data.children.length && data.resource && data.resource.id ?
-        this.treeDataRearrange(data.children as ResourceTreeItem[], data.resource.id, changes_id) :
+        this.treeDataRearrange(data.children as ResourceTreeItem[], data.resource.id, changesId) :
         []
     }));
   }
@@ -787,10 +787,10 @@ class ApplicationEditor extends React.Component<Props, State> {
       if (childResourceId) {
         try {
           await ApiUtils.getResourcesApi(auth.token).deleteResource({
-            customer_id: customerId,
-            device_id: deviceId,
-            application_id: applicationId,
-            resource_id: openedResource.id || ""
+            customerId: customerId,
+            deviceId: deviceId,
+            applicationId: applicationId,
+            resourceId: openedResource.id || ""
           });
 
           this.setState({
@@ -898,9 +898,9 @@ class ApplicationEditor extends React.Component<Props, State> {
 
     try {
       const newResource = await ApiUtils.getResourcesApi(auth.token).createResource({
-        customer_id: customerId,
-        device_id: deviceId,
-        application_id: applicationId,
+        customerId: customerId,
+        deviceId: deviceId,
+        applicationId: applicationId,
         resource: resource
       });
 
@@ -966,15 +966,15 @@ class ApplicationEditor extends React.Component<Props, State> {
 
     try {
       return await resourcesApi.createResource({
-        application_id: applicationId,
-        customer_id: customerId,
-        device_id: deviceId,
+        applicationId: applicationId,
+        customerId: customerId,
+        deviceId: deviceId,
         resource: {
           name: name,
           slug: slug,
           type: type,
-          order_number: orderNumber,
-          parent_id: pageId
+          orderNumber: orderNumber,
+          parentId: pageId
         }
       });
     } catch (error) {
@@ -997,18 +997,18 @@ class ApplicationEditor extends React.Component<Props, State> {
 
     const resourcesApi = ApiUtils.getResourcesApi(auth.token);
     const resources = await resourcesApi.listResources({
-      application_id: applicationId,
-      customer_id: customerId,
-      device_id: deviceId,
-      parent_id: oldParentId
+      applicationId: applicationId,
+      customerId: customerId,
+      deviceId: deviceId,
+      parentId: oldParentId
     });
 
     for (const res of resources) {
-      const copy = { ...res, id: undefined, parent_id: newParentId }
+      const copy = { ...res, id: undefined, parentId: newParentId }
       const created = await resourcesApi.createResource({
-        application_id: applicationId,
-        customer_id: customerId,
-        device_id: deviceId,
+        applicationId: applicationId,
+        customerId: customerId,
+        deviceId: deviceId,
         resource: copy
       });
 
@@ -1040,7 +1040,7 @@ class ApplicationEditor extends React.Component<Props, State> {
   private treeDataAdd = (newItem: ResourceTreeItem, data: ResourceTreeItem[]): ResourceTreeItem[] => {
     const { application } = this.props;
 
-    if (newItem.resource!.parent_id === application!.root_resource_id) {
+    if (newItem.resource!.parentId === application!.rootResourceId) {
       return [ ...data.filter(item => item.resource), newItem ];
     }
 
@@ -1048,8 +1048,8 @@ class ApplicationEditor extends React.Component<Props, State> {
       if (item.resource && item.children && Array.isArray(item.children)) {
         return {
           ...item,
-          children: item.resource.id === newItem.resource!.parent_id ?
-            [...item.children.filter(item => item.resource) as ResourceTreeItem[], newItem, { title: this.renderAdd(newItem.resource!.parent_id)} as ResourceTreeItem] as ResourceTreeItem[] :
+          children: item.resource.id === newItem.resource!.parentId ?
+            [...item.children.filter(item => item.resource) as ResourceTreeItem[], newItem, { title: this.renderAdd(newItem.resource!.parentId)} as ResourceTreeItem] as ResourceTreeItem[] :
             this.treeDataAdd(newItem, item.children as ResourceTreeItem[])
         };
       } else {
@@ -1078,10 +1078,10 @@ class ApplicationEditor extends React.Component<Props, State> {
     try {
       const updatedResource = await ApiUtils.getResourcesApi(auth.token).updateResource({
         resource: resource,
-        customer_id: customerId,
-        device_id: deviceId,
-        application_id: applicationId,
-        resource_id: resourceId
+        customerId: customerId,
+        deviceId: deviceId,
+        applicationId: applicationId,
+        resourceId: resourceId
       });
   
       if (updatedResource.type !== ResourceType.ROOT) {
@@ -1147,10 +1147,10 @@ class ApplicationEditor extends React.Component<Props, State> {
         updatedResources.push(
           await ApiUtils.getResourcesApi(auth.token).updateResource({
             resource: resource,
-            customer_id: customerId,
-            device_id: deviceId,
-            application_id: applicationId,
-            resource_id: resource.id!
+            customerId: customerId,
+            deviceId: deviceId,
+            applicationId: applicationId,
+            resourceId: resource.id!
           })
         );
       }
@@ -1174,7 +1174,7 @@ class ApplicationEditor extends React.Component<Props, State> {
    */
   private treeDataUpdateChildResources = (data: ResourceTreeItem[], resources: Resource[]): ResourceTreeItem[] => {
     return data.map(item => {
-      if (resources.length > 0 && item.resource && resources[0].parent_id === item.resource.id) {
+      if (resources.length > 0 && item.resource && resources[0].parentId === item.resource.id) {
         return {
           ...item,
           children:
@@ -1184,7 +1184,7 @@ class ApplicationEditor extends React.Component<Props, State> {
                 ...child,
                 title: child.resource ?
                   this.renderTreeItem(resources[index]) :
-                  this.renderAdd(resources[0].parent_id), resource: child.resource ? resources[index] : undefined
+                  this.renderAdd(resources[0].parentId), resource: child.resource ? resources[index] : undefined
               } 
             }) :
             []
@@ -1220,10 +1220,10 @@ class ApplicationEditor extends React.Component<Props, State> {
     let childResources: Resource[] = [];
     try {
       childResources = await resourcesApi.listResources({
-        customer_id: customerId,
-        device_id: deviceId,
-        application_id: applicationId,
-        parent_id: resourceId
+        customerId: customerId,
+        deviceId: deviceId,
+        applicationId: applicationId,
+        parentId: resourceId
       });
     } catch (error) {
       setError(strings.errorManagement.resource.listChild, error);
@@ -1240,10 +1240,10 @@ class ApplicationEditor extends React.Component<Props, State> {
 
       try {
         await resourcesApi.deleteResource({
-          customer_id: customerId,
-          device_id: deviceId,
-          application_id: applicationId,
-          resource_id: resourceId
+          customerId: customerId,
+          deviceId: deviceId,
+          applicationId: applicationId,
+          resourceId: resourceId
         });
         openResource(nextOpenResource);
 
@@ -1284,9 +1284,9 @@ class ApplicationEditor extends React.Component<Props, State> {
     try {
       const updatedApplication = await ApiUtils.getApplicationsApi(auth.token).updateApplication({
         application: application,
-        customer_id: customerId,
-        device_id: deviceId,
-        application_id: applicationId
+        customerId: customerId,
+        deviceId: deviceId,
+        applicationId: applicationId
       });
   
       setApplication(updatedApplication);
@@ -1345,7 +1345,7 @@ class ApplicationEditor extends React.Component<Props, State> {
 
     if (!customer || customer.id !== customerId) {
       try {
-        const foundCustomer = await ApiUtils.getCustomersApi(token).findCustomer({ customer_id: customerId });
+        const foundCustomer = await ApiUtils.getCustomersApi(token).findCustomer({ customerId: customerId });
         setCustomer(foundCustomer);
       } catch (error) {
         setError(strings.errorManagement.customer.find, error);
@@ -1355,7 +1355,7 @@ class ApplicationEditor extends React.Component<Props, State> {
 
     if (!device || device.id !== deviceId) {
       try {
-        const foundDevice = await ApiUtils.getDevicesApi(token).findDevice({ customer_id: customerId, device_id: deviceId });
+        const foundDevice = await ApiUtils.getDevicesApi(token).findDevice({ customerId: customerId, deviceId: deviceId });
         setDevice(foundDevice);
       } catch (error) {
         setError(strings.errorManagement.device.find, error);
@@ -1367,9 +1367,9 @@ class ApplicationEditor extends React.Component<Props, State> {
     if (!application || application.id !== applicationId) {
       try {
         currentApplication = await ApiUtils.getApplicationsApi(token).findApplication({
-          customer_id: customerId,
-          device_id: deviceId,
-          application_id: applicationId
+          customerId: customerId,
+          deviceId: deviceId,
+          applicationId: applicationId
         });
   
         setApplication(currentApplication);
@@ -1385,10 +1385,10 @@ class ApplicationEditor extends React.Component<Props, State> {
 
     try {
       const rootResource = await ApiUtils.getResourcesApi(token).findResource({
-        customer_id: customerId,
-        device_id: deviceId,
-        application_id: applicationId,
-        resource_id: currentApplication.root_resource_id!
+        customerId: customerId,
+        deviceId: deviceId,
+        applicationId: applicationId,
+        resourceId: currentApplication.rootResourceId!
       });
 
       this.setState({ rootResource: rootResource });

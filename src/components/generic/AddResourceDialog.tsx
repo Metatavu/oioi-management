@@ -55,7 +55,7 @@ const rules: FormValidationRules<AddResourceForm> = {
       trim: true,
       requiredText: strings.requiredField
     },
-    order_number: {
+    orderNumber: {
       required: true,
       trim: true,
       requiredText: strings.requiredField
@@ -107,7 +107,7 @@ class AddResourceDialog extends React.Component<Props, State> {
       form: initForm<AddResourceForm>(
         {
           name: undefined,
-          order_number: undefined,
+          orderNumber: undefined,
           slug: undefined
         },
         rules
@@ -174,7 +174,7 @@ class AddResourceDialog extends React.Component<Props, State> {
               </Grid>
             ) }
             <Grid item className={ classes.fullWidth }>
-              { this.renderField("order_number", strings.orderNumber, "number") }
+              { this.renderField("orderNumber", strings.orderNumber, "number") }
             </Grid>
             <Grid item className={classes.fullWidth}>
               { this.renderField("slug", strings.slug, "text") }
@@ -304,10 +304,10 @@ class AddResourceDialog extends React.Component<Props, State> {
 
     try {
       const foundResource = await ApiUtils.getResourcesApi(auth.token).findResource({
-        application_id: applicationId,
-        customer_id: customerId,
-        device_id: deviceId,
-        resource_id: parentResourceId
+        applicationId: applicationId,
+        customerId: customerId,
+        deviceId: deviceId,
+        resourceId: parentResourceId
       });
       this.setState({ parentResourceType : foundResource.type });
     } catch (error) {
@@ -356,7 +356,7 @@ class AddResourceDialog extends React.Component<Props, State> {
     const newResource = {
       ...form.values,
       type: this.state.resourceType,
-      parent_id: parentResourceId
+      parentId: parentResourceId
     } as Resource;
 
     onSave(newResource, copyContentFromId);
@@ -366,7 +366,7 @@ class AddResourceDialog extends React.Component<Props, State> {
         form: initForm<AddResourceForm>(
           {
             name: undefined,
-            order_number: undefined,
+            orderNumber: undefined,
             slug: undefined
           },
           rules
@@ -386,7 +386,7 @@ class AddResourceDialog extends React.Component<Props, State> {
         form: initForm<AddResourceForm>(
           {
             name: undefined,
-            order_number: undefined,
+            orderNumber: undefined,
             slug: undefined
           },
           rules
@@ -405,7 +405,7 @@ class AddResourceDialog extends React.Component<Props, State> {
       form: initForm<AddResourceForm>(
         {
           name: undefined,
-          order_number: undefined,
+          orderNumber: undefined,
           slug: undefined
         },
         rules
@@ -511,10 +511,10 @@ class AddResourceDialog extends React.Component<Props, State> {
     let childResources: Resource[] = [];
     try {
       childResources = await ApiUtils.getResourcesApi(auth.token).listResources({
-        customer_id: customerId,
-        device_id: deviceId,
-        application_id: applicationId,
-        parent_id: parentResourceId
+        customerId: customerId,
+        deviceId: deviceId,
+        applicationId: applicationId,
+        parentId: parentResourceId
       });
     } catch (error) {
       this.context.setError(strings.errorManagement.resource.listChild, error);
@@ -524,12 +524,12 @@ class AddResourceDialog extends React.Component<Props, State> {
     let form = initForm<AddResourceForm>(
       {
         name: "",
-        order_number:
+        orderNumber:
           childResources.length > 0
             ? Math.max.apply(
                 Math,
                 childResources.map((o: Resource) => {
-                  return (o.order_number || 0) + 1;
+                  return (o.orderNumber || 0) + 1;
                 })
               )
             : 1,

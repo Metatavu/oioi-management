@@ -244,7 +244,7 @@ class CustomerDialog extends React.Component<Props, State> {
         form: initForm<CustomerForm>(
           {
             name: "",
-            image_url: undefined
+            imageUrl: undefined
           },
           rules
         )
@@ -329,7 +329,7 @@ class CustomerDialog extends React.Component<Props, State> {
           ...this.state.form,
           values: {
             ...this.state.form.values,
-            image_url: `${basePath}/${data.fields.key}`
+            imageUrl: `${basePath}/${data.fields.key}`
           }
         }
       });
@@ -364,7 +364,7 @@ class CustomerDialog extends React.Component<Props, State> {
       form: initForm<CustomerForm>(
         {
           name: "",
-          image_url: undefined
+          imageUrl: undefined
         },
         rules
       )

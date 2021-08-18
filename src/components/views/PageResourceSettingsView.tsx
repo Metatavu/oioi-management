@@ -71,7 +71,7 @@ class PageResourceSettingsView extends React.Component<Props, State> {
       form: initForm<ResourceSettingsForm>(
         {
           name: undefined,
-          order_number: undefined,
+          orderNumber: undefined,
           slug: undefined
         },
         resourceRules
@@ -177,7 +177,7 @@ class PageResourceSettingsView extends React.Component<Props, State> {
       <div className={ classes.gridRow } style={{ marginBottom: theme.spacing(3) }}>
         <div>
           <Typography variant="h4" style={{ marginBottom: theme.spacing(1) }}>{ strings.orderNumber }</Typography>
-          { this.renderField("order_number", strings.orderNumber, "number") }
+          { this.renderField("orderNumber", strings.orderNumber, "number") }
         </div>
         <div>
           <Typography variant="h4" style={{ marginBottom: theme.spacing(1) }}>{ strings.slug }</Typography>
@@ -561,10 +561,10 @@ class PageResourceSettingsView extends React.Component<Props, State> {
 
     try {
       return await ApiUtils.getResourcesApi(auth.token).listResources({
-        customer_id: customerId,
-        device_id: deviceId,
-        application_id: applicationId,
-        parent_id: resourceId
+        customerId: customerId,
+        deviceId: deviceId,
+        applicationId: applicationId,
+        parentId: resourceId
       });
     } catch (error) {
       this.context.setError(strings.errorManagement.resource.listChild, error);
@@ -580,9 +580,9 @@ class PageResourceSettingsView extends React.Component<Props, State> {
 
     const resource = {
       name: form.values.name,
-      order_number: form.values.order_number,
+      orderNumber: form.values.orderNumber,
       slug: form.values.slug,
-      parent_id: form.values.parent_id,
+      parentId: form.values.parentId,
       type: form.values.type,
       id: form.values.id,
       data: resourceData["data"],
