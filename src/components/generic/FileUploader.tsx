@@ -1,5 +1,5 @@
 import * as React from "react";
-import { withStyles, WithStyles, Button, CircularProgress, Menu, MenuItem, Dialog, DialogTitle, DialogContent, DialogContentText, TextField, DialogActions, LinearProgress, Typography } from "@material-ui/core";
+import { withStyles, WithStyles, Button, Menu, MenuItem, Dialog, DialogTitle, DialogContent, DialogContentText, TextField, DialogActions, LinearProgress, Typography } from "@material-ui/core";
 import styles from "../../styles/dialog";
 import { DropzoneArea } from "material-ui-dropzone";
 import strings from "../../localization/strings";
@@ -108,13 +108,16 @@ class FileUploader extends React.Component<Props, State> {
     );
   }
 
+  /**
+   * Renders uploader or progress bar is upload is ongoing
+   */
   private renderUploader = () => {
     const { allowedFileTypes, classes } = this.props;
     const { progress, uploading } = this.state;
 
     if (uploading && progress === 0) {
       return (
-        <div style={{ display: "flex", alignItems: "center", height: 20 }}>
+        <div className={ classes.flexContainer }>
           <LinearProgress color="secondary" style={{ flex: 1 }}/>
         </div>
       );
@@ -123,21 +126,20 @@ class FileUploader extends React.Component<Props, State> {
     return (
       <>
         { (progress && progress > 0) ?
-          (
-            <div style={{ display: "flex", alignItems: "center", height: 20 }}>
-              <LinearProgress variant="determinate" value={ progress } style={{ flex: 1, marginRight: 8 }}/>
+            <div className={ classes.flexContainer }>
+              <LinearProgress variant="determinate" value={ progress } className={ classes.linearProgress }/>
               <Typography>{ `${progress}%` }</Typography>
             </div>
-          ) :
-          <DropzoneArea
-            acceptedFiles={ allowedFileTypes }
-            clearOnUnmount
-            dropzoneText={ strings.fileUpload.uploadFile }
-            onDrop={ this.handleSave }
-            showPreviewsInDropzone={ false }
-            maxFileSize={ (314572800) * 1000000 }
-            filesLimit={ 1 }
-          />
+          :
+            <DropzoneArea
+              acceptedFiles={ allowedFileTypes }
+              clearOnUnmount
+              dropzoneText={ strings.fileUpload.uploadFile }
+              onDrop={ this.handleSave }
+              showPreviewsInDropzone={ false }
+              maxFileSize={ (314572800) * 1000000 }
+              filesLimit={ 1 }
+            />
         }
       </>
     );
@@ -323,8 +325,8 @@ class FileUploader extends React.Component<Props, State> {
     const { onSave, uploadKey } = this.props;
 
     this.setState({ uploading: true, progress: 0 })
-    // this.closeUrlDialog();
-    // this.handleContextMenuClose();
+    this.closeUrlDialog();
+    this.handleContextMenuClose();
     onSave(files, this.updateProgress, uploadKey);
   }
 }

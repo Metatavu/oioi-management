@@ -30,4 +30,15 @@ export default createStyles({
     alignItems: "center",
     justifyContent: "center"
   },
+
+  flexContainer: {
+    display: "flex",
+    alignItems: "center",
+    height: 20
+  },
+
+  linearProgress: {
+    flex: 1,
+    marginRight: 8
+  }
 });
