@@ -1,5 +1,5 @@
-// tslint:disable
-// eslint-disable
+/* tslint:disable */
+/* eslint-disable */
 /**
  * OiOi content management API
  * OiOi content management API spec
@@ -25,36 +25,36 @@ import {
 
 export interface CreateApplicationRequest {
     application: Application;
-    customer_id: string;
-    device_id: string;
+    customerId: string;
+    deviceId: string;
 }
 
 export interface DeleteApplicationRequest {
-    customer_id: string;
-    device_id: string;
-    application_id: string;
+    customerId: string;
+    deviceId: string;
+    applicationId: string;
 }
 
 export interface FindApplicationRequest {
-    customer_id: string;
-    device_id: string;
-    application_id: string;
+    customerId: string;
+    deviceId: string;
+    applicationId: string;
 }
 
 export interface ListApplicationsRequest {
-    customer_id: string;
-    device_id: string;
+    customerId: string;
+    deviceId: string;
 }
 
 export interface UpdateApplicationRequest {
     application: Application;
-    customer_id: string;
-    device_id: string;
-    application_id: string;
+    customerId: string;
+    deviceId: string;
+    applicationId: string;
 }
 
 /**
- * no description
+ * 
  */
 export class ApplicationsApi extends runtime.BaseAPI {
 
@@ -67,12 +67,12 @@ export class ApplicationsApi extends runtime.BaseAPI {
             throw new runtime.RequiredError('application','Required parameter requestParameters.application was null or undefined when calling createApplication.');
         }
 
-        if (requestParameters.customer_id === null || requestParameters.customer_id === undefined) {
-            throw new runtime.RequiredError('customer_id','Required parameter requestParameters.customer_id was null or undefined when calling createApplication.');
+        if (requestParameters.customerId === null || requestParameters.customerId === undefined) {
+            throw new runtime.RequiredError('customerId','Required parameter requestParameters.customerId was null or undefined when calling createApplication.');
         }
 
-        if (requestParameters.device_id === null || requestParameters.device_id === undefined) {
-            throw new runtime.RequiredError('device_id','Required parameter requestParameters.device_id was null or undefined when calling createApplication.');
+        if (requestParameters.deviceId === null || requestParameters.deviceId === undefined) {
+            throw new runtime.RequiredError('deviceId','Required parameter requestParameters.deviceId was null or undefined when calling createApplication.');
         }
 
         const queryParameters: runtime.HTTPQuery = {};
@@ -90,7 +90,7 @@ export class ApplicationsApi extends runtime.BaseAPI {
             }
         }
         const response = await this.request({
-            path: `/customers/{customerId}/devices/{deviceId}/applications`.replace(`{${"customerId"}}`, encodeURIComponent(String(requestParameters.customer_id))).replace(`{${"deviceId"}}`, encodeURIComponent(String(requestParameters.device_id))),
+            path: `/customers/{customerId}/devices/{deviceId}/applications`.replace(`{${"customerId"}}`, encodeURIComponent(String(requestParameters.customerId))).replace(`{${"deviceId"}}`, encodeURIComponent(String(requestParameters.deviceId))),
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
@@ -114,16 +114,16 @@ export class ApplicationsApi extends runtime.BaseAPI {
      * Delete application
      */
     async deleteApplicationRaw(requestParameters: DeleteApplicationRequest): Promise<runtime.ApiResponse<void>> {
-        if (requestParameters.customer_id === null || requestParameters.customer_id === undefined) {
-            throw new runtime.RequiredError('customer_id','Required parameter requestParameters.customer_id was null or undefined when calling deleteApplication.');
+        if (requestParameters.customerId === null || requestParameters.customerId === undefined) {
+            throw new runtime.RequiredError('customerId','Required parameter requestParameters.customerId was null or undefined when calling deleteApplication.');
         }
 
-        if (requestParameters.device_id === null || requestParameters.device_id === undefined) {
-            throw new runtime.RequiredError('device_id','Required parameter requestParameters.device_id was null or undefined when calling deleteApplication.');
+        if (requestParameters.deviceId === null || requestParameters.deviceId === undefined) {
+            throw new runtime.RequiredError('deviceId','Required parameter requestParameters.deviceId was null or undefined when calling deleteApplication.');
         }
 
-        if (requestParameters.application_id === null || requestParameters.application_id === undefined) {
-            throw new runtime.RequiredError('application_id','Required parameter requestParameters.application_id was null or undefined when calling deleteApplication.');
+        if (requestParameters.applicationId === null || requestParameters.applicationId === undefined) {
+            throw new runtime.RequiredError('applicationId','Required parameter requestParameters.applicationId was null or undefined when calling deleteApplication.');
         }
 
         const queryParameters: runtime.HTTPQuery = {};
@@ -139,7 +139,7 @@ export class ApplicationsApi extends runtime.BaseAPI {
             }
         }
         const response = await this.request({
-            path: `/customers/{customerId}/devices/{deviceId}/applications/{applicationId}`.replace(`{${"customerId"}}`, encodeURIComponent(String(requestParameters.customer_id))).replace(`{${"deviceId"}}`, encodeURIComponent(String(requestParameters.device_id))).replace(`{${"applicationId"}}`, encodeURIComponent(String(requestParameters.application_id))),
+            path: `/customers/{customerId}/devices/{deviceId}/applications/{applicationId}`.replace(`{${"customerId"}}`, encodeURIComponent(String(requestParameters.customerId))).replace(`{${"deviceId"}}`, encodeURIComponent(String(requestParameters.deviceId))).replace(`{${"applicationId"}}`, encodeURIComponent(String(requestParameters.applicationId))),
             method: 'DELETE',
             headers: headerParameters,
             query: queryParameters,
@@ -161,16 +161,16 @@ export class ApplicationsApi extends runtime.BaseAPI {
      * Finds an application
      */
     async findApplicationRaw(requestParameters: FindApplicationRequest): Promise<runtime.ApiResponse<Application>> {
-        if (requestParameters.customer_id === null || requestParameters.customer_id === undefined) {
-            throw new runtime.RequiredError('customer_id','Required parameter requestParameters.customer_id was null or undefined when calling findApplication.');
+        if (requestParameters.customerId === null || requestParameters.customerId === undefined) {
+            throw new runtime.RequiredError('customerId','Required parameter requestParameters.customerId was null or undefined when calling findApplication.');
         }
 
-        if (requestParameters.device_id === null || requestParameters.device_id === undefined) {
-            throw new runtime.RequiredError('device_id','Required parameter requestParameters.device_id was null or undefined when calling findApplication.');
+        if (requestParameters.deviceId === null || requestParameters.deviceId === undefined) {
+            throw new runtime.RequiredError('deviceId','Required parameter requestParameters.deviceId was null or undefined when calling findApplication.');
         }
 
-        if (requestParameters.application_id === null || requestParameters.application_id === undefined) {
-            throw new runtime.RequiredError('application_id','Required parameter requestParameters.application_id was null or undefined when calling findApplication.');
+        if (requestParameters.applicationId === null || requestParameters.applicationId === undefined) {
+            throw new runtime.RequiredError('applicationId','Required parameter requestParameters.applicationId was null or undefined when calling findApplication.');
         }
 
         const queryParameters: runtime.HTTPQuery = {};
@@ -186,7 +186,7 @@ export class ApplicationsApi extends runtime.BaseAPI {
             }
         }
         const response = await this.request({
-            path: `/customers/{customerId}/devices/{deviceId}/applications/{applicationId}`.replace(`{${"customerId"}}`, encodeURIComponent(String(requestParameters.customer_id))).replace(`{${"deviceId"}}`, encodeURIComponent(String(requestParameters.device_id))).replace(`{${"applicationId"}}`, encodeURIComponent(String(requestParameters.application_id))),
+            path: `/customers/{customerId}/devices/{deviceId}/applications/{applicationId}`.replace(`{${"customerId"}}`, encodeURIComponent(String(requestParameters.customerId))).replace(`{${"deviceId"}}`, encodeURIComponent(String(requestParameters.deviceId))).replace(`{${"applicationId"}}`, encodeURIComponent(String(requestParameters.applicationId))),
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
@@ -209,12 +209,12 @@ export class ApplicationsApi extends runtime.BaseAPI {
      * List applications
      */
     async listApplicationsRaw(requestParameters: ListApplicationsRequest): Promise<runtime.ApiResponse<Array<Application>>> {
-        if (requestParameters.customer_id === null || requestParameters.customer_id === undefined) {
-            throw new runtime.RequiredError('customer_id','Required parameter requestParameters.customer_id was null or undefined when calling listApplications.');
+        if (requestParameters.customerId === null || requestParameters.customerId === undefined) {
+            throw new runtime.RequiredError('customerId','Required parameter requestParameters.customerId was null or undefined when calling listApplications.');
         }
 
-        if (requestParameters.device_id === null || requestParameters.device_id === undefined) {
-            throw new runtime.RequiredError('device_id','Required parameter requestParameters.device_id was null or undefined when calling listApplications.');
+        if (requestParameters.deviceId === null || requestParameters.deviceId === undefined) {
+            throw new runtime.RequiredError('deviceId','Required parameter requestParameters.deviceId was null or undefined when calling listApplications.');
         }
 
         const queryParameters: runtime.HTTPQuery = {};
@@ -230,7 +230,7 @@ export class ApplicationsApi extends runtime.BaseAPI {
             }
         }
         const response = await this.request({
-            path: `/customers/{customerId}/devices/{deviceId}/applications`.replace(`{${"customerId"}}`, encodeURIComponent(String(requestParameters.customer_id))).replace(`{${"deviceId"}}`, encodeURIComponent(String(requestParameters.device_id))),
+            path: `/customers/{customerId}/devices/{deviceId}/applications`.replace(`{${"customerId"}}`, encodeURIComponent(String(requestParameters.customerId))).replace(`{${"deviceId"}}`, encodeURIComponent(String(requestParameters.deviceId))),
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
@@ -257,16 +257,16 @@ export class ApplicationsApi extends runtime.BaseAPI {
             throw new runtime.RequiredError('application','Required parameter requestParameters.application was null or undefined when calling updateApplication.');
         }
 
-        if (requestParameters.customer_id === null || requestParameters.customer_id === undefined) {
-            throw new runtime.RequiredError('customer_id','Required parameter requestParameters.customer_id was null or undefined when calling updateApplication.');
+        if (requestParameters.customerId === null || requestParameters.customerId === undefined) {
+            throw new runtime.RequiredError('customerId','Required parameter requestParameters.customerId was null or undefined when calling updateApplication.');
         }
 
-        if (requestParameters.device_id === null || requestParameters.device_id === undefined) {
-            throw new runtime.RequiredError('device_id','Required parameter requestParameters.device_id was null or undefined when calling updateApplication.');
+        if (requestParameters.deviceId === null || requestParameters.deviceId === undefined) {
+            throw new runtime.RequiredError('deviceId','Required parameter requestParameters.deviceId was null or undefined when calling updateApplication.');
         }
 
-        if (requestParameters.application_id === null || requestParameters.application_id === undefined) {
-            throw new runtime.RequiredError('application_id','Required parameter requestParameters.application_id was null or undefined when calling updateApplication.');
+        if (requestParameters.applicationId === null || requestParameters.applicationId === undefined) {
+            throw new runtime.RequiredError('applicationId','Required parameter requestParameters.applicationId was null or undefined when calling updateApplication.');
         }
 
         const queryParameters: runtime.HTTPQuery = {};
@@ -284,7 +284,7 @@ export class ApplicationsApi extends runtime.BaseAPI {
             }
         }
         const response = await this.request({
-            path: `/customers/{customerId}/devices/{deviceId}/applications/{applicationId}`.replace(`{${"customerId"}}`, encodeURIComponent(String(requestParameters.customer_id))).replace(`{${"deviceId"}}`, encodeURIComponent(String(requestParameters.device_id))).replace(`{${"applicationId"}}`, encodeURIComponent(String(requestParameters.application_id))),
+            path: `/customers/{customerId}/devices/{deviceId}/applications/{applicationId}`.replace(`{${"customerId"}}`, encodeURIComponent(String(requestParameters.customerId))).replace(`{${"deviceId"}}`, encodeURIComponent(String(requestParameters.deviceId))).replace(`{${"applicationId"}}`, encodeURIComponent(String(requestParameters.applicationId))),
             method: 'PUT',
             headers: headerParameters,
             query: queryParameters,

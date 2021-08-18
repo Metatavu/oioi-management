@@ -1,5 +1,5 @@
-// tslint:disable
-// eslint-disable
+/* tslint:disable */
+/* eslint-disable */
 /**
  * OiOi content management API
  * OiOi content management API spec
@@ -30,7 +30,7 @@ export interface Application {
      * @type {string}
      * @memberof Application
      */
-    readonly root_resource_id?: string;
+    readonly rootResourceId?: string;
     /**
      * Application name.
      * @type {string}
@@ -42,25 +42,25 @@ export interface Application {
      * @type {Date}
      * @memberof Application
      */
-    readonly created_at?: Date;
+    readonly createdAt?: Date;
     /**
      * Last modification time
      * @type {Date}
      * @memberof Application
      */
-    readonly modified_at?: Date;
+    readonly modifiedAt?: Date;
     /**
      * 
      * @type {string}
      * @memberof Application
      */
-    creator_id?: string;
+    creatorId?: string;
     /**
      * 
      * @type {string}
      * @memberof Application
      */
-    last_modifier_id?: string;
+    lastModifierId?: string;
 }
 
 export function ApplicationFromJSON(json: any): Application {
@@ -74,12 +74,12 @@ export function ApplicationFromJSONTyped(json: any, ignoreDiscriminator: boolean
     return {
         
         'id': !exists(json, 'id') ? undefined : json['id'],
-        'root_resource_id': !exists(json, 'rootResourceId') ? undefined : json['rootResourceId'],
+        'rootResourceId': !exists(json, 'rootResourceId') ? undefined : json['rootResourceId'],
         'name': json['name'],
-        'created_at': !exists(json, 'createdAt') ? undefined : new Date(json['createdAt']),
-        'modified_at': !exists(json, 'modifiedAt') ? undefined : new Date(json['modifiedAt']),
-        'creator_id': !exists(json, 'creatorId') ? undefined : json['creatorId'],
-        'last_modifier_id': !exists(json, 'lastModifierId') ? undefined : json['lastModifierId'],
+        'createdAt': !exists(json, 'createdAt') ? undefined : (new Date(json['createdAt'])),
+        'modifiedAt': !exists(json, 'modifiedAt') ? undefined : (new Date(json['modifiedAt'])),
+        'creatorId': !exists(json, 'creatorId') ? undefined : json['creatorId'],
+        'lastModifierId': !exists(json, 'lastModifierId') ? undefined : json['lastModifierId'],
     };
 }
 
@@ -93,8 +93,8 @@ export function ApplicationToJSON(value?: Application | null): any {
     return {
         
         'name': value.name,
-        'creatorId': value.creator_id,
-        'lastModifierId': value.last_modifier_id,
+        'creatorId': value.creatorId,
+        'lastModifierId': value.lastModifierId,
     };
 }
 

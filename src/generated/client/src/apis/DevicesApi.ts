@@ -1,5 +1,5 @@
-// tslint:disable
-// eslint-disable
+/* tslint:disable */
+/* eslint-disable */
 /**
  * OiOi content management API
  * OiOi content management API spec
@@ -25,31 +25,31 @@ import {
 
 export interface CreateDeviceRequest {
     device: Device;
-    customer_id: string;
+    customerId: string;
 }
 
 export interface DeleteDeviceRequest {
-    customer_id: string;
-    device_id: string;
+    customerId: string;
+    deviceId: string;
 }
 
 export interface FindDeviceRequest {
-    customer_id: string;
-    device_id: string;
+    customerId: string;
+    deviceId: string;
 }
 
 export interface ListDevicesRequest {
-    customer_id: string;
+    customerId: string;
 }
 
 export interface UpdateDeviceRequest {
     device: Device;
-    customer_id: string;
-    device_id: string;
+    customerId: string;
+    deviceId: string;
 }
 
 /**
- * no description
+ * 
  */
 export class DevicesApi extends runtime.BaseAPI {
 
@@ -62,8 +62,8 @@ export class DevicesApi extends runtime.BaseAPI {
             throw new runtime.RequiredError('device','Required parameter requestParameters.device was null or undefined when calling createDevice.');
         }
 
-        if (requestParameters.customer_id === null || requestParameters.customer_id === undefined) {
-            throw new runtime.RequiredError('customer_id','Required parameter requestParameters.customer_id was null or undefined when calling createDevice.');
+        if (requestParameters.customerId === null || requestParameters.customerId === undefined) {
+            throw new runtime.RequiredError('customerId','Required parameter requestParameters.customerId was null or undefined when calling createDevice.');
         }
 
         const queryParameters: runtime.HTTPQuery = {};
@@ -81,7 +81,7 @@ export class DevicesApi extends runtime.BaseAPI {
             }
         }
         const response = await this.request({
-            path: `/customers/{customerId}/devices`.replace(`{${"customerId"}}`, encodeURIComponent(String(requestParameters.customer_id))),
+            path: `/customers/{customerId}/devices`.replace(`{${"customerId"}}`, encodeURIComponent(String(requestParameters.customerId))),
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
@@ -105,12 +105,12 @@ export class DevicesApi extends runtime.BaseAPI {
      * Delete device
      */
     async deleteDeviceRaw(requestParameters: DeleteDeviceRequest): Promise<runtime.ApiResponse<void>> {
-        if (requestParameters.customer_id === null || requestParameters.customer_id === undefined) {
-            throw new runtime.RequiredError('customer_id','Required parameter requestParameters.customer_id was null or undefined when calling deleteDevice.');
+        if (requestParameters.customerId === null || requestParameters.customerId === undefined) {
+            throw new runtime.RequiredError('customerId','Required parameter requestParameters.customerId was null or undefined when calling deleteDevice.');
         }
 
-        if (requestParameters.device_id === null || requestParameters.device_id === undefined) {
-            throw new runtime.RequiredError('device_id','Required parameter requestParameters.device_id was null or undefined when calling deleteDevice.');
+        if (requestParameters.deviceId === null || requestParameters.deviceId === undefined) {
+            throw new runtime.RequiredError('deviceId','Required parameter requestParameters.deviceId was null or undefined when calling deleteDevice.');
         }
 
         const queryParameters: runtime.HTTPQuery = {};
@@ -126,7 +126,7 @@ export class DevicesApi extends runtime.BaseAPI {
             }
         }
         const response = await this.request({
-            path: `/customers/{customerId}/devices/{deviceId}`.replace(`{${"customerId"}}`, encodeURIComponent(String(requestParameters.customer_id))).replace(`{${"deviceId"}}`, encodeURIComponent(String(requestParameters.device_id))),
+            path: `/customers/{customerId}/devices/{deviceId}`.replace(`{${"customerId"}}`, encodeURIComponent(String(requestParameters.customerId))).replace(`{${"deviceId"}}`, encodeURIComponent(String(requestParameters.deviceId))),
             method: 'DELETE',
             headers: headerParameters,
             query: queryParameters,
@@ -148,12 +148,12 @@ export class DevicesApi extends runtime.BaseAPI {
      * Finds a device
      */
     async findDeviceRaw(requestParameters: FindDeviceRequest): Promise<runtime.ApiResponse<Device>> {
-        if (requestParameters.customer_id === null || requestParameters.customer_id === undefined) {
-            throw new runtime.RequiredError('customer_id','Required parameter requestParameters.customer_id was null or undefined when calling findDevice.');
+        if (requestParameters.customerId === null || requestParameters.customerId === undefined) {
+            throw new runtime.RequiredError('customerId','Required parameter requestParameters.customerId was null or undefined when calling findDevice.');
         }
 
-        if (requestParameters.device_id === null || requestParameters.device_id === undefined) {
-            throw new runtime.RequiredError('device_id','Required parameter requestParameters.device_id was null or undefined when calling findDevice.');
+        if (requestParameters.deviceId === null || requestParameters.deviceId === undefined) {
+            throw new runtime.RequiredError('deviceId','Required parameter requestParameters.deviceId was null or undefined when calling findDevice.');
         }
 
         const queryParameters: runtime.HTTPQuery = {};
@@ -169,7 +169,7 @@ export class DevicesApi extends runtime.BaseAPI {
             }
         }
         const response = await this.request({
-            path: `/customers/{customerId}/devices/{deviceId}`.replace(`{${"customerId"}}`, encodeURIComponent(String(requestParameters.customer_id))).replace(`{${"deviceId"}}`, encodeURIComponent(String(requestParameters.device_id))),
+            path: `/customers/{customerId}/devices/{deviceId}`.replace(`{${"customerId"}}`, encodeURIComponent(String(requestParameters.customerId))).replace(`{${"deviceId"}}`, encodeURIComponent(String(requestParameters.deviceId))),
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
@@ -192,8 +192,8 @@ export class DevicesApi extends runtime.BaseAPI {
      * List devices
      */
     async listDevicesRaw(requestParameters: ListDevicesRequest): Promise<runtime.ApiResponse<Array<Device>>> {
-        if (requestParameters.customer_id === null || requestParameters.customer_id === undefined) {
-            throw new runtime.RequiredError('customer_id','Required parameter requestParameters.customer_id was null or undefined when calling listDevices.');
+        if (requestParameters.customerId === null || requestParameters.customerId === undefined) {
+            throw new runtime.RequiredError('customerId','Required parameter requestParameters.customerId was null or undefined when calling listDevices.');
         }
 
         const queryParameters: runtime.HTTPQuery = {};
@@ -209,7 +209,7 @@ export class DevicesApi extends runtime.BaseAPI {
             }
         }
         const response = await this.request({
-            path: `/customers/{customerId}/devices`.replace(`{${"customerId"}}`, encodeURIComponent(String(requestParameters.customer_id))),
+            path: `/customers/{customerId}/devices`.replace(`{${"customerId"}}`, encodeURIComponent(String(requestParameters.customerId))),
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
@@ -236,12 +236,12 @@ export class DevicesApi extends runtime.BaseAPI {
             throw new runtime.RequiredError('device','Required parameter requestParameters.device was null or undefined when calling updateDevice.');
         }
 
-        if (requestParameters.customer_id === null || requestParameters.customer_id === undefined) {
-            throw new runtime.RequiredError('customer_id','Required parameter requestParameters.customer_id was null or undefined when calling updateDevice.');
+        if (requestParameters.customerId === null || requestParameters.customerId === undefined) {
+            throw new runtime.RequiredError('customerId','Required parameter requestParameters.customerId was null or undefined when calling updateDevice.');
         }
 
-        if (requestParameters.device_id === null || requestParameters.device_id === undefined) {
-            throw new runtime.RequiredError('device_id','Required parameter requestParameters.device_id was null or undefined when calling updateDevice.');
+        if (requestParameters.deviceId === null || requestParameters.deviceId === undefined) {
+            throw new runtime.RequiredError('deviceId','Required parameter requestParameters.deviceId was null or undefined when calling updateDevice.');
         }
 
         const queryParameters: runtime.HTTPQuery = {};
@@ -259,7 +259,7 @@ export class DevicesApi extends runtime.BaseAPI {
             }
         }
         const response = await this.request({
-            path: `/customers/{customerId}/devices/{deviceId}`.replace(`{${"customerId"}}`, encodeURIComponent(String(requestParameters.customer_id))).replace(`{${"deviceId"}}`, encodeURIComponent(String(requestParameters.device_id))),
+            path: `/customers/{customerId}/devices/{deviceId}`.replace(`{${"customerId"}}`, encodeURIComponent(String(requestParameters.customerId))).replace(`{${"deviceId"}}`, encodeURIComponent(String(requestParameters.deviceId))),
             method: 'PUT',
             headers: headerParameters,
             query: queryParameters,

@@ -1,5 +1,5 @@
-// tslint:disable
-// eslint-disable
+/* tslint:disable */
+/* eslint-disable */
 /**
  * OiOi content management API
  * OiOi content management API spec
@@ -41,13 +41,13 @@ export interface Resource {
      * @type {string}
      * @memberof Resource
      */
-    parent_id?: string;
+    parentId?: string;
     /**
      * 
      * @type {number}
      * @memberof Resource
      */
-    order_number?: number;
+    orderNumber?: number;
     /**
      * 
      * @type {ResourceType}
@@ -89,25 +89,25 @@ export interface Resource {
      * @type {Date}
      * @memberof Resource
      */
-    readonly created_at?: Date;
+    readonly createdAt?: Date;
     /**
      * Last modification time
      * @type {Date}
      * @memberof Resource
      */
-    readonly modified_at?: Date;
+    readonly modifiedAt?: Date;
     /**
      * 
      * @type {string}
      * @memberof Resource
      */
-    creator_id?: string;
+    creatorId?: string;
     /**
      * 
      * @type {string}
      * @memberof Resource
      */
-    last_modifier_id?: string;
+    lastModifierId?: string;
 }
 
 export function ResourceFromJSON(json: any): Resource {
@@ -121,18 +121,18 @@ export function ResourceFromJSONTyped(json: any, ignoreDiscriminator: boolean): 
     return {
         
         'id': !exists(json, 'id') ? undefined : json['id'],
-        'parent_id': !exists(json, 'parentId') ? undefined : json['parentId'],
-        'order_number': !exists(json, 'orderNumber') ? undefined : json['orderNumber'],
+        'parentId': !exists(json, 'parentId') ? undefined : json['parentId'],
+        'orderNumber': !exists(json, 'orderNumber') ? undefined : json['orderNumber'],
         'type': ResourceTypeFromJSON(json['type']),
-        'styles': !exists(json, 'styles') ? undefined : (json['styles'] as Array<any>).map(KeyValuePropertyFromJSON),
-        'properties': !exists(json, 'properties') ? undefined : (json['properties'] as Array<any>).map(KeyValuePropertyFromJSON),
+        'styles': !exists(json, 'styles') ? undefined : ((json['styles'] as Array<any>).map(KeyValuePropertyFromJSON)),
+        'properties': !exists(json, 'properties') ? undefined : ((json['properties'] as Array<any>).map(KeyValuePropertyFromJSON)),
         'name': json['name'],
         'data': !exists(json, 'data') ? undefined : json['data'],
         'slug': json['slug'],
-        'created_at': !exists(json, 'createdAt') ? undefined : new Date(json['createdAt']),
-        'modified_at': !exists(json, 'modifiedAt') ? undefined : new Date(json['modifiedAt']),
-        'creator_id': !exists(json, 'creatorId') ? undefined : json['creatorId'],
-        'last_modifier_id': !exists(json, 'lastModifierId') ? undefined : json['lastModifierId'],
+        'createdAt': !exists(json, 'createdAt') ? undefined : (new Date(json['createdAt'])),
+        'modifiedAt': !exists(json, 'modifiedAt') ? undefined : (new Date(json['modifiedAt'])),
+        'creatorId': !exists(json, 'creatorId') ? undefined : json['creatorId'],
+        'lastModifierId': !exists(json, 'lastModifierId') ? undefined : json['lastModifierId'],
     };
 }
 
@@ -145,16 +145,16 @@ export function ResourceToJSON(value?: Resource | null): any {
     }
     return {
         
-        'parentId': value.parent_id,
-        'orderNumber': value.order_number,
+        'parentId': value.parentId,
+        'orderNumber': value.orderNumber,
         'type': ResourceTypeToJSON(value.type),
-        'styles': value.styles == null ? undefined : (value.styles as Array<any>).map(KeyValuePropertyToJSON),
-        'properties': value.properties == null ? undefined : (value.properties as Array<any>).map(KeyValuePropertyToJSON),
+        'styles': value.styles === undefined ? undefined : ((value.styles as Array<any>).map(KeyValuePropertyToJSON)),
+        'properties': value.properties === undefined ? undefined : ((value.properties as Array<any>).map(KeyValuePropertyToJSON)),
         'name': value.name,
         'data': value.data,
         'slug': value.slug,
-        'creatorId': value.creator_id,
-        'lastModifierId': value.last_modifier_id,
+        'creatorId': value.creatorId,
+        'lastModifierId': value.lastModifierId,
     };
 }
 

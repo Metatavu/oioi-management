@@ -1,5 +1,5 @@
-// tslint:disable
-// eslint-disable
+/* tslint:disable */
+/* eslint-disable */
 /**
  * OiOi content management API
  * OiOi content management API spec
@@ -28,32 +28,32 @@ import {
 
 export interface CreateMediaRequest {
     media: Media;
-    customer_id: string;
+    customerId: string;
 }
 
 export interface DeleteMediaRequest {
-    customer_id: string;
-    media_id: string;
+    customerId: string;
+    mediaId: string;
 }
 
 export interface FindMediaRequest {
-    customer_id: string;
-    media_id: string;
+    customerId: string;
+    mediaId: string;
 }
 
 export interface ListMediasRequest {
-    customer_id: string;
+    customerId: string;
     type?: MediaType;
 }
 
 export interface UpdateMediaRequest {
     media: Media;
-    customer_id: string;
-    media_id: string;
+    customerId: string;
+    mediaId: string;
 }
 
 /**
- * no description
+ * 
  */
 export class MediasApi extends runtime.BaseAPI {
 
@@ -66,8 +66,8 @@ export class MediasApi extends runtime.BaseAPI {
             throw new runtime.RequiredError('media','Required parameter requestParameters.media was null or undefined when calling createMedia.');
         }
 
-        if (requestParameters.customer_id === null || requestParameters.customer_id === undefined) {
-            throw new runtime.RequiredError('customer_id','Required parameter requestParameters.customer_id was null or undefined when calling createMedia.');
+        if (requestParameters.customerId === null || requestParameters.customerId === undefined) {
+            throw new runtime.RequiredError('customerId','Required parameter requestParameters.customerId was null or undefined when calling createMedia.');
         }
 
         const queryParameters: runtime.HTTPQuery = {};
@@ -85,7 +85,7 @@ export class MediasApi extends runtime.BaseAPI {
             }
         }
         const response = await this.request({
-            path: `/customers/{customerId}/medias`.replace(`{${"customerId"}}`, encodeURIComponent(String(requestParameters.customer_id))),
+            path: `/customers/{customerId}/medias`.replace(`{${"customerId"}}`, encodeURIComponent(String(requestParameters.customerId))),
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
@@ -109,12 +109,12 @@ export class MediasApi extends runtime.BaseAPI {
      * Delete media
      */
     async deleteMediaRaw(requestParameters: DeleteMediaRequest): Promise<runtime.ApiResponse<void>> {
-        if (requestParameters.customer_id === null || requestParameters.customer_id === undefined) {
-            throw new runtime.RequiredError('customer_id','Required parameter requestParameters.customer_id was null or undefined when calling deleteMedia.');
+        if (requestParameters.customerId === null || requestParameters.customerId === undefined) {
+            throw new runtime.RequiredError('customerId','Required parameter requestParameters.customerId was null or undefined when calling deleteMedia.');
         }
 
-        if (requestParameters.media_id === null || requestParameters.media_id === undefined) {
-            throw new runtime.RequiredError('media_id','Required parameter requestParameters.media_id was null or undefined when calling deleteMedia.');
+        if (requestParameters.mediaId === null || requestParameters.mediaId === undefined) {
+            throw new runtime.RequiredError('mediaId','Required parameter requestParameters.mediaId was null or undefined when calling deleteMedia.');
         }
 
         const queryParameters: runtime.HTTPQuery = {};
@@ -130,7 +130,7 @@ export class MediasApi extends runtime.BaseAPI {
             }
         }
         const response = await this.request({
-            path: `/customers/{customerId}/medias/{mediaId}`.replace(`{${"customerId"}}`, encodeURIComponent(String(requestParameters.customer_id))).replace(`{${"mediaId"}}`, encodeURIComponent(String(requestParameters.media_id))),
+            path: `/customers/{customerId}/medias/{mediaId}`.replace(`{${"customerId"}}`, encodeURIComponent(String(requestParameters.customerId))).replace(`{${"mediaId"}}`, encodeURIComponent(String(requestParameters.mediaId))),
             method: 'DELETE',
             headers: headerParameters,
             query: queryParameters,
@@ -152,12 +152,12 @@ export class MediasApi extends runtime.BaseAPI {
      * Finds a media
      */
     async findMediaRaw(requestParameters: FindMediaRequest): Promise<runtime.ApiResponse<Media>> {
-        if (requestParameters.customer_id === null || requestParameters.customer_id === undefined) {
-            throw new runtime.RequiredError('customer_id','Required parameter requestParameters.customer_id was null or undefined when calling findMedia.');
+        if (requestParameters.customerId === null || requestParameters.customerId === undefined) {
+            throw new runtime.RequiredError('customerId','Required parameter requestParameters.customerId was null or undefined when calling findMedia.');
         }
 
-        if (requestParameters.media_id === null || requestParameters.media_id === undefined) {
-            throw new runtime.RequiredError('media_id','Required parameter requestParameters.media_id was null or undefined when calling findMedia.');
+        if (requestParameters.mediaId === null || requestParameters.mediaId === undefined) {
+            throw new runtime.RequiredError('mediaId','Required parameter requestParameters.mediaId was null or undefined when calling findMedia.');
         }
 
         const queryParameters: runtime.HTTPQuery = {};
@@ -173,7 +173,7 @@ export class MediasApi extends runtime.BaseAPI {
             }
         }
         const response = await this.request({
-            path: `/customers/{customerId}/medias/{mediaId}`.replace(`{${"customerId"}}`, encodeURIComponent(String(requestParameters.customer_id))).replace(`{${"mediaId"}}`, encodeURIComponent(String(requestParameters.media_id))),
+            path: `/customers/{customerId}/medias/{mediaId}`.replace(`{${"customerId"}}`, encodeURIComponent(String(requestParameters.customerId))).replace(`{${"mediaId"}}`, encodeURIComponent(String(requestParameters.mediaId))),
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
@@ -196,8 +196,8 @@ export class MediasApi extends runtime.BaseAPI {
      * List medias
      */
     async listMediasRaw(requestParameters: ListMediasRequest): Promise<runtime.ApiResponse<Array<Media>>> {
-        if (requestParameters.customer_id === null || requestParameters.customer_id === undefined) {
-            throw new runtime.RequiredError('customer_id','Required parameter requestParameters.customer_id was null or undefined when calling listMedias.');
+        if (requestParameters.customerId === null || requestParameters.customerId === undefined) {
+            throw new runtime.RequiredError('customerId','Required parameter requestParameters.customerId was null or undefined when calling listMedias.');
         }
 
         const queryParameters: runtime.HTTPQuery = {};
@@ -217,7 +217,7 @@ export class MediasApi extends runtime.BaseAPI {
             }
         }
         const response = await this.request({
-            path: `/customers/{customerId}/medias`.replace(`{${"customerId"}}`, encodeURIComponent(String(requestParameters.customer_id))),
+            path: `/customers/{customerId}/medias`.replace(`{${"customerId"}}`, encodeURIComponent(String(requestParameters.customerId))),
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
@@ -244,12 +244,12 @@ export class MediasApi extends runtime.BaseAPI {
             throw new runtime.RequiredError('media','Required parameter requestParameters.media was null or undefined when calling updateMedia.');
         }
 
-        if (requestParameters.customer_id === null || requestParameters.customer_id === undefined) {
-            throw new runtime.RequiredError('customer_id','Required parameter requestParameters.customer_id was null or undefined when calling updateMedia.');
+        if (requestParameters.customerId === null || requestParameters.customerId === undefined) {
+            throw new runtime.RequiredError('customerId','Required parameter requestParameters.customerId was null or undefined when calling updateMedia.');
         }
 
-        if (requestParameters.media_id === null || requestParameters.media_id === undefined) {
-            throw new runtime.RequiredError('media_id','Required parameter requestParameters.media_id was null or undefined when calling updateMedia.');
+        if (requestParameters.mediaId === null || requestParameters.mediaId === undefined) {
+            throw new runtime.RequiredError('mediaId','Required parameter requestParameters.mediaId was null or undefined when calling updateMedia.');
         }
 
         const queryParameters: runtime.HTTPQuery = {};
@@ -267,7 +267,7 @@ export class MediasApi extends runtime.BaseAPI {
             }
         }
         const response = await this.request({
-            path: `/customers/{customerId}/medias/{mediaId}`.replace(`{${"customerId"}}`, encodeURIComponent(String(requestParameters.customer_id))).replace(`{${"mediaId"}}`, encodeURIComponent(String(requestParameters.media_id))),
+            path: `/customers/{customerId}/medias/{mediaId}`.replace(`{${"customerId"}}`, encodeURIComponent(String(requestParameters.customerId))).replace(`{${"mediaId"}}`, encodeURIComponent(String(requestParameters.mediaId))),
             method: 'PUT',
             headers: headerParameters,
             query: queryParameters,
