@@ -100,7 +100,7 @@ export class ResourcesApi extends runtime.BaseAPI {
             }
         }
         const response = await this.request({
-            path: `/customers/{customerId}/devices/{deviceId}/applications/{applicationId}/resources`.replace(`{${"customerId"}}`, encodeURIComponent(String(requestParameters.customerId))).replace(`{${"deviceId"}}`, encodeURIComponent(String(requestParameters.deviceId))).replace(`{${"applicationId"}}`, encodeURIComponent(String(requestParameters.applicationId))),
+            path: `/v1/customers/{customerId}/devices/{deviceId}/applications/{applicationId}/resources`.replace(`{${"customerId"}}`, encodeURIComponent(String(requestParameters.customerId))).replace(`{${"deviceId"}}`, encodeURIComponent(String(requestParameters.deviceId))).replace(`{${"applicationId"}}`, encodeURIComponent(String(requestParameters.applicationId))),
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
@@ -153,7 +153,7 @@ export class ResourcesApi extends runtime.BaseAPI {
             }
         }
         const response = await this.request({
-            path: `/customers/{customerId}/devices/{deviceId}/applications/{applicationId}/resources/{resourceId}`.replace(`{${"customerId"}}`, encodeURIComponent(String(requestParameters.customerId))).replace(`{${"deviceId"}}`, encodeURIComponent(String(requestParameters.deviceId))).replace(`{${"applicationId"}}`, encodeURIComponent(String(requestParameters.applicationId))).replace(`{${"resourceId"}}`, encodeURIComponent(String(requestParameters.resourceId))),
+            path: `/v1/customers/{customerId}/devices/{deviceId}/applications/{applicationId}/resources/{resourceId}`.replace(`{${"customerId"}}`, encodeURIComponent(String(requestParameters.customerId))).replace(`{${"deviceId"}}`, encodeURIComponent(String(requestParameters.deviceId))).replace(`{${"applicationId"}}`, encodeURIComponent(String(requestParameters.applicationId))).replace(`{${"resourceId"}}`, encodeURIComponent(String(requestParameters.resourceId))),
             method: 'DELETE',
             headers: headerParameters,
             query: queryParameters,
@@ -204,7 +204,7 @@ export class ResourcesApi extends runtime.BaseAPI {
             }
         }
         const response = await this.request({
-            path: `/customers/{customerId}/devices/{deviceId}/applications/{applicationId}/resources/{resourceId}`.replace(`{${"customerId"}}`, encodeURIComponent(String(requestParameters.customerId))).replace(`{${"deviceId"}}`, encodeURIComponent(String(requestParameters.deviceId))).replace(`{${"applicationId"}}`, encodeURIComponent(String(requestParameters.applicationId))).replace(`{${"resourceId"}}`, encodeURIComponent(String(requestParameters.resourceId))),
+            path: `/v1/customers/{customerId}/devices/{deviceId}/applications/{applicationId}/resources/{resourceId}`.replace(`{${"customerId"}}`, encodeURIComponent(String(requestParameters.customerId))).replace(`{${"deviceId"}}`, encodeURIComponent(String(requestParameters.deviceId))).replace(`{${"applicationId"}}`, encodeURIComponent(String(requestParameters.applicationId))).replace(`{${"resourceId"}}`, encodeURIComponent(String(requestParameters.resourceId))),
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
@@ -256,7 +256,7 @@ export class ResourcesApi extends runtime.BaseAPI {
             }
         }
         const response = await this.request({
-            path: `/customers/{customerId}/devices/{deviceId}/applications/{applicationId}/resources`.replace(`{${"customerId"}}`, encodeURIComponent(String(requestParameters.customerId))).replace(`{${"deviceId"}}`, encodeURIComponent(String(requestParameters.deviceId))).replace(`{${"applicationId"}}`, encodeURIComponent(String(requestParameters.applicationId))),
+            path: `/v1/customers/{customerId}/devices/{deviceId}/applications/{applicationId}/resources`.replace(`{${"customerId"}}`, encodeURIComponent(String(requestParameters.customerId))).replace(`{${"deviceId"}}`, encodeURIComponent(String(requestParameters.deviceId))).replace(`{${"applicationId"}}`, encodeURIComponent(String(requestParameters.applicationId))),
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
@@ -314,7 +314,7 @@ export class ResourcesApi extends runtime.BaseAPI {
             }
         }
         const response = await this.request({
-            path: `/customers/{customerId}/devices/{deviceId}/applications/{applicationId}/resources/{resourceId}`.replace(`{${"customerId"}}`, encodeURIComponent(String(requestParameters.customerId))).replace(`{${"deviceId"}}`, encodeURIComponent(String(requestParameters.deviceId))).replace(`{${"applicationId"}}`, encodeURIComponent(String(requestParameters.applicationId))).replace(`{${"resourceId"}}`, encodeURIComponent(String(requestParameters.resourceId))),
+            path: `/v1/customers/{customerId}/devices/{deviceId}/applications/{applicationId}/resources/{resourceId}`.replace(`{${"customerId"}}`, encodeURIComponent(String(requestParameters.customerId))).replace(`{${"deviceId"}}`, encodeURIComponent(String(requestParameters.deviceId))).replace(`{${"applicationId"}}`, encodeURIComponent(String(requestParameters.applicationId))).replace(`{${"resourceId"}}`, encodeURIComponent(String(requestParameters.resourceId))),
             method: 'PUT',
             headers: headerParameters,
             query: queryParameters,

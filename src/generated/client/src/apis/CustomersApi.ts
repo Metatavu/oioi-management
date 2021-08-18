@@ -69,7 +69,7 @@ export class CustomersApi extends runtime.BaseAPI {
             }
         }
         const response = await this.request({
-            path: `/customers`,
+            path: `/v1/customers`,
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
@@ -110,7 +110,7 @@ export class CustomersApi extends runtime.BaseAPI {
             }
         }
         const response = await this.request({
-            path: `/customers/{customerId}`.replace(`{${"customerId"}}`, encodeURIComponent(String(requestParameters.customerId))),
+            path: `/v1/customers/{customerId}`.replace(`{${"customerId"}}`, encodeURIComponent(String(requestParameters.customerId))),
             method: 'DELETE',
             headers: headerParameters,
             query: queryParameters,
@@ -149,7 +149,7 @@ export class CustomersApi extends runtime.BaseAPI {
             }
         }
         const response = await this.request({
-            path: `/customers/{customerId}`.replace(`{${"customerId"}}`, encodeURIComponent(String(requestParameters.customerId))),
+            path: `/v1/customers/{customerId}`.replace(`{${"customerId"}}`, encodeURIComponent(String(requestParameters.customerId))),
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
@@ -185,7 +185,7 @@ export class CustomersApi extends runtime.BaseAPI {
             }
         }
         const response = await this.request({
-            path: `/customers`,
+            path: `/v1/customers`,
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
@@ -231,7 +231,7 @@ export class CustomersApi extends runtime.BaseAPI {
             }
         }
         const response = await this.request({
-            path: `/customers/{customerId}`.replace(`{${"customerId"}}`, encodeURIComponent(String(requestParameters.customerId))),
+            path: `/v1/customers/{customerId}`.replace(`{${"customerId"}}`, encodeURIComponent(String(requestParameters.customerId))),
             method: 'PUT',
             headers: headerParameters,
             query: queryParameters,

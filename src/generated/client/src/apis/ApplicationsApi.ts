@@ -90,7 +90,7 @@ export class ApplicationsApi extends runtime.BaseAPI {
             }
         }
         const response = await this.request({
-            path: `/customers/{customerId}/devices/{deviceId}/applications`.replace(`{${"customerId"}}`, encodeURIComponent(String(requestParameters.customerId))).replace(`{${"deviceId"}}`, encodeURIComponent(String(requestParameters.deviceId))),
+            path: `/v1/customers/{customerId}/devices/{deviceId}/applications`.replace(`{${"customerId"}}`, encodeURIComponent(String(requestParameters.customerId))).replace(`{${"deviceId"}}`, encodeURIComponent(String(requestParameters.deviceId))),
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
@@ -139,7 +139,7 @@ export class ApplicationsApi extends runtime.BaseAPI {
             }
         }
         const response = await this.request({
-            path: `/customers/{customerId}/devices/{deviceId}/applications/{applicationId}`.replace(`{${"customerId"}}`, encodeURIComponent(String(requestParameters.customerId))).replace(`{${"deviceId"}}`, encodeURIComponent(String(requestParameters.deviceId))).replace(`{${"applicationId"}}`, encodeURIComponent(String(requestParameters.applicationId))),
+            path: `/v1/customers/{customerId}/devices/{deviceId}/applications/{applicationId}`.replace(`{${"customerId"}}`, encodeURIComponent(String(requestParameters.customerId))).replace(`{${"deviceId"}}`, encodeURIComponent(String(requestParameters.deviceId))).replace(`{${"applicationId"}}`, encodeURIComponent(String(requestParameters.applicationId))),
             method: 'DELETE',
             headers: headerParameters,
             query: queryParameters,
@@ -186,7 +186,7 @@ export class ApplicationsApi extends runtime.BaseAPI {
             }
         }
         const response = await this.request({
-            path: `/customers/{customerId}/devices/{deviceId}/applications/{applicationId}`.replace(`{${"customerId"}}`, encodeURIComponent(String(requestParameters.customerId))).replace(`{${"deviceId"}}`, encodeURIComponent(String(requestParameters.deviceId))).replace(`{${"applicationId"}}`, encodeURIComponent(String(requestParameters.applicationId))),
+            path: `/v1/customers/{customerId}/devices/{deviceId}/applications/{applicationId}`.replace(`{${"customerId"}}`, encodeURIComponent(String(requestParameters.customerId))).replace(`{${"deviceId"}}`, encodeURIComponent(String(requestParameters.deviceId))).replace(`{${"applicationId"}}`, encodeURIComponent(String(requestParameters.applicationId))),
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
@@ -230,7 +230,7 @@ export class ApplicationsApi extends runtime.BaseAPI {
             }
         }
         const response = await this.request({
-            path: `/customers/{customerId}/devices/{deviceId}/applications`.replace(`{${"customerId"}}`, encodeURIComponent(String(requestParameters.customerId))).replace(`{${"deviceId"}}`, encodeURIComponent(String(requestParameters.deviceId))),
+            path: `/v1/customers/{customerId}/devices/{deviceId}/applications`.replace(`{${"customerId"}}`, encodeURIComponent(String(requestParameters.customerId))).replace(`{${"deviceId"}}`, encodeURIComponent(String(requestParameters.deviceId))),
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
@@ -284,7 +284,7 @@ export class ApplicationsApi extends runtime.BaseAPI {
             }
         }
         const response = await this.request({
-            path: `/customers/{customerId}/devices/{deviceId}/applications/{applicationId}`.replace(`{${"customerId"}}`, encodeURIComponent(String(requestParameters.customerId))).replace(`{${"deviceId"}}`, encodeURIComponent(String(requestParameters.deviceId))).replace(`{${"applicationId"}}`, encodeURIComponent(String(requestParameters.applicationId))),
+            path: `/v1/customers/{customerId}/devices/{deviceId}/applications/{applicationId}`.replace(`{${"customerId"}}`, encodeURIComponent(String(requestParameters.customerId))).replace(`{${"deviceId"}}`, encodeURIComponent(String(requestParameters.deviceId))).replace(`{${"applicationId"}}`, encodeURIComponent(String(requestParameters.applicationId))),
             method: 'PUT',
             headers: headerParameters,
             query: queryParameters,

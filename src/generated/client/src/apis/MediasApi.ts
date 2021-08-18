@@ -85,7 +85,7 @@ export class MediasApi extends runtime.BaseAPI {
             }
         }
         const response = await this.request({
-            path: `/customers/{customerId}/medias`.replace(`{${"customerId"}}`, encodeURIComponent(String(requestParameters.customerId))),
+            path: `/v1/customers/{customerId}/medias`.replace(`{${"customerId"}}`, encodeURIComponent(String(requestParameters.customerId))),
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
@@ -130,7 +130,7 @@ export class MediasApi extends runtime.BaseAPI {
             }
         }
         const response = await this.request({
-            path: `/customers/{customerId}/medias/{mediaId}`.replace(`{${"customerId"}}`, encodeURIComponent(String(requestParameters.customerId))).replace(`{${"mediaId"}}`, encodeURIComponent(String(requestParameters.mediaId))),
+            path: `/v1/customers/{customerId}/medias/{mediaId}`.replace(`{${"customerId"}}`, encodeURIComponent(String(requestParameters.customerId))).replace(`{${"mediaId"}}`, encodeURIComponent(String(requestParameters.mediaId))),
             method: 'DELETE',
             headers: headerParameters,
             query: queryParameters,
@@ -173,7 +173,7 @@ export class MediasApi extends runtime.BaseAPI {
             }
         }
         const response = await this.request({
-            path: `/customers/{customerId}/medias/{mediaId}`.replace(`{${"customerId"}}`, encodeURIComponent(String(requestParameters.customerId))).replace(`{${"mediaId"}}`, encodeURIComponent(String(requestParameters.mediaId))),
+            path: `/v1/customers/{customerId}/medias/{mediaId}`.replace(`{${"customerId"}}`, encodeURIComponent(String(requestParameters.customerId))).replace(`{${"mediaId"}}`, encodeURIComponent(String(requestParameters.mediaId))),
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
@@ -217,7 +217,7 @@ export class MediasApi extends runtime.BaseAPI {
             }
         }
         const response = await this.request({
-            path: `/customers/{customerId}/medias`.replace(`{${"customerId"}}`, encodeURIComponent(String(requestParameters.customerId))),
+            path: `/v1/customers/{customerId}/medias`.replace(`{${"customerId"}}`, encodeURIComponent(String(requestParameters.customerId))),
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
@@ -267,7 +267,7 @@ export class MediasApi extends runtime.BaseAPI {
             }
         }
         const response = await this.request({
-            path: `/customers/{customerId}/medias/{mediaId}`.replace(`{${"customerId"}}`, encodeURIComponent(String(requestParameters.customerId))).replace(`{${"mediaId"}}`, encodeURIComponent(String(requestParameters.mediaId))),
+            path: `/v1/customers/{customerId}/medias/{mediaId}`.replace(`{${"customerId"}}`, encodeURIComponent(String(requestParameters.customerId))).replace(`{${"mediaId"}}`, encodeURIComponent(String(requestParameters.mediaId))),
             method: 'PUT',
             headers: headerParameters,
             query: queryParameters,
