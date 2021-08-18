@@ -59,15 +59,6 @@ class FileUploader extends React.Component<Props, State> {
    */
   public render = () => {
     const { classes, uploadButtonText, allowSetUrl } = this.props;
-    const { uploading } = this.state;
-
-    if (uploading) {
-      return (
-        <div className={ classes.imageUploadLoaderContainer }>
-          <CircularProgress color="secondary" style={{ alignSelf: "center" }}/>
-        </div>
-      );
-    }
 
     /**
      * TODO: Add custom icons to resolveLocalizationString
@@ -99,8 +90,6 @@ class FileUploader extends React.Component<Props, State> {
    * Render upload dialog
    */
   private renderUploadDialog = () => {
-    const { allowedFileTypes } = this.props;
-    const { progress } = this.state;
 
     return (
       <GenericDialog
@@ -114,12 +103,31 @@ class FileUploader extends React.Component<Props, State> {
         fullWidth={ true }
         ignoreOutsideClicks={ true }
       >
-        { progress ?
+        { this.renderUploader() }
+      </GenericDialog>
+    );
+  }
+
+  private renderUploader = () => {
+    const { allowedFileTypes, classes } = this.props;
+    const { progress, uploading } = this.state;
+
+    if (uploading && progress === 0) {
+      return (
+        <div style={{ display: "flex", alignItems: "center", height: 20 }}>
+          <LinearProgress color="secondary" style={{ flex: 1 }}/>
+        </div>
+      );
+    }
+
+    return (
+      <>
+        { (progress && progress > 0) ?
           (
-            <>
-              <LinearProgress variant="determinate" value={ progress }/>
+            <div style={{ display: "flex", alignItems: "center", height: 20 }}>
+              <LinearProgress variant="determinate" value={ progress } style={{ flex: 1, marginRight: 8 }}/>
               <Typography>{ `${progress}%` }</Typography>
-            </>
+            </div>
           ) :
           <DropzoneArea
             acceptedFiles={ allowedFileTypes }
@@ -131,7 +139,7 @@ class FileUploader extends React.Component<Props, State> {
             filesLimit={ 1 }
           />
         }
-      </GenericDialog>
+      </>
     );
   }
 
@@ -264,7 +272,12 @@ class FileUploader extends React.Component<Props, State> {
    * Close upload image dialog
    */
   private closeDialog = () => {
-    this.setState({ dialogOpen: false, progress: 0 });
+    this.setState({
+      dialogOpen: false,
+      uploading: false
+    }, () => {
+      setTimeout(() => this.setState({ progress: 0 }), 1000)
+    });
   }
 
   /**
@@ -310,10 +323,9 @@ class FileUploader extends React.Component<Props, State> {
     const { onSave, uploadKey } = this.props;
 
     this.setState({ uploading: true, progress: 0 })
-    this.closeUrlDialog();
-    this.handleContextMenuClose();
+    // this.closeUrlDialog();
+    // this.handleContextMenuClose();
     onSave(files, this.updateProgress, uploadKey);
-    this.setState({ uploading: false });
   }
 }
 
