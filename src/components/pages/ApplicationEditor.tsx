@@ -527,7 +527,6 @@ class ApplicationEditor extends React.Component<Props, State> {
           resource: resource
         }
       }));
-      
       this.setState({ treeData: treeData });
     } catch (error) {
       this.context.setError(strings.errorManagement.resource.listChild, error);
