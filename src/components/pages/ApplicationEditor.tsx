@@ -17,7 +17,7 @@ import { setCustomer } from "../../actions/customer";
 import { setDevice } from "../../actions/device";
 import { setApplication } from "../../actions/application";
 import { openResource, updatedResourceView } from "../../actions/resources";
-import SortableTree, { TreeItem as TreeItemSortable, NodeData, FullTree, OnMovePreviousAndNextLocation, ExtendedNodeData, OnDragPreviousAndNextLocation } from "react-sortable-tree";
+import SortableTree, { TreeItem as TreeItemSortable, NodeData, FullTree, OnMovePreviousAndNextLocation, ExtendedNodeData, OnDragPreviousAndNextLocation, TreeItem } from "react-sortable-tree";
 import FileExplorerTheme from "react-sortable-tree-theme-file-explorer";
 import MenuResourceSettingsView from "../views/MenuResourceSettingsView";
 import AddIcon from "@material-ui/icons/AddCircle";
@@ -27,6 +27,7 @@ import theme from "../../styles/theme";
 import { getLocalizedTypeString } from "../../commons/resourceTypeHelper";
 import AppLayout from "../layouts/app-layout";
 import { ErrorContext } from "../containers/ErrorHandler";
+import { resolveChildResourceTypes } from "../../commons/resourceTypeHelper";
 
 /**
  * Component properties
@@ -468,7 +469,7 @@ class ApplicationEditor extends React.Component<Props, State> {
     const { treeData } = this.state;
 
     if (!parentId) {
-      return;
+      return null;
     }
 
     if (parentId === this.props.application!.rootResourceId) {
@@ -482,7 +483,7 @@ class ApplicationEditor extends React.Component<Props, State> {
           </>
         );
       } else {
-        return;
+        return null;
       }
     }
 
@@ -519,15 +520,14 @@ class ApplicationEditor extends React.Component<Props, State> {
     }
 
     try {
-      const treeData: ResourceTreeItem[] = [];
-      for (const resource of topLevelResources) {
-        treeData.push({
+      const treeData: ResourceTreeItem[] = await Promise.all(topLevelResources.map(async (resource) => {
+        return {
           title: this.renderTreeItem(resource),
           children: await this.loadTreeChildren(resource.id || ""),
           resource: resource
-        });
-      }
-  
+        }
+      }));
+      
       this.setState({ treeData: treeData });
     } catch (error) {
       this.context.setError(strings.errorManagement.resource.listChild, error);
@@ -754,10 +754,13 @@ class ApplicationEditor extends React.Component<Props, State> {
    * @param node node to check
    */
   private canHaveChildren = (node: TreeItemSortable) => {
-    if (node.resource && node.resource.type !== ResourceType.IMAGE && node.resource.type !== ResourceType.PDF && node.resource.type !== ResourceType.TEXT && node.resource.type !== ResourceType.VIDEO) {
-      return true;
+    if (node.resource && node.resource.type) {
+      const resource: Resource = node.resource;
+      const resourceType = resource.type;
+      const allowedChildTypes = resolveChildResourceTypes(resourceType);
+      return allowedChildTypes.length > 0;
     } else {
-      return false;
+      return true;
     }
   }
 

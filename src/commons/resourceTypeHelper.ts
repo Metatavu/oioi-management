@@ -67,8 +67,7 @@ export const resolveChildResourceTypes = (type: ResourceType): ResourceTypeObjec
       resourceLocal: strings.resourceTypes.page
     }
   ],
-  [ResourceType.SLIDESHOWPDF] : [    
-  ],
+  [ResourceType.SLIDESHOWPDF] : [],
   [ResourceType.PAGE]: [
     {
       value: ResourceType.VIDEO,
