@@ -31,14 +31,14 @@ const AccessTokenRefresh: React.FC<Props> = ({ children, auth, onLogin }) => {
   React.useEffect(() => {
     AuthUtils.initAuth()
       .then(auth => auth && onLogin(auth))
-      .catch( error => context.setError(strings.errorManagement.auth.init, error));
+      .catch(error => context.setError(strings.errorManagement.auth.init, error));
     // eslint-disable-next-line
   }, []);
 
   useInterval(() => {
     auth && AuthUtils.refreshAccessToken(auth)
       .then(onLogin)
-      .catch( error => context.setError(strings.errorManagement.auth.refresh, error));
+      .catch(error => context.setError(strings.errorManagement.auth.refresh, error));
   }, 1000 * 60);
 
   /**
