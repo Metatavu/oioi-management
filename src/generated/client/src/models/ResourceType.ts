@@ -29,7 +29,8 @@ export enum ResourceType {
     PDF = 'PDF',
     IMAGE = 'IMAGE',
     VIDEO = 'VIDEO',
-    TEXT = 'TEXT'
+    TEXT = 'TEXT',
+    APPLICATION = 'APPLICATION'
 }
 
 export function ResourceTypeFromJSON(json: any): ResourceType {
