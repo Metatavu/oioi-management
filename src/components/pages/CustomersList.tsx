@@ -131,7 +131,7 @@ class CustomersList extends React.Component<Props, State> {
       <Grid key={ key } item>
         <CardItem
           title={ customer.name }
-          img={ customer.image_url || img }
+          img={ customer.imageUrl || img }
           editConfiguration={ () => this.onEditCustomerConfigurationClick(customer) }
           editClick={ () => this.onEditCustomerClick(customer) }
           detailsClick={ () => this.onCustomerDetailsClick(customer) }
@@ -233,7 +233,7 @@ class CustomersList extends React.Component<Props, State> {
     }
 
     try {
-      await ApiUtils.getCustomersApi(auth.token).deleteCustomer({ customer_id: customer.id });
+      await ApiUtils.getCustomersApi(auth.token).deleteCustomer({ customerId: customer.id });
       this.setState({ customers: customers.filter(c => c.id !== customer.id) });
     } catch (error) {
       this.context.setError(strings.errorManagement.customer.delete, error);
@@ -300,7 +300,7 @@ class CustomersList extends React.Component<Props, State> {
 
     try {
       const updatedCustomer = await ApiUtils.getCustomersApi(auth.token).updateCustomer({
-        customer_id: id,
+        customerId: id,
         customer: customer
       });
 

@@ -76,7 +76,7 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
       form: initForm<ResourceSettingsForm>(
         {
           name: undefined,
-          order_number: undefined,
+          orderNumber: undefined,
           slug: undefined,
           data: undefined,
         },
@@ -177,7 +177,7 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
           <div className={ classes.gridRow } style={{ marginBottom: theme.spacing(3) }}>
             <div>
               <Typography variant="h4" style={{ marginBottom: theme.spacing(1) }}>{ strings.orderNumber }</Typography>
-              { this.renderFormField("order_number", strings.orderNumber, "number") }
+              { this.renderFormField("orderNumber", strings.orderNumber, "number") }
             </div>
 
             <div>
@@ -567,7 +567,7 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
         <TableRow key={ resource.name }>
           <TableCell component="th" scope="row">{ resource.name }</TableCell>
           <TableCell align="left">{ getLocalizedTypeString(resource.type) }</TableCell>
-          <TableCell align="center">{ resource.order_number }</TableCell>
+          <TableCell align="center">{ resource.orderNumber }</TableCell>
           <TableCell align="right">
             <IconButton
               size="small"
@@ -822,9 +822,9 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
     const resource = {
       ...this.props.resource,
       name: form.values.name,
-      order_number: form.values.order_number,
+      orderNumber: form.values.orderNumber,
       slug: form.values.slug,
-      parent_id: form.values.parent_id,
+      parentId: form.values.parentId,
       type: form.values.type,
       id: form.values.id,
       data: resourceData["data"],
@@ -1052,10 +1052,10 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
 
     try {
       const childResources = await ApiUtils.getResourcesApi(auth.token).listResources({
-        customer_id: customerId,
-        device_id: deviceId,
-        application_id: applicationId,
-        parent_id: resourceId
+        customerId: customerId,
+        deviceId: deviceId,
+        applicationId: applicationId,
+        parentId: resourceId
       });
   
       this.setState({

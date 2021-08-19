@@ -1,5 +1,5 @@
-// tslint:disable
-// eslint-disable
+/* tslint:disable */
+/* eslint-disable */
 /**
  * OiOi content management API
  * OiOi content management API spec
@@ -23,6 +23,7 @@ export enum ResourceType {
     LANGUAGEMENU = 'LANGUAGE_MENU',
     LANGUAGE = 'LANGUAGE',
     SLIDESHOW = 'SLIDESHOW',
+    SLIDESHOWPDF = 'SLIDESHOW_PDF',
     MENU = 'MENU',
     PAGE = 'PAGE',
     PDF = 'PDF',
@@ -39,7 +40,7 @@ export function ResourceTypeFromJSONTyped(json: any, ignoreDiscriminator: boolea
     return json as ResourceType;
 }
 
-export function ResourceTypeToJSON(value?: ResourceType): any {
+export function ResourceTypeToJSON(value?: ResourceType | null): any {
     return value as any;
 }
 

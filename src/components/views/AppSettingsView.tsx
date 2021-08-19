@@ -248,9 +248,9 @@ class AppSettingsView extends React.Component<Props, State> {
       for(let i = 0; i < items.length; i++) {
         const item = items[i];
         const createdResource = await resourcesApi.createResource({
-          application_id: application.id!,
-          customer_id: customerId,
-          device_id: deviceId,
+          applicationId: application.id!,
+          customerId: customerId,
+          deviceId: deviceId,
           resource: this.translateWallItemToResource(parentId, i, item)
         });
   
@@ -295,10 +295,10 @@ class AppSettingsView extends React.Component<Props, State> {
     try {
       await ApiUtils.getResourcesApi(auth.token).updateResource({
         resource: { ...rootResource, properties: rootProperties },
-        application_id: application.id!,
-        customer_id: customerId,
-        device_id: deviceId,
-        resource_id: rootResource.id!
+        applicationId: application.id!,
+        customerId: customerId,
+        deviceId: deviceId,
+        resourceId: rootResource.id!
       });
     } catch (error) {
       this.context.setError(strings.errorManagement.resource.update, error);
@@ -319,8 +319,8 @@ class AppSettingsView extends React.Component<Props, State> {
       slug: item.slug,
       type: item.type,
       data: item.data,
-      order_number: index,
-      parent_id: parentId,
+      orderNumber: index,
+      parentId: parentId,
       properties: this.translateWallItemProperties(item),
       styles: this.translateWallItemStyles(item)
     };

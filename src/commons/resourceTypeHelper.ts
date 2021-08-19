@@ -44,12 +44,18 @@ export const resolveChildResourceTypes = (type: ResourceType): ResourceTypeObjec
     }, {
       value: ResourceType.SLIDESHOW,
       resourceLocal: strings.resourceTypes.slideshow
+    }, {
+      value: ResourceType.SLIDESHOWPDF,
+      resourceLocal: strings.resourceTypes.slideshowPdf
     }
   ],
   [ResourceType.MENU]: [
     {
       value: ResourceType.SLIDESHOW,
       resourceLocal: strings.resourceTypes.slideshow
+    }, {
+      value: ResourceType.SLIDESHOWPDF,
+      resourceLocal: strings.resourceTypes.slideshowPdf
     }, {
       value: ResourceType.MENU,
       resourceLocal: strings.resourceTypes.menu
@@ -61,6 +67,7 @@ export const resolveChildResourceTypes = (type: ResourceType): ResourceTypeObjec
       resourceLocal: strings.resourceTypes.page
     }
   ],
+  [ResourceType.SLIDESHOWPDF] : [],
   [ResourceType.PAGE]: [
     {
       value: ResourceType.VIDEO,
@@ -105,6 +112,12 @@ export const resolveUploadLocalizationString = (type: ResourceType): ResourceTyp
     ]
   },
   [ResourceType.SLIDESHOW] : {},
+  [ResourceType.SLIDESHOWPDF] : {
+    fileUploadLocal : [
+      strings.fileUpload.addPDF,
+      strings.fileUpload.changePDF
+    ]
+  },
   [ResourceType.PAGE]: {},
   [ResourceType.PDF]: {
     fileUploadLocal : [
@@ -160,6 +173,7 @@ export const getLocalizedTypeString = (type: ResourceType): string => ({
   [ResourceType.LANGUAGE] : strings.resourceTypes.language,
   [ResourceType.MENU]: strings.resourceTypes.menu,
   [ResourceType.SLIDESHOW] : strings.resourceTypes.slideshow,
+  [ResourceType.SLIDESHOWPDF] : strings.resourceTypes.slideshowPdf,
   [ResourceType.PAGE]: strings.resourceTypes.page,
   [ResourceType.PDF]: strings.resourceTypes.pdf,
   [ResourceType.IMAGE] : strings.resourceTypes.image,

@@ -58,7 +58,7 @@ export const resourceRules: FormValidationRules<ResourceSettingsForm> = {
       trim: true,
       requiredText: strings.requiredField
     },
-    order_number: {
+    orderNumber: {
       required: true,
       trim: true,
       requiredText: strings.requiredField

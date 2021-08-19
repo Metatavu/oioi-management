@@ -121,6 +121,9 @@ class ResourceTreeItemClass extends React.Component<Props, State> {
       case ResourceType.SLIDESHOW : {
         return <SlideshowIcon />;
       }
+      case ResourceType.SLIDESHOWPDF : {
+        return <PDFIcon />;
+      }
       default: {
         return <UnknownIcon />;
       }

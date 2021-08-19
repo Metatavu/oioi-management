@@ -194,9 +194,9 @@ class ApplicationsList extends React.Component<Props, State> {
 
     try {
       await ApiUtils.getApplicationsApi(auth.token).deleteApplication({
-        customer_id: customerId,
-        device_id: deviceId,
-        application_id: application.id
+        customerId: customerId,
+        deviceId: deviceId,
+        applicationId: application.id
       });
   
       this.setState({
@@ -233,8 +233,8 @@ class ApplicationsList extends React.Component<Props, State> {
 
     try {
       const application = await ApiUtils.getApplicationsApi(auth.token).createApplication({
-        customer_id: customerId,
-        device_id: deviceId,
+        customerId: customerId,
+        deviceId: deviceId,
         application: {
           name: "New Application"
         }
@@ -274,10 +274,10 @@ class ApplicationsList extends React.Component<Props, State> {
 
     try {
       return ApiUtils.getResourcesApi(auth.token).findResource({
-        customer_id: customerId,
-        device_id: deviceId,
-        application_id: application.id || "",
-        resource_id: application.root_resource_id || ""
+        customerId: customerId,
+        deviceId: deviceId,
+        applicationId: application.id || "",
+        resourceId: application.rootResourceId || ""
       }).then((rootResource) => {
         if (rootResource && rootResource.properties) {
           const img = rootResource.properties.find(resource => resource.key === "applicationImage");
@@ -316,7 +316,7 @@ class ApplicationsList extends React.Component<Props, State> {
 
     if (!customer || customer.id !== customerId) {
       try {
-        const findCustomer = await ApiUtils.getCustomersApi(token).findCustomer({ customer_id: customerId });
+        const findCustomer = await ApiUtils.getCustomersApi(token).findCustomer({ customerId: customerId });
         setCustomer(findCustomer);
       } catch (error) {
         setError(strings.errorManagement.customer.find, error);
@@ -326,7 +326,7 @@ class ApplicationsList extends React.Component<Props, State> {
 
     if (!device || device.id !== deviceId) {
       try {
-        const foundDevice = await ApiUtils.getDevicesApi(token).findDevice({ customer_id: customerId, device_id: deviceId });
+        const foundDevice = await ApiUtils.getDevicesApi(token).findDevice({ customerId: customerId, deviceId: deviceId });
         setDevice(foundDevice);
       } catch (error) {
         setError(strings.errorManagement.device.find, error);
@@ -335,7 +335,7 @@ class ApplicationsList extends React.Component<Props, State> {
     }
 
     try {
-      const applications = await ApiUtils.getApplicationsApi(token).listApplications({ customer_id: customerId, device_id: deviceId });
+      const applications = await ApiUtils.getApplicationsApi(token).listApplications({ customerId: customerId, deviceId: deviceId });
       const applicationImages = await Promise.all(
         applications.map(async app => {
           return {

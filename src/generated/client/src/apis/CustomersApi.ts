@@ -1,5 +1,5 @@
-// tslint:disable
-// eslint-disable
+/* tslint:disable */
+/* eslint-disable */
 /**
  * OiOi content management API
  * OiOi content management API spec
@@ -28,20 +28,20 @@ export interface CreateCustomerRequest {
 }
 
 export interface DeleteCustomerRequest {
-    customer_id: string;
+    customerId: string;
 }
 
 export interface FindCustomerRequest {
-    customer_id: string;
+    customerId: string;
 }
 
 export interface UpdateCustomerRequest {
     customer: Customer;
-    customer_id: string;
+    customerId: string;
 }
 
 /**
- * no description
+ * 
  */
 export class CustomersApi extends runtime.BaseAPI {
 
@@ -69,7 +69,7 @@ export class CustomersApi extends runtime.BaseAPI {
             }
         }
         const response = await this.request({
-            path: `/customers`,
+            path: `/v1/customers`,
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
@@ -93,8 +93,8 @@ export class CustomersApi extends runtime.BaseAPI {
      * Delete customer
      */
     async deleteCustomerRaw(requestParameters: DeleteCustomerRequest): Promise<runtime.ApiResponse<void>> {
-        if (requestParameters.customer_id === null || requestParameters.customer_id === undefined) {
-            throw new runtime.RequiredError('customer_id','Required parameter requestParameters.customer_id was null or undefined when calling deleteCustomer.');
+        if (requestParameters.customerId === null || requestParameters.customerId === undefined) {
+            throw new runtime.RequiredError('customerId','Required parameter requestParameters.customerId was null or undefined when calling deleteCustomer.');
         }
 
         const queryParameters: runtime.HTTPQuery = {};
@@ -110,7 +110,7 @@ export class CustomersApi extends runtime.BaseAPI {
             }
         }
         const response = await this.request({
-            path: `/customers/{customerId}`.replace(`{${"customerId"}}`, encodeURIComponent(String(requestParameters.customer_id))),
+            path: `/v1/customers/{customerId}`.replace(`{${"customerId"}}`, encodeURIComponent(String(requestParameters.customerId))),
             method: 'DELETE',
             headers: headerParameters,
             query: queryParameters,
@@ -132,8 +132,8 @@ export class CustomersApi extends runtime.BaseAPI {
      * Finds a customer
      */
     async findCustomerRaw(requestParameters: FindCustomerRequest): Promise<runtime.ApiResponse<Customer>> {
-        if (requestParameters.customer_id === null || requestParameters.customer_id === undefined) {
-            throw new runtime.RequiredError('customer_id','Required parameter requestParameters.customer_id was null or undefined when calling findCustomer.');
+        if (requestParameters.customerId === null || requestParameters.customerId === undefined) {
+            throw new runtime.RequiredError('customerId','Required parameter requestParameters.customerId was null or undefined when calling findCustomer.');
         }
 
         const queryParameters: runtime.HTTPQuery = {};
@@ -149,7 +149,7 @@ export class CustomersApi extends runtime.BaseAPI {
             }
         }
         const response = await this.request({
-            path: `/customers/{customerId}`.replace(`{${"customerId"}}`, encodeURIComponent(String(requestParameters.customer_id))),
+            path: `/v1/customers/{customerId}`.replace(`{${"customerId"}}`, encodeURIComponent(String(requestParameters.customerId))),
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
@@ -185,7 +185,7 @@ export class CustomersApi extends runtime.BaseAPI {
             }
         }
         const response = await this.request({
-            path: `/customers`,
+            path: `/v1/customers`,
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
@@ -212,8 +212,8 @@ export class CustomersApi extends runtime.BaseAPI {
             throw new runtime.RequiredError('customer','Required parameter requestParameters.customer was null or undefined when calling updateCustomer.');
         }
 
-        if (requestParameters.customer_id === null || requestParameters.customer_id === undefined) {
-            throw new runtime.RequiredError('customer_id','Required parameter requestParameters.customer_id was null or undefined when calling updateCustomer.');
+        if (requestParameters.customerId === null || requestParameters.customerId === undefined) {
+            throw new runtime.RequiredError('customerId','Required parameter requestParameters.customerId was null or undefined when calling updateCustomer.');
         }
 
         const queryParameters: runtime.HTTPQuery = {};
@@ -231,7 +231,7 @@ export class CustomersApi extends runtime.BaseAPI {
             }
         }
         const response = await this.request({
-            path: `/customers/{customerId}`.replace(`{${"customerId"}}`, encodeURIComponent(String(requestParameters.customer_id))),
+            path: `/v1/customers/{customerId}`.replace(`{${"customerId"}}`, encodeURIComponent(String(requestParameters.customerId))),
             method: 'PUT',
             headers: headerParameters,
             query: queryParameters,

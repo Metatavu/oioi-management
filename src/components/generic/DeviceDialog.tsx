@@ -41,7 +41,7 @@ const rules: FormValidationRules<DeviceForm> = {
       trim: true,
       requiredText: strings.requiredField
     },
-    api_key: {
+    apiKey: {
       required: true,
       trim: true,
       requiredText: strings.requiredField
@@ -70,7 +70,7 @@ const rules: FormValidationRules<DeviceForm> = {
  */
 interface State {
   form: Form<DeviceForm>;
-  image_url?: string;
+  imageUrl?: string;
   progress?: number;
 }
 
@@ -95,7 +95,7 @@ class DeviceDialog extends React.Component<Props, State> {
       form: initForm<DeviceForm>(
         {
           name: device ? device.name : "",
-          api_key: device ? device.api_key : "",
+          apiKey: device ? device.apiKey : "",
           address: deviceMeta["address"] || "",
           serialnumber: deviceMeta["serialnumber"] || "",
           additionalinformation: deviceMeta["additionalinformation"] || "",
@@ -103,7 +103,7 @@ class DeviceDialog extends React.Component<Props, State> {
         },
         rules
       ),
-      image_url: device ? device.image_url : undefined
+      imageUrl: device ? device.imageUrl : undefined
     };
   }
 
@@ -121,7 +121,7 @@ class DeviceDialog extends React.Component<Props, State> {
       const form = validateForm(
         initForm<DeviceForm>({
           name: device ? device.name : "",
-          api_key: device ? device.api_key : "",
+          apiKey: device ? device.apiKey : "",
           address: deviceMeta["address"] || "",
           serialnumber: deviceMeta["serialnumber"] || "",
           additionalinformation: deviceMeta["additionalinformation"] || "",
@@ -131,7 +131,7 @@ class DeviceDialog extends React.Component<Props, State> {
 
       this.setState({
         form,
-        image_url: device ? device.image_url : undefined
+        imageUrl: device ? device.imageUrl : undefined
       });
     }
   };
@@ -163,7 +163,7 @@ class DeviceDialog extends React.Component<Props, State> {
               { this.renderField("name", strings.name) }
             </Grid>
             <Grid item className={ classes.fullWidth }>
-              { this.renderField("api_key", strings.apikey) }
+              { this.renderField("apiKey", strings.apikey) }
             </Grid>
             <Grid item className={ classes.fullWidth }>
               { this.renderField("address", strings.address) }
@@ -232,7 +232,7 @@ class DeviceDialog extends React.Component<Props, State> {
    * Renders device image
    */
   private renderDeviceImage = () => {
-    const { image_url, progress } = this.state;
+    const { imageUrl, progress } = this.state;
 
     if (progress) {
       return (
@@ -243,7 +243,7 @@ class DeviceDialog extends React.Component<Props, State> {
       );
     }
 
-    if (!image_url) {
+    if (!imageUrl) {
       return (
         <Box
           height="100%"
@@ -258,7 +258,7 @@ class DeviceDialog extends React.Component<Props, State> {
 
     return (
       <img
-        src={ image_url }
+        src={ imageUrl }
         alt={ strings.deviceImage }
         style={{ width: "100%" }}
       />
@@ -319,7 +319,7 @@ class DeviceDialog extends React.Component<Props, State> {
    */
   private onSave = () => {
     const { saveClick, dialogType } = this.props;
-    const { image_url } = this.state;
+    const { imageUrl } = this.state;
     const { values } = this.state.form;
 
     const valuesTypeAny: any = { ...values };
@@ -330,7 +330,7 @@ class DeviceDialog extends React.Component<Props, State> {
       .map(key => ({ key: key, value: valuesTypeAny[key]}))
       .filter(meta => !!meta["value"].length);
 
-    const device = { ...values, metas, image_url } as Device;
+    const device = { ...values, metas, imageUrl } as Device;
 
     saveClick(device, dialogType);
 
@@ -338,14 +338,14 @@ class DeviceDialog extends React.Component<Props, State> {
       form: initForm<DeviceForm>(
         {
           name: "",
-          api_key: "",
+          apiKey: "",
           address: "",
           serialnumber: "",
           additionalinformation: ""
         },
         rules
       ),
-      image_url: undefined
+      imageUrl: undefined
     }, () => this.props.handleClose());
   };
 
@@ -393,14 +393,14 @@ class DeviceDialog extends React.Component<Props, State> {
       form: initForm<DeviceForm>(
         {
           name: "",
-          api_key: "",
+          apiKey: "",
           address: "",
           serialnumber: "",
           additionalinformation: ""
         },
         rules
       ),
-      image_url: undefined
+      imageUrl: undefined
     }, () => this.props.handleClose());
   };
 
@@ -451,7 +451,7 @@ class DeviceDialog extends React.Component<Props, State> {
   
         const { data, basePath } = response;
         await FileUpload.uploadFileToS3(data, file, this.updateProgress);
-        this.setState({ image_url: `${basePath}/${data.fields.key}` });
+        this.setState({ imageUrl: `${basePath}/${data.fields.key}` });
       } catch (error) {
         this.context.setError(strings.errorManagement.file.upload, error);
       }

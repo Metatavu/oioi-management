@@ -141,7 +141,7 @@ class DevicesList extends React.Component<Props, State> {
       <Grid key={ key } item>
         <CardItem
           title={ device.name }
-          img={ device.image_url }
+          img={ device.imageUrl }
           editConfiguration={ () => this.onEditDeviceConfigurationClick(device) }
           editClick={ () => this.onEditDeviceClick(device) }
           detailsClick={ () => this.onDeviceDetailsClick(device) }
@@ -246,8 +246,8 @@ class DevicesList extends React.Component<Props, State> {
 
     try {
       await ApiUtils.getDevicesApi(auth.token).deleteDevice({
-        customer_id: customerId,
-        device_id: device.id
+        customerId: customerId,
+        deviceId: device.id
       });
   
       this.setState({ devices: devices.filter(c => c.id !== device.id) });
@@ -292,7 +292,7 @@ class DevicesList extends React.Component<Props, State> {
 
     try {
       const newDevice = await ApiUtils.getDevicesApi(auth.token).createDevice({
-        customer_id: customerId,
+        customerId: customerId,
         device: device
       });
 
@@ -322,8 +322,8 @@ class DevicesList extends React.Component<Props, State> {
 
     try {
       const updatedDevice = await ApiUtils.getDevicesApi(auth.token).updateDevice({
-        device_id: id,
-        customer_id: customerId,
+        deviceId: id,
+        customerId: customerId,
         device: device
       });
   
@@ -389,7 +389,7 @@ class DevicesList extends React.Component<Props, State> {
 
     if (!customer || customer.id !== customerId) {
       try {
-        const currentCustomer = await ApiUtils.getCustomersApi(auth.token).findCustomer({ customer_id: customerId });
+        const currentCustomer = await ApiUtils.getCustomersApi(auth.token).findCustomer({ customerId: customerId });
         setCustomer(currentCustomer);
       } catch (error) {
         setError(strings.errorManagement.customer.find, error);
@@ -398,7 +398,7 @@ class DevicesList extends React.Component<Props, State> {
     }
 
     try {
-      const devices = await ApiUtils.getDevicesApi(auth.token).listDevices({ customer_id: customerId });
+      const devices = await ApiUtils.getDevicesApi(auth.token).listDevices({ customerId: customerId });
       this.setState({ devices: devices });
     } catch (error) {
       setError(strings.errorManagement.device.list, error);

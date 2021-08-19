@@ -64,7 +64,7 @@ class ResourceSettingsView extends React.Component<Props, State> {
       form: initForm<ResourceSettingsForm>(
         {
           name: undefined,
-          order_number: undefined,
+          orderNumber: undefined,
           slug: undefined,
           data: undefined
         },
@@ -172,7 +172,7 @@ class ResourceSettingsView extends React.Component<Props, State> {
           <div className={ classes.gridRow }>
             <div>
               <Typography variant="h4" style={{ marginBottom: theme.spacing(1) }}>{ strings.orderNumber }</Typography>
-              { this.renderField("order_number", strings.orderNumber, "number") }
+              { this.renderField("orderNumber", strings.orderNumber, "number") }
             </div>
             <Divider style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} />
             <div>
