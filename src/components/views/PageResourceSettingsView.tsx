@@ -549,7 +549,7 @@ class PageResourceSettingsView extends React.Component<Props, State> {
   }
 
   /**
-   * Gets child resourcess
+   * Gets child resources
    */
   private getChildResources = async () => {
     const { auth, customerId, deviceId, applicationId, resource } = this.props;

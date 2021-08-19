@@ -15,7 +15,7 @@ export class AuthUtils {
    */
   public static keycloakInit = (keycloak: KeycloakInstance) => {
     return new Promise<boolean>((resolve, reject) =>
-      keycloak.init({ onLoad: "login-required", checkLoginIframe: false })
+      keycloak.init({ onLoad: "login-required" })
         .success(resolve)
         .error(reject)
     );

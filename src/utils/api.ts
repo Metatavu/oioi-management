@@ -62,7 +62,12 @@ export default class ApiUtils {
       basePath: Config.get().api.baseUrl,
       accessToken: token,
       middleware: [{ post: async (context) => {
-        if (context.response.ok) {
+        if (!context.response.ok) {
+          if (context.response.status === 401) {
+            window.location.reload(true);
+          }
+        }
+        else {
           let method = context.init.method || "";
           method = method.toLowerCase();
           let messageContent = undefined;

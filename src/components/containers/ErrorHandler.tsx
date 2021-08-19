@@ -22,7 +22,7 @@ const ErrorHandler: React.FC = ({ children }) => {
   const [ error, setError ] = useState<string>();
 
   const contextValue = {
-    setError: useCallback((message, error) => handleError(message, error), []),
+    setError: useCallback((message, error) => handleError(message, error), [])
   };
 
   /**
