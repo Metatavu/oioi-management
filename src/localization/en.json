@@ -126,7 +126,8 @@
     "pdf": "PDF",
     "text": "Text",
     "image": "Image",
-    "video": "Video"
+    "video": "Video",
+    "application": "Application"
   },
 
   "applicationSettings": {

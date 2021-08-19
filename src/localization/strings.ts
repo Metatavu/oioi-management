@@ -136,6 +136,7 @@ export interface IStrings extends LocalizedStringsMethods {
     pdf: string;
     text: string;
     image: string;
+    application: string;
   };
 
   /**

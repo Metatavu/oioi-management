@@ -47,18 +47,24 @@ export const resolveChildResourceTypes = (type: ResourceType): ResourceTypeObjec
     }, {
       value: ResourceType.SLIDESHOWPDF,
       resourceLocal: strings.resourceTypes.slideshowPdf
+    }, {
+      value: ResourceType.APPLICATION,
+      resourceLocal: strings.resourceTypes.application
     }
   ],
   [ResourceType.MENU]: [
     {
+      value: ResourceType.MENU,
+      resourceLocal: strings.resourceTypes.menu
+    }, {
       value: ResourceType.SLIDESHOW,
       resourceLocal: strings.resourceTypes.slideshow
     }, {
       value: ResourceType.SLIDESHOWPDF,
       resourceLocal: strings.resourceTypes.slideshowPdf
     }, {
-      value: ResourceType.MENU,
-      resourceLocal: strings.resourceTypes.menu
+      value: ResourceType.APPLICATION,
+      resourceLocal: strings.resourceTypes.application
     }
   ],
   [ResourceType.SLIDESHOW] : [
@@ -87,7 +93,8 @@ export const resolveChildResourceTypes = (type: ResourceType): ResourceTypeObjec
   [ResourceType.PDF]: [],
   [ResourceType.IMAGE] : [],
   [ResourceType.TEXT]: [],
-  [ResourceType.VIDEO]: []
+  [ResourceType.VIDEO]: [],
+  [ResourceType.APPLICATION]: []
 })[type];
 
 /**
@@ -138,6 +145,7 @@ export const resolveUploadLocalizationString = (type: ResourceType): ResourceTyp
       strings.fileUpload.changeVideo
     ]
   },
+  [ResourceType.APPLICATION]: {}
 })[type];
 
 /**
@@ -179,4 +187,5 @@ export const getLocalizedTypeString = (type: ResourceType): string => ({
   [ResourceType.IMAGE] : strings.resourceTypes.image,
   [ResourceType.TEXT]: strings.resourceTypes.text,
   [ResourceType.VIDEO]: strings.resourceTypes.video,
+  [ResourceType.APPLICATION]: strings.resourceTypes.application
 })[type];
