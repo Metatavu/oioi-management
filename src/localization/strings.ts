@@ -101,6 +101,13 @@ export interface IStrings extends LocalizedStringsMethods {
   urlAddressDialogLabel: string;
 
   /**
+   * Translations related to application editor
+   */
+  applicationEditor: {
+    dragSidebar: string;
+  };
+
+  /**
    * Translations related to file upload
    */
   fileUpload: {
