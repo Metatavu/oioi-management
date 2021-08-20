@@ -19,6 +19,7 @@ import VideoIcon from "@material-ui/icons/PlayCircleOutlineOutlined";
 import TextIcon from "@material-ui/icons/TitleOutlined";
 import PDFIcon from "@material-ui/icons/PictureAsPdfOutlined";
 import ImageIcon from "@material-ui/icons/ImageOutlined";
+import ApplicationIcon from "@material-ui/icons/LaptopMacOutlined";
 import theme from "../../styles/theme";
 
 /**
@@ -123,6 +124,9 @@ class ResourceTreeItemClass extends React.Component<Props, State> {
       }
       case ResourceType.SLIDESHOWPDF : {
         return <PDFIcon />;
+      }
+      case ResourceType.APPLICATION : {
+        return <ApplicationIcon />;
       }
       default: {
         return <UnknownIcon />;

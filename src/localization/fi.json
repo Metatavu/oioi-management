@@ -126,7 +126,8 @@
     "pdf": "PDF",
     "text": "Teksti",
     "image": "Kuva",
-    "video": "Video"
+    "video": "Video",
+    "application": "Sovellus"
   },
 
   "applicationSettings": {

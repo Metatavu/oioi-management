@@ -27,6 +27,7 @@ import { IconKeys, getLocalizedIconTypeString } from "../../commons/iconTypeHelp
 import VisibleWithRole from "../generic/VisibleWithRole";
 import { getLocalizedTypeString } from "../../commons/resourceTypeHelper";
 import { ErrorContext } from "../containers/ErrorHandler";
+import { resolveChildResourceTypes } from "../../commons/resourceTypeHelper";
 
 /**
  * Component props
@@ -168,7 +169,6 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
 
         <Divider style={ { marginTop: theme.spacing(3), marginBottom: theme.spacing(3) } } />
 
-        <Typography variant="h4" style={{ marginBottom: theme.spacing(1) }}>{ strings.childResources }</Typography>
         { this.renderChildResources() }
 
         <Divider style={ { marginTop: theme.spacing(3), marginBottom: theme.spacing(3) } } />
@@ -552,9 +552,31 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
 
   /**
    * Render child resources
-   * TODO: Needs styles (Tuomas)
    */
   private renderChildResources = () => {
+    const { resource } = this.props;
+
+    const childTypes = resolveChildResourceTypes(resource.type);
+
+    if (childTypes.length === 0) {
+      return null;
+    }
+
+    return (
+      <>
+        <Typography variant="h4" style={{ marginBottom: theme.spacing(1) }}>
+          { strings.childResources }
+        </Typography>
+        { this.renderChildResourcesList() }
+      </>
+    );
+  }
+
+  /**
+   * Render child resources list
+   * TODO: Needs styles (Tuomas)
+   */
+  private renderChildResourcesList = () => {
     const { childResources } = this.state;
     const { classes } = this.props;
 

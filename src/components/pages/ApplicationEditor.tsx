@@ -421,6 +421,7 @@ class ApplicationEditor extends React.Component<Props, State> {
       case ResourceType.LANGUAGE:
       case ResourceType.LANGUAGEMENU:
       case ResourceType.SLIDESHOW:
+      case ResourceType.APPLICATION:
       case ResourceType.INTRO:
         return <MenuResourceSettingsView
           resource={ resource }
