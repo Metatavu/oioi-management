@@ -309,7 +309,7 @@ class ApplicationEditor extends React.Component<Props, State> {
             }
             <SortableTree
               className={ classes.treeWrapper }
-              rowHeight={ 48 }
+              rowHeight={ 36 }
               treeData={ treeData }
               onChange={ treeData => this.setState({ treeData: treeData }) }
               onMoveNode={ this.moveResource }
@@ -479,7 +479,7 @@ class ApplicationEditor extends React.Component<Props, State> {
         return (
           <>
             <ListItem className={ classes.treeAddItem } onClick={ () => this.onAddNewResourceClick(parentId) } key={ parentId + "add" }>
-              <ListItemIcon style={ { minWidth: 0, marginRight: theme.spacing(1) } }><AddIcon /></ListItemIcon>
+              <ListItemIcon style={ { minWidth: 0, marginRight: theme.spacing(1) } }><AddIcon fontSize="small"/></ListItemIcon>
               <ListItemText className={ classes.addResourceBtnText } primary={ strings.addNewIntroOrLanguageMenu } />
             </ListItem>
           </>
@@ -491,7 +491,7 @@ class ApplicationEditor extends React.Component<Props, State> {
 
     return (
       <ListItem className={ classes.treeAddItem } onClick={ () => this.onAddNewResourceClick(parentId) } key={ parentId + "add" }>
-        <ListItemIcon style={ { minWidth: 0, marginRight: theme.spacing(1) } }><AddIcon /></ListItemIcon>
+        <ListItemIcon style={ { minWidth: 0, marginRight: theme.spacing(1) } }><AddIcon fontSize="small" /></ListItemIcon>
         <ListItemText className={ classes.addResourceBtnText } primary={ strings.addNew } />
       </ListItem>
     );
