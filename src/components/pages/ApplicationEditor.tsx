@@ -479,7 +479,9 @@ class ApplicationEditor extends React.Component<Props, State> {
         return (
           <>
             <ListItem className={ classes.treeAddItem } onClick={ () => this.onAddNewResourceClick(parentId) } key={ parentId + "add" }>
-              <ListItemIcon style={ { minWidth: 0, marginRight: theme.spacing(1) } }><AddIcon fontSize="small"/></ListItemIcon>
+              <ListItemIcon style={{ minWidth: 0, marginRight: theme.spacing(1) }}>
+                <AddIcon fontSize="small"/>
+              </ListItemIcon>
               <ListItemText className={ classes.addResourceBtnText } primary={ strings.addNewIntroOrLanguageMenu } />
             </ListItem>
           </>
