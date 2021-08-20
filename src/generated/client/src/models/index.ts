@@ -7,3 +7,7 @@ export * from './Media';
 export * from './MediaType';
 export * from './Resource';
 export * from './ResourceType';
+export * from './WallApplication';
+export * from './WallDevice';
+export * from './WallDeviceApplication';
+export * from './WallResource';
