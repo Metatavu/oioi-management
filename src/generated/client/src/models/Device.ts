@@ -49,7 +49,7 @@ export interface Device {
      * @type {string}
      * @memberof Device
      */
-    apiKey: string;
+    apiKey?: string;
     /**
      * 
      * @type {Array<KeyValueProperty>}
@@ -95,7 +95,7 @@ export function DeviceFromJSONTyped(json: any, ignoreDiscriminator: boolean): De
         'id': !exists(json, 'id') ? undefined : json['id'],
         'name': json['name'],
         'imageUrl': !exists(json, 'imageUrl') ? undefined : json['imageUrl'],
-        'apiKey': json['apiKey'],
+        'apiKey': !exists(json, 'apiKey') ? undefined : json['apiKey'],
         'metas': !exists(json, 'metas') ? undefined : ((json['metas'] as Array<any>).map(KeyValuePropertyFromJSON)),
         'createdAt': !exists(json, 'createdAt') ? undefined : (new Date(json['createdAt'])),
         'modifiedAt': !exists(json, 'modifiedAt') ? undefined : (new Date(json['modifiedAt'])),

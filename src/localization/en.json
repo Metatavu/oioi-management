@@ -1,6 +1,6 @@
 {
   "active": "Active",
-  "address": "Address",
+  "address": "Address (optional)",
   "addNew": "Add..",
   "addNewIcon": "Add new icon",
   "advanced": "Advanced",
@@ -48,7 +48,7 @@
   "selectLanguage": "Select language",
   "serialNumberOptional": "Serial number (optional)",
   "loading": "Loading...",
-  "apikey": "API Key",
+  "apikey": "API Key (optional)",
   "resourceSettings": "Resource settings",
   "addNewResource": "Add new resource",
   "resourceType": "Resource type",

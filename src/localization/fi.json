@@ -1,6 +1,6 @@
 {
   "active": "Aktiivinen",
-  "address": "Osoite",
+  "address": "Osoite (valinnainen)",
   "addNew": "Lisää..",
   "addNewIcon": "Lisää uusi ikoni",
   "advanced": "Edistyneet toiminnot",
@@ -48,7 +48,7 @@
   "selectLanguage": "Valitse kieli",
   "serialNumberOptional": "Sarjanumero (valinnainen)",
   "loading": "Ladataan...",
-  "apikey": "API - avain",
+  "apikey": "API - avain (valinnainen)",
   "resourceSettings": "Resurssiasetukset",
   "addNewResource": "Lisää uusi resurssi",
   "resourceType": "Resurssityyppi",

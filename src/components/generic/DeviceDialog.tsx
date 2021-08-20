@@ -42,14 +42,12 @@ const rules: FormValidationRules<DeviceForm> = {
       requiredText: strings.requiredField
     },
     apiKey: {
-      required: true,
-      trim: true,
-      requiredText: strings.requiredField
+      required: false,
+      trim: true
     },
     address: {
-      required: true,
-      trim: true,
-      requiredText: strings.requiredField
+      required: false,
+      trim: true
     },
     serialnumber: {
       required: false
