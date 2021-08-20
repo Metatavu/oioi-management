@@ -564,7 +564,9 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
 
     return (
       <>
-        <Typography variant="h4" style={{ marginBottom: theme.spacing(1) }}>{ strings.childResources }</Typography>
+        <Typography variant="h4" style={{ marginBottom: theme.spacing(1) }}>
+          { strings.childResources }
+        </Typography>
         { this.renderChildResourcesList() }
       </>
     );
