@@ -96,6 +96,10 @@
   "urlAddressDialogTitle": "Syötä resurssin URL-osoite",
   "urlAddressDialogContent": "Syötä suora URL-osoite resurssiin.",
   "urlAddressDialogLabel": "URL-osoite",
+  
+  "applicationEditor": {
+    "dragSidebar": "Raahaa leveämmäksi / kapeammaksi"
+  },
 
   "fileUpload": {
     "addMedia": "Lisää media",

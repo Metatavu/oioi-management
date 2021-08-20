@@ -256,11 +256,12 @@ class ApplicationEditor extends React.Component<Props, State> {
           PaperProps={{ style: { width: treeWidth } }}
           open
         >
-          <div
+          <Box
             id="dragger"
             style={{ left: treeWidth - 10 }}
             onMouseDown={ this.handleMousedown }
             className={ classes.dragger }
+            title={ strings.applicationEditor.dragSidebar }
           />
           { this.renderDrawer() }
         </Drawer>
