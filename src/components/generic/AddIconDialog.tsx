@@ -15,7 +15,7 @@ import { Alert } from "@material-ui/lab";
 interface Props extends WithStyles<typeof styles> {
   open: boolean;
   resource: Resource;
-  onSave: (files: File[], callback: (progress: number) => void, key: string) => void;
+  onSave: (newUri: string, key: string) => void;
   onToggle(): void;
 }
 
@@ -24,10 +24,9 @@ interface Props extends WithStyles<typeof styles> {
  */
 interface State {
   iconName: string;
-  newFiles?: File[];
   propertyName?: string;
   customInput: boolean;
-  progress?: number;
+  imageUri?: string;
 }
 
 /**
@@ -65,7 +64,7 @@ class AddIconDialog extends React.Component<Props, State> {
    */
   public render = () => {
     const { classes, open, onToggle } = this.props;
-    const { iconName, newFiles } = this.state;
+    const { iconName, imageUri } = this.state;
 
     return (
       <Dialog
@@ -116,7 +115,7 @@ class AddIconDialog extends React.Component<Props, State> {
               <FileUploader
                 uploadButtonText={ strings.fileUpload.addImage }
                 allowedFileTypes={ [] }
-                onSave={ newFiles => this.setState({ newFiles }) }
+                onUpload={ (newUri) => this.setState({ imageUri: newUri }) }
               />
             </Grid>
           </Grid>
@@ -135,7 +134,7 @@ class AddIconDialog extends React.Component<Props, State> {
             color="primary"
             autoFocus
             onClick={ this.handleSave }
-            disabled={ !newFiles || !iconName }
+            disabled={ !imageUri || !iconName }
           >
             { strings.save }
           </Button>
@@ -168,7 +167,7 @@ class AddIconDialog extends React.Component<Props, State> {
   private clearAndClose = () => {
     this.setState({
       iconName: "",
-      newFiles: [],
+      imageUri: undefined,
       propertyName: ""
     });
 
@@ -176,27 +175,12 @@ class AddIconDialog extends React.Component<Props, State> {
   }
 
   /**
-   * Callback function that Updates file upload progress
-   *
-   * @param progress upload progress
-   */
-  private updateProgress = (progress: number) => {
-    this.setState({ progress: Math.floor(progress) });
-
-    if (progress < 100) {
-      return;
-    }
-
-    this.clearAndClose();
-  }
-
-  /**
    * Handle save click
    */
   private handleSave = () => {
-    const { newFiles, iconName } = this.state;
+    const { iconName, imageUri } = this.state;
 
-    if (!newFiles) {
+    if (!imageUri) {
       return;
     }
 
@@ -205,7 +189,7 @@ class AddIconDialog extends React.Component<Props, State> {
       remove: /[^A-Za-z0-9_]+/g,
     });
 
-    this.props.onSave(newFiles, this.updateProgress, propertyName);
+    this.props.onSave(imageUri, propertyName);
     this.clearAndClose();
   }
 

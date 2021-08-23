@@ -11,7 +11,6 @@ import styles from "../../styles/editor-view";
 import strings from "../../localization/strings";
 import theme from "../../styles/theme";
 import { Resource, ResourceToJSON, ResourceType } from "../../generated/client/src";
-import FileUpload from "../../utils/file-upload";
 import { forwardRef } from "react";
 import { MessageType, initForm, Form, validateForm } from "ts-form-validation";
 
@@ -412,6 +411,7 @@ class ResourceSettingsView extends React.Component<Props, State> {
   private renderDataField = () => {
     const { resource } = this.props;
     const resourceType = resource.type;
+
     if (resourceType === ResourceType.TEXT) {
       return (
         <TextField
@@ -428,18 +428,18 @@ class ResourceSettingsView extends React.Component<Props, State> {
     } else {
       const fileData = this.state.form.values.data || "";
 
-      return <>
+      return (
         <ImagePreview
           uploadButtonText={ fileData ? strings.fileUpload.changeFile : strings.fileUpload.addFile }
           imagePath={ fileData }
           allowSetUrl={ true }
-          onSave={ this.onFileChange }
-          onSetUrl={ this.onSetFileUrl }
+          onUpload={ this.onFileOrUriChange }
+          onSetUrl={ this.onFileOrUriChange }
           resource={ resource }
-          uploadKey={ "data" }
+          uploadKey="data"
           onDelete={ this.onImageFileDelete }
         />
-      </>;
+      );
     }
   };
 
@@ -469,56 +469,16 @@ class ResourceSettingsView extends React.Component<Props, State> {
   };
 
   /**
-   * Handles file change
+   * Handles file and URI change
    *
-   * @param files files to change
-   * @param callback file upload progress callback function
+   * @param newUri new URI
+   * @param key resource key
    */
-  private onFileChange = async (files: File[], callback: (progress: number) => void) => {
-    const { auth } = this.props;
+  private onFileOrUriChange = (newUri: string, key: string) => {
     const { resourceData } = this.state;
-
-    if (!auth || !auth.token) {
-      return;
-    }
-
-    const file = files[0];
-
-    if (file) {
-      try {
-        const response = await FileUpload.getPresignedPostData(file, auth.token);
-        if (response.error) {
-          throw new Error(response.message);
-        }
-
-        const { data, basePath } = response;
-        await FileUpload.uploadFileToS3(data, file, callback);
-        resourceData["data"] = `${basePath}/${data.fields.key}`;
-      } catch (error) {
-        this.context.setError(strings.errorManagement.file.upload, error);
-        return;
-      }
-    } else {
-      resourceData["data"] = undefined;
-    }
+    resourceData[key] = newUri;
 
     this.setState({ resourceData: resourceData });
-    this.onUpdateResource();
-  };
-
-  /**
-   * Handles file change
-   *
-   * @param url url to set
-   */
-  private onSetFileUrl = async (url: string) => {
-    const { resourceData } = this.state;
-    resourceData["data"] = url;
-
-    this.setState({
-      resourceData: resourceData
-    });
-
     this.onUpdateResource();
   };
 

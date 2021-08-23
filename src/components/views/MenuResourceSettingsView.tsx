@@ -650,8 +650,8 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
           uploadButtonText={ previewItem ? strings.fileUpload.changeMedia : strings.fileUpload.addMedia }
           imagePath={ previewItem }
           allowSetUrl={ true }
-          onSave={ this.onPropertyFileChange }
-          onSetUrl={ this.onPropertyFileSetUrl }
+          onUpload={ this.onPropertyFileChange }
+          onSetUrl={ this.onPropertyFileChange }
           resource={ resource }
           uploadKey={ uploadKey }
           onDelete={ this.onPropertyFileDelete }
@@ -684,7 +684,7 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
             key={ key }
             imagePath={ value }
             allowSetUrl={ false }
-            onSave={ this.onIconFileChange }
+            onUpload={ this.onIconFileChange }
             onSetUrl={ () => {} }
             resource={ resource }
             uploadKey={ key }
@@ -744,49 +744,31 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
   /**
    * Handles image change
    *
-   * @param files files to change
-   * @param callback file upload progress callback function
+   * @param newUri new URI
    * @param key key
    */
-  private onPropertyFileChange = async (files: File[], callback: (progress: number) => void, key: string) => {
-    const newUri = await this.upload(files, callback);
+  private onPropertyFileChange = (newUri: string, key: string) => {
     const tempMap = this.state.resourceMap;
     tempMap.set(key, newUri);
-    this.setState({
-      resourceMap: tempMap,
-      dataChanged: true
-    });
-    this.onUpdateResource();
-  };
 
-  /**
-   * Handles image change
-   *
-   * @param url url
-   * @param key key
-   */
-  private onPropertyFileSetUrl = async (url: string, key: string) => {
-    const tempMap = this.state.resourceMap;
-    tempMap.set(key, url);
     this.setState({
       resourceMap: tempMap,
       dataChanged: true
     });
+
     this.onUpdateResource();
   };
 
   /**
    * Handles icon change
    *
-   * @param files files to change
-   * @param callback file upload progress callback function
+   * @param newUri new URI
    * @param key key
    */
-  private onIconFileChange = async (files: File[], callback: (progress: number) => void, key: string) => {
-
-    const newUri = await this.upload(files, callback);
+  private onIconFileChange = (newUri: string, key: string) => {
     const tempMap = this.state.iconsMap;
     tempMap.set(key, newUri);
+
     this.setState({
       iconsMap: tempMap,
       dataChanged: true
@@ -912,41 +894,6 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
     });
     this.props.confirmationRequired(true);
   };
-
-  /**
-   * Upload file to S3
-   *
-   * @param files list of files
-   * @param callback file upload progress callback function
-   * @returns new URI
-   */
-  private async upload(files: File[], callback: (progress: number) => void): Promise<string> {
-    const { auth } = this.props;
-
-    let newUri = "";
-    if (!auth || !auth.token) {
-      return newUri;
-    }
-
-    const file = files[0];
-
-    if (file) {
-      try {
-        const response = await FileUpload.getPresignedPostData(file, auth.token);
-        if (response.error) {
-          throw new Error(response.message);
-        }
-
-        const { data, basePath } = response;
-        await FileUpload.uploadFileToS3(data, file, callback);
-        newUri = `${basePath}/${data.fields.key}`;
-      } catch (error) {
-        this.context.setError(strings.errorManagement.file.upload, error);
-      }
-    }
-
-    return newUri;
-  }
 
   /**
    * Push all property key value pairs from state maps to properties array

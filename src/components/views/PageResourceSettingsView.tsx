@@ -517,7 +517,7 @@ class PageResourceSettingsView extends React.Component<Props, State> {
         resource={ resource }
         allowSetUrl={ true }
         onDelete={ this.onChildResourceFileDelete }
-        onSave={ this.onChildResourceFileChange }
+        onUpload={ this.onChildResourceFileChange }
         onSetUrl={ this.onChildResourceSetFileUrl }
         uploadKey={ resource.id }
       />
@@ -606,6 +606,7 @@ class PageResourceSettingsView extends React.Component<Props, State> {
    */
   private updateChildResource = (childResource: Resource) => {
     const { childResources } = this.state;
+
     if (!childResources) {
       return;
     }
@@ -660,16 +661,13 @@ class PageResourceSettingsView extends React.Component<Props, State> {
   /**
    * Handles child resource file change
    *
-   * @param files files
-   * @param callback file upload progress callback function
+   * @param newUri new URI
    * @param resourceId resource id
    */
-  private onChildResourceFileChange = async (files: File[], callback: (progress: number) => void, resourceId: string) => {
-    const { customerId, auth } = this.props;
+  private onChildResourceFileChange = (newUri: string, resourceId: string) => {
     const { childResources } = this.state;
-    const file = files[0];
 
-    if (!file || !childResources || !auth || !auth.token) {
+    if (!childResources) {
       return;
     }
 
@@ -678,20 +676,8 @@ class PageResourceSettingsView extends React.Component<Props, State> {
       return;
     }
 
-    try {
-      const response = await FileUpload.getPresignedPostData(file, auth.token);
-      if (response.error) {
-        throw new Error(response.message);
-      }
-
-      const { data, basePath } = response;
-      await FileUpload.uploadFileToS3(data, file, callback);
-      const updatedChildResource: Resource = { ...childResources[resourceIndex], data: `${basePath}/${data.fields.key}` };
-      this.updateChildResource(updatedChildResource);
-    } catch (error) {
-      this.context.setError(strings.errorManagement.file.upload, error);
-      return;
-    }
+    const updatedChildResource: Resource = { ...childResources[resourceIndex], data: newUri };
+    this.updateChildResource(updatedChildResource);
   };
 
   /**

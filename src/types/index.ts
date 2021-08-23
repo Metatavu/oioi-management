@@ -50,3 +50,14 @@ export interface PreSignedPostData {
   url: string;
   fields: Record<string, string>;
 }
+
+/**
+ * Interface for upload data
+ */
+export interface UploadData {
+  xhrRequest: XMLHttpRequest;
+  uploadUrl: string;
+  key: string;
+  formData: FormData;
+  cdnBasePath: string;
+}

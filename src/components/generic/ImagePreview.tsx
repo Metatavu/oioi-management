@@ -20,7 +20,7 @@ interface Props extends WithStyles<typeof styles> {
   uploadKey: string;
   uploadButtonText: string;
   allowSetUrl: boolean;
-  onSave(files: File[], callback: (progress: number) => void, key?: string): void;
+  onUpload(newUri: string, key?: string): void;
   onSetUrl(url: string, key?: string): void;
   onDelete(key?: string): void;
 }
@@ -55,13 +55,14 @@ class ImagePreview extends React.Component<Props, State> {
     const {
       imagePath,
       resource,
-      onSave,
+      onUpload,
       uploadKey,
       classes,
       onSetUrl,
       allowSetUrl,
       uploadButtonText
     } = this.props;
+
     const allowedFileTypes = getAllowedFileTypes(resource.type);
     const video = resource.type === ResourceType.VIDEO;
     let previewContent = (
@@ -69,11 +70,13 @@ class ImagePreview extends React.Component<Props, State> {
         <h2>{ strings.noMediaPlaceholder }</h2>
       </div>
     );
+
     if (imagePath) {
       previewContent = video ?
         <ReactPlayer url={ imagePath } controls={ true } style={{ backgroundColor: "#000" }} /> :
         <img src={ imagePath } alt="File" height="200" className={ classes.imagePreview }/>;
     }
+
     return (
       <div className={ classes.imagePreviewElement }>
         <div style={{ marginBottom: theme.spacing(1) }}>
@@ -97,7 +100,7 @@ class ImagePreview extends React.Component<Props, State> {
           uploadButtonText={ uploadButtonText }
           allowSetUrl={ allowSetUrl }
           allowedFileTypes={ allowedFileTypes }
-          onSave={ onSave }
+          onUpload={ onUpload }
           onSetUrl={ onSetUrl }
           uploadKey={ uploadKey }
         />

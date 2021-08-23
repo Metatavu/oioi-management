@@ -6,8 +6,6 @@ import theme from "../../styles/theme";
 import { Application, Resource, KeyValueProperty } from "../../generated/client/src";
 import { Form, initForm, validateForm, MessageType } from "ts-form-validation";
 import { ApplicationForm, applicationRules, ResourceSettingsForm } from "../../commons/formRules";
-
-import FileUpload from "../../utils/file-upload";
 import AddIconDialog from "../generic/AddIconDialog";
 import ImagePreview from "../generic/ImagePreview";
 import { AuthState, ErrorContextType } from "../../types";
@@ -436,7 +434,7 @@ class AppSettingsView extends React.Component<Props, State> {
         uploadButtonText={ previewItem ? strings.fileUpload.changeImage : strings.fileUpload.addImage }
         allowSetUrl={ true }
         imagePath={ previewItem }
-        onSave={ this.onPropertyFileChange }
+        onUpload={ this.onPropertyFileChange }
         onSetUrl={ this.onPropertyFileUrlSet }
         resource={ this.props.rootResource }
         uploadKey={ key }
@@ -465,7 +463,7 @@ class AppSettingsView extends React.Component<Props, State> {
             imagePath={ value }
             allowSetUrl={ false }
             onSetUrl={ () => {} }
-            onSave={ this.onIconFileChange }
+            onUpload={ this.onIconFileChange }
             resource={ rootResource }
             uploadKey={ key }
             onDelete={ this.onIconFileDelete }
@@ -628,15 +626,13 @@ class AppSettingsView extends React.Component<Props, State> {
   /**
    * Handles image change
    *
-   * @param files list of files
-   * @param callback file upload progress callback function
+   * @param newUri new URI
    * @param key key
    */
-  private onPropertyFileChange = async (files: File[], callback: (progress: number) => void, key: string) => {
-
-    const newUri = await this.upload(files, callback);
+  private onPropertyFileChange = (newUri: string, key: string) => {
     const tempMap = this.state.resourceMap;
     tempMap.set(key, newUri);
+
     this.setState({
       resourceMap: tempMap,
       dataChanged: true
@@ -648,12 +644,13 @@ class AppSettingsView extends React.Component<Props, State> {
   /**
    * Handles image change
    *
-   * @param url url
+   * @param newUri new URI
    * @param key key
    */
-  private onPropertyFileUrlSet = (url: string, key: string) => {
+  private onPropertyFileUrlSet = (newUri: string, key: string) => {
     const tempMap = this.state.resourceMap;
-    tempMap.set(key, url);
+    tempMap.set(key, newUri);
+
     this.setState({
       resourceMap: tempMap,
       dataChanged: true
@@ -665,15 +662,13 @@ class AppSettingsView extends React.Component<Props, State> {
   /**
    * Handles icon change
    *
-   * @param files list of files
-   * @param callback file upload progress callback function
+   * @param newUri new URI
    * @param key key
    */
-  private onIconFileChange = async (files: File[], callback: (progress: number) => void, key: string) => {
-
-    const newUri = await this.upload(files, callback);
+  private onIconFileChange = (newUri: string, key: string) => {
     const tempMap = this.state.iconsMap;
     tempMap.set(key, newUri);
+
     this.setState({
       iconsMap: tempMap,
       dataChanged: true
@@ -711,41 +706,6 @@ class AppSettingsView extends React.Component<Props, State> {
 
     this.onUpdateResource();
   };
-
-  /**
-   * Uploads file
-   *
-   * @param files list of files
-   * @param callback file upload progress callback function
-   * @returns new URI
-   */
-  private upload = async (files: File[], callback: (progress: number) => void): Promise<string> => {
-    const { auth } = this.props;
-
-    let newUri = "";
-    if (!auth || !auth.token) {
-      return newUri;
-    }
-
-    const file = files[0];
-
-    if (file) {
-      try {
-        const response = await FileUpload.getPresignedPostData(file, auth.token);
-        if (response.error) {
-          throw new Error(response.message);
-        }
-
-        const { data, basePath } = response;
-        await FileUpload.uploadFileToS3(data, file, callback);
-        newUri = `${basePath}/${data.fields.key}`;
-      } catch (error) {
-        this.context.setError(strings.errorManagement.file.upload, error);
-      }
-    }
-
-    return newUri;
-  }
 
   /**
    * Push all property key value pairs from state maps to properties array

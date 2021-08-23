@@ -4,7 +4,7 @@ import styles from "../../styles/dialog";
 import { DropzoneArea } from "material-ui-dropzone";
 import strings from "../../localization/strings";
 import { Device } from "../../generated/client/src";
-import { AuthState, DialogType, ErrorContextType } from "../../types";
+import { AuthState, DialogType, ErrorContextType, UploadData } from "../../types";
 import { KeyValueProperty } from "../../generated/client/src/models/KeyValueProperty";
 import { FormValidationRules, MessageType, validateForm, initForm, Form } from "ts-form-validation";
 import FileUpload from "../../utils/file-upload";
@@ -70,6 +70,7 @@ interface State {
   form: Form<DeviceForm>;
   imageUrl?: string;
   progress?: number;
+  uploadData?: UploadData;
 }
 
 /**
@@ -417,19 +418,25 @@ class DeviceDialog extends React.Component<Props, State> {
    * @param progress upload progress
    */
   private updateProgress = (progress: number) => {
+    const { uploadData } = this.state;
     this.setState({ progress: Math.floor(progress) });
 
-    if (progress < 100) {
+    if (!uploadData || progress < 100) {
       return;
     }
 
-    this.setState({ progress: undefined });
+    setTimeout(() => {
+      this.setState({
+        imageUrl: `${uploadData.cdnBasePath}/${uploadData.key}`,
+        progress: undefined
+      });
+    }, 1000);
   }
 
   /**
-   * Event handler for image change
+   * Handles image changes
    *
-   * @param files files
+   * @param files list of files
    * @param callback file upload progress callback function
    */
   private onImageChange = async (files: File[]) => {
@@ -438,21 +445,24 @@ class DeviceDialog extends React.Component<Props, State> {
     if (!auth || !auth.token) {
       return;
     }
+
     const file = files[0];
 
-    if (file) {
-      try {
-        const response = await FileUpload.getPresignedPostData(file, auth.token);
-        if (response.error) {
-          throw new Error(response.message);
-        }
-  
-        const { data, basePath } = response;
-        await FileUpload.uploadFileToS3(data, file, this.updateProgress);
-        this.setState({ imageUrl: `${basePath}/${data.fields.key}` });
-      } catch (error) {
-        this.context.setError(strings.errorManagement.file.upload, error);
-      }
+    if (!file) {
+      return;
+    }
+
+    try {
+      const uploadData = await FileUpload.upload(auth.token, file, this.updateProgress);
+      const { xhrRequest, uploadUrl, formData } = uploadData;
+      this.setState({ uploadData: uploadData });
+      xhrRequest.open("POST", uploadUrl, true);
+      xhrRequest.send(formData);
+    } catch (error) {
+      this.context.setError(
+        strings.formatString(strings.errorManagement.file.upload, file.name),
+        error
+      );
     }
   };
 }

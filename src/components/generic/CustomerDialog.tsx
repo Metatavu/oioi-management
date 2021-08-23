@@ -5,7 +5,7 @@ import { DropzoneArea } from "material-ui-dropzone";
 import { Customer } from "../../generated/client/src";
 import strings from "../../localization/strings";
 import FileUpload from "../../utils/file-upload";
-import { AuthState, DialogType, ErrorContextType } from "../../types/index";
+import { AuthState, DialogType, ErrorContextType, UploadData } from "../../types/index";
 import { FormValidationRules, validateForm, Form, initForm, MessageType } from "ts-form-validation";
 import { ErrorContext } from "../containers/ErrorHandler";
 import { connect } from "react-redux";
@@ -45,6 +45,7 @@ const rules: FormValidationRules<CustomerForm> = {
 interface State {
   form: Form<CustomerForm>;
   progress?: number;
+  uploadData?: UploadData;
 }
 
 /**
@@ -117,11 +118,14 @@ class CustomerDialog extends React.Component<Props, State> {
             </Typography>
           </div>
         </DialogTitle>
-        <Divider />
+        <Divider/>
         <DialogContent>
           <Grid container spacing={ 2 }>
             <Grid item className={ classes.fullWidth }>
               { this.renderField("name", strings.name) }
+            </Grid>
+            <Grid item className={ classes.fullWidth }>
+              { this.renderImagePreview() }
             </Grid>
             <Grid item className={ classes.fullWidth }>
               { dialogType !== "show" &&
@@ -139,7 +143,10 @@ class CustomerDialog extends React.Component<Props, State> {
                       dropzoneClass={ classes.dropzone }
                       dropzoneParagraphClass={ classes.dropzoneText }
                       dropzoneText={ strings.dropFile }
+                      showPreviews={ false }
+                      maxFileSize={ 314572800 }
                       onDrop={ this.onImageChange }
+                      filesLimit={ 1 }
                     />
                   }
                 </>
@@ -151,7 +158,7 @@ class CustomerDialog extends React.Component<Props, State> {
         <DialogActions>
           <Button
             variant="outlined"
-            onClick={ () => this.onCloseClick("") }
+            onClick={ this.onAbortUpload }
             color="primary"
           >
             { strings.cancel }
@@ -212,6 +219,25 @@ class CustomerDialog extends React.Component<Props, State> {
         return strings.addNewCustomer;
     }
   };
+
+  /**
+   * Renders image preview
+   */
+  private renderImagePreview = () => {
+    const { form } = this.state;
+
+    if (!form.values.imageUrl) {
+      return null;
+    }
+
+    return (
+      <img
+        src={ form.values.imageUrl }
+        alt="previewImage"
+        style={{ width: "100%" }}
+      />
+    );
+  }
 
   /**
    * Event handler for on close click
@@ -277,6 +303,16 @@ class CustomerDialog extends React.Component<Props, State> {
   };
 
   /**
+   * Aborts file upload
+   */
+  private onAbortUpload = () => {
+    const { uploadData } = this.state;
+    uploadData && uploadData.xhrRequest.abort();
+
+    this.onCloseClick("");
+  }
+
+  /**
    * Event handler for text fields blur event
    *
    * @param key key of CustomerForm
@@ -316,23 +352,11 @@ class CustomerDialog extends React.Component<Props, State> {
     }
 
     try {
-      const response = await FileUpload.getPresignedPostData(file, auth.token);
-      if (response.error) {
-        throw new Error(response.message);
-      }
-
-      const { data, basePath } = response;
-      await FileUpload.uploadFileToS3(data, file, this.updateProgress);
-
-      this.setState({
-        form: {
-          ...this.state.form,
-          values: {
-            ...this.state.form.values,
-            imageUrl: `${basePath}/${data.fields.key}`
-          }
-        }
-      });
+      const uploadData = await FileUpload.upload(auth.token, file, this.updateProgress);
+      const { xhrRequest, uploadUrl, formData } = uploadData;
+      this.setState({ uploadData: uploadData });
+      xhrRequest.open("POST", uploadUrl, true);
+      xhrRequest.send(formData);
     } catch (error) {
       this.context.setError(
         strings.formatString(strings.errorManagement.file.upload, file.name),
@@ -347,13 +371,25 @@ class CustomerDialog extends React.Component<Props, State> {
    * @param progress upload progress
    */
   private updateProgress = (progress: number) => {
+    const { uploadData } = this.state;
     this.setState({ progress: Math.floor(progress) });
 
-    if (progress < 100) {
+    if (!uploadData || progress < 100) {
       return;
     }
 
-    this.setState({ progress: undefined });
+    setTimeout(() => {
+      this.setState({
+        form: {
+          ...this.state.form,
+          values: {
+            ...this.state.form.values,
+            imageUrl: `${uploadData.cdnBasePath}/${uploadData.key}`
+          }
+        },
+        progress: undefined
+      });
+    }, 1000);
   }
 
   /**
