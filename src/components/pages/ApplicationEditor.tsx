@@ -17,7 +17,7 @@ import { setCustomer } from "../../actions/customer";
 import { setDevice } from "../../actions/device";
 import { setApplication } from "../../actions/application";
 import { openResource, updatedResourceView } from "../../actions/resources";
-import SortableTree, { TreeItem as TreeItemSortable, NodeData, FullTree, OnMovePreviousAndNextLocation, ExtendedNodeData, OnDragPreviousAndNextLocation, TreeItem } from "react-sortable-tree";
+import SortableTree, { TreeItem as TreeItemSortable, NodeData, FullTree, OnMovePreviousAndNextLocation, ExtendedNodeData, OnDragPreviousAndNextLocation } from "react-sortable-tree";
 import FileExplorerTheme from "react-sortable-tree-theme-file-explorer";
 import MenuResourceSettingsView from "../views/MenuResourceSettingsView";
 import AddIcon from "@material-ui/icons/AddCircle";
