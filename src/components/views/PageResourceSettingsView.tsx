@@ -1,8 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import * as React from "react";
-import { withStyles, WithStyles, TextField, Divider, Typography, Grid, Button, IconButton } from "@material-ui/core";
+import { withStyles, WithStyles, TextField, Divider, Typography, Grid, Button, IconButton, Box } from "@material-ui/core";
 import MaterialTable from "material-table";
-import AddIcon from "@material-ui/icons/Add";
 import AddCircleIcon from "@material-ui/icons/AddCircle";
 import DeleteIcon from "@material-ui/icons/Delete";
 import CheckIcon from "@material-ui/icons/Check";
@@ -127,7 +126,7 @@ class PageResourceSettingsView extends React.Component<Props, State> {
     const { isFormValid } = this.state.form;
 
     return (
-      <div>
+      <Box>
         <Button
           className={ classes.saveButton }
           color="primary"
@@ -138,33 +137,47 @@ class PageResourceSettingsView extends React.Component<Props, State> {
           { strings.save }
         </Button>
 
-        <Typography variant="h4" style={{ marginBottom: theme.spacing(1) }}>{ strings.name }</Typography>
+        <Box mb={ 1 }>
+          <Typography variant="h4">
+            { strings.name }
+          </Typography>
+        </Box>
         { this.renderField("name", strings.name, "text") }
 
-        <div>
+        <Box>
           { this.renderChildResources() }
-          <Divider style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} />
-
+          <Box mt={ 3 } mb={ 3 }>
+            <Divider/>
+          </Box>
           { this.renderAddChild() }
-          <Divider style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} />
-        </div>
+          <Box mt={ 3 } mb={ 3 }>
+            <Divider/>
+          </Box>
+        </Box>
 
         <VisibleWithRole role="admin">
-          <Typography style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} variant="h3">{ strings.advanced }</Typography>
-
+          <Box mt={ 3 } mb={ 3 }>
+            <Typography variant="h3">
+              { strings.advanced }
+            </Typography>
+          </Box>
           { this.renderResourceFields() }
 
-          <div>
+          <Box>
             { this.renderPropertiesTable() }
-            <Divider style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} />
-          </div>
+            <Box mt={ 3 } mb={ 3 }>
+              <Divider/>
+            </Box>
+          </Box>
 
-          <div>
+          <Box>
             { this.renderStyleTable() }
-            <Divider style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} />
-          </div>
+            <Box mt={ 3 } mb={ 3 }>
+              <Divider/>
+            </Box>
+          </Box>
         </VisibleWithRole>
-      </div>
+      </Box>
     );
   }
 

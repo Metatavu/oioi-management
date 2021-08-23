@@ -97,6 +97,10 @@
   "urlAddressDialogContent": "Input direct URL address to resource.",
   "urlAddressDialogLabel": "URL Address",
 
+  "applicationEditor": {
+    "dragSidebar": "Click and drag to narrow or widen"
+  },
+
   "fileUpload": {
     "addMedia": "Add media",
     "changeMedia": "Change media",

@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import * as React from "react";
-import { withStyles, WithStyles, FormControlLabel, Checkbox, TextField, Divider, Typography, Button, TableContainer, Paper, Table, TableHead, TableRow, TableCell, TableBody } from "@material-ui/core";
+import { withStyles, WithStyles, FormControlLabel, Checkbox, TextField, Divider, Typography, Button, TableContainer, Paper, Table, TableHead, TableRow, TableCell, TableBody, Box } from "@material-ui/core";
 import MaterialTable from "material-table";
 import AddIcon from "@material-ui/icons/Add";
 import AddCircleIcon from "@material-ui/icons/AddCircle";
@@ -207,13 +207,29 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
     const { resource } = this.props;
     return (
       <>
-        <Typography variant="h4" style={{ marginBottom: theme.spacing(1) }}>{ strings.name }</Typography>
+        <Box mb={ 1 }>
+          <Typography variant="h4">
+            { strings.name }
+          </Typography>
+        </Box>
         { this.renderFormField("name", strings.name, "text") }
-        <Typography style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(1) }} variant="h4">{ strings.title }</Typography>
-        { this.renderPropertiesField("title", strings.title, "text") }
-        <Typography style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(1) }} variant="h4">{ strings.nameText }</Typography>
+        <Box mt={ 3 } mb={ 1 }>
+          <Typography variant="h4">
+            { strings.nameText }
+          </Typography>
+        </Box>
         { this.renderPropertiesField("nameText", strings.nameText, "textarea") }
-        <Typography style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(1) }} variant="h4">{ strings.content }</Typography>
+        <Box mt={ 3 } mb={ 1 }>
+          <Typography variant="h4">
+            { strings.title }
+          </Typography>
+        </Box>
+        { this.renderPropertiesField("title", strings.title, "text") }
+        <Box mt={ 3 } mb={ 1 }>
+          <Typography variant="h4">
+            { strings.content }
+          </Typography>
+        </Box>
         { this.renderPropertiesField("content", strings.content, "textarea") }
         { resource.type === ResourceType.SLIDESHOW && this.renderSlideShowFields() }
       </>

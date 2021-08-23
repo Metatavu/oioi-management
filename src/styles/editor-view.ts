@@ -49,13 +49,20 @@ export default createStyles({
   },
 
   dragger: {
-    width: '9px',
-    cursor: 'ew-resize',
-    padding: '4px 0 0',
-    position: 'absolute',
+    width: 9,
+    cursor: "ew-resize",
+    padding: "4px 0 0",
+    position: "absolute",
     top: 0,
     bottom: 0,
     zIndex: 100,
+    transition: "background-color 0.5s ease-out",
+    "&:hover": {
+      backgroundColor: "rgba(0,0,0,0.2)"
+    },
+    "&:active": {
+      backgroundColor: "#00b4d8"
+    }
   },
 
   drawerPaper: {
@@ -76,6 +83,31 @@ export default createStyles({
     overflowY: "auto",
     "& > div div:focus": {
       outline: "none"
+    },
+    "& .rstcustom__rowContents": {
+      cursor: "pointer"
+    },
+    "& .rstcustom__collapseButton::after, .rstcustom__expandButton::after": {
+      transformOrigin: "3px 3px",
+      border: "solid transparent 6px",
+      borderLeftWidth: 5,
+      borderRightWidth: 5,
+      borderTopColor: "#00b4d8",
+      transition: "transform 0.2s ease-out"
+    },
+    "& .rstcustom__expandButton::after": {
+      transform: "translate3d(-50%, 0%, 0) rotateZ(-90deg)",
+      borderTopColor: "#263238"
+    },
+    "& .MuiListItem-root": {
+      paddingTop: 0,
+      paddingBottom: 0,
+      "&.MuiListItem-gutters": {
+        paddingLeft: 4
+      }
+    },
+    "& .rstcustom__rowWrapper:hover": {
+      opacity: 1
     }
   },
 
