@@ -148,6 +148,10 @@ class AppSettingsView extends React.Component<Props, State> {
             <Typography variant="h4" style={{ marginBottom: theme.spacing(1) }}>{ strings.applicationSettings.returnDelay }</Typography>
             { this.renderTextField(strings.applicationSettings.returnDelay, 1, "text", undefined, "returnDelay") }
           </div>
+          <div style={{ paddingBottom: theme.spacing(3) }}>
+            <Typography variant="h4" style={{ marginBottom: theme.spacing(1) }}>{ strings.applicationSettings.bundleId }</Typography>
+            { this.renderTextField(strings.applicationSettings.bundleId, 1, "text", undefined, "bundleId") }
+          </div>
         </div>
 
         <Divider style={{ marginBottom: theme.spacing(3) }} />

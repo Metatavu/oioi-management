@@ -17,6 +17,7 @@ export interface ResourceSettingsForm extends Partial<Resource> {
   applicationIcons?: string;
   teaserText?: string;
   returnDelay?: string;
+  bundleId?: string;
   autoplay?: boolean;
   loop?: boolean;
   slideTimeOnScreen?: string;

@@ -143,6 +143,7 @@
     "addIconSelect": "Add/replace default icon",
     "addIconTextField": "Icon name",
     "returnDelay": "Reset delay",
+    "bundleId": "Bundle Id",
     "id": "Application id",
     "addIcon": "Add icon"
   },

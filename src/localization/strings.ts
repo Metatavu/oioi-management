@@ -158,6 +158,7 @@ export interface IStrings extends LocalizedStringsMethods {
     addIconSelect: string;
     addIconTextField: string;
     returnDelay: string;
+    bundleId: string;
     id: string;
     addIcon: string;
   };
