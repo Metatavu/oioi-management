@@ -47,9 +47,6 @@ export const resolveChildResourceTypes = (type: ResourceType): ResourceTypeObjec
     }, {
       value: ResourceType.SLIDESHOWPDF,
       resourceLocal: strings.resourceTypes.slideshowPdf
-    }, {
-      value: ResourceType.APPLICATION,
-      resourceLocal: strings.resourceTypes.application
     }
   ],
   [ResourceType.MENU]: [
