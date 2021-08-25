@@ -185,18 +185,21 @@ class PageResourceSettingsView extends React.Component<Props, State> {
    * Renders resource text fields
    */
   private renderResourceFields = () => {
-    const { classes } = this.props;
     return (
-      <div className={ classes.gridRow } style={{ marginBottom: theme.spacing(3) }}>
-        <div>
-          <Typography variant="h4" style={{ marginBottom: theme.spacing(1) }}>{ strings.orderNumber }</Typography>
+      <Box mb={ 3 } display="flex" flexDirection="row">
+        <Box mb={ 1 } mr={ 2 }>
+          <Typography variant="h4">
+            { strings.orderNumber }
+          </Typography>
           { this.renderField("orderNumber", strings.orderNumber, "number") }
-        </div>
-        <div>
-          <Typography variant="h4" style={{ marginBottom: theme.spacing(1) }}>{ strings.slug }</Typography>
+        </Box>
+        <Box mb={ 1 }>
+          <Typography variant="h4">
+            { strings.slug }
+          </Typography>
           { this.renderField("slug", strings.slug, "text") }
-        </div>
-      </div>
+        </Box>
+      </Box>
     );
   }
 

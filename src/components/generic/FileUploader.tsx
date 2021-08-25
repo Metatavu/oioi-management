@@ -1,5 +1,5 @@
 import * as React from "react";
-import { withStyles, WithStyles, Button, Menu, MenuItem, Dialog, DialogTitle, DialogContent, DialogContentText, TextField, DialogActions, LinearProgress, Typography } from "@material-ui/core";
+import { withStyles, WithStyles, Button, Menu, MenuItem, Dialog, DialogTitle, DialogContent, DialogContentText, TextField, DialogActions, LinearProgress, Typography, Box } from "@material-ui/core";
 import styles from "../../styles/dialog";
 import { DropzoneArea } from "material-ui-dropzone";
 import strings from "../../localization/strings";
@@ -22,6 +22,7 @@ interface Props extends WithStyles<typeof styles> {
   uploadButtonText: string;
   onUpload: (uri: string, key: string) => void;
   onSetUrl?: (url: string, key?: string) => void;
+  title?: string;
 }
 
 /**
@@ -97,6 +98,7 @@ class FileUploader extends React.Component<Props, State> {
    * Render upload dialog
    */
   private renderUploadDialog = () => {
+    const { title } = this.props;
 
     return (
       <GenericDialog
@@ -105,7 +107,7 @@ class FileUploader extends React.Component<Props, State> {
         onClose={ this.closeDialog }
         onCancel={ this.onAbortUpload }
         onConfirm={ this.closeDialog  }
-        title={ strings.fileUpload.uploadFile }
+        title={ title || strings.fileUpload.uploadFile }
         cancelButtonText={ strings.fileUpload.cancel }
         fullWidth={ true }
         ignoreOutsideClicks={ true }
@@ -124,23 +126,40 @@ class FileUploader extends React.Component<Props, State> {
 
     if (uploading && progress === 0) {
       return (
-        <div className={ classes.flexContainer }>
+        <Box>
           <LinearProgress key="indeterminate" color="secondary" style={{ flex: 1 }}/>
-        </div>
+        </Box>
+      );
+    }
+
+    if ( progress === 100) {
+      return (
+        <Box>
+          <LinearProgress key="finalizing" color="secondary" style={{ flex: 1 }}/>
+          <Box mt={ 2 } display="flex" flex={ 1 } justifyContent="flex-end">
+            <Typography>
+              { strings.fileUpload.finalizing }
+            </Typography>
+          </Box>
+        </Box>
       );
     }
 
     if (progress) {
       return (
-        <div className={ classes.flexContainer }>
+        <Box>
           <LinearProgress
             key="determinate"
             variant="determinate"
             value={ progress }
             className={ classes.linearProgress }
           />
-          <Typography>{ `${progress}%` }</Typography>
-        </div>
+          <Box mt={ 2 } display="flex" flex={ 1 } justifyContent="flex-end">
+            <Typography>
+              { `${progress}%` }
+            </Typography>
+          </Box>
+        </Box>
       );
     }
 
@@ -340,7 +359,7 @@ class FileUploader extends React.Component<Props, State> {
     setTimeout(() => {
       onUpload(`${uploadData.cdnBasePath}/${uploadData.key}`, uploadKey || "");
       this.closeDialog();
-    }, 1000);
+    }, 3000);
   }
 
   /**

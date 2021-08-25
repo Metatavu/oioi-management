@@ -2,6 +2,7 @@ import { Config } from "../app/config";
 import Keycloak from "keycloak-js";
 import { KeycloakInstance } from "keycloak-js";
 import { AuthState } from "../types";
+import { isSafari } from "react-device-detect";
 
 /**
  * Utility class for authentication
@@ -15,7 +16,7 @@ export class AuthUtils {
    */
   public static keycloakInit = (keycloak: KeycloakInstance) => {
     return new Promise<boolean>((resolve, reject) =>
-      keycloak.init({ onLoad: "login-required" })
+      keycloak.init({ onLoad: "login-required", checkLoginIframe: !isSafari })
         .success(resolve)
         .error(reject)
     );

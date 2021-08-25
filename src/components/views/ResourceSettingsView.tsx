@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import * as React from "react";
-import { withStyles, WithStyles, TextField, Divider, Typography, Button } from "@material-ui/core";
+import { withStyles, WithStyles, TextField, Divider, Typography, Button, Box } from "@material-ui/core";
 import MaterialTable from "material-table";
 import AddCircleIcon from "@material-ui/icons/AddCircle";
 import DeleteIcon from "@material-ui/icons/Delete";
@@ -161,34 +161,44 @@ class ResourceSettingsView extends React.Component<Props, State> {
 
         <Divider style={ { marginBottom: theme.spacing(3) }} />
 
-        <div>
-          <Typography variant="h4">{ localizedDataString }</Typography>
+        <Box>
+          <Box mb={ 1 }>
+            <Typography variant="h4">
+              { localizedDataString }
+            </Typography>
+          </Box>
           { dataField }
-        </div>
-        <Divider style={{ marginBottom: theme.spacing(3), marginTop: theme.spacing(3) }} />
+        </Box>
+        <Box mb={ 3 } mt={ 3 }>
+          <Divider/>
+        </Box>
         <VisibleWithRole role="admin">
-          <Typography style={{ marginBottom: theme.spacing(3), marginTop: theme.spacing(3) }} variant="h3">{ strings.advanced }</Typography>
-          <div className={ classes.gridRow }>
-            <div>
-              <Typography variant="h4" style={{ marginBottom: theme.spacing(1) }}>{ strings.orderNumber }</Typography>
+          <Typography style={{ marginBottom: theme.spacing(3), marginTop: theme.spacing(3) }} variant="h3">
+            { strings.advanced }
+          </Typography>
+          <Box mb={ 3 } display="flex" flexDirection="row">
+            <Box mb={ 1 } mr={ 2 }>
+              <Typography variant="h4">
+                { strings.orderNumber }
+              </Typography>
               { this.renderField("orderNumber", strings.orderNumber, "number") }
-            </div>
-            <Divider style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} />
-            <div>
-              <Typography variant="h4" style={{ marginBottom: theme.spacing(1) }}>{ strings.slug }</Typography>
+            </Box>
+            <Box ml={ 1 }>
+              <Typography variant="h4">
+                { strings.slug }
+              </Typography>
               { this.renderField("slug", strings.slug, "text") }
-            </div>
-            <Divider style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} />
-            </div>
-            <div>
-              <Divider style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} />
-              { this.renderPropertiesTable() }
-            </div>
-            <Divider style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} />
-            <div>
-              { this.renderStyleTable() }
-            </div>
-            <Divider style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} />
+            </Box>
+          </Box>
+          <Box mt={ 3 } mb={ 3 }>
+              <Divider/>
+            </Box>
+          <Box mb={ 4 }>
+            { this.renderPropertiesTable() }
+          </Box>
+          <Box>
+            { this.renderStyleTable() }
+          </Box>
         </VisibleWithRole>
       </div>
     );
@@ -199,10 +209,12 @@ class ResourceSettingsView extends React.Component<Props, State> {
    */
   private renderFields = () => {
     return (
-      <div>
-        <Typography variant="h4" style={{ marginBottom: theme.spacing(1) }}>{ strings.name }</Typography>
+      <Box>
+        <Typography variant="h4" style={{ marginBottom: theme.spacing(1) }}>
+          { strings.name }
+        </Typography>
         { this.renderField("name", strings.name, "text") }
-      </div>
+      </Box>
     );
   }
 
@@ -429,16 +441,18 @@ class ResourceSettingsView extends React.Component<Props, State> {
       const fileData = this.state.form.values.data || "";
 
       return (
-        <ImagePreview
-          uploadButtonText={ fileData ? strings.fileUpload.changeFile : strings.fileUpload.addFile }
-          imagePath={ fileData }
-          allowSetUrl={ true }
-          onUpload={ this.onFileOrUriChange }
-          onSetUrl={ this.onFileOrUriChange }
-          resource={ resource }
-          uploadKey="data"
-          onDelete={ this.onImageFileDelete }
-        />
+        <Box maxWidth={ 200 }>
+          <ImagePreview
+            uploadButtonText={ fileData ? strings.fileUpload.changeFile : strings.fileUpload.addFile }
+            imagePath={ fileData }
+            allowSetUrl={ true }
+            onUpload={ this.onFileOrUriChange }
+            onSetUrl={ this.onFileOrUriChange }
+            resource={ resource }
+            uploadKey="data"
+            onDelete={ this.onImageFileDelete }
+          />
+        </Box>
       );
     }
   };

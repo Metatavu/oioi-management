@@ -95,6 +95,7 @@ class ApplicationsList extends React.Component<Props, State> {
             { this.renderAdd() }
           </Grid>
           <DeleteDialog
+            message={ strings.actionCannotBeReverted }
             open={ deleteDialogOpen }
             deleteClick={ this.onDeleteApplicationClick }
             itemToDelete={ applicationInDialog }
@@ -129,7 +130,6 @@ class ApplicationsList extends React.Component<Props, State> {
           img={ image ? image.src : img }
           editConfiguration={ () => this.onEditConfiguration(application )}
           editClick={ () => this.onEditApplicationClick(application )}
-          detailsClick={ () => this.onEditApplicationClick(application )}
           deleteClick={ () => this.onDeleteOpenModalClick(application )}>
         </CardItem>
       </Grid>

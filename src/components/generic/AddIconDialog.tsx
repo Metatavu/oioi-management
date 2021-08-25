@@ -1,18 +1,23 @@
 import * as React from "react";
-import { withStyles, WithStyles, Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, Divider, Grid, Typography, Select, MenuItem } from "@material-ui/core";
+import { withStyles, WithStyles, Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, Divider, Grid, Typography, Select, MenuItem, Box, IconButton, LinearProgress } from "@material-ui/core";
 import styles from "../../styles/dialog";
 import strings from "../../localization/strings";
 import { Resource } from "../../generated/client/src";
 import FileUploader from "./FileUploader";
 import theme from "../../styles/theme";
 import slugify from "slugify";
-import { IconKeys } from "../../commons/iconTypeHelper";
+import { getLocalizedIconTypeString, IconKeys } from "../../commons/iconTypeHelper";
 import { ChangeEvent } from "react";
 import { Alert } from "@material-ui/lab";
+import CloseIcon from "@material-ui/icons/Close";
+import { DropzoneArea } from "material-ui-dropzone";
+import FileUpload from "../../utils/file-upload";
+import { AuthState, UploadData } from "../../types";
 /**
  * Component props
  */
 interface Props extends WithStyles<typeof styles> {
+  auth: AuthState;
   open: boolean;
   resource: Resource;
   onSave: (newUri: string, key: string) => void;
@@ -27,6 +32,8 @@ interface State {
   propertyName?: string;
   customInput: boolean;
   imageUri?: string;
+  progress?: number;
+  uploadData?: UploadData;
 }
 
 /**
@@ -68,69 +75,89 @@ class AddIconDialog extends React.Component<Props, State> {
 
     return (
       <Dialog
-        fullScreen={ false }
+        maxWidth="sm"
         open={ open }
         onClose={ onToggle }
+        fullWidth
       >
-        <DialogTitle>
-          <div>
+        <DialogTitle disableTypography>
+          <Box display="flex" justifyContent="space-between" alignItems="center">
             <Typography variant="h4">
               { strings.applicationSettings.addIcon }
             </Typography>
-          </div>
+            <IconButton
+              size="small"
+              onClick={ onToggle }
+            >
+              <CloseIcon color="primary" />
+            </IconButton>
+          </Box>
         </DialogTitle>
-        <Divider />
+        <Box mb={ 3 }>
+          <Divider />
+        </Box>
         <DialogContent>
-          <Grid container spacing={ 2 }>
-            <Grid item className={ classes.fullWidth }>
-              <Typography variant="h4">
-                { strings.applicationSettings.addIconSelect }
-              </Typography>
-              <Select
-                onChange={ this.handleNameChange }
-                value={ this.getSelectValue() }
-              >
-                { this.getSelectItems() }
-              </Select>
-              <Divider style={{ margin: `${theme.spacing(3)}px 0` }}/>
-              <Typography variant="h4">
-                { strings.applicationSettings.addIconTextField }
-              </Typography>
-              <TextField
-                multiline
-                fullWidth
-                type="text"
-                value={ iconName }
-                onChange={ this.handleNameChange }
-                variant="outlined"
+          <TextField
+            fullWidth
+            select
+            variant="outlined"
+            onChange={ this.handleNameChange }
+            value={ this.getSelectValue() }
+            label={ strings.applicationSettings.addIconSelect }
+          >
+            { this.getSelectItems() }
+          </TextField>
+          <Box mb={ 3 } mt={ 2 }>
+            <Divider />
+          </Box>
+          <Typography variant="h5">
+            { strings.applicationSettings.addIconTextField }
+          </Typography>
+          <TextField
+            multiline
+            fullWidth
+            type="text"
+            value={ iconName }
+            onChange={ this.handleNameChange }
+            variant="outlined"
+          />
+          <Box mt={ 1 } mb={ 3 }>
+            <Alert severity="warning">
+              { strings.iconNamePrefixNotice }
+            </Alert>
+          </Box>
+          <Box display="flex" pt={ 2 }>
+            <Box flex={ 1 }>
+              <DropzoneArea
+                clearOnUnmount
+                dropzoneClass={ classes.dropzone }
+                dropzoneParagraphClass={ classes.dropzoneText }
+                dropzoneText={ strings.dropFile }
+                showPreviews={ false }
+                maxFileSize={ 314572800 }
+                onDrop={ this.onImageChange }
+                filesLimit={ 1 }
+                showPreviewsInDropzone={ false }
               />
-              <Alert
-                severity="warning"
-                style={{ marginTop: "10px" }}
-              >
-                { strings.iconNamePrefixNotice }
-              </Alert>
-            </Grid>
-            <Grid item className={ classes.fullWidth }>
-              <FileUploader
-                uploadButtonText={ strings.fileUpload.addImage }
-                allowedFileTypes={ [] }
-                onUpload={ (newUri) => this.setState({ imageUri: newUri }) }
-              />
-            </Grid>
-          </Grid>
+            </Box>
+            <Box className={ classes.imagePreview }>
+              { this.renderImagePreview() }
+            </Box>
+          </Box>
         </DialogContent>
-        <Divider />
+        <Box mt={ 3 }>
+          <Divider />
+        </Box>
         <DialogActions>
           <Button
-            variant="outlined"
+            variant="text"
             onClick={ this.clearAndClose }
             color="primary"
           >
             { strings.cancel }
           </Button>
           <Button
-            variant="contained"
+            variant="text"
             color="primary"
             autoFocus
             onClick={ this.handleSave }
@@ -144,12 +171,118 @@ class AddIconDialog extends React.Component<Props, State> {
   }
 
   /**
+   * Renders image preview
+   */
+  private renderImagePreview = () => {
+    const { imageUri, progress } = this.state;
+
+    if (progress) {
+      return (
+        <Box width="50%">
+          <LinearProgress
+            color="primary"
+            variant="determinate"
+            value={ progress }
+          />
+          <Box mt={ 1 } textAlign="center">
+            <Typography>{ `${progress}%` }</Typography>
+          </Box>
+        </Box>
+      );
+    }
+
+    if (!imageUri) {
+      return (
+        <Box
+          height="100%"
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+        >
+          <Typography variant="h4">
+            { strings.noMediaPlaceholder }
+          </Typography>
+        </Box>
+      );
+    }
+
+    return (
+      <img
+        src={ imageUri }
+        alt="previewImage"
+        style={{ width: "100%" }}
+      />
+    );
+  }
+
+  /**
+   * Handles image changes
+   *
+   * @param files list of files
+   * @param callback file upload progress callback function
+   */
+  private onImageChange = async (files: File[]) => {
+    const { auth } = this.props;
+
+    if (!auth || !auth.token) {
+      return;
+    }
+
+    const file = files[0];
+
+    if (!file) {
+      return;
+    }
+
+    try {
+      const uploadData = await FileUpload.upload(auth.token, file, this.updateProgress);
+      const { xhrRequest, uploadUrl, formData } = uploadData;
+      this.setState({ uploadData: uploadData });
+      xhrRequest.open("POST", uploadUrl, true);
+      xhrRequest.send(formData);
+    } catch (error) {
+      this.context.setError(
+        strings.formatString(strings.errorManagement.file.upload, file.name),
+        error
+      );
+    }
+  };
+
+  /**
+   * Callback function that Updates file upload progress
+   *
+   * @param progress upload progress
+   */
+  private updateProgress = (progress: number) => {
+    const { uploadData } = this.state;
+    this.setState({ progress: Math.floor(progress) });
+
+    if (!uploadData || progress < 100) {
+      return;
+    }
+
+    setTimeout(() => {
+      this.setState({
+        imageUri: `${uploadData.cdnBasePath}/${uploadData.key}`,
+        progress: undefined
+      });
+    }, 3000);
+  }
+
+  /**
    * Generate select items
    */
   private getSelectItems = () => {
     return Object.values(IconKeys)
-      .map(key => key.replace("icon_", ""))
-      .map(key => <MenuItem key={ key } value={ key }>{ key }</MenuItem>);
+      .map(key => ({
+        key: key.replace("icon_", ""),
+        title: getLocalizedIconTypeString(key)
+      }))
+      .map(({ key, title }) => 
+        <MenuItem key={ key } value={ key }>
+          { title }
+        </MenuItem>
+      );
   }
 
   /**

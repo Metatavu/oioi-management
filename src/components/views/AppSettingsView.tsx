@@ -1,5 +1,5 @@
 import * as React from "react";
-import { withStyles, WithStyles, TextField, Button, Divider, Typography, CircularProgress, IconButton } from "@material-ui/core";
+import { withStyles, WithStyles, TextField, Button, Divider, Typography, CircularProgress, IconButton, Box } from "@material-ui/core";
 import styles from "../../styles/editor-view";
 import strings from "../../localization/strings";
 import theme from "../../styles/theme";
@@ -109,8 +109,8 @@ class AppSettingsView extends React.Component<Props, State> {
    * Component render method
    */
   public render() {
+    const { classes, auth } = this.props;
     const { importDone, importingContent, dataChanged } = this.state;
-    const { classes } = this.props;
 
     if (importDone) {
       return (
@@ -155,25 +155,38 @@ class AppSettingsView extends React.Component<Props, State> {
         <Divider style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} />
 
         <div className={ classes.gridRow }>
-          <div>
-            <Typography variant="h4" style={{ marginBottom: theme.spacing(1) }}>{ strings.applicationSettings.background }</Typography>
+          <Box mb={ 1 }>
+            <Box mb={ 1 }>
+              <Typography variant="h4">
+                { strings.applicationSettings.background }
+              </Typography>
+            </Box>
             { this.renderMedia("applicationImage") }
-          </div>
+          </Box>
 
-          <div>
-            <Typography variant="h4" style={{ marginBottom: theme.spacing(1) }}>{ strings.applicationSettings.icon }</Typography>
+          <Box mb={ 1 }>
+            <Box mb={ 1 }>
+              <Typography variant="h4">
+                { strings.applicationSettings.icon }
+              </Typography>
+            </Box>
             { this.renderMedia("applicationIcon") }
-          </div>
+          </Box>
         </div>
-
-        <Divider style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} />
-
-        <Typography variant="h4" style={{ marginBottom: theme.spacing(1) }}>{ strings.applicationSettings.icons }</Typography>
+        <Box mb={ 3 } mt={ 3 }>
+          <Divider/>
+        </Box>
+        <Box mb={ 1 }>
+          <Typography variant="h4">
+            { strings.applicationSettings.icons }
+          </Typography>
+        </Box>
 
         <div className={ classes.gridRow }>
           { this.renderIconList() }
         </div>
         <AddIconDialog
+          auth={ auth }
           resource={ this.props.rootResource }
           onSave={ this.onIconFileChange }
           onToggle={ this.toggleDialog }
@@ -181,10 +194,13 @@ class AppSettingsView extends React.Component<Props, State> {
         />
 
         <VisibleWithRole role="admin">
-          <Divider style={ { marginTop: theme.spacing(3), marginBottom: theme.spacing(3) } } />
-          <Typography variant="h4">{ strings.importLabel }</Typography>
+          <Box mb={ 3 } mt={ 3 }>
+            <Divider/>
+          </Box>
+          <Typography variant="h4">
+            { strings.importLabel }
+          </Typography>
           <input onChange={ e => this.handleWallJsonImport(e.target.files)} type="file"/>
-          <Divider style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} />
         </VisibleWithRole>
       </div>
     );
@@ -431,6 +447,7 @@ class AppSettingsView extends React.Component<Props, State> {
     const previewItem = this.state.resourceMap.get(key) || "";
     return (
       <ImagePreview
+        uploadDialogTitle={ strings.fileUpload.addImage }
         uploadButtonText={ previewItem ? strings.fileUpload.changeImage : strings.fileUpload.addImage }
         allowSetUrl={ true }
         imagePath={ previewItem }
@@ -455,9 +472,10 @@ class AppSettingsView extends React.Component<Props, State> {
     iconsMap.forEach((value: string, key: string) => {
       const iconTypeKey = allKeys.find(k => key === k.toString());
       const preview = (
-        <div key={ key }>
-          <Typography variant="h5">{ iconTypeKey ? getLocalizedIconTypeString(iconTypeKey) : key }</Typography>
+        <Box key={ key } className={ classes.gridItem }>
+          <Typography variant="h5" color="textSecondary">{ iconTypeKey ? getLocalizedIconTypeString(iconTypeKey) : key }</Typography>
           <ImagePreview
+            uploadDialogTitle={ strings.fileUpload.addImage }
             uploadButtonText={ rootResource ? strings.fileUpload.changeImage : strings.fileUpload.addImage }
             key={ key }
             imagePath={ value }
@@ -468,7 +486,7 @@ class AppSettingsView extends React.Component<Props, State> {
             uploadKey={ key }
             onDelete={ this.onIconFileDelete }
           />
-        </div>
+        </Box>
       );
       icons.push(preview);
     });
@@ -477,13 +495,17 @@ class AppSettingsView extends React.Component<Props, State> {
       <>
         { icons }
         <VisibleWithRole role="admin">
-          <IconButton
-            title={ strings.addNewIcon }
-            className={ classes.iconButton }
-            onClick={ this.toggleDialog }
-          >
-            <AddIcon />
-          </IconButton>
+          <Box className={ classes.gridItem }>
+            <Box className={ classes.newItem }>
+              <IconButton
+                title={ strings.addNewIcon }
+                className={ classes.iconButton }
+                onClick={ this.toggleDialog }
+              >
+                <AddIcon fontSize="large" />
+              </IconButton>
+            </Box>
+          </Box>
         </VisibleWithRole>
       </>
     );

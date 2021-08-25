@@ -12,7 +12,6 @@ import styles from "../../styles/editor-view";
 import strings from "../../localization/strings";
 import theme from "../../styles/theme";
 import { Resource, ResourceToJSON, KeyValueProperty, ResourceType } from "../../generated/client/src";
-import FileUpload from "../../utils/file-upload";
 import { forwardRef } from "react";
 import { MessageType, initForm, Form, validateForm } from "ts-form-validation";
 
@@ -116,8 +115,8 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
    * Component render method
    */
   public render = () => {
+    const { classes, auth } = this.props;
     const { updated, dataChanged } = this.state;
-    const { classes } = this.props;
 
     if (updated) {
       this.setState({
@@ -139,62 +138,73 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
         >
           { strings.save }
         </Button>
-
         { this.renderFields() }
-
-        <Divider style={ { marginTop: theme.spacing(3), marginBottom: theme.spacing(3) } } />
-
-        <div className={ classes.gridRow }>
-          <div>
+        <Box mb={ 3 }>
+          <Divider/>
+        </Box>
+        <Box className={ classes.gridRow }>
+          <Box className={ classes.gridItem }>
             { this.renderUploaderAndPreview(strings.backgroundMedia, "background") }
-          </div>
-          <div>
+          </Box>
+          <Box className={ classes.gridItem }>
             { this.renderUploaderAndPreview(strings.menuImage, "menuImg") }
-          </div>
-          <div>
+          </Box>
+          <Box className={ classes.gridItem }>
             { this.renderUploaderAndPreview(strings.foregroundImage, "foreground") }
-          </div>
-        </div>
-
-        <Divider style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} />
-
-        <Typography variant="h4" style={{ marginBottom: theme.spacing(1) }}>{ strings.replacedIcons }</Typography>
+          </Box>
+        </Box>
+        <Box mt={ 3 } mb={ 3 }>
+          <Divider/>
+        </Box>
+        <Box mb={ 3 }>
+          <Typography variant="h4">
+            { strings.replacedIcons }
+          </Typography>
+        </Box>
         { this.renderIconList() }
         <AddIconDialog
+          auth={ auth }
           resource={ this.props.resource }
           onSave={ this.onIconFileChange }
           onToggle={ this.toggleDialog }
           open={ this.state.iconDialogOpen }
         />
-
-        <Divider style={ { marginTop: theme.spacing(3), marginBottom: theme.spacing(3) } } />
-
+        <Box mt={ 3 } mb={ 3 }>
+          <Divider/>
+        </Box>
         { this.renderChildResources() }
-
-        <Divider style={ { marginTop: theme.spacing(3), marginBottom: theme.spacing(3) } } />
+        <Box mt={ 3 } mb={ 3 }>
+          <Divider/>
+        </Box>
         <VisibleWithRole role="admin">
-          <Typography style={ { marginTop: theme.spacing(3), marginBottom: theme.spacing(3) } } variant="h3">{ strings.advanced }</Typography>
-          <div className={ classes.gridRow } style={{ marginBottom: theme.spacing(3) }}>
-            <div>
-              <Typography variant="h4" style={{ marginBottom: theme.spacing(1) }}>{ strings.orderNumber }</Typography>
+          <Box mt={ 3 } mb={ 3 }>
+            <Typography variant="h3">
+              { strings.advanced }
+            </Typography>
+          </Box>
+          <Box mb={ 3 } display="flex" flexDirection="row">
+            <Box mb={ 1 } mr={ 2 }>
+              <Typography variant="h4">
+                { strings.orderNumber }
+              </Typography>
               { this.renderFormField("orderNumber", strings.orderNumber, "number") }
-            </div>
-
-            <div>
-              <Typography variant="h4" style={{ marginBottom: theme.spacing(1) }}>{ strings.slug }</Typography>
+            </Box>
+            <Box mb={ 1 }>
+              <Typography variant="h4">
+                { strings.slug }
+              </Typography>
               { this.renderFormField("slug", strings.slug, "text") }
-            </div>
-
-            <Divider style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} />
-          </div>
-          <div>
+            </Box>
+            <Box mt={ 3 } mb={ 3 }>
+              <Divider/>
+            </Box>
+          </Box>
+          <Box mb={ 3 }>
             { this.renderPropertiesTable() }
-          </div>
-          <Divider style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} />
-          <div>
+          </Box>
+          <Box>
             { this.renderStyleTable() }
-          </div>
-          <Divider style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} />
+          </Box>
         </VisibleWithRole>
       </div>
     );
@@ -325,21 +335,29 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
    * Render slideshow specific fields
    */
   private renderSlideShowFields = () => {
-    const { classes } = this.props;
     return (
-      <div className={ classes.gridRow }>
-        <div>
-          <Typography style={ { marginTop: theme.spacing(3), marginBottom: theme.spacing(1) } } variant="h4">{ strings.playback }</Typography>
-          <div style={{ marginLeft: theme.spacing(2) }}>
+      <Box display="flex" mt={ 3 }>
+        <Box mr={ 2 } mb={ 4 }>
+          <Box>
+            <Typography variant="h4">
+              { strings.playback }
+            </Typography>
+          </Box>
+          <Box ml={ 2 } mt={ 2 }>
             { this.renderCheckbox("autoplay", strings.autoplay) }
             { this.renderCheckbox("loop", strings.loop) }
-          </div>
-        </div>
-        <div>
-          <Typography style={ { marginTop: theme.spacing(3), marginBottom: theme.spacing(1) } } variant="h4">{ strings.slideTimeOnScreen }</Typography>
+          </Box>
+        </Box>
+        <Divider orientation="vertical" flexItem />
+        <Box ml={ 4 } mb={ 4 }>
+          <Box mb={ 1 }>
+            <Typography variant="h4">
+              { strings.slideTimeOnScreen }
+            </Typography>
+          </Box>
           { this.renderPropertiesField("slideTimeOnScreen", strings.slideTimeOnScreen, "text") }
-        </div>
-      </div>
+        </Box>
+      </Box>
     );
   }
 
@@ -691,7 +709,7 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
         key;
 
       icons.push(
-        <div key={ key }>
+        <Box key={ key } className={ classes.gridItem }>
           <Typography variant="h5">
             { displayName }
           </Typography>
@@ -706,20 +724,24 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
             uploadKey={ key }
             onDelete={ this.onIconFileDelete }
             />
-        </div>
+        </Box>
       );
     });
 
     return (
-      <div className={ classes.gridRow }>
+      <Box className={ classes.gridRow }>
         { icons }
-        <IconButton
-          className={ classes.iconButton }
-          onClick={ this.toggleDialog }
-        >
-          <AddIcon />
-        </IconButton>
-      </div>
+        <Box className={ classes.gridItem }>
+          <Box className={ classes.newItem }>
+            <IconButton
+              className={ classes.iconButton }
+              onClick={ this.toggleDialog }
+            >
+              <AddIcon fontSize="large" />
+            </IconButton>
+          </Box>
+        </Box>
+      </Box>
     );
   }
 

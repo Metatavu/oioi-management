@@ -20,6 +20,7 @@
     "material-ui-dropzone": "^3.5.0",
     "noty": "^3.2.0-beta",
     "react": "^16.13.1",
+    "react-device-detect": "^1.17.0",
     "react-dom": "^16.13.1",
     "react-player": "^1.15.3",
     "react-redux": "^7.2.0",

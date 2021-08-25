@@ -126,6 +126,9 @@ export default createMuiTheme({
         borderRadius: 0,
         fontFamily: "TTNorms-Black",
         padding: "6px 30px",
+        "&.Mui-disabled": {
+          opacity: 0.5
+        }
       },
       outlined: {
         padding: "4px 30px",
@@ -134,7 +137,6 @@ export default createMuiTheme({
           border: "2px solid #263238",
         },
         "&.Mui-disabled": {
-          opacity: 0.5,
           border: "2px solid #263238"
         }
       },

@@ -1,6 +1,6 @@
 import * as React from "react";
 
-import { Dialog, DialogTitle, DialogContent, DialogActions, Button, IconButton } from "@material-ui/core";
+import { Dialog, DialogTitle, DialogContent, DialogActions, Button, IconButton, Box, Typography } from "@material-ui/core";
 import CloseIcon from "@material-ui/icons/Close";
 
 /**
@@ -66,16 +66,20 @@ const GenericDialog: React.FC<Props> = ({
       fullWidth={ fullWidth }
     >
       <DialogTitle
-        disableTypography
         id="alert-dialog-title"
+        disableTypography
       >
-        { title }
-        <IconButton
-          size="small"
-          onClick={ onCancel }
-        >
-          <CloseIcon />
-        </IconButton>
+        <Box display="flex" justifyContent="space-between" alignItems="center">
+          <Typography variant="h4">
+            { title }
+          </Typography>
+          <IconButton
+            size="small"
+            onClick={ onCancel }
+          >
+            <CloseIcon color="primary" />
+          </IconButton>
+        </Box>
       </DialogTitle>
       <DialogContent>
         { children }

@@ -96,6 +96,7 @@
   "urlAddressDialogTitle": "Input resource url",
   "urlAddressDialogContent": "Input direct URL address to resource.",
   "urlAddressDialogLabel": "URL Address",
+  "actionCannotBeReverted": "This action cannot be reverted.",
 
   "applicationEditor": {
     "dragSidebar": "Click and drag to narrow or widen"
@@ -115,7 +116,9 @@
     "upload": "Upload",
     "cancel": "Cancel",
     "dropFileHere": "Drop the file here or click and select from file system. Max file size 300 MB.",
-    "uploadFile": "Upload file"
+    "uploadFile": "Upload file",
+    "preview": "Preview",
+    "finalizing": "Finalizing upload..."
   },
 
   "resourceTypes": {

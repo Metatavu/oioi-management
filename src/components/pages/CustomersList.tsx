@@ -99,6 +99,7 @@ class CustomersList extends React.Component<Props, State> {
             handleClose={ this.onDialogCloseClick }
           />
           <DeleteDialog
+            message={ strings.actionCannotBeReverted }
             open={ deleteDialogOpen }
             deleteClick={ this.onDeleteCustomerClick }
             itemToDelete={ customerInDialog }

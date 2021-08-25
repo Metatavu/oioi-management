@@ -110,6 +110,7 @@ class DevicesList extends React.Component<Props, State> {
             handleClose={ this.onDialogCloseClick }
           />
           <DeleteDialog
+            message={ strings.actionCannotBeReverted }
             open={ deleteDialogOpen }
             deleteClick={ this.onDeleteDeviceClick }
             itemToDelete={ deviceInDialog }

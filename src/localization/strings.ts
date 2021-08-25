@@ -99,6 +99,7 @@ export interface IStrings extends LocalizedStringsMethods {
   urlAddressDialogTitle: string;
   urlAddressDialogContent: string;
   urlAddressDialogLabel: string;
+  actionCannotBeReverted: string;
 
   /**
    * Translations related to application editor
@@ -125,6 +126,8 @@ export interface IStrings extends LocalizedStringsMethods {
     cancel: string;
     dropFileHere: string;
     uploadFile: string;
+    preview: string;
+    finalizing: string;
   };
 
   /**
