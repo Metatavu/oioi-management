@@ -26,7 +26,8 @@ import { ErrorContext } from "../containers/ErrorHandler";
 interface Props extends WithStyles<typeof styles> {
   history: History;
   customerId: string;
-  customer?: Customer
+  customer?: Customer;
+  locale: string;
   auth: AuthState;
   setCustomer: typeof setCustomer;
   setDevice: typeof setDevice;
@@ -415,7 +416,8 @@ class DevicesList extends React.Component<Props, State> {
  */
 const mapStateToProps = (state: ReduxState) => ({
   auth: state.auth,
-  customer: state.customer.customer
+  customer: state.customer.customer,
+  locale: state.locale.locale
 });
 
 /**

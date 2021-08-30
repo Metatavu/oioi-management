@@ -39,3 +39,9 @@ export type OPEN_RESOURCE = typeof OPEN_RESOURCE;
  */
 export const UPDATED_RESOURCE_VIEW = "UPDATED_RESOURCE_VIEW";
 export type UPDATED_RESOURCE_VIEW = typeof UPDATED_RESOURCE_VIEW;
+
+/**
+ * Set locale action
+ */
+export const SET_LOCALE = "SET_LOCALE";
+export type SET_LOCALE = typeof SET_LOCALE;
