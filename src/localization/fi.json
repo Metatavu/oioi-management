@@ -143,6 +143,7 @@
     "addIconSelect": "Lisää/korvaa vakioikoni",
     "addIconTextField": "Ikonin nimi",
     "returnDelay": "Alkutilan paluuviive minuutteina",
+    "bundleId": "Bundle Id",
     "id": "Sovelluksen id",
     "addIcon": "Lisää ikoni"
   },
