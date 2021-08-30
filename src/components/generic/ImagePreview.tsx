@@ -10,6 +10,7 @@ import { getAllowedFileTypes } from "../../commons/resourceTypeHelper";
 import ReactPlayer from "react-player";
 import theme from "../../styles/theme";
 import strings from "../../localization/strings";
+import classNames from "classnames";
 
 /**
  * Component props
@@ -69,18 +70,29 @@ class ImagePreview extends React.Component<Props, State> {
     const video = resource.type === ResourceType.VIDEO;
     let previewContent = (
       <Box className={ classes.noMediaContainer }>
-        <Typography variant="h5" color="primary">{ strings.noMediaPlaceholder }</Typography>
+        <Typography variant="h5" color="primary">
+          { strings.noMediaPlaceholder }
+        </Typography>
       </Box>
     );
 
     if (imagePath) {
       previewContent = video ?
-        <ReactPlayer url={ imagePath } controls={ true } style={{ backgroundColor: "#000" }} /> :
-        <img src={ imagePath } alt="File" height="200" className={ classes.imagePreview }/>;
+        <ReactPlayer 
+          url={ imagePath }
+          controls={ true }
+          style={{ backgroundColor: "#000", padding: theme.spacing(2) }}
+        /> :
+        <img
+          src={ imagePath }
+          alt="File"
+          height="200"
+          className={ classes.imagePreview }
+        />;
     }
 
     return (
-      <div className={ classes.imagePreviewElement }>
+      <div className={ classNames(classes.imagePreviewElement, video && "video" ) }>
         <div style={{ marginBottom: theme.spacing(1) }}>
           <div key={ imagePath } onClick={ this.toggleDialog }>
             { previewContent }

@@ -205,7 +205,10 @@ export default createStyles({
   imagePreviewElement: {
     position: "relative",
     display: "flex",
-    flexDirection: "column"
+    flexDirection: "column",
+    "&.video": {
+      alignItems: "flex-start"
+    }
   },
 
   imagePreviewFullscreenContainer: {
@@ -236,7 +239,7 @@ export default createStyles({
   deleteImage: {
     position: "absolute",
     top: 5,
-    right: 5
+    left: 5
   },
 
   iconButton: {

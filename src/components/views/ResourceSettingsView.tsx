@@ -441,7 +441,7 @@ class ResourceSettingsView extends React.Component<Props, State> {
       const fileData = this.state.form.values.data || "";
 
       return (
-        <Box maxWidth={ 200 }>
+        <Box>
           <ImagePreview
             uploadButtonText={ fileData ? strings.fileUpload.changeFile : strings.fileUpload.addFile }
             imagePath={ fileData }
