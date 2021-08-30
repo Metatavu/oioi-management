@@ -16,6 +16,8 @@ import CustomersList from "./components/pages/CustomersList";
 import ApplicationsList from "./components/pages/ApplicationsList";
 import ErrorHandler from "./components/containers/ErrorHandler";
 import moment from "moment";
+import "moment/locale/fi";
+import "moment/locale/en-gb";
 
 /**
  * Redux store

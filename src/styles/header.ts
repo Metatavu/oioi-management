@@ -25,25 +25,21 @@ export default createStyles({
   },
 
   languageSelect: {
+    minWidth: 50,
+    padding: 0,
     marginLeft: theme.spacing(4),
     marginRight: theme.spacing(4),
     color: "#fff",
-
-    [theme.breakpoints.down("sm")]: {
-      "& .MuiSelect-icon": {
-        color: "#fff"
-      }
-    },
-    [theme.breakpoints.up("md")]: {
-      color: theme.palette.text.primary,
-      marginLeft: theme.spacing(6),
-      marginRight: theme.spacing(4),
-    },
+    backgroundColor: "transparent",
     "&:before": {
       display: "none"
     },
     "& .MuiSelect-select": {
       textTransform: "uppercase"
+    },
+    "&.MuiInputBase-root": {
+      minWidth: 50,
+      padding: 0
     }
   },
 });

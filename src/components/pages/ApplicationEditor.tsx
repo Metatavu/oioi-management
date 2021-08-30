@@ -38,6 +38,7 @@ interface Props extends WithStyles<typeof styles> {
   deviceId: string;
   applicationId: string;
   auth: AuthState;
+  locale: string;
   setCustomer: typeof setCustomer;
   setDevice: typeof setDevice;
   setApplication: typeof setApplication;
@@ -1413,6 +1414,7 @@ class ApplicationEditor extends React.Component<Props, State> {
  */
 const mapStateToProps = (state: ReduxState) => ({
   auth: state.auth,
+  locale: state.locale.locale,
   openedResource: state.resource.resourceOpen,
   customer: state.customer.customer,
   device: state.device.device,

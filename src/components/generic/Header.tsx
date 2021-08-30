@@ -12,20 +12,12 @@ import { AuthState } from "../../types";
 import { setLocale } from "../../actions/locale";
 import strings from "../../localization/strings";
 
-interface HeaderProps {
+interface Props extends WithStyles<typeof styles> {
   logout: typeof logout;
   auth: AuthState;
-}
-
-interface OtherProps extends WithStyles<typeof styles> {
   locale: string;
   setLocale: typeof setLocale;
 }
-
-/**
- * Intersection type for all component properties
- */
-type Props = HeaderProps & OtherProps;
 
 interface State {
 }
@@ -83,11 +75,11 @@ class Header extends React.Component<Props, State> {
    * Renders language selection
    */
   private renderLanguageSelection = () => {
-    const { classes } = this.props;
+    const { classes, locale, setLocale } = this.props;
     return (
       <Select
         className={ classes.languageSelect }
-        value={ strings.getLanguage() }
+        value={ locale }
         onChange={ event => setLocale(event.target.value as string) }
       >
       {

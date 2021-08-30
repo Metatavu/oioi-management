@@ -29,6 +29,7 @@ interface Props extends WithStyles<typeof styles> {
   customerId: string;
   deviceId: string;
   auth: AuthState;
+  locale: string;
   setCustomer: typeof setCustomer;
   setDevice: typeof setDevice;
   setApplication: typeof setApplication;
@@ -363,7 +364,8 @@ class ApplicationsList extends React.Component<Props, State> {
 const mapStateToProps = (state: ReduxState) => ({
   auth: state.auth,
   customer: state.customer.customer,
-  device: state.device.device
+  device: state.device.device,
+  locale: state.locale.locale
 });
 
 /**
