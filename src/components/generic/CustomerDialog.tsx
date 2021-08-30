@@ -1,15 +1,16 @@
 import * as React from "react";
-import { withStyles, WithStyles, Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, Divider, Typography, Grid, LinearProgress } from "@material-ui/core";
+import { withStyles, WithStyles, Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, Divider, Typography, LinearProgress, Box, IconButton } from "@material-ui/core";
 import styles from "../../styles/dialog";
 import { DropzoneArea } from "material-ui-dropzone";
 import { Customer } from "../../generated/client/src";
 import strings from "../../localization/strings";
 import FileUpload from "../../utils/file-upload";
-import { AuthState, DialogType, ErrorContextType } from "../../types/index";
+import { AuthState, DialogType, ErrorContextType, UploadData } from "../../types/index";
 import { FormValidationRules, validateForm, Form, initForm, MessageType } from "ts-form-validation";
 import { ErrorContext } from "../containers/ErrorHandler";
 import { connect } from "react-redux";
 import { ReduxState } from "../../store";
+import CloseIcon from "@material-ui/icons/Close";
 
 /**
  * Component properties
@@ -45,6 +46,7 @@ const rules: FormValidationRules<CustomerForm> = {
 interface State {
   form: Form<CustomerForm>;
   progress?: number;
+  uploadData?: UploadData;
 }
 
 /**
@@ -109,56 +111,67 @@ class CustomerDialog extends React.Component<Props, State> {
         open={ open }
         onClose={ (event, reason) => this.onCloseClick(reason) }
         aria-labelledby="dialog-title"
+        maxWidth="sm"
+        fullWidth
       >
-        <DialogTitle id="dialog-title">
-          <div>
-            <Typography variant="h2">
+        <DialogTitle id="dialog-title" disableTypography>
+          <Box display="flex" justifyContent="space-between" alignItems="center">
+            <Typography variant="h4">
               { this.renderDialogTitle(dialogType) }
             </Typography>
-          </div>
+            <IconButton
+              size="small"
+              onClick={ () => this.onCloseClick("") }
+            >
+              <CloseIcon color="primary" />
+            </IconButton>
+          </Box>
         </DialogTitle>
-        <Divider />
+        <Box mb={ 2 }>
+          <Divider/>
+        </Box>
         <DialogContent>
-          <Grid container spacing={ 2 }>
-            <Grid item className={ classes.fullWidth }>
-              { this.renderField("name", strings.name) }
-            </Grid>
-            <Grid item className={ classes.fullWidth }>
-              { dialogType !== "show" &&
-                <>
-                  <Typography variant="subtitle1">{ strings.customerLogo }</Typography>
-                  { progress ?
-                    (
-                      <>
-                        <LinearProgress variant="determinate" value={ progress }/>
-                        <Typography>{ `${progress}%` }</Typography>
-                      </>
-                    ) :
-                    <DropzoneArea
-                      clearOnUnmount
-                      dropzoneClass={ classes.dropzone }
-                      dropzoneParagraphClass={ classes.dropzoneText }
-                      dropzoneText={ strings.dropFile }
-                      onDrop={ this.onImageChange }
-                    />
-                  }
-                </>
-              }
-            </Grid>
-          </Grid>
+          { this.renderField("name", strings.name) }
+          { dialogType !== "show" &&
+            <>
+              <Typography variant="subtitle1">
+                { strings.customerLogo }
+              </Typography>
+              <Box display="flex" pt={ 2 }>
+                <Box flex={ 1 }>
+                  <DropzoneArea
+                    clearOnUnmount
+                    dropzoneClass={ classes.dropzone }
+                    dropzoneParagraphClass={ classes.dropzoneText }
+                    dropzoneText={ strings.dropFile }
+                    showPreviews={ false }
+                    maxFileSize={ 314572800 }
+                    onDrop={ this.onImageChange }
+                    filesLimit={ 1 }
+                    showPreviewsInDropzone={ false }
+                  />
+                </Box>
+                <Box className={ classes.imagePreview }>
+                  { this.renderImagePreview() }
+                </Box>
+              </Box>
+            </>
+          }
         </DialogContent>
-        <Divider />
+        <Box mt={ 2 }>
+          <Divider/>
+        </Box>
         <DialogActions>
           <Button
-            variant="outlined"
-            onClick={ () => this.onCloseClick("") }
+            variant="text"
+            onClick={ this.onAbortUpload }
             color="primary"
           >
             { strings.cancel }
           </Button>
           { dialogType !== "show" &&
             <Button
-              variant="contained"
+              variant="text"
               onClick={ this.onSave }
               color="primary"
               autoFocus
@@ -179,20 +192,41 @@ class CustomerDialog extends React.Component<Props, State> {
     const { dialogType } = this.props;
     const { values, messages: { [key]: message } } = this.state.form;
 
+
+    if (dialogType === "show" ) {
+      return (
+        <Box display="flex" flexDirection="row" alignItems="center">
+          { values[key] &&
+            <>
+              <Typography variant="h5">
+                {`${label}: `}
+              </Typography>
+              <Box ml={ 1 }>
+                <Typography variant="body1">
+                  { values[key] }
+                </Typography>
+              </Box>
+            </>
+          }
+        </Box>
+      );
+    }
+
     return (
-      <TextField
-        multiline
-        fullWidth
-        error={ message && message.type === MessageType.ERROR }
-        helperText={ message && message.message }
-        value= { values[key] }
-        onChange={ this.onHandleChange(key) }
-        onBlur={ this.onHandleBlur(key) }
-        name={ key }
-        variant="outlined"
-        label={ label }
-        disabled={ dialogType === "show" }
-      />
+      <Box mb={ 2 }>
+        <TextField
+          multiline
+          fullWidth
+          error={ message && message.type === MessageType.ERROR }
+          helperText={ message && message.message }
+          value= { values[key] }
+          onChange={ this.onHandleChange(key) }
+          onBlur={ this.onHandleBlur(key) }
+          name={ key }
+          variant="outlined"
+          label={ label }
+        />
+      </Box>
     );
   };
 
@@ -212,6 +246,51 @@ class CustomerDialog extends React.Component<Props, State> {
         return strings.addNewCustomer;
     }
   };
+
+  /**
+   * Renders image preview
+   */
+  private renderImagePreview = () => {
+    const { form, progress } = this.state;
+
+    if (progress) {
+      return (
+        <Box width="50%">
+          <LinearProgress
+            color="primary"
+            variant="determinate"
+            value={ progress }
+          />
+          <Box mt={ 1 } textAlign="center">
+            <Typography>{ `${progress}%` }</Typography>
+          </Box>
+        </Box>
+      );
+    }
+
+    if (!form.values.imageUrl) {
+      return (
+        <Box
+          height="100%"
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+        >
+          <Typography variant="h4">
+            { strings.noMediaPlaceholder }
+          </Typography>
+        </Box>
+      );
+    }
+
+    return (
+      <img
+        src={ form.values.imageUrl }
+        alt="previewImage"
+        style={{ width: "100%" }}
+      />
+    );
+  }
 
   /**
    * Event handler for on close click
@@ -277,6 +356,16 @@ class CustomerDialog extends React.Component<Props, State> {
   };
 
   /**
+   * Aborts file upload
+   */
+  private onAbortUpload = () => {
+    const { uploadData } = this.state;
+    uploadData && uploadData.xhrRequest.abort();
+
+    this.onCloseClick("");
+  }
+
+  /**
    * Event handler for text fields blur event
    *
    * @param key key of CustomerForm
@@ -316,23 +405,11 @@ class CustomerDialog extends React.Component<Props, State> {
     }
 
     try {
-      const response = await FileUpload.getPresignedPostData(file, auth.token);
-      if (response.error) {
-        throw new Error(response.message);
-      }
-
-      const { data, basePath } = response;
-      await FileUpload.uploadFileToS3(data, file, this.updateProgress);
-
-      this.setState({
-        form: {
-          ...this.state.form,
-          values: {
-            ...this.state.form.values,
-            imageUrl: `${basePath}/${data.fields.key}`
-          }
-        }
-      });
+      const uploadData = await FileUpload.upload(auth.token, file, this.updateProgress);
+      const { xhrRequest, uploadUrl, formData } = uploadData;
+      this.setState({ uploadData: uploadData });
+      xhrRequest.open("POST", uploadUrl, true);
+      xhrRequest.send(formData);
     } catch (error) {
       this.context.setError(
         strings.formatString(strings.errorManagement.file.upload, file.name),
@@ -347,13 +424,25 @@ class CustomerDialog extends React.Component<Props, State> {
    * @param progress upload progress
    */
   private updateProgress = (progress: number) => {
+    const { uploadData } = this.state;
     this.setState({ progress: Math.floor(progress) });
 
-    if (progress < 100) {
+    if (!uploadData || progress < 100) {
       return;
     }
 
-    this.setState({ progress: undefined });
+    setTimeout(() => {
+      this.setState({
+        form: {
+          ...this.state.form,
+          values: {
+            ...this.state.form.values,
+            imageUrl: `${uploadData.cdnBasePath}/${uploadData.key}`
+          }
+        },
+        progress: undefined
+      });
+    }, 3000);
   }
 
   /**

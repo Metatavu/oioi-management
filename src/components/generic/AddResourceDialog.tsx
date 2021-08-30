@@ -13,7 +13,9 @@ import {
   Typography,
   Select,
   MenuItem,
-  InputLabel
+  InputLabel,
+  Box,
+  IconButton
 } from "@material-ui/core";
 import styles from "../../styles/dialog";
 import strings from "../../localization/strings";
@@ -24,6 +26,7 @@ import ApiUtils from "../../utils/api";
 import { ResourceTypeObject, resolveChildResourceTypes } from "../../commons/resourceTypeHelper";
 import slugify from "slugify";
 import { ErrorContext } from "../containers/ErrorHandler";
+import CloseIcon from "@material-ui/icons/Close";
 
 /**
  * Component props
@@ -140,54 +143,66 @@ class AddResourceDialog extends React.Component<Props, State> {
 
     return (
       <Dialog
-        fullScreen={ false }
+        maxWidth="sm"
+        fullWidth
         open={ open }
         onClose={ handleClose }
         aria-labelledby="dialog-title"
         onBackdropClick={ this.onAddResourceDialogBackDropClick }
       >
-        <DialogTitle id="dialog-title">
-          <div>
-            <Typography variant="h2">
+        <DialogTitle id="dialog-title" disableTypography>
+          <Box display="flex" justifyContent="space-between" alignItems="center">
+            <Typography variant="h4">
               { strings.addNewResource }
             </Typography>
-          </div>
+            <IconButton
+              size="small"
+              onClick={ this.onCloseClick }
+            >
+              <CloseIcon color="primary" />
+            </IconButton>
+          </Box>
         </DialogTitle>
         <Divider />
         <DialogContent>
-          <Grid container spacing={ 2 }>
-            <Grid item className={ classes.fullWidth }>
-              { this.renderField("name", strings.name, "text") }
-            </Grid>
-            <Grid item className={ classes.fullWidth }>
-              <InputLabel htmlFor="resourceType">
-                { strings.resourceType }
-              </InputLabel>
-              { this.renderSelect() }
-            </Grid>
-            { addingLanguage && (
+          <Box mt={ 2 } mb={ 2 }>
+            <Grid container spacing={ 3 }>
               <Grid item className={ classes.fullWidth }>
-                <InputLabel htmlFor="copyContentFrom">
-                  { strings.copyContentFromLanguageLabel }
-                </InputLabel>
-                { this.renderLanguageSelect() }
+                { this.renderField("name", strings.name, "text") }
               </Grid>
-            ) }
-            <Grid item className={ classes.fullWidth }>
-              { this.renderField("orderNumber", strings.orderNumber, "number") }
+              <Grid item className={ classes.fullWidth }>
+                <InputLabel htmlFor="resourceType">
+                  { strings.resourceType }
+                </InputLabel>
+                { this.renderSelect() }
+              </Grid>
+              { addingLanguage && (
+                <Grid item className={ classes.fullWidth }>
+                  <InputLabel htmlFor="copyContentFrom">
+                    { strings.copyContentFromLanguageLabel }
+                  </InputLabel>
+                  { this.renderLanguageSelect() }
+                </Grid>
+              ) }
+              <Grid item className={ classes.fullWidth }>
+                { this.renderField("orderNumber", strings.orderNumber, "number") }
+              </Grid>
+              <Grid item className={classes.fullWidth}>
+                { this.renderField("slug", strings.slug, "text") }
+              </Grid>
             </Grid>
-            <Grid item className={classes.fullWidth}>
-              { this.renderField("slug", strings.slug, "text") }
-            </Grid>
-          </Grid>
+          </Box>
         </DialogContent>
         <Divider />
         <DialogActions>
-          <Button variant="outlined" onClick={ this.onCloseClick } color="primary">
+          <Button
+            variant="text"
+            onClick={ this.onCloseClick }
+            color="primary">
             { strings.cancel }
           </Button>
           <Button
-            variant="contained"
+            variant="text"
             onClick={ this.onSaveNewResource }
             color="primary"
             autoFocus

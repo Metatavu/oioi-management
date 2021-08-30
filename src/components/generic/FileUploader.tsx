@@ -1,22 +1,28 @@
 import * as React from "react";
-import { withStyles, WithStyles, Button, Menu, MenuItem, Dialog, DialogTitle, DialogContent, DialogContentText, TextField, DialogActions, LinearProgress, Typography } from "@material-ui/core";
+import { withStyles, WithStyles, Button, Menu, MenuItem, Dialog, DialogTitle, DialogContent, DialogContentText, TextField, DialogActions, LinearProgress, Typography, Box } from "@material-ui/core";
 import styles from "../../styles/dialog";
 import { DropzoneArea } from "material-ui-dropzone";
 import strings from "../../localization/strings";
 import { ChangeEvent } from "react";
 import VisibleWithRole from "./VisibleWithRole";
 import GenericDialog from "./GenericDialog";
+import FileUpload from "../../utils/file-upload";
+import { ReduxState } from "../../store";
+import { connect } from "react-redux";
+import { AuthState, UploadData } from "../../types";
 
 /**
  * Component properties
  */
 interface Props extends WithStyles<typeof styles> {
+  auth: AuthState;
   uploadKey?: string;
   allowedFileTypes: string[];
   allowSetUrl?: boolean;
   uploadButtonText: string;
-  onSave: (files: File[], callback: (progress: number) => void, key?: string) => void;
+  onUpload: (uri: string, key: string) => void;
   onSetUrl?: (url: string, key?: string) => void;
+  title?: string;
 }
 
 /**
@@ -31,12 +37,14 @@ interface State {
   contextMenuY: null | number;
   resourceUrl?: string;
   progress?: number;
+  uploadData?: UploadData;
 }
 
 /**
  * Generic file uploader UI component
  */
 class FileUploader extends React.Component<Props, State> {
+
   /**
    * Constructor
    *
@@ -58,7 +66,7 @@ class FileUploader extends React.Component<Props, State> {
    * Component render method
    */
   public render = () => {
-    const { classes, uploadButtonText, allowSetUrl } = this.props;
+    const { uploadButtonText, allowSetUrl } = this.props;
 
     /**
      * TODO: Add custom icons to resolveLocalizationString
@@ -90,15 +98,16 @@ class FileUploader extends React.Component<Props, State> {
    * Render upload dialog
    */
   private renderUploadDialog = () => {
+    const { title } = this.props;
 
     return (
       <GenericDialog
         open={ this.state.dialogOpen }
         error={ false }
         onClose={ this.closeDialog }
-        onCancel={ this.closeDialog }
+        onCancel={ this.onAbortUpload }
         onConfirm={ this.closeDialog  }
-        title={ strings.fileUpload.uploadFile }
+        title={ title || strings.fileUpload.uploadFile }
         cancelButtonText={ strings.fileUpload.cancel }
         fullWidth={ true }
         ignoreOutsideClicks={ true }
@@ -117,31 +126,53 @@ class FileUploader extends React.Component<Props, State> {
 
     if (uploading && progress === 0) {
       return (
-        <div className={ classes.flexContainer }>
-          <LinearProgress color="secondary" style={{ flex: 1 }}/>
-        </div>
+        <Box>
+          <LinearProgress key="indeterminate" color="secondary" style={{ flex: 1 }}/>
+        </Box>
+      );
+    }
+
+    if ( progress === 100) {
+      return (
+        <Box>
+          <LinearProgress key="finalizing" color="secondary" style={{ flex: 1 }}/>
+          <Box mt={ 2 } display="flex" flex={ 1 } justifyContent="flex-end">
+            <Typography>
+              { strings.fileUpload.finalizing }
+            </Typography>
+          </Box>
+        </Box>
+      );
+    }
+
+    if (progress) {
+      return (
+        <Box>
+          <LinearProgress
+            key="determinate"
+            variant="determinate"
+            value={ progress }
+            className={ classes.linearProgress }
+          />
+          <Box mt={ 2 } display="flex" flex={ 1 } justifyContent="flex-end">
+            <Typography>
+              { `${progress}%` }
+            </Typography>
+          </Box>
+        </Box>
       );
     }
 
     return (
-      <>
-        { (progress && progress > 0) ?
-            <div className={ classes.flexContainer }>
-              <LinearProgress variant="determinate" value={ progress } className={ classes.linearProgress }/>
-              <Typography>{ `${progress}%` }</Typography>
-            </div>
-          :
-            <DropzoneArea
-              acceptedFiles={ allowedFileTypes }
-              clearOnUnmount
-              dropzoneText={ strings.fileUpload.uploadFile }
-              onDrop={ this.handleSave }
-              showPreviewsInDropzone={ false }
-              maxFileSize={ (314572800) * 1000000 }
-              filesLimit={ 1 }
-            />
-        }
-      </>
+      <DropzoneArea
+        acceptedFiles={ allowedFileTypes }
+        clearOnUnmount
+        dropzoneText={ strings.fileUpload.uploadFile }
+        onDrop={ this.onFileUpload }
+        showPreviewsInDropzone={ false }
+        maxFileSize={ 314572800 * 1000000 }
+        filesLimit={ 1 }
+      />
     );
   }
 
@@ -271,15 +302,24 @@ class FileUploader extends React.Component<Props, State> {
   }
 
   /**
+   * Aborts file upload
+   */
+  private onAbortUpload = () => {
+    const { uploadData } = this.state;
+    uploadData && uploadData.xhrRequest.abort();
+
+    this.closeDialog();
+  }
+
+  /**
    * Close upload image dialog
    */
   private closeDialog = () => {
     this.setState({
       dialogOpen: false,
-      uploading: false
-    }, () => {
-      setTimeout(() => this.setState({ progress: 0 }), 1000)
-    });
+      uploading: false,
+      uploadData: undefined
+    }, () => setTimeout(() => this.setState({ progress: 0 }), 1000));
   }
 
   /**
@@ -307,13 +347,19 @@ class FileUploader extends React.Component<Props, State> {
    * @param progress upload progress
    */
   private updateProgress = (progress: number) => {
+    const { onUpload, uploadKey } = this.props;
+    const { uploadData } = this.state;
+
     this.setState({ progress: Math.floor(progress) });
 
-    if (progress < 100) {
+    if (!uploadData || progress < 100) {
       return;
     }
 
-    this.closeDialog();
+    setTimeout(() => {
+      onUpload(`${uploadData.cdnBasePath}/${uploadData.key}`, uploadKey || "");
+      this.closeDialog();
+    }, 3000);
   }
 
   /**
@@ -321,14 +367,35 @@ class FileUploader extends React.Component<Props, State> {
    *
    * @param files list of files
    */
-  private handleSave = async (files: File[]) => {
-    const { onSave, uploadKey } = this.props;
+  private onFileUpload = async (files: File[]) => {
+    const { auth } = this.props;
+    if (!auth || !auth.token || !files.length) {
+      return;
+    }
 
-    this.setState({ uploading: true, progress: 0 })
-    this.closeUrlDialog();
-    this.handleContextMenuClose();
-    onSave(files, this.updateProgress, uploadKey);
+    const fileToUpload = files[0];
+
+    this.setState({ uploading: true, progress: 0 });
+
+    try {
+      const uploadData = await FileUpload.upload(auth.token, fileToUpload, this.updateProgress);
+      const { xhrRequest, uploadUrl, formData } = uploadData;
+      this.setState({ uploadData: uploadData });
+      xhrRequest.open("POST", uploadUrl, true);
+      xhrRequest.send(formData);
+    } catch (error) {
+      console.log(error);
+    }
   }
 }
 
-export default withStyles(styles)(FileUploader);
+/**
+ * Maps Redux state to component properties
+ *
+ * @param state Redux state
+ */
+const mapStateToProps = (state: ReduxState) => ({
+  auth: state.auth
+});
+
+export default connect(mapStateToProps)(withStyles(styles)(FileUploader));

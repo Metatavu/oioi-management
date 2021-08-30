@@ -1,8 +1,8 @@
 import * as React from "react";
-import { Typography, Card, CardMedia, withStyles, WithStyles, CardActions, CardActionArea, Button } from "@material-ui/core";
+import { Typography, Card, CardMedia, withStyles, WithStyles, CardActions, CardActionArea, Button, Box } from "@material-ui/core";
 import styles from "../../styles/card-item";
 import strings from "../../localization/strings";
-import img from "../../resources/images/no-image-available-icon.jpg";
+import placeholderImg from "../../resources/images/no-image-available-icon.jpg";
 import VisibleWithRole from "./VisibleWithRole";
 
 interface Props extends WithStyles<typeof styles> {
@@ -26,7 +26,7 @@ interface Props extends WithStyles<typeof styles> {
   /**
    * Details button click
    */
-  detailsClick(): void;
+  detailsClick?(): void;
   /**
    * Delete button click
    */
@@ -50,27 +50,49 @@ class CardItem extends React.Component<Props, State> {
    * Component render method
    */
   public render() {
-    const { classes } = this.props;
+    const {
+      classes,
+      img,
+      title,
+      editConfiguration,
+      editClick,
+      detailsClick,
+      deleteClick
+    } = this.props;
     return (
-      <Card elevation={10} className={classes.card}>
-        <CardActionArea className={classes.actionArea} onClick={this.props.editConfiguration}>
-          <CardMedia className={classes.media} image={this.props.img || img}></CardMedia>
-          <div className={classes.overlay}>
-            <Typography variant="h3">{this.props.title}</Typography>
-          </div>
+      <Card elevation={ 10 } className={ classes.card }>
+        <CardActionArea className={ classes.actionArea } onClick={ editConfiguration }>
+          <CardMedia className={ classes.media } image={ img || placeholderImg }/>
+          <Box className={ classes.overlay }>
+            <Typography variant="h3">{ title}</Typography>
+          </Box>
         </CardActionArea>
-        <CardActions className={classes.cardActions}>
+        <CardActions className={ classes.cardActions }>
           <VisibleWithRole role="admin">
-            <Button size="small" className={classes.edit} onClick={this.props.editClick}>
-              {strings.edit}
+            <Button
+              size="small"
+              className={ classes.edit }
+              onClick={ editClick }
+            >
+              { strings.edit }
             </Button>
           </VisibleWithRole>
-          <Button size="small" className={classes.details} onClick={this.props.detailsClick}>
-            {strings.details}
-          </Button>
+          { detailsClick && 
+            <Button
+              size="small"
+              className={ classes.details }
+              onClick={ detailsClick }
+            >
+              { strings.details }
+            </Button>
+          }
           <VisibleWithRole role="admin">
-            <Button size="small" className={classes.delete} onClick={this.props.deleteClick}>
-              {strings.delete}
+            <Button
+              size="small"
+              className={ classes.delete }
+              onClick={ deleteClick }
+            >
+              { strings.delete }
             </Button>
           </VisibleWithRole>
         </CardActions>

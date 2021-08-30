@@ -1,5 +1,5 @@
 import { Config } from "../app/config";
-import { PreSignedPostData, PreSignedPostDataResponse } from "../types";
+import { PreSignedPostDataResponse, UploadData } from "../types";
 
 /**
  * Utility class for uploading files
@@ -7,24 +7,52 @@ import { PreSignedPostData, PreSignedPostDataResponse } from "../types";
 export default class FileUpload {
 
   /**
-   * gets data from file
+   * Uploads file
    *
-   * @param file file
+   * @param token access token
+   * @param fileToUpload file to upload
+   * @param callback file upload progress callback function
+   * @returns Promise of UploadData
    */
-  public static getFileData = (file: File) => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onabort = () => reject('file reading was aborted')
-      reader.onerror = () => reject('file reading has failed')
-      reader.onload = (event) => {
-        if (event.target && event.target.result) {
-          resolve(event.target.result);
-        } else {
-          reject("File reading has failed");
-        }
-      }
-      reader.readAsArrayBuffer(file);
+  public static upload = async (token: string, fileToUpload: File, callback: (progress: number) => void): Promise<UploadData> => {
+    const response = await FileUpload.getPresignedPostData(fileToUpload, token);
+    return FileUpload.getUploadData(response, fileToUpload, callback);
+  }
+
+  /**
+   * Creates xhr request that can be called and cancelled from FileUploader component
+   *
+   * @param response pre-signed post data response
+   * @param file file to upload
+   * @param callback file upload progress callback function
+   * @return returns UploadData object
+   */
+  private static getUploadData = (response: PreSignedPostDataResponse, file: File, callback: (progress: number) => void): UploadData => {
+    if (response.error) {
+      throw new Error(response.message);
+    }
+
+    const { data, basePath } = response;
+    const formData = new FormData();
+    Object.keys(data.fields).forEach(key =>
+      formData.append(key, data.fields[key])
+    );
+
+    formData.append("file", file);
+
+    const xhr = new XMLHttpRequest();
+
+    xhr.upload.addEventListener("progress", (event) => {
+      callback(event.loaded / event.total * 100);
     });
+
+    return {
+      xhrRequest: xhr,
+      uploadUrl: data.url,
+      key: data.fields.key,
+      formData: formData,
+      cdnBasePath: basePath
+    };
   };
 
   /**
@@ -33,7 +61,7 @@ export default class FileUpload {
    * @param selectedFile selected file
    * @param accessToken access token
    */
-  static getPresignedPostData = (selectedFile: File, accessToken: string) => {
+  private static getPresignedPostData = (selectedFile: File, accessToken: string) => {
     return new Promise<PreSignedPostDataResponse>((resolve, reject) => {
       const xhr = new XMLHttpRequest();
 
@@ -46,53 +74,12 @@ export default class FileUpload {
           type: selectedFile.type
         })
       );
+
       xhr.onload = function() {
         this.status === 200 ?
           resolve(JSON.parse(this.responseText)) :
           reject(this.responseText);
       };
     });
-  };
-
-  /**
-   * Upload a file to Amazon S3 using pre-signed post data
-   *
-   * @param presignedPostData pre-signed post data
-   * @param file file to upload
-   */
-  static uploadFileToS3 = async (
-    presignedPostData: PreSignedPostData,
-    file: File,
-    callback?: (progress: number) => void
-  ) => {
-      let requestProcessed = false;
-
-      const formData = new FormData();
-      Object.keys(presignedPostData.fields).forEach(key =>
-        formData.append(key, presignedPostData.fields[key])
-      );
-
-      formData.append("file", file);
-
-      const xhr = new XMLHttpRequest();
-
-      xhr.upload.addEventListener("progress", (event) => {
-        callback && callback(event.loaded / event.total * 100);
-      });
-  
-      xhr.onreadystatechange = () => {
-        if (xhr.readyState === XMLHttpRequest.DONE) {
-          requestProcessed = true;
-        }
-      }
-
-      xhr.open("POST", presignedPostData.url, true);
-      xhr.send(formData);
-
-      while (!requestProcessed) {
-        await new Promise(resolve => setTimeout(resolve, 1000));
-      }
-
-      return Promise.resolve();
   };
 }

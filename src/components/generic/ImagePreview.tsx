@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Dialog, AppBar, Toolbar, IconButton, withStyles, WithStyles } from "@material-ui/core";
+import { Dialog, AppBar, Toolbar, IconButton, withStyles, WithStyles, Box, Typography } from "@material-ui/core";
 import styles from "../../styles/editor-view";
 import { Resource, ResourceType } from "../../generated/client/src";
 
@@ -20,9 +20,10 @@ interface Props extends WithStyles<typeof styles> {
   uploadKey: string;
   uploadButtonText: string;
   allowSetUrl: boolean;
-  onSave(files: File[], callback: (progress: number) => void, key?: string): void;
+  onUpload(newUri: string, key?: string): void;
   onSetUrl(url: string, key?: string): void;
   onDelete(key?: string): void;
+  uploadDialogTitle?: string;
 }
 
 /**
@@ -55,25 +56,29 @@ class ImagePreview extends React.Component<Props, State> {
     const {
       imagePath,
       resource,
-      onSave,
+      onUpload,
       uploadKey,
       classes,
       onSetUrl,
       allowSetUrl,
-      uploadButtonText
+      uploadButtonText,
+      uploadDialogTitle
     } = this.props;
+
     const allowedFileTypes = getAllowedFileTypes(resource.type);
     const video = resource.type === ResourceType.VIDEO;
     let previewContent = (
-      <div className={ classes.noMediaContainer }>
-        <h2>{ strings.noMediaPlaceholder }</h2>
-      </div>
+      <Box className={ classes.noMediaContainer }>
+        <Typography variant="h5" color="primary">{ strings.noMediaPlaceholder }</Typography>
+      </Box>
     );
+
     if (imagePath) {
       previewContent = video ?
         <ReactPlayer url={ imagePath } controls={ true } style={{ backgroundColor: "#000" }} /> :
         <img src={ imagePath } alt="File" height="200" className={ classes.imagePreview }/>;
     }
+
     return (
       <div className={ classes.imagePreviewElement }>
         <div style={{ marginBottom: theme.spacing(1) }}>
@@ -94,10 +99,11 @@ class ImagePreview extends React.Component<Props, State> {
           }
         </div>
         <FileUploader
+          title={ uploadDialogTitle }
           uploadButtonText={ uploadButtonText }
           allowSetUrl={ allowSetUrl }
           allowedFileTypes={ allowedFileTypes }
-          onSave={ onSave }
+          onUpload={ onUpload }
           onSetUrl={ onSetUrl }
           uploadKey={ uploadKey }
         />
@@ -114,19 +120,35 @@ class ImagePreview extends React.Component<Props, State> {
    */
   private renderDialog = () => {
     const { imagePath, classes } = this.props;
+    const { dialogOpen } = this.state;
 
     return (
-      <Dialog fullScreen open={ this.state.dialogOpen } onClose={ this.closeDialog }>
-        <AppBar>
+      <Dialog
+        fullScreen
+        open={ dialogOpen }
+        onClose={ this.closeDialog }
+      >
+        <AppBar elevation={ 0 }>
+          <Box display="flex" flexDirection="row" justifyContent="space-between">
           <Toolbar>
-            <IconButton edge="end" color="inherit" onClick={ this.closeDialog } aria-label="close">
-              <CloseIcon />
-            </IconButton>
+            <Typography variant="h4">
+              { strings.fileUpload.preview }
+            </Typography>
           </Toolbar>
+          <Box display="flex" alignItems="center">
+            <IconButton
+              color="inherit"
+              onClick={ this.closeDialog }
+              aria-label="close"
+            >
+              <CloseIcon/>
+            </IconButton>
+          </Box>
+          </Box>
         </AppBar>
-        <div className={ classes.imagePreviewFullscreenContainer }>
+        <Box className={ classes.imagePreviewFullscreenContainer }>
           <img src={ imagePath } alt="File" />
-        </div>
+        </Box>
       </Dialog>
     );
   }

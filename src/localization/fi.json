@@ -96,6 +96,7 @@
   "urlAddressDialogTitle": "Syötä resurssin URL-osoite",
   "urlAddressDialogContent": "Syötä suora URL-osoite resurssiin.",
   "urlAddressDialogLabel": "URL-osoite",
+  "actionCannotBeReverted": "Toimintoa ei voi peruuttaa.",
   
   "applicationEditor": {
     "dragSidebar": "Raahaa leveämmäksi / kapeammaksi"
@@ -115,7 +116,9 @@
     "upload": "Lähetä",
     "cancel": "Peruuta",
     "dropFileHere": "Pudota tiedosto tähän tai valitse klikkaamalla. Tiedoston maksimikoko on 300 Mt.",
-    "uploadFile": "Lisää tiedosto"
+    "uploadFile": "Lisää tiedosto",
+    "preview": "Esikatselu",
+    "finalizing": "Viimeistellään..."
   },
 
   "resourceTypes": {

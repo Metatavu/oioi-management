@@ -37,7 +37,6 @@ export default createStyles({
     display: "flex",
     alignItems: "center",
     padding: "0 16px",
-    boxShadow: "0 0 30px rgba(0,0,0,0.2)",
     justifyContent: "space-between"
   },
 
@@ -182,17 +181,29 @@ export default createStyles({
 
   gridRow: {
     maxWidth: "100%",
-    overflowX: "auto",
     display: "grid",
-    gridAutoFlow: "column",
+    gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))",
+    gridGap: theme.spacing(2)
+  },
+
+  gridItem: {
+    maxWidth: 200,
     alignItems: "center",
-    gridAutoColumns: "max-content",
-    gridGap: theme.spacing(3)
+    display: "flex",
+    flexDirection: "column"
+  },
+
+  newItem: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    flex: 1,
+    width: 200,
+    minHeight: 200
   },
 
   imagePreviewElement: {
     position: "relative",
-    maxWidth: "min-content",
     display: "flex",
     flexDirection: "column"
   },
@@ -202,25 +213,24 @@ export default createStyles({
     alignItems: "center",
     justifyContent: "center",
     height: "100%",
+    backgroundColor: "rgba(0,0,0,0.9)",
     "& img": {
       maxHeight: "100%",
       maxWidth: "100%",
-      paddingTop: "5%",
-      paddingBottom: "2%"
+      padding: theme.spacing( 5 )
     }
   },
 
   imagePreview: {
-    backgroundColor: "rgba(38, 50, 56, 0.1)"
+    backgroundColor: "rgba(38, 50, 56, 0.1)",
+    objectFit: "cover",
+    maxWidth: "100%"
   },
 
   noMediaContainer: {
     background: "#ddd",
-    fontSize: "30px",
     textAlign: "center",
-    padding: "2px",
-    fontFamily: "TTNorms-Black",
-    color: "#fff"
+    padding: theme.spacing(8)
   },
 
   deleteImage: {

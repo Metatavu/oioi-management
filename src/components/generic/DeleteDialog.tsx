@@ -1,5 +1,5 @@
 import * as React from "react";
-import { DialogTitle, Typography, Dialog, Divider, DialogContent, Button, WithStyles, Grid, withStyles } from "@material-ui/core";
+import { DialogTitle, Typography, Dialog, DialogContent, Button, WithStyles, withStyles, Box, DialogActions } from "@material-ui/core";
 import { Application } from "../../generated/client/src/models/Application";
 import { Customer } from "../../generated/client/src/models/Customer";
 import { Device } from "../../generated/client/src/models/Device";
@@ -17,6 +17,7 @@ type DeleteItem = Device | Application | Customer | undefined;
 interface Props extends WithStyles<typeof styles> {
   open: boolean;
   title: string;
+  message: string;
   itemToDelete: DeleteItem;
   deleteClick(item: DeleteItem): void;
   handleClose(): void;
@@ -32,7 +33,8 @@ const DeleteDialog: React.FC<Props> = ({
   handleClose,
   itemToDelete,
   open,
-  title
+  title,
+  message
 }) => {
 
   /**
@@ -43,42 +45,39 @@ const DeleteDialog: React.FC<Props> = ({
       fullScreen={ false }
       open={ open }
       onClose={ handleClose }
+      maxWidth="xs"
+      fullWidth
     >
-      <DialogTitle>
-        <div>
-          <Typography variant="h2">
+      <DialogTitle disableTypography>
+        <Box>
+          <Typography variant="h4">
             { title }
           </Typography>
-        </div>
+        </Box>
       </DialogTitle>
-      <Divider />
       <DialogContent>
-        <Grid
-          container
-          spacing={ 2 }
-          justify="center"
-        >
-          <Grid item>
-            <Button
-              variant="outlined"
-              onClick={ handleClose }
-              color="primary"
-            >
-              { strings.cancel }
-            </Button>
-          </Grid>
-          <Grid item>
-            <Button
-              variant="contained"
-              color="primary"
-              autoFocus
-              onClick={ () => deleteClick(itemToDelete) }
-            >
-              { strings.confirm }
-            </Button>
-          </Grid>
-        </Grid>
+        <Typography variant="body1">
+          { message }
+        </Typography>
       </DialogContent>
+      <DialogActions>
+        <Button
+          variant="text"
+          onClick={ handleClose }
+          color="primary"
+        >
+          { strings.cancel }
+        </Button>
+
+        <Button
+          variant="contained"
+          color="primary"
+          autoFocus
+          onClick={ () => deleteClick(itemToDelete) }
+        >
+          { strings.delete }
+        </Button>
+      </DialogActions>
     </Dialog>
   );
 }

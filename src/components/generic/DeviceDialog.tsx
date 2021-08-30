@@ -1,14 +1,15 @@
 import * as React from "react";
-import { withStyles, WithStyles, Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, Divider, Grid, Typography, Box, LinearProgress } from "@material-ui/core";
+import { withStyles, WithStyles, Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, Divider, Typography, Box, LinearProgress, IconButton } from "@material-ui/core";
 import styles from "../../styles/dialog";
 import { DropzoneArea } from "material-ui-dropzone";
 import strings from "../../localization/strings";
 import { Device } from "../../generated/client/src";
-import { AuthState, DialogType, ErrorContextType } from "../../types";
+import { AuthState, DialogType, ErrorContextType, UploadData } from "../../types";
 import { KeyValueProperty } from "../../generated/client/src/models/KeyValueProperty";
 import { FormValidationRules, MessageType, validateForm, initForm, Form } from "ts-form-validation";
 import FileUpload from "../../utils/file-upload";
 import { ErrorContext } from "../containers/ErrorHandler";
+import CloseIcon from "@material-ui/icons/Close";
 
 /**
  * Component properties
@@ -70,6 +71,7 @@ interface State {
   form: Form<DeviceForm>;
   imageUrl?: string;
   progress?: number;
+  uploadData?: UploadData;
 }
 
 /**
@@ -147,64 +149,63 @@ class DeviceDialog extends React.Component<Props, State> {
         onClose={ handleClose }
         aria-labelledby="dialog-title"
         onBackdropClick={ this.onCloseClick }
+        maxWidth="sm"
+        fullWidth
       >
-        <DialogTitle id="dialog-title">
-          <div>
-            <Typography variant="h2">
+        <DialogTitle
+          id="dialog-title"
+          disableTypography
+        >
+          <Box display="flex" justifyContent="space-between" alignItems="center">
+            <Typography variant="h4">
               { this.renderDialogTitle(dialogType) }
             </Typography>
-          </div>
+            <IconButton
+              size="small"
+              onClick={ handleClose }
+            >
+              <CloseIcon color="primary" />
+            </IconButton>
+          </Box>
         </DialogTitle>
         <DialogContent>
-          <Grid container spacing={ 2 }>
-            <Grid item className={ classes.fullWidth }>
-              { this.renderField("name", strings.name) }
-            </Grid>
-            <Grid item className={ classes.fullWidth }>
-              { this.renderField("apiKey", strings.apikey) }
-            </Grid>
-            <Grid item className={ classes.fullWidth }>
-              { this.renderField("address", strings.address) }
-            </Grid>
-            <Grid item className={ classes.fullWidth }>
-              { this.renderField("serialnumber", strings.serialNumberOptional) }
-            </Grid>
-            <Grid item className={ classes.fullWidth }>
-              { this.renderField("additionalinformation", strings.informationOptional) }
-            </Grid>
-            <Grid item className={ classes.fullWidth }>
-              { dialogType !== "show" &&
-                <>
-                  <Typography variant="subtitle1">
-                    { strings.resourceTypes.image }
-                  </Typography>
-                  <Box display="flex">
-                    <Box padding={ 2 } flex={ 1 }>
-                      <DropzoneArea
-                        dropzoneClass={ classes.dropzone }
-                        dropzoneParagraphClass={ classes.dropzoneText }
-                        dropzoneText={ strings.dropFile }
-                        onChange={ this.onImageChange }
-                        clearOnUnmount
-                        filesLimit={ 1 }
-                        showPreviews={ false }
-                        showPreviewsInDropzone={ false }
-                        maxFileSize={ 314572800 }
-                      />
-                    </Box>
-                    <Box padding={ 2 } flex={ 1 }>
-                      { this.renderDeviceImage() }
-                    </Box>
-                  </Box>
-                </>
-              }
-            </Grid>
-          </Grid>
+          { this.renderField("name", strings.name) }
+          { this.renderField("apiKey", strings.apikey) }
+          { this.renderField("address", strings.address) }
+          { this.renderField("serialnumber", strings.serialNumberOptional) }
+          { this.renderField("additionalinformation", strings.informationOptional) }
+          { dialogType !== "show" &&
+            <>
+              <Typography variant="h4">
+                { strings.resourceTypes.image }
+              </Typography>
+              <Box display="flex" pt={ 2 }>
+                <Box flex={ 1 }>
+                  <DropzoneArea
+                    dropzoneClass={ classes.dropzone }
+                    dropzoneParagraphClass={ classes.dropzoneText }
+                    dropzoneText={ strings.dropFile }
+                    onChange={ this.onImageChange }
+                    clearOnUnmount
+                    filesLimit={ 1 }
+                    showPreviews={ false }
+                    showPreviewsInDropzone={ false }
+                    maxFileSize={ 314572800 }
+                  />
+                </Box>
+                <Box className={ classes.imagePreview }>
+                  { this.renderDeviceImage() }
+                </Box>
+              </Box>
+            </>
+          }
         </DialogContent>
-        <Divider />
+        <Box mt={ 2 }>
+          <Divider/>
+        </Box>
         <DialogActions>
           <Button
-            variant="outlined"
+            variant="text"
             onClick={ this.onCloseClick }
             color="primary"
           >
@@ -212,7 +213,7 @@ class DeviceDialog extends React.Component<Props, State> {
           </Button>
           { dialogType !== "show" &&
             <Button
-              variant="contained"
+              variant="text"
               onClick={ this.onSave }
               color="primary"
               autoFocus
@@ -234,10 +235,16 @@ class DeviceDialog extends React.Component<Props, State> {
 
     if (progress) {
       return (
-        <>
-          <LinearProgress variant="determinate" value={ progress }/>
-          <Typography>{ `${progress}%` }</Typography>
-        </>
+        <Box width="50%">
+          <LinearProgress
+            color="primary"
+            variant="determinate"
+            value={ progress }
+          />
+          <Box mt={ 1 } textAlign="center">
+            <Typography>{ `${progress}%` }</Typography>
+          </Box>
+        </Box>
       );
     }
 
@@ -249,7 +256,9 @@ class DeviceDialog extends React.Component<Props, State> {
           justifyContent="center"
           alignItems="center"
         >
-          <h2>{ strings.noMediaPlaceholder }</h2>
+          <Typography variant="h4">
+            { strings.noMediaPlaceholder }
+          </Typography>
         </Box>
       );
     }
@@ -277,20 +286,40 @@ class DeviceDialog extends React.Component<Props, State> {
       messages: { [key]: message }
     } = this.state.form;
 
+    if (dialogType === "show" ) {
+      return (
+        <Box display="flex" flexDirection="row" alignItems="center">
+          { values[key] &&
+            <>
+              <Typography variant="h5">
+                {`${label}: `}
+              </Typography>
+              <Box ml={ 1 }>
+                <Typography variant="body1">
+                  { values[key] }
+                </Typography>
+              </Box>
+            </>
+          }
+        </Box>
+      );
+    }
+
     return (
-      <TextField
-        multiline
-        fullWidth
-        error={ message && message.type === MessageType.ERROR }
-        helperText={ message && message.message }
-        value={ values[key] }
-        onChange={ this.onHandleChange(key) }
-        onBlur={ this.onHandleBlur(key) }
-        name={ key }
-        variant="outlined"
-        label={ label }
-        disabled={ dialogType === "show" }
-      />
+      <Box mb={ 2 }>
+        <TextField
+          multiline
+          fullWidth
+          error={ message && message.type === MessageType.ERROR }
+          helperText={ message && message.message }
+          value={ values[key] }
+          onChange={ this.onHandleChange(key) }
+          onBlur={ this.onHandleBlur(key) }
+          name={ key }
+          variant="outlined"
+          label={ label }
+        />
+      </Box>
     );
   };
 
@@ -417,19 +446,25 @@ class DeviceDialog extends React.Component<Props, State> {
    * @param progress upload progress
    */
   private updateProgress = (progress: number) => {
+    const { uploadData } = this.state;
     this.setState({ progress: Math.floor(progress) });
 
-    if (progress < 100) {
+    if (!uploadData || progress < 100) {
       return;
     }
 
-    this.setState({ progress: undefined });
+    setTimeout(() => {
+      this.setState({
+        imageUrl: `${uploadData.cdnBasePath}/${uploadData.key}`,
+        progress: undefined
+      });
+    }, 3000);
   }
 
   /**
-   * Event handler for image change
+   * Handles image changes
    *
-   * @param files files
+   * @param files list of files
    * @param callback file upload progress callback function
    */
   private onImageChange = async (files: File[]) => {
@@ -438,21 +473,24 @@ class DeviceDialog extends React.Component<Props, State> {
     if (!auth || !auth.token) {
       return;
     }
+
     const file = files[0];
 
-    if (file) {
-      try {
-        const response = await FileUpload.getPresignedPostData(file, auth.token);
-        if (response.error) {
-          throw new Error(response.message);
-        }
-  
-        const { data, basePath } = response;
-        await FileUpload.uploadFileToS3(data, file, this.updateProgress);
-        this.setState({ imageUrl: `${basePath}/${data.fields.key}` });
-      } catch (error) {
-        this.context.setError(strings.errorManagement.file.upload, error);
-      }
+    if (!file) {
+      return;
+    }
+
+    try {
+      const uploadData = await FileUpload.upload(auth.token, file, this.updateProgress);
+      const { xhrRequest, uploadUrl, formData } = uploadData;
+      this.setState({ uploadData: uploadData });
+      xhrRequest.open("POST", uploadUrl, true);
+      xhrRequest.send(formData);
+    } catch (error) {
+      this.context.setError(
+        strings.formatString(strings.errorManagement.file.upload, file.name),
+        error
+      );
     }
   };
 }
