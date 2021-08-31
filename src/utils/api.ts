@@ -1,12 +1,4 @@
-import {
-  Configuration,
-  CustomersApi,
-  DevicesApi,
-  ApplicationsApi,
-  ResourcesApi
-} from "../generated/client/src";
-import Noty from "noty";
-import strings from "../localization/strings";
+import { Configuration, CustomersApi, DevicesApi, ApplicationsApi, ResourcesApi } from "../generated/client/src";
 import { Config } from "../app/config";
 
 /**
@@ -65,31 +57,6 @@ export default class ApiUtils {
         if (!context.response.ok) {
           if (context.response.status === 401) {
             window.location.reload(true);
-          }
-        }
-        else {
-          let method = context.init.method || "";
-          method = method.toLowerCase();
-          let messageContent = undefined;
-          switch (method) {
-            case "put":
-              messageContent = strings.updateSuccessMessage;
-            break;
-            case "post":
-              messageContent = strings.createSuccessMessage;
-            break;
-            case "delete":
-              messageContent = strings.deleteSuccessMessage;
-            break;
-          }
-          if (messageContent) {
-            new Noty({
-              type: "success",
-              text: messageContent,
-              layout: "bottomLeft",
-              timeout: 3000,
-              killer: true
-            }).show();
           }
         }
 

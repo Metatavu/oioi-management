@@ -28,6 +28,7 @@ import { getLocalizedTypeString } from "../../commons/resourceTypeHelper";
 import AppLayout from "../layouts/app-layout";
 import { ErrorContext } from "../containers/ErrorHandler";
 import { resolveChildResourceTypes } from "../../commons/resourceTypeHelper";
+import { toast } from "react-toastify";
 
 /**
  * Component properties
@@ -513,7 +514,7 @@ class ApplicationEditor extends React.Component<Props, State> {
       return;
     }
 
-    let topLevelResources: Resource[] = []; 
+    let topLevelResources: Resource[] = [];
     try {
       topLevelResources = await ApiUtils.getResourcesApi(auth.token).listResources({
         applicationId: application.id!,
@@ -617,7 +618,7 @@ class ApplicationEditor extends React.Component<Props, State> {
         this.setState({
           treeData: this.treeDataRearrange(
             treeData,
-            application && application.rootResourceId || "",
+            (application && application.rootResourceId) || "",
             data.nextParentNode.resource.id
           )
         });
@@ -637,7 +638,7 @@ class ApplicationEditor extends React.Component<Props, State> {
             })
           );
 
-        const rootResourceId = application && application.rootResourceId || "";
+        const rootResourceId = (application && application.rootResourceId) || "";
 
         this.setState({
           treeData: this.treeDataRearrange(
@@ -646,6 +647,8 @@ class ApplicationEditor extends React.Component<Props, State> {
             rootResourceId
           )
         });
+
+        toast.success(strings.updateSuccessMessage);
       }
     } catch (error) {
       this.context.setError(strings.errorManagement.resource.update, error);
@@ -805,6 +808,8 @@ class ApplicationEditor extends React.Component<Props, State> {
           this.setState({
             treeData: this.treeDataDelete(childResourceId, treeData || [])
           });
+
+          toast.success(strings.deleteSuccessMessage);
         } catch (error) {
           this.context.setError(
             strings.formatString(strings.errorManagement.resource.delete, openedResource.name),
@@ -927,6 +932,8 @@ class ApplicationEditor extends React.Component<Props, State> {
       if (copyContentFromId) {
         await this.copyContentFrom(copyContentFromId, newResource.id!);
       }
+
+      toast.success(strings.createSuccessMessage);
     } catch (error) {
       setError(strings.errorManagement.resource.create, error);
       return;
@@ -936,17 +943,17 @@ class ApplicationEditor extends React.Component<Props, State> {
   /**
    * Creates page with pre-defined resources
    *
-   * @param pageId page id 
+   * @param pageId page id
    */
   private createPagePredefinedResources = async (pageId: string) => {
       const title = await this.createResource("Otsikko", "title", ResourceType.TEXT, 1, pageId);
       const content = await this.createResource("Leipäteksti", "text_content", ResourceType.TEXT, 3, pageId);
       const background = await this.createResource("Taustakuva", "background", ResourceType.IMAGE, 4, pageId);
-  
+
       if (!title || !content || !background) {
         return;
       }
-  
+
       const treeData = this.state.treeData || [];
 
       this.setState({ treeData: this.treeDataAdd(this.treeItemFromResource(title), treeData) });
@@ -957,7 +964,7 @@ class ApplicationEditor extends React.Component<Props, State> {
   /**
    * Creates single resource with given parameters
    *
-   * @param name resource name 
+   * @param name resource name
    * @param slug resource slug
    * @param type resource type
    * @param orderNumber resource order number
@@ -1092,7 +1099,7 @@ class ApplicationEditor extends React.Component<Props, State> {
         applicationId: applicationId,
         resourceId: resourceId
       });
-  
+
       if (updatedResource.type !== ResourceType.ROOT) {
         openResource(updatedResource);
       } else {
@@ -1105,6 +1112,8 @@ class ApplicationEditor extends React.Component<Props, State> {
         confirmationRequired: false,
         treeData: this.updateTreeData(updatedResource, treeData)
       });
+
+      toast.success(strings.updateSuccessMessage);
     } catch (error) {
       this.context.setError(strings.errorManagement.resource.update, error);
       this.clear();
@@ -1168,6 +1177,8 @@ class ApplicationEditor extends React.Component<Props, State> {
       this.setState({
         treeData: this.treeDataUpdateChildResources(treeData || [], updatedResources)
       });
+
+      toast.success(strings.updateSuccessMessage);
     } catch (error) {
       this.context.setError(strings.errorManagement.resource.updateChild);
     }
@@ -1194,7 +1205,7 @@ class ApplicationEditor extends React.Component<Props, State> {
                 title: child.resource ?
                   this.renderTreeItem(resources[index]) :
                   this.renderAdd(resources[0].parentId), resource: child.resource ? resources[index] : undefined
-              } 
+              }
             }) :
             []
         };
@@ -1259,8 +1270,10 @@ class ApplicationEditor extends React.Component<Props, State> {
         this.setState({
           treeData: this.treeDataDelete(resource.id || "", this.state.treeData || [])
         });
-  
+
         updatedResourceView();
+
+        toast.success(strings.deleteSuccessMessage);
       } catch (error) {
         setError(strings.errorManagement.resource.delete, error);
       }
@@ -1297,8 +1310,10 @@ class ApplicationEditor extends React.Component<Props, State> {
         deviceId: deviceId,
         applicationId: applicationId
       });
-  
+
       setApplication(updatedApplication);
+
+      toast.success(strings.updateSuccessMessage);
     } catch (error) {
       this.context.setError(
         strings.formatString(strings.errorManagement.application.update, application.name),
@@ -1380,7 +1395,7 @@ class ApplicationEditor extends React.Component<Props, State> {
           deviceId: deviceId,
           applicationId: applicationId
         });
-  
+
         setApplication(currentApplication);
       } catch (error) {
         setError(strings.errorManagement.application.find, error);

@@ -14,6 +14,7 @@ import { IconKeys, getLocalizedIconTypeString, getDefaultIconURL } from "../../c
 import VisibleWithRole from "../generic/VisibleWithRole";
 import AddIcon from "@material-ui/icons/Add";
 import { ErrorContext } from "../containers/ErrorHandler";
+import { toast } from "react-toastify";
 
 /**
  * Component Props
@@ -92,7 +93,7 @@ class AppSettingsView extends React.Component<Props, State> {
   /**
    * Component did update life cycle handler
    *
-   * @param prevProps previous props 
+   * @param prevProps previous props
    * @param prevState previous state
    */
   public componentDidUpdate = (prevProps: Props, prevState: State) => {
@@ -241,6 +242,8 @@ class AppSettingsView extends React.Component<Props, State> {
 
       this.setState({ importDone: imported });
 
+      toast.success(strings.importDone);
+
       setTimeout(() => window.location.reload(), 3000);
     }
     reader.readAsText(file);
@@ -271,7 +274,7 @@ class AppSettingsView extends React.Component<Props, State> {
           deviceId: deviceId,
           resource: this.translateWallItemToResource(parentId, i, item)
         });
-  
+
         if (item.children.length > 0) {
           await this.importWallJsonItems(createdResource.id!, item.children);
         }

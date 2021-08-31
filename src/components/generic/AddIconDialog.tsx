@@ -1,10 +1,8 @@
 import * as React from "react";
-import { withStyles, WithStyles, Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, Divider, Grid, Typography, Select, MenuItem, Box, IconButton, LinearProgress } from "@material-ui/core";
+import { withStyles, WithStyles, Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, Divider, Typography, MenuItem, Box, IconButton, LinearProgress } from "@material-ui/core";
 import styles from "../../styles/dialog";
 import strings from "../../localization/strings";
 import { Resource } from "../../generated/client/src";
-import FileUploader from "./FileUploader";
-import theme from "../../styles/theme";
 import slugify from "slugify";
 import { getLocalizedIconTypeString, IconKeys } from "../../commons/iconTypeHelper";
 import { ChangeEvent } from "react";

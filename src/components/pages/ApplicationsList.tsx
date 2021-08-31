@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Container, Typography, Grid, Card, withStyles, WithStyles, CardActionArea, Snackbar } from "@material-ui/core";
+import { Container, Typography, Grid, Card, withStyles, WithStyles, CardActionArea } from "@material-ui/core";
 import img from "../../resources/images/infowall.png";
 import AddIcon from "@material-ui/icons/AddCircle";
 import styles from "../../styles/card-item";
@@ -13,13 +13,13 @@ import { connect } from "react-redux";
 import { AuthState, ErrorContextType } from "../../types";
 import ApiUtils from "../../utils/api";
 import DeleteDialog from "../generic/DeleteDialog";
-import { Alert } from "@material-ui/lab";
 import { setCustomer } from "../../actions/customer";
 import { setApplication } from "../../actions/application";
 import { setDevice } from "../../actions/device";
 import VisibleWithRole from "../generic/VisibleWithRole";
 import AppLayout from "../layouts/app-layout";
 import { ErrorContext } from "../containers/ErrorHandler";
+import { toast } from "react-toastify";
 
 /**
  * Component props
@@ -44,7 +44,6 @@ interface State {
   applicationInDialog?: Application;
   applications: Application[];
   deleteDialogOpen: boolean;
-  snackbarOpen: boolean;
   applicationImages?: { id: string, src: string }[];
 }
 
@@ -65,8 +64,7 @@ class ApplicationsList extends React.Component<Props, State> {
     this.state = {
       applications: [],
       applicationInDialog: undefined,
-      deleteDialogOpen: false,
-      snackbarOpen: false
+      deleteDialogOpen: false
     };
   }
 
@@ -82,7 +80,7 @@ class ApplicationsList extends React.Component<Props, State> {
    */
   public render() {
     const { classes, customer, device } = this.props;
-    const { applications, deleteDialogOpen, applicationInDialog, snackbarOpen } = this.state;
+    const { applications, deleteDialogOpen, applicationInDialog } = this.state;
     const cards = applications.map((application, index) => this.renderCard(application, `${index}${application.name}`));
 
     return (
@@ -103,15 +101,6 @@ class ApplicationsList extends React.Component<Props, State> {
             handleClose={ () => this.setState({ deleteDialogOpen: false }) }
             title={ strings.deleteConfirmation }
           />
-          <Snackbar
-            open={ snackbarOpen }
-            autoHideDuration={ 6000 }
-            onClose={ this.onSnackbarClose }
-          >
-            <Alert onClose={ this.onSnackbarClose } severity="success">
-              { strings.deleteSuccess }
-            </Alert>
-          </Snackbar>
         </Container>
       </AppLayout>
     );
@@ -199,12 +188,13 @@ class ApplicationsList extends React.Component<Props, State> {
         deviceId: deviceId,
         applicationId: application.id
       });
-  
+
       this.setState({
-        snackbarOpen: true,
         deleteDialogOpen: false,
         applications: applications.filter(c => c.id !== application.id)
       });
+
+      toast.success(strings.deleteSuccessMessage);
     } catch (error) {
       this.context.setError(strings.errorManagement.application.delete, error);
     }
@@ -242,28 +232,15 @@ class ApplicationsList extends React.Component<Props, State> {
       });
 
       this.onEditApplicationClick(application);
+      toast.success(strings.createSuccessMessage);
     } catch (error) {
       this.context.setError(strings.errorManagement.application.create, error);
     }
   };
 
   /**
-   * Snack bar close click
-   *
-   * @param event React synthetic event
-   * @param reason reason
-   */
-  private onSnackbarClose = (event?: React.SyntheticEvent, reason?: string) => {
-    if (reason === "clickaway") {
-      return;
-    }
-
-    this.setState({ snackbarOpen: false });
-  };
-
-  /**
    * Finds the application image from root resource and returns it
-   * 
+   *
    * @param application application
    */
   private getApplicationImage = async (application: Application) => {
@@ -297,7 +274,6 @@ class ApplicationsList extends React.Component<Props, State> {
    */
   private reset = () => {
     this.setState({
-      snackbarOpen: true,
       deleteDialogOpen: false
     });
   }

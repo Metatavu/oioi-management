@@ -3,8 +3,6 @@ import { BrowserRouter, Route, Switch } from "react-router-dom";
 import { ThemeProvider } from "@material-ui/styles";
 import { CssBaseline, responsiveFontSizes } from "@material-ui/core";
 import { Provider as ReduxProvider } from "react-redux";
-import "../node_modules/noty/lib/noty.css";
-import "../node_modules/noty/lib/themes/mint.css";
 import theme from "./styles/theme";
 import { createStore } from "redux";
 import { ReduxState, ReduxActions, rootReducer } from "./store";
@@ -18,6 +16,8 @@ import ErrorHandler from "./components/containers/ErrorHandler";
 import moment from "moment";
 import "moment/locale/fi";
 import "moment/locale/en-gb";
+import { Slide, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 /**
  * Redux store
@@ -57,6 +57,16 @@ class App extends React.Component<Props, State> {
       <ReduxProvider store={ store }>
         <ThemeProvider theme={ responsiveFontSizes(theme) }>
           <CssBaseline/>
+          <ToastContainer
+            autoClose={ 3000 }
+            closeOnClick
+            hideProgressBar
+            position="top-center"
+            theme="dark"
+            draggable={ false }
+            transition={ Slide }
+            closeButton={ false }
+          />
           <ErrorHandler>
             <AccessTokenRefresh>
               <BrowserRouter>
