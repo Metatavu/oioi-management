@@ -118,6 +118,9 @@ export default createMuiTheme({
         },
         "::-webkit-scrollbar-thumb:hover": {
           background: "#555"
+        },
+        ".Toastify__toast-theme--dark": {
+          backgroundColor: grey[900]
         }
       }
     },

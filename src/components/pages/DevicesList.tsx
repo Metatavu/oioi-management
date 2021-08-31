@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Container, Typography, Grid, Card, withStyles, WithStyles, CardActionArea, Snackbar } from "@material-ui/core";
+import { Container, Typography, Grid, Card, withStyles, WithStyles, CardActionArea } from "@material-ui/core";
 import AddIcon from "@material-ui/icons/AddCircle";
 import styles from "../../styles/card-item";
 import { History } from "history";
@@ -13,12 +13,12 @@ import { ReduxState, ReduxActions } from "../../store";
 import { Dispatch } from "redux";
 import { connect } from "react-redux";
 import DeleteDialog from "../generic/DeleteDialog";
-import { Alert } from "@material-ui/lab";
 import { setDevice } from "../../actions/device";
 import { setCustomer } from "../../actions/customer";
 import VisibleWithRole from "../generic/VisibleWithRole";
 import AppLayout from "../layouts/app-layout";
 import { ErrorContext } from "../containers/ErrorHandler";
+import { toast } from "react-toastify";
 
 /**
  * Component props
@@ -40,7 +40,6 @@ interface State {
   editorDialogOpen: boolean;
   dialogType: DialogType;
   deleteDialogOpen: boolean;
-  snackbarOpen: boolean;
   deviceInDialog?: Device;
   devices: Device[];
 }
@@ -64,8 +63,7 @@ class DevicesList extends React.Component<Props, State> {
       devices: [],
       dialogType: "new",
       deviceInDialog: undefined,
-      deleteDialogOpen: false,
-      snackbarOpen: false
+      deleteDialogOpen: false
     };
   }
 
@@ -86,8 +84,7 @@ class DevicesList extends React.Component<Props, State> {
       deviceInDialog,
       dialogType,
       editorDialogOpen,
-      deleteDialogOpen,
-      snackbarOpen
+      deleteDialogOpen
     } = this.state;
 
     const cards = devices.map((device, index) => this.renderCard(device, `${index}${device.name}`));
@@ -118,15 +115,6 @@ class DevicesList extends React.Component<Props, State> {
             handleClose={ this.onDeleteDialogCloseClick }
             title={ strings.deleteConfirmation }
           />
-          <Snackbar
-            open={ snackbarOpen }
-            autoHideDuration={ 6000 }
-            onClose={ this.onSnackbarClose }
-          >
-            <Alert onClose={ this.onSnackbarClose } severity="success">
-              { strings.deleteSuccess }
-            </Alert>
-          </Snackbar>
         </Container>
       </AppLayout>
     );
@@ -251,8 +239,9 @@ class DevicesList extends React.Component<Props, State> {
         customerId: customerId,
         deviceId: device.id
       });
-  
+
       this.setState({ devices: devices.filter(c => c.id !== device.id) });
+      toast.success(strings.deleteSuccessMessage);
     } catch (error) {
       this.context.setError(strings.errorManagement.device.delete, error);
     }
@@ -301,6 +290,8 @@ class DevicesList extends React.Component<Props, State> {
       this.setState({
         devices: [ ...devices, newDevice ]
       });
+
+      toast.success(strings.createSuccessMessage);
     } catch (error) {
       this.context.setError(strings.errorManagement.device.create, error);
     }
@@ -328,23 +319,14 @@ class DevicesList extends React.Component<Props, State> {
         customerId: customerId,
         device: device
       });
-  
+
       this.setState({ devices: devices.map(device => device.id === updatedDevice.id ? updatedDevice : device) });
+      toast.success(strings.updateSuccessMessage);
     } catch (error) {
       this.context.setError(strings.errorManagement.device.update, error);
     }
 
     this.reset();
-  };
-
-  /**
-   * Snackbar close click
-   *
-   * @param event event
-   * @param reason reason
-   */
-  private onSnackbarClose = (event?: React.SyntheticEvent, reason?: string) => {
-    reason !== "clickaway" && this.setState({ snackbarOpen: false });
   };
 
   /**
@@ -372,7 +354,6 @@ class DevicesList extends React.Component<Props, State> {
   private reset = () => {
     this.setState({
       deleteDialogOpen: false,
-      snackbarOpen: false,
       editorDialogOpen: false
     });
   }
