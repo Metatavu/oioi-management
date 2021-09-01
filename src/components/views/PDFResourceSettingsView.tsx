@@ -435,6 +435,7 @@ class PDFResourceSettingsView extends React.Component<Props, State> {
   private updateComponentData = async () => {
     const { resource } = this.props;
     const resourceId = resource.id;
+
     if (!resourceId) {
       return;
     }
