@@ -13,7 +13,6 @@ import { Resource, ResourceToJSON } from "../../generated/client/src";
 import { forwardRef } from "react";
 import { MessageType, initForm, Form, validateForm } from "ts-form-validation";
 import { AuthState, ErrorContextType } from "../../types";
-import ApiUtils from "../../utils/api";
 import { resourceRules, ResourceSettingsForm } from "../../commons/formRules";
 import VisibleWithRole from "../generic/VisibleWithRole";
 import { ErrorContext } from "../containers/ErrorHandler";
@@ -29,11 +28,8 @@ interface Props extends WithStyles<typeof styles> {
   resource: Resource;
   resourcesUpdated: number;
   customerId: string;
-  onAddChild: (parentId: string) => void;
   onSave: (resource: Resource) => void;
-  onSaveChildren: (childResources: Resource[]) => void;
   onDelete: (resource: Resource) => void;
-  onDeleteChild: (resource: Resource, nextOpenResource?: Resource) => void;
   confirmationRequired: (value: boolean) => void;
 }
 
@@ -45,7 +41,6 @@ interface State {
   resourceId: string;
   resourceData: any;
   loading: boolean;
-  childResources?: Resource[];
   dataChanged: boolean;
 }
 
@@ -140,7 +135,7 @@ class PDFResourceSettingsView extends React.Component<Props, State> {
           </Typography>
         </Box>
         { this.renderField("name", strings.name, "text") }
-        { this.renderUploaderAndPreview(resource) }
+        { this.renderUploaderAndPreview() }
         <Box mt={ 3 } mb={ 3 }>
           <Divider/>
         </Box>
@@ -412,23 +407,23 @@ class PDFResourceSettingsView extends React.Component<Props, State> {
   /**
    * Renders file uploaders for background image and custom icons
    */
-  private renderUploaderAndPreview = (resource: Resource) => {
+  private renderUploaderAndPreview = () => {
+    const { resourceData } = this.state;
+    const { resource } = this.props;
 
     if (!resource.id) {
       return;
     }
 
-    const previewItem = resource.data || "";
+    const previewItem = resourceData.data || "";
 
     return (
       <PDFPreview
         uploadButtonText={ previewItem ? strings.fileUpload.changeFile : strings.fileUpload.addFile }
         path={ previewItem }
-        resource={ resource }
         allowSetUrl={ true }
-        onDelete={ this.onChildResourceFileDelete }
-        onUpload={ this.onChildResourceFileChange }
-        onSetUrl={ this.onChildResourceSetFileUrl }
+        onDelete={ this.onPdfFileDelete }
+        onUpload={ this.onPdfFileChange }
         uploadKey={ resource.id }
       />
     );
@@ -444,7 +439,6 @@ class PDFResourceSettingsView extends React.Component<Props, State> {
       return;
     }
 
-    const childResources = await this.getChildResources();
     const resourceData = ResourceToJSON(resource);
     const form = validateForm(
       initForm<ResourceSettingsForm>(resource, resourceRules)
@@ -454,39 +448,15 @@ class PDFResourceSettingsView extends React.Component<Props, State> {
       form,
       resourceId,
       resourceData,
-      childResources
     });
-  }
-
-  /**
-   * Gets child resources
-   */
-  private getChildResources = async () => {
-    const { auth, customerId, deviceId, applicationId, resource } = this.props;
-    const resourceId = resource.id;
-
-    if (!auth || !auth.token || !resourceId) {
-      return;
-    }
-
-    try {
-      return await ApiUtils.getResourcesApi(auth.token).listResources({
-        customerId: customerId,
-        deviceId: deviceId,
-        applicationId: applicationId,
-        parentId: resourceId
-      });
-    } catch (error) {
-      this.context.setError(strings.errorManagement.resource.listChild, error);
-    }
   }
 
   /**
    * Handles save changes to resource and child resources
    */
   private onSaveChanges = async () => {
-    const { onSave, onSaveChildren } = this.props;
-    const { resourceData, childResources, form } = this.state;
+    const { onSave } = this.props;
+    const { resourceData, form } = this.state;
 
     const resource = {
       name: form.values.name,
@@ -501,35 +471,12 @@ class PDFResourceSettingsView extends React.Component<Props, State> {
     } as Resource;
 
     onSave(resource);
-    childResources && onSaveChildren(childResources);
 
     this.setState({
       resourceData,
       dataChanged: false
     });
   };
-
-  /**
-   * Updates child resource
-   *
-   * @param childResource child resource
-   */
-  private updateChildResource = (childResource: Resource) => {
-    const { childResources } = this.state;
-
-    if (!childResources) {
-      return;
-    }
-
-    const resourceIndex = childResources.findIndex(resource => resource.id === childResource.id);
-    childResources.splice(resourceIndex, 1, childResource);
-    this.setState({
-      childResources,
-      dataChanged: true
-    });
-
-    this.props.confirmationRequired(true);
-  }
 
   /**
    * Handles resource text fields change events
@@ -561,66 +508,30 @@ class PDFResourceSettingsView extends React.Component<Props, State> {
   };
 
   /**
-   * Handles child resource file change
+   * Handles pdf file change
    *
    * @param newUri new URI
    * @param resourceId resource id
    */
-  private onChildResourceFileChange = (newUri: string, resourceId: string) => {
-    const { childResources } = this.state;
+  private onPdfFileChange = (newUri: string) => {
+    const { resourceData } = this.state;
 
-    if (!childResources) {
-      return;
-    }
-
-    const resourceIndex: number = childResources.findIndex(resource => resource.id === resourceId);
-    if (resourceIndex === -1) {
-      return;
-    }
-
-    const updatedChildResource: Resource = { ...childResources[resourceIndex], data: newUri };
-    this.updateChildResource(updatedChildResource);
+    this.setState({
+      resourceData: { ...resourceData, data: newUri },
+      dataChanged: true
+    });
   };
 
   /**
-   * Handles child resource file change
-   *
-   * @param url url
-   * @param key resource id
+   * Handles pdf file delete
    */
-  private onChildResourceSetFileUrl = async (url: string, resourceId: string) => {
-    const { childResources } = this.state;
-    if (!childResources) {
-      return 500;
-    }
+  private onPdfFileDelete = () => {
+    const { resourceData } = this.state;
 
-    const resourceIndex: number = childResources.findIndex(resource => resource.id === resourceId);
-    if (resourceIndex === -1) {
-      return 500;
-    }
-
-    const updatedChildResource: Resource = { ...childResources[resourceIndex], data: url };
-    this.updateChildResource(updatedChildResource);
-
-    return 200;
-  };
-
-  /**
-   * Handles child resource file delete
-   */
-  private onChildResourceFileDelete = (resourceId: string) => {
-    const { childResources } = this.state;
-    if (!childResources) {
-      return;
-    }
-
-    const resourceIndex: number = childResources.findIndex(resource => resource.id === resourceId);
-    if (resourceIndex === -1) {
-      return;
-    }
-
-    const updatedChildResource: Resource = { ...childResources[resourceIndex], data: undefined };
-    this.updateChildResource(updatedChildResource);
+    this.setState({
+      resourceData: { ...resourceData, data: undefined },
+      dataChanged: true
+    });
   }
 
   /**

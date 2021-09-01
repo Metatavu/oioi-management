@@ -1,7 +1,6 @@
 import * as React from "react";
 import { withStyles, WithStyles, Box, Button, Link } from "@material-ui/core";
 import styles from "../../styles/generic/pdf-preview";
-import { Resource } from "../../generated/client/src";
 import FileUploader from "./FileUploader";
 import strings from "../../localization/strings";
 import PDFIcon from "@material-ui/icons/PictureAsPdfRounded";
@@ -11,12 +10,10 @@ import PDFIcon from "@material-ui/icons/PictureAsPdfRounded";
  */
 interface Props extends WithStyles<typeof styles> {
   path: string;
-  resource: Resource;
   uploadKey: string;
   uploadButtonText: string;
   allowSetUrl: boolean;
   onUpload(newUri: string, key?: string): void;
-  onSetUrl(url: string, key?: string): void;
   onDelete(key?: string): void;
   uploadDialogTitle?: string;
 }
@@ -51,7 +48,6 @@ class PDFPreview extends React.Component<Props, State> {
       onUpload,
       uploadKey,
       classes,
-      onSetUrl,
       allowSetUrl,
       uploadButtonText,
       uploadDialogTitle
@@ -89,7 +85,6 @@ class PDFPreview extends React.Component<Props, State> {
           allowSetUrl={ allowSetUrl }
           allowedFileTypes={ ["application/pdf"] }
           onUpload={ onUpload }
-          onSetUrl={ onSetUrl }
           uploadKey={ uploadKey }
         />
       </Box>

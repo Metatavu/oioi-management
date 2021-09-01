@@ -459,11 +459,8 @@ class ApplicationEditor extends React.Component<Props, State> {
           customerId={ customerId }
           resourcesUpdated={ resourceViewUpdated }
           confirmationRequired={ this.confirmationRequired }
-          onAddChild={ this.onAddNewResourceClick }
           onSave={ this.onUpdateResource }
-          onSaveChildren={ this.onUpdateChildResources }
           onDelete={ this.onDeleteResource }
-          onDeleteChild={ this.onDeleteResource }
           auth={ auth }
           deviceId={ deviceId }
           applicationId={ applicationId }
