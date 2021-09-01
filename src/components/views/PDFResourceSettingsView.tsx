@@ -94,8 +94,8 @@ class PDFResourceSettingsView extends React.Component<Props, State> {
    * @param prevState previous state
    */
   public componentDidUpdate = async (prevProps: Props, prevState: State) => {
-    if (prevProps.resource !== this.props.resource || prevProps.resourcesUpdated !== this.props.resourcesUpdated) {
-      const { auth } = this.props;
+    const { auth, resource, resourcesUpdated } = this.props;
+    if (prevProps.resource !== resource || prevProps.resourcesUpdated !== resourcesUpdated) {
       if (!auth || !auth.token) {
         return;
       }
