@@ -408,8 +408,8 @@ class PDFResourceSettingsView extends React.Component<Props, State> {
    * Renders file uploaders for background image and custom icons
    */
   private renderUploaderAndPreview = () => {
-    const { resourceData } = this.state;
     const { resource } = this.props;
+    const { resourceData } = this.state;
 
     if (!resource.id) {
       return;
