@@ -456,14 +456,15 @@ class PDFResourceSettingsView extends React.Component<Props, State> {
   private onSaveChanges = async () => {
     const { onSave } = this.props;
     const { resourceData, form } = this.state;
+    const { name, orderNumber, slug, parentId, type, id } = form.values;
 
     const resource = {
-      name: form.values.name,
-      orderNumber: form.values.orderNumber,
-      slug: form.values.slug,
-      parentId: form.values.parentId,
-      type: form.values.type,
-      id: form.values.id,
+      name: name,
+      orderNumber: orderNumber,
+      slug: slug,
+      parentId: parentId,
+      type: type,
+      id: id,
       data: resourceData["data"],
       styles: resourceData["styles"],
       properties: resourceData["properties"]
