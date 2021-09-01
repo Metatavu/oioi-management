@@ -511,7 +511,6 @@ class PDFResourceSettingsView extends React.Component<Props, State> {
    * Handles pdf file change
    *
    * @param newUri new URI
-   * @param resourceId resource id
    */
   private onPdfFileChange = (newUri: string) => {
     const { resourceData } = this.state;
