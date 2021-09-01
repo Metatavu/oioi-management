@@ -60,7 +60,7 @@ class PDFPreview extends React.Component<Props, State> {
         { path &&
           <Box className={ classes.fileContainer }>
             <Box mr={ 1 }>
-              <PDFIcon />
+              <PDFIcon/>
             </Box>
             <Link
               variant="h4"
