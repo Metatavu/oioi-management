@@ -441,9 +441,7 @@ class PDFResourceSettingsView extends React.Component<Props, State> {
     }
 
     const resourceData = ResourceToJSON(resource);
-    const form = validateForm(
-      initForm<ResourceSettingsForm>(resource, resourceRules)
-    );
+    const form = validateForm(initForm<ResourceSettingsForm>(resource, resourceRules));
 
     this.setState({
       form,
