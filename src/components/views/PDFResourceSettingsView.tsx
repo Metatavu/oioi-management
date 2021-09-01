@@ -187,31 +187,33 @@ class PDFResourceSettingsView extends React.Component<Props, State> {
 
   /**
    * Renders text field
+   *
    * @param key to look for
    * @param label label to be shown
    * @param type text field type
    */
   private renderField = (key: keyof ResourceSettingsForm, placeholder: string, type: string) => {
-    const {
-      values,
-      messages: { [key]: message }
-    } = this.state.form;
+    const { values, messages: { [key]: message } } = this.state.form;
+  
     if (type === "textarea") {
-      return ( <TextField
-        fullWidth
-        multiline
-        rows={ 8 }
-        type={ type }
-        error={ message && message.type === MessageType.ERROR }
-        helperText={ message && message.message }
-        value={ values[key] || "" }
-        onChange={ this.onHandleResourceTextChange(key) }
-        onBlur={ this.onHandleBlur(key) }
-        name={ key }
-        variant="outlined"
-        placeholder={ placeholder }
-      /> );
+      return (
+        <TextField
+          fullWidth
+          multiline
+          rows={ 8 }
+          type={ type }
+          error={ message && message.type === MessageType.ERROR }
+          helperText={ message && message.message }
+          value={ values[key] || "" }
+          onChange={ this.onHandleResourceTextChange(key) }
+          onBlur={ this.onHandleBlur(key) }
+          name={ key }
+          variant="outlined"
+          placeholder={ placeholder }
+        />
+      );
     }
+
     return (
       <TextField
         fullWidth
