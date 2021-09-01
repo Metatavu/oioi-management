@@ -1,8 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import * as React from "react";
-import { withStyles, WithStyles, TextField, Divider, Typography, Grid, Button, IconButton } from "@material-ui/core";
+import { withStyles, WithStyles, TextField, Divider, Typography, Grid, Button, IconButton, Box } from "@material-ui/core";
 import MaterialTable from "material-table";
-import AddIcon from "@material-ui/icons/Add";
 import AddCircleIcon from "@material-ui/icons/AddCircle";
 import DeleteIcon from "@material-ui/icons/Delete";
 import CheckIcon from "@material-ui/icons/Check";
@@ -16,11 +15,12 @@ import { Resource, ResourceToJSON, ResourceType } from "../../generated/client/s
 import FileUpload from "../../utils/file-upload";
 import { forwardRef } from "react";
 import { MessageType, initForm, Form, validateForm } from "ts-form-validation";
-import { AuthState } from "../../types";
+import { AuthState, ErrorContextType } from "../../types";
 import ApiUtils from "../../utils/api";
 import { resourceRules, ResourceSettingsForm } from "../../commons/formRules";
 import ImagePreview from "../generic/ImagePreview";
 import VisibleWithRole from "../generic/VisibleWithRole";
+import { ErrorContext } from "../containers/ErrorHandler";
 
 /**
  * Component props
@@ -32,35 +32,10 @@ interface Props extends WithStyles<typeof styles> {
   resource: Resource;
   resourcesUpdated: number;
   customerId: string;
-
-  /**
-   * Add child
-   */
   onAddChild: (parentId: string) => void;
-
-  /**
-   * Save resource to parent
-   * @param resource resource to save
-   */
   onSave: (resource: Resource) => void;
-
-  /**
-   * Save child resource
-   * @param childResource child resource to save
-   */
   onSaveChildren: (childResources: Resource[]) => void;
-
-  /**
-   * Delete resource
-   * @param resource resource to delete
-   */
   onDelete: (resource: Resource) => void;
-
-  /**
-   * Delete child resource
-   * @param resource resource to delete
-   * @param nextOpenResource
-   */
   onDeleteChild: (resource: Resource, nextOpenResource?: Resource) => void;
   confirmationRequired: (value: boolean) => void;
 }
@@ -77,7 +52,13 @@ interface State {
   dataChanged: boolean;
 }
 
+/**
+ * Component for page resource settings view
+ */
 class PageResourceSettingsView extends React.Component<Props, State> {
+
+  static contextType: React.Context<ErrorContextType> = ErrorContext;
+
   /**
    * Constructor
    *
@@ -89,7 +70,7 @@ class PageResourceSettingsView extends React.Component<Props, State> {
       form: initForm<ResourceSettingsForm>(
         {
           name: undefined,
-          order_number: undefined,
+          orderNumber: undefined,
           slug: undefined
         },
         resourceRules
@@ -103,7 +84,7 @@ class PageResourceSettingsView extends React.Component<Props, State> {
   }
 
   /**
-   * Component did mount
+   * Component did mount life cycle handler
    */
   public componentDidMount = async () => {
     const { auth } = this.props;
@@ -115,7 +96,10 @@ class PageResourceSettingsView extends React.Component<Props, State> {
   }
 
   /**
-   * Component did update method
+   * Component did update  life cycle handler
+   *
+   * @param prevProps previous props
+   * @param prevState previous state
    */
   public componentDidUpdate = async (prevProps: Props, prevState: State) => {
     if (prevProps.resource !== this.props.resource || prevProps.resourcesUpdated !== this.props.resourcesUpdated) {
@@ -131,7 +115,7 @@ class PageResourceSettingsView extends React.Component<Props, State> {
   /**
    * Component render method
    */
-  public render() {
+  public render = () => {
     const { loading, dataChanged } = this.state;
     const { classes } = this.props;
 
@@ -142,7 +126,7 @@ class PageResourceSettingsView extends React.Component<Props, State> {
     const { isFormValid } = this.state.form;
 
     return (
-      <div>
+      <Box>
         <Button
           className={ classes.saveButton }
           color="primary"
@@ -153,33 +137,47 @@ class PageResourceSettingsView extends React.Component<Props, State> {
           { strings.save }
         </Button>
 
-        <Typography variant="h4" style={{ marginBottom: theme.spacing(1) }}>{ strings.name }</Typography>
+        <Box mb={ 1 }>
+          <Typography variant="h4">
+            { strings.name }
+          </Typography>
+        </Box>
         { this.renderField("name", strings.name, "text") }
 
-        <div>
+        <Box>
           { this.renderChildResources() }
-          <Divider style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} />
-
+          <Box mt={ 3 } mb={ 3 }>
+            <Divider/>
+          </Box>
           { this.renderAddChild() }
-          <Divider style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} />
-        </div>
+          <Box mt={ 3 } mb={ 3 }>
+            <Divider/>
+          </Box>
+        </Box>
 
         <VisibleWithRole role="admin">
-          <Typography style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} variant="h3">{ strings.advanced }</Typography>
-
+          <Box mt={ 3 } mb={ 3 }>
+            <Typography variant="h3">
+              { strings.advanced }
+            </Typography>
+          </Box>
           { this.renderResourceFields() }
 
-          <div>
+          <Box>
             { this.renderPropertiesTable() }
-            <Divider style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} />
-          </div>
+            <Box mt={ 3 } mb={ 3 }>
+              <Divider/>
+            </Box>
+          </Box>
 
-          <div>
+          <Box>
             { this.renderStyleTable() }
-            <Divider style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} />
-          </div>
+            <Box mt={ 3 } mb={ 3 }>
+              <Divider/>
+            </Box>
+          </Box>
         </VisibleWithRole>
-      </div>
+      </Box>
     );
   }
 
@@ -187,18 +185,21 @@ class PageResourceSettingsView extends React.Component<Props, State> {
    * Renders resource text fields
    */
   private renderResourceFields = () => {
-    const { classes } = this.props;
     return (
-      <div className={ classes.gridRow } style={{ marginBottom: theme.spacing(3) }}>
-        <div>
-          <Typography variant="h4" style={{ marginBottom: theme.spacing(1) }}>{ strings.orderNumber }</Typography>
-          { this.renderField("order_number", strings.orderNumber, "number") }
-        </div>
-        <div>
-          <Typography variant="h4" style={{ marginBottom: theme.spacing(1) }}>{ strings.slug }</Typography>
+      <Box mb={ 3 } display="flex" flexDirection="row">
+        <Box mb={ 1 } mr={ 2 }>
+          <Typography variant="h4">
+            { strings.orderNumber }
+          </Typography>
+          { this.renderField("orderNumber", strings.orderNumber, "number") }
+        </Box>
+        <Box mb={ 1 }>
+          <Typography variant="h4">
+            { strings.slug }
+          </Typography>
           { this.renderField("slug", strings.slug, "text") }
-        </div>
-      </div>
+        </Box>
+      </Box>
     );
   }
 
@@ -532,7 +533,7 @@ class PageResourceSettingsView extends React.Component<Props, State> {
         resource={ resource }
         allowSetUrl={ true }
         onDelete={ this.onChildResourceFileDelete }
-        onSave={ this.onChildResourceFileChange }
+        onUpload={ this.onChildResourceFileChange }
         onSetUrl={ this.onChildResourceSetFileUrl }
         uploadKey={ resource.id }
       />
@@ -564,7 +565,7 @@ class PageResourceSettingsView extends React.Component<Props, State> {
   }
 
   /**
-   * Gets child resourcess
+   * Gets child resources
    */
   private getChildResources = async () => {
     const { auth, customerId, deviceId, applicationId, resource } = this.props;
@@ -574,15 +575,16 @@ class PageResourceSettingsView extends React.Component<Props, State> {
       return;
     }
 
-    const resourcesApi = ApiUtils.getResourcesApi(auth.token);
-    const childResources = await resourcesApi.listResources({
-      customer_id: customerId,
-      device_id: deviceId,
-      application_id: applicationId,
-      parent_id: resourceId
-    });
-
-    return childResources;
+    try {
+      return await ApiUtils.getResourcesApi(auth.token).listResources({
+        customerId: customerId,
+        deviceId: deviceId,
+        applicationId: applicationId,
+        parentId: resourceId
+      });
+    } catch (error) {
+      this.context.setError(strings.errorManagement.resource.listChild, error);
+    }
   }
 
   /**
@@ -594,9 +596,9 @@ class PageResourceSettingsView extends React.Component<Props, State> {
 
     const resource = {
       name: form.values.name,
-      order_number: form.values.order_number,
+      orderNumber: form.values.orderNumber,
       slug: form.values.slug,
-      parent_id: form.values.parent_id,
+      parentId: form.values.parentId,
       type: form.values.type,
       id: form.values.id,
       data: resourceData["data"],
@@ -604,7 +606,7 @@ class PageResourceSettingsView extends React.Component<Props, State> {
       properties: resourceData["properties"]
     } as Resource;
 
-    await onSave(resource);
+    onSave(resource);
     childResources && onSaveChildren(childResources);
 
     this.setState({
@@ -620,6 +622,7 @@ class PageResourceSettingsView extends React.Component<Props, State> {
    */
   private updateChildResource = (childResource: Resource) => {
     const { childResources } = this.state;
+
     if (!childResources) {
       return;
     }
@@ -674,30 +677,26 @@ class PageResourceSettingsView extends React.Component<Props, State> {
   /**
    * Handles child resource file change
    *
-   * @param files files
-   * @param key resource id
+   * @param newUri new URI
+   * @param resourceId resource id
    */
-  private onChildResourceFileChange = async (files: File[], resourceId: string) => {
-    const { customerId } = this.props;
+  private onChildResourceFileChange = (newUri: string, resourceId: string) => {
     const { childResources } = this.state;
-    const file = files[0];
-    if (!file || !childResources) {
-      return 500;
+
+    if (!childResources) {
+      return;
     }
 
     const resourceIndex: number = childResources.findIndex(resource => resource.id === resourceId);
     if (resourceIndex === -1) {
-      return 500;
+      return;
     }
 
-    const response = await FileUpload.uploadFile(file, customerId);
-    const updatedChildResource: Resource = { ...childResources[resourceIndex], data: response.uri };
+    const updatedChildResource: Resource = { ...childResources[resourceIndex], data: newUri };
     this.updateChildResource(updatedChildResource);
-
-    return 200;
   };
 
-   /**
+  /**
    * Handles child resource file change
    *
    * @param url url

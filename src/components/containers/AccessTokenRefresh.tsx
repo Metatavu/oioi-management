@@ -8,6 +8,8 @@ import { ReduxActions, ReduxState } from "../../store";
 import { Dispatch } from "redux";
 import { KeycloakInstance } from "keycloak-js";
 import { connect } from "react-redux";
+import { ErrorContext } from "./ErrorHandler";
+import strings from "../../localization/strings";
 
 /**
  * Component properties
@@ -23,16 +25,20 @@ interface Props {
  * @param props component properties
  */
 const AccessTokenRefresh: React.FC<Props> = ({ children, auth, onLogin }) => {
+
+  const context = React.useContext(ErrorContext);
+
   React.useEffect(() => {
     AuthUtils.initAuth()
       .then(auth => auth && onLogin(auth))
-      .catch(e => console.error(e));
+      .catch(error => context.setError(strings.errorManagement.auth.init, error));
     // eslint-disable-next-line
   }, []);
 
   useInterval(() => {
     auth && AuthUtils.refreshAccessToken(auth)
-      .then(onLogin);
+      .then(onLogin)
+      .catch(error => context.setError(strings.errorManagement.auth.refresh, error));
   }, 1000 * 60);
 
   /**

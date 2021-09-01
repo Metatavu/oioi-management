@@ -1,5 +1,5 @@
-// tslint:disable
-// eslint-disable
+/* tslint:disable */
+/* eslint-disable */
 /**
  * OiOi content management API
  * OiOi content management API spec
@@ -43,13 +43,13 @@ export interface Device {
      * @type {string}
      * @memberof Device
      */
-    image_url?: string;
+    imageUrl?: string;
     /**
      * 
      * @type {string}
      * @memberof Device
      */
-    api_key: string;
+    apiKey?: string;
     /**
      * 
      * @type {Array<KeyValueProperty>}
@@ -61,25 +61,25 @@ export interface Device {
      * @type {Date}
      * @memberof Device
      */
-    readonly created_at?: Date;
+    readonly createdAt?: Date;
     /**
      * Last modification time
      * @type {Date}
      * @memberof Device
      */
-    readonly modified_at?: Date;
+    readonly modifiedAt?: Date;
     /**
      * 
      * @type {string}
      * @memberof Device
      */
-    creator_id?: string;
+    creatorId?: string;
     /**
      * 
      * @type {string}
      * @memberof Device
      */
-    last_modifier_id?: string;
+    lastModifierId?: string;
 }
 
 export function DeviceFromJSON(json: any): Device {
@@ -94,13 +94,13 @@ export function DeviceFromJSONTyped(json: any, ignoreDiscriminator: boolean): De
         
         'id': !exists(json, 'id') ? undefined : json['id'],
         'name': json['name'],
-        'image_url': !exists(json, 'imageUrl') ? undefined : json['imageUrl'],
-        'api_key': json['apiKey'],
-        'metas': !exists(json, 'metas') ? undefined : (json['metas'] as Array<any>).map(KeyValuePropertyFromJSON),
-        'created_at': !exists(json, 'createdAt') ? undefined : new Date(json['createdAt']),
-        'modified_at': !exists(json, 'modifiedAt') ? undefined : new Date(json['modifiedAt']),
-        'creator_id': !exists(json, 'creatorId') ? undefined : json['creatorId'],
-        'last_modifier_id': !exists(json, 'lastModifierId') ? undefined : json['lastModifierId'],
+        'imageUrl': !exists(json, 'imageUrl') ? undefined : json['imageUrl'],
+        'apiKey': !exists(json, 'apiKey') ? undefined : json['apiKey'],
+        'metas': !exists(json, 'metas') ? undefined : ((json['metas'] as Array<any>).map(KeyValuePropertyFromJSON)),
+        'createdAt': !exists(json, 'createdAt') ? undefined : (new Date(json['createdAt'])),
+        'modifiedAt': !exists(json, 'modifiedAt') ? undefined : (new Date(json['modifiedAt'])),
+        'creatorId': !exists(json, 'creatorId') ? undefined : json['creatorId'],
+        'lastModifierId': !exists(json, 'lastModifierId') ? undefined : json['lastModifierId'],
     };
 }
 
@@ -114,11 +114,11 @@ export function DeviceToJSON(value?: Device | null): any {
     return {
         
         'name': value.name,
-        'imageUrl': value.image_url,
-        'apiKey': value.api_key,
-        'metas': value.metas == null ? undefined : (value.metas as Array<any>).map(KeyValuePropertyToJSON),
-        'creatorId': value.creator_id,
-        'lastModifierId': value.last_modifier_id,
+        'imageUrl': value.imageUrl,
+        'apiKey': value.apiKey,
+        'metas': value.metas === undefined ? undefined : ((value.metas as Array<any>).map(KeyValuePropertyToJSON)),
+        'creatorId': value.creatorId,
+        'lastModifierId': value.lastModifierId,
     };
 }
 

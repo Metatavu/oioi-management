@@ -1,32 +1,28 @@
 import * as React from "react";
-import { withStyles, WithStyles, Button, CircularProgress, Menu, MenuItem, Dialog, DialogTitle, DialogContent, DialogContentText, TextField, DialogActions } from "@material-ui/core";
+import { withStyles, WithStyles, Button, Menu, MenuItem, Dialog, DialogTitle, DialogContent, DialogContentText, TextField, DialogActions, LinearProgress, Typography, Box } from "@material-ui/core";
 import styles from "../../styles/dialog";
-import { DropzoneDialog } from "material-ui-dropzone";
+import { DropzoneArea } from "material-ui-dropzone";
 import strings from "../../localization/strings";
 import { ChangeEvent } from "react";
 import VisibleWithRole from "./VisibleWithRole";
+import GenericDialog from "./GenericDialog";
+import FileUpload from "../../utils/file-upload";
+import { ReduxState } from "../../store";
+import { connect } from "react-redux";
+import { AuthState, UploadData } from "../../types";
 
 /**
  * Component properties
  */
 interface Props extends WithStyles<typeof styles> {
+  auth: AuthState;
   uploadKey?: string;
   allowedFileTypes: string[];
   allowSetUrl?: boolean;
   uploadButtonText: string;
-  /**
-   * Save files to resource
-   * @param files files
-   * @param key  upload key
-   */
-  onSave: (files: File[], key?: string) => void;
-
-  /**
-   * Directly sets resource url
-   * @param url url to set
-   * @param key key
-   */
+  onUpload: (uri: string, key: string) => void;
   onSetUrl?: (url: string, key?: string) => void;
+  title?: string;
 }
 
 /**
@@ -40,12 +36,15 @@ interface State {
   contextMenuX: null | number;
   contextMenuY: null | number;
   resourceUrl?: string;
+  progress?: number;
+  uploadData?: UploadData;
 }
 
 /**
  * Generic file uploader UI component
  */
 class FileUploader extends React.Component<Props, State> {
+
   /**
    * Constructor
    *
@@ -66,17 +65,8 @@ class FileUploader extends React.Component<Props, State> {
   /**
    * Component render method
    */
-  public render() {
-    const { classes, uploadButtonText, allowSetUrl } = this.props;
-    const { uploading } = this.state;
-
-    if (uploading) {
-      return (
-        <div className={ classes.imageUploadLoaderContainer }>
-          <CircularProgress color="secondary" style={{ alignSelf: "center" }}/>
-        </div>
-      );
-    }
+  public render = () => {
+    const { uploadButtonText, allowSetUrl } = this.props;
 
     /**
      * TODO: Add custom icons to resolveLocalizationString
@@ -108,21 +98,80 @@ class FileUploader extends React.Component<Props, State> {
    * Render upload dialog
    */
   private renderUploadDialog = () => {
-    const { allowedFileTypes } = this.props;
+    const { title } = this.props;
 
     return (
-      <DropzoneDialog
-        acceptedFiles={ allowedFileTypes }
+      <GenericDialog
         open={ this.state.dialogOpen }
+        error={ false }
         onClose={ this.closeDialog }
-        onSave={ this.handleSave }
-        dialogTitle={ strings.fileUpload.uploadFile }
-        dropzoneText={ strings.fileUpload.dropFileHere }
+        onCancel={ this.onAbortUpload }
+        onConfirm={ this.closeDialog  }
+        title={ title || strings.fileUpload.uploadFile }
         cancelButtonText={ strings.fileUpload.cancel }
-        submitButtonText={ strings.fileUpload.upload }
-        filesLimit={ 1 }
-        maxFileSize={ 314572800 }
+        fullWidth={ true }
+        ignoreOutsideClicks={ true }
+      >
+        { this.renderUploader() }
+      </GenericDialog>
+    );
+  }
+
+  /**
+   * Renders uploader or progress bar is upload is ongoing
+   */
+  private renderUploader = () => {
+    const { allowedFileTypes, classes } = this.props;
+    const { progress, uploading } = this.state;
+
+    if (uploading && progress === 0) {
+      return (
+        <Box>
+          <LinearProgress key="indeterminate" color="secondary" style={{ flex: 1 }}/>
+        </Box>
+      );
+    }
+
+    if ( progress === 100) {
+      return (
+        <Box>
+          <LinearProgress key="finalizing" color="secondary" style={{ flex: 1 }}/>
+          <Box mt={ 2 } display="flex" flex={ 1 } justifyContent="flex-end">
+            <Typography>
+              { strings.fileUpload.finalizing }
+            </Typography>
+          </Box>
+        </Box>
+      );
+    }
+
+    if (progress) {
+      return (
+        <Box>
+          <LinearProgress
+            key="determinate"
+            variant="determinate"
+            value={ progress }
+            className={ classes.linearProgress }
+          />
+          <Box mt={ 2 } display="flex" flex={ 1 } justifyContent="flex-end">
+            <Typography>
+              { `${progress}%` }
+            </Typography>
+          </Box>
+        </Box>
+      );
+    }
+
+    return (
+      <DropzoneArea
+        acceptedFiles={ allowedFileTypes }
+        clearOnUnmount
+        dropzoneText={ strings.fileUpload.uploadFile }
+        onDrop={ this.onFileUpload }
         showPreviewsInDropzone={ false }
+        maxFileSize={ 314572800 * 1000000 }
+        filesLimit={ 1 }
       />
     );
   }
@@ -132,12 +181,12 @@ class FileUploader extends React.Component<Props, State> {
    */
   private renderContextMenu = () => {
     const { uploadButtonText } = this.props;
-    const { contextMenuX, contextMenuY } = this.state;
+    const { contextMenuX, contextMenuY, contextMenuOpen } = this.state;
 
     return (
       <Menu
         keepMounted
-        open={ this.state.contextMenuOpen }
+        open={ contextMenuOpen }
         onClose={ this.handleContextMenuClose }
         anchorReference="anchorPosition"
         anchorPosition={
@@ -230,6 +279,8 @@ class FileUploader extends React.Component<Props, State> {
 
   /**
    * Handles opening context menu
+   *
+   * @param event React mouse event
    */
   private handleContextMenu = (event: React.MouseEvent<HTMLElement>) => {
     event.preventDefault();
@@ -251,17 +302,31 @@ class FileUploader extends React.Component<Props, State> {
   }
 
   /**
+   * Aborts file upload
+   */
+  private onAbortUpload = () => {
+    const { uploadData } = this.state;
+    uploadData && uploadData.xhrRequest.abort();
+
+    this.closeDialog();
+  }
+
+  /**
    * Close upload image dialog
    */
   private closeDialog = () => {
-    this.setState({ dialogOpen: false });
+    this.setState({
+      dialogOpen: false,
+      uploading: false,
+      uploadData: undefined
+    }, () => setTimeout(() => this.setState({ progress: 0 }), 1000));
   }
 
   /**
    * Handle direct url setting
    */
   private handleSetUrl = async () => {
-    const { onSetUrl } = this.props;
+    const { onSetUrl, uploadKey } = this.props;
     const { resourceUrl } = this.state;
 
     if (!resourceUrl) {
@@ -272,22 +337,65 @@ class FileUploader extends React.Component<Props, State> {
     this.closeDialog();
     this.closeUrlDialog();
     this.handleContextMenuClose();
-    onSetUrl && onSetUrl(resourceUrl, this.props.uploadKey);
+    onSetUrl && onSetUrl(resourceUrl, uploadKey);
     this.setState({ uploading: false });
   }
 
   /**
-   * Handle save/upload
-   * TODO: Add some kind of progress indicator
+   * Callback function that Updates file upload progress
+   *
+   * @param progress upload progress
    */
-  private handleSave = async (files: File[]) => {
-    this.setState({ uploading: true })
-    this.closeDialog();
-    this.closeUrlDialog();
-    this.handleContextMenuClose();
-    this.props.onSave(files, this.props.uploadKey);
-    this.setState({ uploading: false });
+  private updateProgress = (progress: number) => {
+    const { onUpload, uploadKey } = this.props;
+    const { uploadData } = this.state;
+
+    this.setState({ progress: Math.floor(progress) });
+
+    if (!uploadData || progress < 100) {
+      return;
+    }
+
+    setTimeout(() => {
+      onUpload(`${uploadData.cdnBasePath}/${uploadData.key}`, uploadKey || "");
+      this.closeDialog();
+    }, 3000);
+  }
+
+  /**
+   * Handle save/upload
+   *
+   * @param files list of files
+   */
+  private onFileUpload = async (files: File[]) => {
+    const { auth } = this.props;
+    if (!auth || !auth.token || !files.length) {
+      return;
+    }
+
+    const fileToUpload = files[0];
+
+    this.setState({ uploading: true, progress: 0 });
+
+    try {
+      const uploadData = await FileUpload.upload(auth.token, fileToUpload, this.updateProgress);
+      const { xhrRequest, uploadUrl, formData } = uploadData;
+      this.setState({ uploadData: uploadData });
+      xhrRequest.open("POST", uploadUrl, true);
+      xhrRequest.send(formData);
+    } catch (error) {
+      console.log(error);
+    }
   }
 }
 
-export default withStyles(styles)(FileUploader);
+/**
+ * Maps Redux state to component properties
+ *
+ * @param state Redux state
+ */
+const mapStateToProps = (state: ReduxState) => ({
+  auth: state.auth
+});
+
+export default connect(mapStateToProps)(withStyles(styles)(FileUploader));

@@ -1,5 +1,5 @@
-// tslint:disable
-// eslint-disable
+/* tslint:disable */
+/* eslint-disable */
 /**
  * OiOi content management API
  * OiOi content management API spec
@@ -49,31 +49,31 @@ export interface Media {
      * @type {string}
      * @memberof Media
      */
-    content_type: string;
+    contentType: string;
     /**
      * Creation time
      * @type {Date}
      * @memberof Media
      */
-    readonly created_at?: Date;
+    readonly createdAt?: Date;
     /**
      * Last modification time
      * @type {Date}
      * @memberof Media
      */
-    readonly modified_at?: Date;
+    readonly modifiedAt?: Date;
     /**
      * 
      * @type {string}
      * @memberof Media
      */
-    creator_id?: string;
+    creatorId?: string;
     /**
      * 
      * @type {string}
      * @memberof Media
      */
-    last_modifier_id?: string;
+    lastModifierId?: string;
 }
 
 export function MediaFromJSON(json: any): Media {
@@ -89,11 +89,11 @@ export function MediaFromJSONTyped(json: any, ignoreDiscriminator: boolean): Med
         'id': !exists(json, 'id') ? undefined : json['id'],
         'url': json['url'],
         'type': MediaTypeFromJSON(json['type']),
-        'content_type': json['contentType'],
-        'created_at': !exists(json, 'createdAt') ? undefined : new Date(json['createdAt']),
-        'modified_at': !exists(json, 'modifiedAt') ? undefined : new Date(json['modifiedAt']),
-        'creator_id': !exists(json, 'creatorId') ? undefined : json['creatorId'],
-        'last_modifier_id': !exists(json, 'lastModifierId') ? undefined : json['lastModifierId'],
+        'contentType': json['contentType'],
+        'createdAt': !exists(json, 'createdAt') ? undefined : (new Date(json['createdAt'])),
+        'modifiedAt': !exists(json, 'modifiedAt') ? undefined : (new Date(json['modifiedAt'])),
+        'creatorId': !exists(json, 'creatorId') ? undefined : json['creatorId'],
+        'lastModifierId': !exists(json, 'lastModifierId') ? undefined : json['lastModifierId'],
     };
 }
 
@@ -108,9 +108,9 @@ export function MediaToJSON(value?: Media | null): any {
         
         'url': value.url,
         'type': MediaTypeToJSON(value.type),
-        'contentType': value.content_type,
-        'creatorId': value.creator_id,
-        'lastModifierId': value.last_modifier_id,
+        'contentType': value.contentType,
+        'creatorId': value.creatorId,
+        'lastModifierId': value.lastModifierId,
     };
 }
 

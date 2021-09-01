@@ -17,6 +17,7 @@ export interface ResourceSettingsForm extends Partial<Resource> {
   applicationIcons?: string;
   teaserText?: string;
   returnDelay?: string;
+  bundleId?: string;
   autoplay?: boolean;
   loop?: boolean;
   slideTimeOnScreen?: string;
@@ -58,7 +59,7 @@ export const resourceRules: FormValidationRules<ResourceSettingsForm> = {
       trim: true,
       requiredText: strings.requiredField
     },
-    order_number: {
+    orderNumber: {
       required: true,
       trim: true,
       requiredText: strings.requiredField

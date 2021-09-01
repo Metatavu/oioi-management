@@ -1,5 +1,5 @@
-// tslint:disable
-// eslint-disable
+/* tslint:disable */
+/* eslint-disable */
 /**
  * OiOi content management API
  * OiOi content management API spec
@@ -36,31 +36,31 @@ export interface Customer {
      * @type {string}
      * @memberof Customer
      */
-    image_url?: string;
+    imageUrl?: string;
     /**
      * Creation time
      * @type {Date}
      * @memberof Customer
      */
-    readonly created_at?: Date;
+    readonly createdAt?: Date;
     /**
      * Last modification time
      * @type {Date}
      * @memberof Customer
      */
-    readonly modified_at?: Date;
+    readonly modifiedAt?: Date;
     /**
      * 
      * @type {string}
      * @memberof Customer
      */
-    creator_id?: string;
+    creatorId?: string;
     /**
      * 
      * @type {string}
      * @memberof Customer
      */
-    last_modifier_id?: string;
+    lastModifierId?: string;
 }
 
 export function CustomerFromJSON(json: any): Customer {
@@ -75,11 +75,11 @@ export function CustomerFromJSONTyped(json: any, ignoreDiscriminator: boolean): 
         
         'id': !exists(json, 'id') ? undefined : json['id'],
         'name': json['name'],
-        'image_url': !exists(json, 'imageUrl') ? undefined : json['imageUrl'],
-        'created_at': !exists(json, 'createdAt') ? undefined : new Date(json['createdAt']),
-        'modified_at': !exists(json, 'modifiedAt') ? undefined : new Date(json['modifiedAt']),
-        'creator_id': !exists(json, 'creatorId') ? undefined : json['creatorId'],
-        'last_modifier_id': !exists(json, 'lastModifierId') ? undefined : json['lastModifierId'],
+        'imageUrl': !exists(json, 'imageUrl') ? undefined : json['imageUrl'],
+        'createdAt': !exists(json, 'createdAt') ? undefined : (new Date(json['createdAt'])),
+        'modifiedAt': !exists(json, 'modifiedAt') ? undefined : (new Date(json['modifiedAt'])),
+        'creatorId': !exists(json, 'creatorId') ? undefined : json['creatorId'],
+        'lastModifierId': !exists(json, 'lastModifierId') ? undefined : json['lastModifierId'],
     };
 }
 
@@ -93,9 +93,9 @@ export function CustomerToJSON(value?: Customer | null): any {
     return {
         
         'name': value.name,
-        'imageUrl': value.image_url,
-        'creatorId': value.creator_id,
-        'lastModifierId': value.last_modifier_id,
+        'imageUrl': value.imageUrl,
+        'creatorId': value.creatorId,
+        'lastModifierId': value.lastModifierId,
     };
 }
 

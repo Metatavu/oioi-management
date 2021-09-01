@@ -1,10 +1,8 @@
 import * as React from "react";
-import { Dispatch } from "redux";
 import { connect } from "react-redux";
-import { History } from "history";
 import { AuthState } from "../../types";
 import strings from "../../localization/strings";
-import { ReduxState, ReduxActions } from "../../store";
+import { ReduxState } from "../../store";
 import { Customer, Device, Application } from "../../generated/client/src";
 import { Breadcrumbs, Link, createStyles, Theme, WithStyles, withStyles } from "@material-ui/core";
 import { Link as RouterLink } from "react-router-dom";
@@ -13,10 +11,6 @@ import { Link as RouterLink } from "react-router-dom";
  * Component properties
  */
 interface Props extends WithStyles<typeof styles> {
-  /**
-   * Url locations history
-   */
-  history: History;
   /**
    * State of authentication
    */
@@ -44,11 +38,6 @@ interface Props extends WithStyles<typeof styles> {
  * Component state
  */
 interface State {}
-
-/**
- * Page open types
- */
-type PageOpen = "customer" | "device" | "application" | "main";
 
 /**
  * Component styles
@@ -132,13 +121,4 @@ const mapStateToProps = (state: ReduxState) => ({
   application: state.application.application
 });
 
-/**
- * Function for declaring dispatch functions
- *
- * @param dispatch
- */
-const mapDispatchToProps = (dispatch: Dispatch<ReduxActions>) => {
-  return { };
-};
-
-export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(BreadCrumb));
+export default connect(mapStateToProps)(withStyles(styles)(BreadCrumb));

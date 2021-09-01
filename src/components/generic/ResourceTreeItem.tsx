@@ -19,6 +19,7 @@ import VideoIcon from "@material-ui/icons/PlayCircleOutlineOutlined";
 import TextIcon from "@material-ui/icons/TitleOutlined";
 import PDFIcon from "@material-ui/icons/PictureAsPdfOutlined";
 import ImageIcon from "@material-ui/icons/ImageOutlined";
+import ApplicationIcon from "@material-ui/icons/LaptopMacOutlined";
 import theme from "../../styles/theme";
 
 /**
@@ -92,37 +93,43 @@ class ResourceTreeItemClass extends React.Component<Props, State> {
   private renderIconComponentByResourceType = (resourceType: ResourceType) => {
     switch (resourceType) {
       case ResourceType.INTRO: {
-        return <IntroIcon />;
+        return <IntroIcon fontSize="small" />;
       }
       case ResourceType.PAGE: {
-        return <PageIcon />;
+        return <PageIcon fontSize="small" />;
       }
       case ResourceType.IMAGE: {
-        return <ImageIcon />;
+        return <ImageIcon fontSize="small" />;
       }
       case ResourceType.VIDEO: {
-        return <VideoIcon />;
+        return <VideoIcon fontSize="small" />;
       }
       case ResourceType.TEXT: {
-        return <TextIcon />;
+        return <TextIcon fontSize="small" />;
       }
       case ResourceType.PDF: {
-        return <PDFIcon />;
+        return <PDFIcon fontSize="small" />;
       }
       case ResourceType.LANGUAGEMENU: {
-        return <LanguageIcon />;
+        return <LanguageIcon fontSize="small" />;
       }
       case ResourceType.LANGUAGE: {
-        return <LanguageIcon />;
+        return <LanguageIcon fontSize="small" />;
       }
       case ResourceType.MENU: {
-        return <MenuIcon />;
+        return <MenuIcon fontSize="small" />;
       }
       case ResourceType.SLIDESHOW : {
-        return <SlideshowIcon />;
+        return <SlideshowIcon fontSize="small" />;
+      }
+      case ResourceType.SLIDESHOWPDF : {
+        return <PDFIcon fontSize="small" />;
+      }
+      case ResourceType.APPLICATION : {
+        return <ApplicationIcon fontSize="small" />;
       }
       default: {
-        return <UnknownIcon />;
+        return <UnknownIcon fontSize="small" />;
       }
     }
   };

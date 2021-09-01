@@ -1,20 +1,20 @@
 import * as React from "react";
-import { withStyles, WithStyles, TextField, Button, Divider, Typography, CircularProgress, IconButton } from "@material-ui/core";
+import { withStyles, WithStyles, TextField, Button, Divider, Typography, CircularProgress, IconButton, Box } from "@material-ui/core";
 import styles from "../../styles/editor-view";
 import strings from "../../localization/strings";
 import theme from "../../styles/theme";
 import { Application, Resource, KeyValueProperty } from "../../generated/client/src";
 import { Form, initForm, validateForm, MessageType } from "ts-form-validation";
 import { ApplicationForm, applicationRules, ResourceSettingsForm } from "../../commons/formRules";
-
-import FileUpload from "../../utils/file-upload";
 import AddIconDialog from "../generic/AddIconDialog";
 import ImagePreview from "../generic/ImagePreview";
-import { AuthState } from "../../types";
+import { AuthState, ErrorContextType } from "../../types";
 import ApiUtils from "../../utils/api";
 import { IconKeys, getLocalizedIconTypeString, getDefaultIconURL } from "../../commons/iconTypeHelper";
 import VisibleWithRole from "../generic/VisibleWithRole";
 import AddIcon from "@material-ui/icons/Add";
+import { ErrorContext } from "../containers/ErrorHandler";
+import { toast } from "react-toastify";
 
 /**
  * Component Props
@@ -42,10 +42,14 @@ interface State {
   importDone: boolean;
   dataChanged: boolean;
 }
+
 /**
  * Creates Application setting view component
  */
 class AppSettingsView extends React.Component<Props, State> {
+
+  static contextType: React.Context<ErrorContextType> = ErrorContext;
+
   /**
    * Constructor
    *
@@ -70,9 +74,9 @@ class AppSettingsView extends React.Component<Props, State> {
   }
 
   /**
-   * Component did mount
+   * Component did mount life cycle handler
    */
-  public componentDidMount() {
+  public componentDidMount = () => {
     const { application, rootResource } = this.props;
 
     let applicationForm = initForm<ApplicationForm>(
@@ -86,9 +90,16 @@ class AppSettingsView extends React.Component<Props, State> {
     this.updateMaps(rootResource, applicationForm);
   }
 
+  /**
+   * Component did update life cycle handler
+   *
+   * @param prevProps previous props
+   * @param prevState previous state
+   */
   public componentDidUpdate = (prevProps: Props, prevState: State) => {
     const { rootResource } = this.props;
     let { applicationForm } = this.state;
+
     if (prevProps.rootResource !== this.props.rootResource) {
       applicationForm = validateForm(applicationForm);
       this.updateMaps(rootResource, applicationForm);
@@ -99,8 +110,8 @@ class AppSettingsView extends React.Component<Props, State> {
    * Component render method
    */
   public render() {
+    const { classes, auth } = this.props;
     const { importDone, importingContent, dataChanged } = this.state;
-    const { classes } = this.props;
 
     if (importDone) {
       return (
@@ -136,6 +147,10 @@ class AppSettingsView extends React.Component<Props, State> {
             <Typography variant="h4" style={{ marginBottom: theme.spacing(1) }}>{ strings.applicationSettings.returnDelay }</Typography>
             { this.renderTextField(strings.applicationSettings.returnDelay, 1, "text", undefined, "returnDelay") }
           </div>
+          <div style={{ paddingBottom: theme.spacing(3) }}>
+            <Typography variant="h4" style={{ marginBottom: theme.spacing(1) }}>{ strings.applicationSettings.bundleId }</Typography>
+            { this.renderTextField(strings.applicationSettings.bundleId, 1, "text", undefined, "bundleId") }
+          </div>
         </div>
 
         <Divider style={{ marginBottom: theme.spacing(3) }} />
@@ -145,25 +160,38 @@ class AppSettingsView extends React.Component<Props, State> {
         <Divider style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} />
 
         <div className={ classes.gridRow }>
-          <div>
-            <Typography variant="h4" style={{ marginBottom: theme.spacing(1) }}>{ strings.applicationSettings.background }</Typography>
+          <Box mb={ 1 }>
+            <Box mb={ 1 }>
+              <Typography variant="h4">
+                { strings.applicationSettings.background }
+              </Typography>
+            </Box>
             { this.renderMedia("applicationImage") }
-          </div>
+          </Box>
 
-          <div>
-            <Typography variant="h4" style={{ marginBottom: theme.spacing(1) }}>{ strings.applicationSettings.icon }</Typography>
+          <Box mb={ 1 }>
+            <Box mb={ 1 }>
+              <Typography variant="h4">
+                { strings.applicationSettings.icon }
+              </Typography>
+            </Box>
             { this.renderMedia("applicationIcon") }
-          </div>
+          </Box>
         </div>
-
-        <Divider style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} />
-
-        <Typography variant="h4" style={{ marginBottom: theme.spacing(1) }}>{ strings.applicationSettings.icons }</Typography>
+        <Box mb={ 3 } mt={ 3 }>
+          <Divider/>
+        </Box>
+        <Box mb={ 1 }>
+          <Typography variant="h4">
+            { strings.applicationSettings.icons }
+          </Typography>
+        </Box>
 
         <div className={ classes.gridRow }>
           { this.renderIconList() }
         </div>
         <AddIconDialog
+          auth={ auth }
           resource={ this.props.rootResource }
           onSave={ this.onIconFileChange }
           onToggle={ this.toggleDialog }
@@ -171,10 +199,13 @@ class AppSettingsView extends React.Component<Props, State> {
         />
 
         <VisibleWithRole role="admin">
-          <Divider style={ { marginTop: theme.spacing(3), marginBottom: theme.spacing(3) } } />
-          <Typography variant="h4">{ strings.importLabel }</Typography>
-          <input onChange={ e => this.handleWallJsonImport(e.target.files)} type="file"  />
-          <Divider style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} />
+          <Box mb={ 3 } mt={ 3 }>
+            <Divider/>
+          </Box>
+          <Typography variant="h4">
+            { strings.importLabel }
+          </Typography>
+          <input onChange={ e => this.handleWallJsonImport(e.target.files)} type="file"/>
         </VisibleWithRole>
       </div>
     );
@@ -182,7 +213,6 @@ class AppSettingsView extends React.Component<Props, State> {
 
   /**
    * Handles importing data from wall json file
-   *
    */
   private handleWallJsonImport = async (files: FileList | null) => {
     if (!files) {
@@ -212,6 +242,8 @@ class AppSettingsView extends React.Component<Props, State> {
 
       this.setState({ importDone: imported });
 
+      toast.success(strings.importDone);
+
       setTimeout(() => window.location.reload(), 3000);
     }
     reader.readAsText(file);
@@ -219,25 +251,37 @@ class AppSettingsView extends React.Component<Props, State> {
 
   /**
    * Imports wall json items
+   *
+   * @param parentId parent ID
+   * @param items list of items
+   * @returns boolean promise
    */
   private importWallJsonItems = async (parentId: string, items: any[]): Promise<boolean> => {
     const { auth, application, customerId, deviceId } = this.props;
+
     if (!auth || !auth.token) {
       return false;
     }
 
     const resourcesApi = ApiUtils.getResourcesApi(auth.token);
-    for(let i = 0; i < items.length; i++) {
-      let item = items[i];
-      let createdResource = await resourcesApi.createResource({
-        application_id: application.id!,
-        customer_id: customerId,
-        device_id: deviceId,
-        resource: this.translateWallItemToResource(parentId, i, item)
-      });
-      if (item.children.length > 0) {
-        await this.importWallJsonItems(createdResource.id!, item.children);
+
+    try {
+      for(let i = 0; i < items.length; i++) {
+        const item = items[i];
+        const createdResource = await resourcesApi.createResource({
+          applicationId: application.id!,
+          customerId: customerId,
+          deviceId: deviceId,
+          resource: this.translateWallItemToResource(parentId, i, item)
+        });
+
+        if (item.children.length > 0) {
+          await this.importWallJsonItems(createdResource.id!, item.children);
+        }
       }
+    } catch (error) {
+      this.context.setError(strings.errorManagement.resource.create, error);
+      return false;
     }
 
     return true;
@@ -250,16 +294,16 @@ class AppSettingsView extends React.Component<Props, State> {
    */
   private importRootProperties = async (data: any) => {
     const { auth, application, customerId, deviceId, rootResource } = this.props;
+
     if (!auth || !auth.token) {
       return false;
     }
 
-    const resourcesApi = ApiUtils.getResourcesApi(auth.token);
-    const importProperties: { [ key: string]: string } = data.root.properties || {};
+    const importProperties: { [ key: string ]: string } = data.root.properties || {};
     const importPropertyKeys = Object.keys(importProperties);
 
     const rootProperties = (rootResource.properties || [])
-      .filter((rootProperty: KeyValueProperty) => !importPropertyKeys.includes(rootProperty.key));
+      .filter(rootProperty => !importPropertyKeys.includes(rootProperty.key));
 
     importPropertyKeys.forEach(importPropertyKey => {
       const importPropertyValue = importProperties[importPropertyKey];
@@ -269,17 +313,26 @@ class AppSettingsView extends React.Component<Props, State> {
       });
     });
 
-    await resourcesApi.updateResource({
-      resource: { ...rootResource, properties: rootProperties },
-      application_id: application.id!,
-      customer_id: customerId,
-      device_id: deviceId,
-      resource_id: rootResource.id!
-    });
+    try {
+      await ApiUtils.getResourcesApi(auth.token).updateResource({
+        resource: { ...rootResource, properties: rootProperties },
+        applicationId: application.id!,
+        customerId: customerId,
+        deviceId: deviceId,
+        resourceId: rootResource.id!
+      });
+    } catch (error) {
+      this.context.setError(strings.errorManagement.resource.update, error);
+    }
   }
 
   /**
    * Translates wall json item to resource
+   *
+   * @param parentId parent id
+   * @param index index
+   * @param item item
+   * @returns translated resource
    */
   private translateWallItemToResource = (parentId: string, index: number, item: any): Resource => {
     return {
@@ -287,8 +340,8 @@ class AppSettingsView extends React.Component<Props, State> {
       slug: item.slug,
       type: item.type,
       data: item.data,
-      order_number: index,
-      parent_id: parentId,
+      orderNumber: index,
+      parentId: parentId,
       properties: this.translateWallItemProperties(item),
       styles: this.translateWallItemStyles(item)
     };
@@ -296,37 +349,43 @@ class AppSettingsView extends React.Component<Props, State> {
 
   /**
    * Translates wall json item properties to resource properties
+   *
+   * @param item item
+   * @returns list of key value properties
    */
   private translateWallItemProperties = (item: any): KeyValueProperty[] => {
-    const properties: KeyValueProperty[] = [];
-    const keys = Object.keys(item.properties);
-    keys.forEach(key => properties.push({key: key, value: item.properties[key]}));
-    return properties;
+    return Object.keys(item.properties).map(key => ({
+      key: key,
+      value: item.properties[key]
+    }));
   }
 
   /**
    * Translates wall json item styles to resource styles
    */
   private translateWallItemStyles = (item: any): KeyValueProperty[] => {
-    const styles: KeyValueProperty[] = [];
-    const keys = Object.keys(item.styles);
-    keys.forEach(key => styles.push({key: key, value: item.styles[key]}));
-    return styles;
+    return Object.keys(item.styles).map(key => ({
+      key: key,
+      value: item.styles[key]
+    }));
   }
 
   /**
-   * Render text fields
+   * Renders text fields
    */
   private renderFields = () => {
-
     return (
       <>
         <div style={{ marginBottom: theme.spacing(3) }}>
-          <Typography variant="h4" style={{ marginBottom: theme.spacing(1) }}>{ strings.applicationName }</Typography>
+          <Typography variant="h4" style={{ marginBottom: theme.spacing(1) }}>
+            { strings.applicationName }
+          </Typography>
           { this.renderTextField(strings.applicationName, 1, "text", "name") }
         </div>
         <div style={{ marginBottom: theme.spacing(3) }}>
-          <Typography variant="h4" style={{ marginBottom: theme.spacing(1) }}>{ strings.applicationSettings.teaserText }</Typography>
+          <Typography variant="h4" style={{ marginBottom: theme.spacing(1) }}>
+            { strings.applicationSettings.teaserText }
+          </Typography>
           { this.renderTextField(strings.applicationSettings.teaserText, 8, "text", undefined, "teaserText") }
         </div>
       </>
@@ -335,8 +394,20 @@ class AppSettingsView extends React.Component<Props, State> {
 
   /**
    * Render text fields with given form keys
+   *
+   * @param label text field label
+   * @param rows rows
+   * @param type text field type
+   * @param appKey key of ApplicationForm
+   * @param resourceKey key of ResourceSettingsForm
    */
-  private renderTextField = (label: string, rows: number, type: string, appKey?: keyof ApplicationForm, resourceKey?: keyof ResourceSettingsForm) => {
+  private renderTextField = (
+    label: string,
+    rows: number,
+    type: string,
+    appKey?: keyof ApplicationForm,
+    resourceKey?: keyof ResourceSettingsForm
+  ) => {
     if (appKey) {
       const values = this.state.applicationForm.values;
       const { messages: { [appKey]: message } } = this.state.applicationForm;
@@ -375,17 +446,19 @@ class AppSettingsView extends React.Component<Props, State> {
 
   /**
    * Render media elements
+   *
+   * @param key key
    */
   private renderMedia = (key: string) => {
 
-    let previewItem: string;
-    previewItem = this.state.resourceMap.get(key) || "";
+    const previewItem = this.state.resourceMap.get(key) || "";
     return (
       <ImagePreview
+        uploadDialogTitle={ strings.fileUpload.addImage }
         uploadButtonText={ previewItem ? strings.fileUpload.changeImage : strings.fileUpload.addImage }
         allowSetUrl={ true }
         imagePath={ previewItem }
-        onSave={ this.onPropertyFileChange }
+        onUpload={ this.onPropertyFileChange }
         onSetUrl={ this.onPropertyFileUrlSet }
         resource={ this.props.rootResource }
         uploadKey={ key }
@@ -400,39 +473,46 @@ class AppSettingsView extends React.Component<Props, State> {
   private renderIconList = () => {
     const { iconsMap } = this.state;
     const { classes, rootResource } = this.props;
+
     const icons: JSX.Element[] = [];
     const allKeys = Object.values(IconKeys);
     iconsMap.forEach((value: string, key: string) => {
       const iconTypeKey = allKeys.find(k => key === k.toString());
       const preview = (
-        <div key={ key }>
-          <Typography variant="h5">{ iconTypeKey ? getLocalizedIconTypeString(iconTypeKey) : key }</Typography>
+        <Box key={ key } className={ classes.gridItem }>
+          <Typography variant="h5" color="textSecondary">{ iconTypeKey ? getLocalizedIconTypeString(iconTypeKey) : key }</Typography>
           <ImagePreview
+            uploadDialogTitle={ strings.fileUpload.addImage }
             uploadButtonText={ rootResource ? strings.fileUpload.changeImage : strings.fileUpload.addImage }
             key={ key }
             imagePath={ value }
             allowSetUrl={ false }
             onSetUrl={ () => {} }
-            onSave={ this.onIconFileChange }
+            onUpload={ this.onIconFileChange }
             resource={ rootResource }
             uploadKey={ key }
             onDelete={ this.onIconFileDelete }
           />
-        </div>
+        </Box>
       );
       icons.push(preview);
     });
+
     return (
       <>
         { icons }
         <VisibleWithRole role="admin">
-          <IconButton
-            title={ strings.addNewIcon }
-            className={ classes.iconButton }
-            onClick={ this.toggleDialog }
-          >
-            <AddIcon />
-          </IconButton>
+          <Box className={ classes.gridItem }>
+            <Box className={ classes.newItem }>
+              <IconButton
+                title={ strings.addNewIcon }
+                className={ classes.iconButton }
+                onClick={ this.toggleDialog }
+              >
+                <AddIcon fontSize="large" />
+              </IconButton>
+            </Box>
+          </Box>
         </VisibleWithRole>
       </>
     );
@@ -574,13 +654,14 @@ class AppSettingsView extends React.Component<Props, State> {
 
   /**
    * Handles image change
+   *
+   * @param newUri new URI
+   * @param key key
    */
-  private onPropertyFileChange = async (files: File[], key: string) => {
-    const { customerId } = this.props;
-
-    const newUri = await this.upload(files, customerId);
+  private onPropertyFileChange = (newUri: string, key: string) => {
     const tempMap = this.state.resourceMap;
     tempMap.set(key, newUri);
+
     this.setState({
       resourceMap: tempMap,
       dataChanged: true
@@ -591,10 +672,14 @@ class AppSettingsView extends React.Component<Props, State> {
 
   /**
    * Handles image change
+   *
+   * @param newUri new URI
+   * @param key key
    */
-  private onPropertyFileUrlSet = async (url: string, key: string) => {
+  private onPropertyFileUrlSet = (newUri: string, key: string) => {
     const tempMap = this.state.resourceMap;
-    tempMap.set(key, url);
+    tempMap.set(key, newUri);
+
     this.setState({
       resourceMap: tempMap,
       dataChanged: true
@@ -605,13 +690,14 @@ class AppSettingsView extends React.Component<Props, State> {
 
   /**
    * Handles icon change
+   *
+   * @param newUri new URI
+   * @param key key
    */
-  private onIconFileChange = async (files: File[], key: string) => {
-    const { customerId } = this.props;
-
-    const newUri = await this.upload(files, customerId);
+  private onIconFileChange = (newUri: string, key: string) => {
     const tempMap = this.state.iconsMap;
     tempMap.set(key, newUri);
+
     this.setState({
       iconsMap: tempMap,
       dataChanged: true
@@ -649,16 +735,6 @@ class AppSettingsView extends React.Component<Props, State> {
 
     this.onUpdateResource();
   };
-
-  private async upload(files: File[], customerId: string) {
-    let newUri = "";
-    const file = files[0];
-    if (file) {
-      const response = await FileUpload.uploadFile(file, customerId);
-      newUri = response.uri;
-    }
-    return newUri;
-  }
 
   /**
    * Push all property key value pairs from state maps to properties array

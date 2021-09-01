@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import * as React from "react";
-import { withStyles, WithStyles, TextField, Divider, Typography, Button } from "@material-ui/core";
+import { withStyles, WithStyles, TextField, Divider, Typography, Button, Box } from "@material-ui/core";
 import MaterialTable from "material-table";
 import AddCircleIcon from "@material-ui/icons/AddCircle";
 import DeleteIcon from "@material-ui/icons/Delete";
@@ -11,31 +11,25 @@ import styles from "../../styles/editor-view";
 import strings from "../../localization/strings";
 import theme from "../../styles/theme";
 import { Resource, ResourceToJSON, ResourceType } from "../../generated/client/src";
-import FileUpload from "../../utils/file-upload";
 import { forwardRef } from "react";
 import { MessageType, initForm, Form, validateForm } from "ts-form-validation";
 
 import { ResourceSettingsForm, resourceRules } from "../../commons/formRules";
 import ImagePreview from "../generic/ImagePreview";
 import VisibleWithRole from "../generic/VisibleWithRole";
+import { AuthState, ErrorContextType } from "../../types";
+import { ErrorContext } from "../containers/ErrorHandler";
+import { connect } from "react-redux";
+import { ReduxState } from "../../store";
 
 /**
  * Component props
  */
 interface Props extends WithStyles<typeof styles> {
+  auth: AuthState;
   resource: Resource;
   customerId: string;
-
-  /**
-   * Update resource
-   * @param resource resource to update
-   */
   onUpdate: (resource: Resource) => void;
-
-  /**
-   * Delete resource
-   * @param resource resource to delete
-   */
   onDelete: (resource: Resource) => void;
   confirmationRequired: (value: boolean) => void;
 }
@@ -51,7 +45,13 @@ interface State {
   dataChanged: boolean;
 }
 
+/**
+ * Component for resource settings view
+ */
 class ResourceSettingsView extends React.Component<Props, State> {
+
+  static contextType: React.Context<ErrorContextType> = ErrorContext;
+
   /**
    * Constructor
    *
@@ -63,7 +63,7 @@ class ResourceSettingsView extends React.Component<Props, State> {
       form: initForm<ResourceSettingsForm>(
         {
           name: undefined,
-          order_number: undefined,
+          orderNumber: undefined,
           slug: undefined,
           data: undefined
         },
@@ -78,9 +78,9 @@ class ResourceSettingsView extends React.Component<Props, State> {
   }
 
   /**
-   * Component did mount
+   * Component did mount life cycle handler
    */
-  public componentDidMount() {
+  public componentDidMount = () => {
     const resourceId = this.props.resource.id;
     if (!resourceId) {
       return;
@@ -102,9 +102,12 @@ class ResourceSettingsView extends React.Component<Props, State> {
   }
 
   /**
-   * Component did update method
+   * Component did update life cycle handler
+   *
+   * @param prevProps previous props
+   * @param prevState previous state
    */
-  public componentDidUpdate(prevProps: Props, prevState: State) {
+  public componentDidUpdate = (prevProps: Props, prevState: State) => {
     if (prevProps.resource !== this.props.resource) {
       const { resource } = this.props;
       let form = initForm<ResourceSettingsForm>(
@@ -126,7 +129,7 @@ class ResourceSettingsView extends React.Component<Props, State> {
   /**
    * Component render method
    */
-  public render() {
+  public render = () => {
     const { updated, dataChanged } = this.state;
     const { classes } = this.props;
 
@@ -158,34 +161,44 @@ class ResourceSettingsView extends React.Component<Props, State> {
 
         <Divider style={ { marginBottom: theme.spacing(3) }} />
 
-        <div>
-          <Typography variant="h4">{ localizedDataString }</Typography>
+        <Box>
+          <Box mb={ 1 }>
+            <Typography variant="h4">
+              { localizedDataString }
+            </Typography>
+          </Box>
           { dataField }
-        </div>
-        <Divider style={{ marginBottom: theme.spacing(3), marginTop: theme.spacing(3) }} />
+        </Box>
+        <Box mb={ 3 } mt={ 3 }>
+          <Divider/>
+        </Box>
         <VisibleWithRole role="admin">
-          <Typography style={{ marginBottom: theme.spacing(3), marginTop: theme.spacing(3) }} variant="h3">{ strings.advanced }</Typography>
-          <div className={ classes.gridRow }>
-            <div>
-              <Typography variant="h4" style={{ marginBottom: theme.spacing(1) }}>{ strings.orderNumber }</Typography>
-              { this.renderField("order_number", strings.orderNumber, "number") }
-            </div>
-            <Divider style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} />
-            <div>
-              <Typography variant="h4" style={{ marginBottom: theme.spacing(1) }}>{ strings.slug }</Typography>
+          <Typography style={{ marginBottom: theme.spacing(3), marginTop: theme.spacing(3) }} variant="h3">
+            { strings.advanced }
+          </Typography>
+          <Box mb={ 3 } display="flex" flexDirection="row">
+            <Box mb={ 1 } mr={ 2 }>
+              <Typography variant="h4">
+                { strings.orderNumber }
+              </Typography>
+              { this.renderField("orderNumber", strings.orderNumber, "number") }
+            </Box>
+            <Box ml={ 1 }>
+              <Typography variant="h4">
+                { strings.slug }
+              </Typography>
               { this.renderField("slug", strings.slug, "text") }
-            </div>
-            <Divider style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} />
-            </div>
-            <div>
-              <Divider style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} />
-              { this.renderPropertiesTable() }
-            </div>
-            <Divider style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} />
-            <div>
-              { this.renderStyleTable() }
-            </div>
-            <Divider style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} />
+            </Box>
+          </Box>
+          <Box mt={ 3 } mb={ 3 }>
+              <Divider/>
+            </Box>
+          <Box mb={ 4 }>
+            { this.renderPropertiesTable() }
+          </Box>
+          <Box>
+            { this.renderStyleTable() }
+          </Box>
         </VisibleWithRole>
       </div>
     );
@@ -196,10 +209,12 @@ class ResourceSettingsView extends React.Component<Props, State> {
    */
   private renderFields = () => {
     return (
-      <div>
-        <Typography variant="h4" style={{ marginBottom: theme.spacing(1) }}>{ strings.name }</Typography>
+      <Box>
+        <Typography variant="h4" style={{ marginBottom: theme.spacing(1) }}>
+          { strings.name }
+        </Typography>
         { this.renderField("name", strings.name, "text") }
-      </div>
+      </Box>
     );
   }
 
@@ -408,6 +423,7 @@ class ResourceSettingsView extends React.Component<Props, State> {
   private renderDataField = () => {
     const { resource } = this.props;
     const resourceType = resource.type;
+
     if (resourceType === ResourceType.TEXT) {
       return (
         <TextField
@@ -424,18 +440,20 @@ class ResourceSettingsView extends React.Component<Props, State> {
     } else {
       const fileData = this.state.form.values.data || "";
 
-      return <>
-        <ImagePreview
-          uploadButtonText={ fileData ? strings.fileUpload.changeFile : strings.fileUpload.addFile }
-          imagePath={ fileData }
-          allowSetUrl={ true }
-          onSave={ this.onFileChange }
-          onSetUrl={ this.onSetFileUrl }
-          resource={ resource }
-          uploadKey={ "data" }
-          onDelete={ this.onImageFileDelete }
-        />
-      </>;
+      return (
+        <Box>
+          <ImagePreview
+            uploadButtonText={ fileData ? strings.fileUpload.changeFile : strings.fileUpload.addFile }
+            imagePath={ fileData }
+            allowSetUrl={ true }
+            onUpload={ this.onFileOrUriChange }
+            onSetUrl={ this.onFileOrUriChange }
+            resource={ resource }
+            uploadKey="data"
+            onDelete={ this.onImageFileDelete }
+          />
+        </Box>
+      );
     }
   };
 
@@ -465,38 +483,16 @@ class ResourceSettingsView extends React.Component<Props, State> {
   };
 
   /**
-   * Handles file change
-   * @param files files to change
+   * Handles file and URI change
+   *
+   * @param newUri new URI
+   * @param key resource key
    */
-  private onFileChange = async (files: File[]) => {
-    const { customerId } = this.props;
+  private onFileOrUriChange = (newUri: string, key: string) => {
     const { resourceData } = this.state;
+    resourceData[key] = newUri;
 
-    const file = files[0];
-    if (file) {
-      const response = await FileUpload.uploadFile(file, customerId);
-      resourceData["data"] = response.uri;
-    } else {
-      resourceData["data"] = undefined;
-    }
-    this.setState({
-      resourceData: resourceData
-    });
-
-    this.onUpdateResource();
-  };
-
-  /**
-   * Handles file change
-   * @param url url to set
-   */
-  private onSetFileUrl = async (url: string) => {
-    const { resourceData } = this.state;
-    resourceData["data"] = url;
-    this.setState({
-      resourceData: resourceData
-    });
-
+    this.setState({ resourceData: resourceData });
     this.onUpdateResource();
   };
 
@@ -549,9 +545,10 @@ class ResourceSettingsView extends React.Component<Props, State> {
   };
 
   /**
-   * Handles textfields change events
-   * @param key
-   * @param event
+   * Handles text fields change events
+   *
+   * @param key key
+   * @param event React change event
    */
   private onHandleChange = (key: keyof ResourceSettingsForm) => (event: React.ChangeEvent<HTMLInputElement>) => {
     const values = {
@@ -602,4 +599,13 @@ class ResourceSettingsView extends React.Component<Props, State> {
   };
 }
 
-export default withStyles(styles)(ResourceSettingsView);
+/**
+ * Maps redux state to props
+ *
+ * @param state redux state
+ */
+const mapStateToProps = (state: ReduxState) => ({
+  auth: state.auth
+});
+
+export default connect(mapStateToProps)(withStyles(styles)(ResourceSettingsView));

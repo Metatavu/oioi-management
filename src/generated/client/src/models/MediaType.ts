@@ -1,5 +1,5 @@
-// tslint:disable
-// eslint-disable
+/* tslint:disable */
+/* eslint-disable */
 /**
  * OiOi content management API
  * OiOi content management API spec
@@ -31,7 +31,7 @@ export function MediaTypeFromJSONTyped(json: any, ignoreDiscriminator: boolean):
     return json as MediaType;
 }
 
-export function MediaTypeToJSON(value?: MediaType): any {
+export function MediaTypeToJSON(value?: MediaType | null): any {
     return value as any;
 }
 

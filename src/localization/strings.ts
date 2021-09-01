@@ -1,6 +1,4 @@
 import LocalizedStrings, { LocalizedStringsMethods } from "localized-strings";
-import en from "./en.json";
-import fi from "./fi.json";
 
 export interface IStrings extends LocalizedStringsMethods {
   active: string;
@@ -81,6 +79,36 @@ export interface IStrings extends LocalizedStringsMethods {
   importInProgress: string;
   importDone: string;
   importLabel: string;
+  playback: string;
+  autoplay: string;
+  loop: string;
+  slideTimeOnScreen: string;
+  menuIcon: string;
+  replacedIcons: string;
+  page: string;
+  type: string;
+  childResources: string;
+  resourceName: string;
+  orderFromLeftToRight: string;
+  iconNamePrefixNotice: string;
+  noMediaPlaceholder: string;
+  foregroundImage: string;
+  inputUrlAddress: string;
+  urlAddressDialogTitle: string;
+  urlAddressDialogContent: string;
+  urlAddressDialogLabel: string;
+  actionCannotBeReverted: string;
+
+  /**
+   * Translations related to application editor
+   */
+  applicationEditor: {
+    dragSidebar: string;
+  };
+
+  /**
+   * Translations related to file upload
+   */
   fileUpload: {
     addMedia: string;
     changeMedia: string;
@@ -96,12 +124,19 @@ export interface IStrings extends LocalizedStringsMethods {
     cancel: string;
     dropFileHere: string;
     uploadFile: string;
+    preview: string;
+    finalizing: string;
   };
+
+  /**
+   * Translations related to resource types
+   */
   resourceTypes: {
     root: string;
     video: string;
     page: string;
     slideshow: string;
+    slideshowPdf: string;
     intro: string;
     languageMenu: string;
     language: string;
@@ -109,7 +144,12 @@ export interface IStrings extends LocalizedStringsMethods {
     pdf: string;
     text: string;
     image: string;
+    application: string;
   };
+
+  /**
+   * Translations related to application settings
+   */
   applicationSettings: {
     teaserText: string;
     settings: string;
@@ -119,15 +159,14 @@ export interface IStrings extends LocalizedStringsMethods {
     addIconSelect: string;
     addIconTextField: string;
     returnDelay: string;
+    bundleId: string;
     id: string;
     addIcon: string;
   };
-  playback: string;
-  autoplay: string;
-  loop: string;
-  slideTimeOnScreen: string;
-  menuIcon: string;
-  replacedIcons: string;
+
+  /**
+   * Translations related to icon keys
+   */
   iconKeys: {
     iconHome: string;
     iconHomeActive: string;
@@ -139,21 +178,56 @@ export interface IStrings extends LocalizedStringsMethods {
     iconCloseActive: string;
     iconExitApp: string;
     iconExitAppActive: string;
-  },
-  page: string;
-  type: string;
-  childResources: string;
-  resourceName: string;
-  orderFromLeftToRight: string;
-  iconNamePrefixNotice: string;
-  noMediaPlaceholder: string;
-  foregroundImage: string;
-  inputUrlAddress: string;
-  urlAddressDialogTitle: string;
-  urlAddressDialogContent: string;
-  urlAddressDialogLabel: string;
+  };
+
+  /**
+   * Translations related to error management
+   */
+  errorManagement: {
+    title: string;
+    customer: {
+      list: string;
+      create: string;
+      find: string;
+      update: string;
+      delete: string;
+    };
+    device: {
+      list:  string;
+      create: string;
+      find: string;
+      update: string;
+      delete: string;
+    };
+    application: {
+      list:  string;
+      create: string;
+      find: string;
+      update: string;
+      delete: string;
+    };
+    resource: {
+      list: string;
+      listChild: string;
+      create: string;
+      find: string;
+      update: string;
+      updateChild: string;
+      delete: string;
+    };
+    file: {
+      upload: string;
+    };
+    auth: {
+      init: string;
+      refresh: string;
+    };
+  };
 }
 
-const strings: IStrings = new LocalizedStrings({ en, fi });
+const strings: IStrings = new LocalizedStrings({
+  en: require("./en.json"),
+  fi: require("./fi.json")
+});
 
 export default strings;

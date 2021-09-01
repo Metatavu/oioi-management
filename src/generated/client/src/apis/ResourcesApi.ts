@@ -1,5 +1,5 @@
-// tslint:disable
-// eslint-disable
+/* tslint:disable */
+/* eslint-disable */
 /**
  * OiOi content management API
  * OiOi content management API spec
@@ -25,42 +25,42 @@ import {
 
 export interface CreateResourceRequest {
     resource: Resource;
-    customer_id: string;
-    device_id: string;
-    application_id: string;
+    customerId: string;
+    deviceId: string;
+    applicationId: string;
 }
 
 export interface DeleteResourceRequest {
-    customer_id: string;
-    device_id: string;
-    application_id: string;
-    resource_id: string;
+    customerId: string;
+    deviceId: string;
+    applicationId: string;
+    resourceId: string;
 }
 
 export interface FindResourceRequest {
-    customer_id: string;
-    device_id: string;
-    application_id: string;
-    resource_id: string;
+    customerId: string;
+    deviceId: string;
+    applicationId: string;
+    resourceId: string;
 }
 
 export interface ListResourcesRequest {
-    customer_id: string;
-    device_id: string;
-    application_id: string;
-    parent_id?: string;
+    customerId: string;
+    deviceId: string;
+    applicationId: string;
+    parentId?: string;
 }
 
 export interface UpdateResourceRequest {
     resource: Resource;
-    customer_id: string;
-    device_id: string;
-    application_id: string;
-    resource_id: string;
+    customerId: string;
+    deviceId: string;
+    applicationId: string;
+    resourceId: string;
 }
 
 /**
- * no description
+ * 
  */
 export class ResourcesApi extends runtime.BaseAPI {
 
@@ -73,16 +73,16 @@ export class ResourcesApi extends runtime.BaseAPI {
             throw new runtime.RequiredError('resource','Required parameter requestParameters.resource was null or undefined when calling createResource.');
         }
 
-        if (requestParameters.customer_id === null || requestParameters.customer_id === undefined) {
-            throw new runtime.RequiredError('customer_id','Required parameter requestParameters.customer_id was null or undefined when calling createResource.');
+        if (requestParameters.customerId === null || requestParameters.customerId === undefined) {
+            throw new runtime.RequiredError('customerId','Required parameter requestParameters.customerId was null or undefined when calling createResource.');
         }
 
-        if (requestParameters.device_id === null || requestParameters.device_id === undefined) {
-            throw new runtime.RequiredError('device_id','Required parameter requestParameters.device_id was null or undefined when calling createResource.');
+        if (requestParameters.deviceId === null || requestParameters.deviceId === undefined) {
+            throw new runtime.RequiredError('deviceId','Required parameter requestParameters.deviceId was null or undefined when calling createResource.');
         }
 
-        if (requestParameters.application_id === null || requestParameters.application_id === undefined) {
-            throw new runtime.RequiredError('application_id','Required parameter requestParameters.application_id was null or undefined when calling createResource.');
+        if (requestParameters.applicationId === null || requestParameters.applicationId === undefined) {
+            throw new runtime.RequiredError('applicationId','Required parameter requestParameters.applicationId was null or undefined when calling createResource.');
         }
 
         const queryParameters: runtime.HTTPQuery = {};
@@ -100,7 +100,7 @@ export class ResourcesApi extends runtime.BaseAPI {
             }
         }
         const response = await this.request({
-            path: `/customers/{customerId}/devices/{deviceId}/applications/{applicationId}/resources`.replace(`{${"customerId"}}`, encodeURIComponent(String(requestParameters.customer_id))).replace(`{${"deviceId"}}`, encodeURIComponent(String(requestParameters.device_id))).replace(`{${"applicationId"}}`, encodeURIComponent(String(requestParameters.application_id))),
+            path: `/v1/customers/{customerId}/devices/{deviceId}/applications/{applicationId}/resources`.replace(`{${"customerId"}}`, encodeURIComponent(String(requestParameters.customerId))).replace(`{${"deviceId"}}`, encodeURIComponent(String(requestParameters.deviceId))).replace(`{${"applicationId"}}`, encodeURIComponent(String(requestParameters.applicationId))),
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
@@ -124,20 +124,20 @@ export class ResourcesApi extends runtime.BaseAPI {
      * Delete resource
      */
     async deleteResourceRaw(requestParameters: DeleteResourceRequest): Promise<runtime.ApiResponse<void>> {
-        if (requestParameters.customer_id === null || requestParameters.customer_id === undefined) {
-            throw new runtime.RequiredError('customer_id','Required parameter requestParameters.customer_id was null or undefined when calling deleteResource.');
+        if (requestParameters.customerId === null || requestParameters.customerId === undefined) {
+            throw new runtime.RequiredError('customerId','Required parameter requestParameters.customerId was null or undefined when calling deleteResource.');
         }
 
-        if (requestParameters.device_id === null || requestParameters.device_id === undefined) {
-            throw new runtime.RequiredError('device_id','Required parameter requestParameters.device_id was null or undefined when calling deleteResource.');
+        if (requestParameters.deviceId === null || requestParameters.deviceId === undefined) {
+            throw new runtime.RequiredError('deviceId','Required parameter requestParameters.deviceId was null or undefined when calling deleteResource.');
         }
 
-        if (requestParameters.application_id === null || requestParameters.application_id === undefined) {
-            throw new runtime.RequiredError('application_id','Required parameter requestParameters.application_id was null or undefined when calling deleteResource.');
+        if (requestParameters.applicationId === null || requestParameters.applicationId === undefined) {
+            throw new runtime.RequiredError('applicationId','Required parameter requestParameters.applicationId was null or undefined when calling deleteResource.');
         }
 
-        if (requestParameters.resource_id === null || requestParameters.resource_id === undefined) {
-            throw new runtime.RequiredError('resource_id','Required parameter requestParameters.resource_id was null or undefined when calling deleteResource.');
+        if (requestParameters.resourceId === null || requestParameters.resourceId === undefined) {
+            throw new runtime.RequiredError('resourceId','Required parameter requestParameters.resourceId was null or undefined when calling deleteResource.');
         }
 
         const queryParameters: runtime.HTTPQuery = {};
@@ -153,7 +153,7 @@ export class ResourcesApi extends runtime.BaseAPI {
             }
         }
         const response = await this.request({
-            path: `/customers/{customerId}/devices/{deviceId}/applications/{applicationId}/resources/{resourceId}`.replace(`{${"customerId"}}`, encodeURIComponent(String(requestParameters.customer_id))).replace(`{${"deviceId"}}`, encodeURIComponent(String(requestParameters.device_id))).replace(`{${"applicationId"}}`, encodeURIComponent(String(requestParameters.application_id))).replace(`{${"resourceId"}}`, encodeURIComponent(String(requestParameters.resource_id))),
+            path: `/v1/customers/{customerId}/devices/{deviceId}/applications/{applicationId}/resources/{resourceId}`.replace(`{${"customerId"}}`, encodeURIComponent(String(requestParameters.customerId))).replace(`{${"deviceId"}}`, encodeURIComponent(String(requestParameters.deviceId))).replace(`{${"applicationId"}}`, encodeURIComponent(String(requestParameters.applicationId))).replace(`{${"resourceId"}}`, encodeURIComponent(String(requestParameters.resourceId))),
             method: 'DELETE',
             headers: headerParameters,
             query: queryParameters,
@@ -175,20 +175,20 @@ export class ResourcesApi extends runtime.BaseAPI {
      * Finds a resource
      */
     async findResourceRaw(requestParameters: FindResourceRequest): Promise<runtime.ApiResponse<Resource>> {
-        if (requestParameters.customer_id === null || requestParameters.customer_id === undefined) {
-            throw new runtime.RequiredError('customer_id','Required parameter requestParameters.customer_id was null or undefined when calling findResource.');
+        if (requestParameters.customerId === null || requestParameters.customerId === undefined) {
+            throw new runtime.RequiredError('customerId','Required parameter requestParameters.customerId was null or undefined when calling findResource.');
         }
 
-        if (requestParameters.device_id === null || requestParameters.device_id === undefined) {
-            throw new runtime.RequiredError('device_id','Required parameter requestParameters.device_id was null or undefined when calling findResource.');
+        if (requestParameters.deviceId === null || requestParameters.deviceId === undefined) {
+            throw new runtime.RequiredError('deviceId','Required parameter requestParameters.deviceId was null or undefined when calling findResource.');
         }
 
-        if (requestParameters.application_id === null || requestParameters.application_id === undefined) {
-            throw new runtime.RequiredError('application_id','Required parameter requestParameters.application_id was null or undefined when calling findResource.');
+        if (requestParameters.applicationId === null || requestParameters.applicationId === undefined) {
+            throw new runtime.RequiredError('applicationId','Required parameter requestParameters.applicationId was null or undefined when calling findResource.');
         }
 
-        if (requestParameters.resource_id === null || requestParameters.resource_id === undefined) {
-            throw new runtime.RequiredError('resource_id','Required parameter requestParameters.resource_id was null or undefined when calling findResource.');
+        if (requestParameters.resourceId === null || requestParameters.resourceId === undefined) {
+            throw new runtime.RequiredError('resourceId','Required parameter requestParameters.resourceId was null or undefined when calling findResource.');
         }
 
         const queryParameters: runtime.HTTPQuery = {};
@@ -204,7 +204,7 @@ export class ResourcesApi extends runtime.BaseAPI {
             }
         }
         const response = await this.request({
-            path: `/customers/{customerId}/devices/{deviceId}/applications/{applicationId}/resources/{resourceId}`.replace(`{${"customerId"}}`, encodeURIComponent(String(requestParameters.customer_id))).replace(`{${"deviceId"}}`, encodeURIComponent(String(requestParameters.device_id))).replace(`{${"applicationId"}}`, encodeURIComponent(String(requestParameters.application_id))).replace(`{${"resourceId"}}`, encodeURIComponent(String(requestParameters.resource_id))),
+            path: `/v1/customers/{customerId}/devices/{deviceId}/applications/{applicationId}/resources/{resourceId}`.replace(`{${"customerId"}}`, encodeURIComponent(String(requestParameters.customerId))).replace(`{${"deviceId"}}`, encodeURIComponent(String(requestParameters.deviceId))).replace(`{${"applicationId"}}`, encodeURIComponent(String(requestParameters.applicationId))).replace(`{${"resourceId"}}`, encodeURIComponent(String(requestParameters.resourceId))),
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
@@ -227,22 +227,22 @@ export class ResourcesApi extends runtime.BaseAPI {
      * List resources
      */
     async listResourcesRaw(requestParameters: ListResourcesRequest): Promise<runtime.ApiResponse<Array<Resource>>> {
-        if (requestParameters.customer_id === null || requestParameters.customer_id === undefined) {
-            throw new runtime.RequiredError('customer_id','Required parameter requestParameters.customer_id was null or undefined when calling listResources.');
+        if (requestParameters.customerId === null || requestParameters.customerId === undefined) {
+            throw new runtime.RequiredError('customerId','Required parameter requestParameters.customerId was null or undefined when calling listResources.');
         }
 
-        if (requestParameters.device_id === null || requestParameters.device_id === undefined) {
-            throw new runtime.RequiredError('device_id','Required parameter requestParameters.device_id was null or undefined when calling listResources.');
+        if (requestParameters.deviceId === null || requestParameters.deviceId === undefined) {
+            throw new runtime.RequiredError('deviceId','Required parameter requestParameters.deviceId was null or undefined when calling listResources.');
         }
 
-        if (requestParameters.application_id === null || requestParameters.application_id === undefined) {
-            throw new runtime.RequiredError('application_id','Required parameter requestParameters.application_id was null or undefined when calling listResources.');
+        if (requestParameters.applicationId === null || requestParameters.applicationId === undefined) {
+            throw new runtime.RequiredError('applicationId','Required parameter requestParameters.applicationId was null or undefined when calling listResources.');
         }
 
         const queryParameters: runtime.HTTPQuery = {};
 
-        if (requestParameters.parent_id !== undefined) {
-            queryParameters['parentId'] = requestParameters.parent_id;
+        if (requestParameters.parentId !== undefined) {
+            queryParameters['parentId'] = requestParameters.parentId;
         }
 
         const headerParameters: runtime.HTTPHeaders = {};
@@ -256,7 +256,7 @@ export class ResourcesApi extends runtime.BaseAPI {
             }
         }
         const response = await this.request({
-            path: `/customers/{customerId}/devices/{deviceId}/applications/{applicationId}/resources`.replace(`{${"customerId"}}`, encodeURIComponent(String(requestParameters.customer_id))).replace(`{${"deviceId"}}`, encodeURIComponent(String(requestParameters.device_id))).replace(`{${"applicationId"}}`, encodeURIComponent(String(requestParameters.application_id))),
+            path: `/v1/customers/{customerId}/devices/{deviceId}/applications/{applicationId}/resources`.replace(`{${"customerId"}}`, encodeURIComponent(String(requestParameters.customerId))).replace(`{${"deviceId"}}`, encodeURIComponent(String(requestParameters.deviceId))).replace(`{${"applicationId"}}`, encodeURIComponent(String(requestParameters.applicationId))),
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
@@ -283,20 +283,20 @@ export class ResourcesApi extends runtime.BaseAPI {
             throw new runtime.RequiredError('resource','Required parameter requestParameters.resource was null or undefined when calling updateResource.');
         }
 
-        if (requestParameters.customer_id === null || requestParameters.customer_id === undefined) {
-            throw new runtime.RequiredError('customer_id','Required parameter requestParameters.customer_id was null or undefined when calling updateResource.');
+        if (requestParameters.customerId === null || requestParameters.customerId === undefined) {
+            throw new runtime.RequiredError('customerId','Required parameter requestParameters.customerId was null or undefined when calling updateResource.');
         }
 
-        if (requestParameters.device_id === null || requestParameters.device_id === undefined) {
-            throw new runtime.RequiredError('device_id','Required parameter requestParameters.device_id was null or undefined when calling updateResource.');
+        if (requestParameters.deviceId === null || requestParameters.deviceId === undefined) {
+            throw new runtime.RequiredError('deviceId','Required parameter requestParameters.deviceId was null or undefined when calling updateResource.');
         }
 
-        if (requestParameters.application_id === null || requestParameters.application_id === undefined) {
-            throw new runtime.RequiredError('application_id','Required parameter requestParameters.application_id was null or undefined when calling updateResource.');
+        if (requestParameters.applicationId === null || requestParameters.applicationId === undefined) {
+            throw new runtime.RequiredError('applicationId','Required parameter requestParameters.applicationId was null or undefined when calling updateResource.');
         }
 
-        if (requestParameters.resource_id === null || requestParameters.resource_id === undefined) {
-            throw new runtime.RequiredError('resource_id','Required parameter requestParameters.resource_id was null or undefined when calling updateResource.');
+        if (requestParameters.resourceId === null || requestParameters.resourceId === undefined) {
+            throw new runtime.RequiredError('resourceId','Required parameter requestParameters.resourceId was null or undefined when calling updateResource.');
         }
 
         const queryParameters: runtime.HTTPQuery = {};
@@ -314,7 +314,7 @@ export class ResourcesApi extends runtime.BaseAPI {
             }
         }
         const response = await this.request({
-            path: `/customers/{customerId}/devices/{deviceId}/applications/{applicationId}/resources/{resourceId}`.replace(`{${"customerId"}}`, encodeURIComponent(String(requestParameters.customer_id))).replace(`{${"deviceId"}}`, encodeURIComponent(String(requestParameters.device_id))).replace(`{${"applicationId"}}`, encodeURIComponent(String(requestParameters.application_id))).replace(`{${"resourceId"}}`, encodeURIComponent(String(requestParameters.resource_id))),
+            path: `/v1/customers/{customerId}/devices/{deviceId}/applications/{applicationId}/resources/{resourceId}`.replace(`{${"customerId"}}`, encodeURIComponent(String(requestParameters.customerId))).replace(`{${"deviceId"}}`, encodeURIComponent(String(requestParameters.deviceId))).replace(`{${"applicationId"}}`, encodeURIComponent(String(requestParameters.applicationId))).replace(`{${"resourceId"}}`, encodeURIComponent(String(requestParameters.resourceId))),
             method: 'PUT',
             headers: headerParameters,
             query: queryParameters,

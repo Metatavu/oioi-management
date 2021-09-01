@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import * as React from "react";
-import { withStyles, WithStyles, FormControlLabel, Checkbox, TextField, Divider, Typography, Button, TableContainer, Paper, Table, TableHead, TableRow, TableCell, TableBody } from "@material-ui/core";
+import { withStyles, WithStyles, FormControlLabel, Checkbox, TextField, Divider, Typography, Button, TableContainer, Paper, Table, TableHead, TableRow, TableCell, TableBody, Box } from "@material-ui/core";
 import MaterialTable from "material-table";
 import AddIcon from "@material-ui/icons/Add";
 import AddCircleIcon from "@material-ui/icons/AddCircle";
@@ -12,11 +12,10 @@ import styles from "../../styles/editor-view";
 import strings from "../../localization/strings";
 import theme from "../../styles/theme";
 import { Resource, ResourceToJSON, KeyValueProperty, ResourceType } from "../../generated/client/src";
-import FileUpload from "../../utils/file-upload";
 import { forwardRef } from "react";
 import { MessageType, initForm, Form, validateForm } from "ts-form-validation";
 
-import { AuthState } from "../../types";
+import { AuthState, ErrorContextType } from "../../types";
 import ApiUtils from "../../utils/api";
 
 import IconButton from "@material-ui/core/IconButton";
@@ -26,6 +25,8 @@ import AddIconDialog from "../generic/AddIconDialog";
 import { IconKeys, getLocalizedIconTypeString } from "../../commons/iconTypeHelper";
 import VisibleWithRole from "../generic/VisibleWithRole";
 import { getLocalizedTypeString } from "../../commons/resourceTypeHelper";
+import { ErrorContext } from "../containers/ErrorHandler";
+import { resolveChildResourceTypes } from "../../commons/resourceTypeHelper";
 
 /**
  * Component props
@@ -38,16 +39,7 @@ interface Props extends WithStyles<typeof styles> {
   customerId: string;
   resourcesUpdated: number;
   confirmationRequired: (value: boolean) => void;
-  /**
-   * Update resource
-   * @param resource resource to update
-   */
   onUpdate: (resource: Resource) => void;
-
-  /**
-   * Delete resource
-   * @param resource resource to delete
-   */
   onDelete: (resource: Resource) => void;
 }
 
@@ -66,7 +58,12 @@ interface State {
   iconDialogOpen: boolean;
 }
 
+/**
+ * Component for menu resource settings view
+ */
 class MenuResourceSettingsView extends React.Component<Props, State> {
+
+  static contextType: React.Context<ErrorContextType> = ErrorContext;
 
   /**
    * Constructor
@@ -79,7 +76,7 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
       form: initForm<ResourceSettingsForm>(
         {
           name: undefined,
-          order_number: undefined,
+          orderNumber: undefined,
           slug: undefined,
           data: undefined,
         },
@@ -96,91 +93,30 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
   }
 
   /**
-   * Component did mount
+   * Component did mount life cycle handler
    */
   public componentDidMount = async () => {
-
-    const { auth, customerId, deviceId, applicationId, resource } = this.props;
-    const resourceId = resource.id;
-
-    if (!auth || !auth.token || !resourceId) {
-      return;
-    }
-    let form = initForm<ResourceSettingsForm>(
-      {
-        ...this.props.resource,
-      },
-      resourceRules
-    );
-
-    form = validateForm(form);
-    const { initResourceMap, initIconsMap } = this.updateMaps(resource);
-
-    const resourcesApi = ApiUtils.getResourcesApi(auth.token);
-    const childResources = await resourcesApi.listResources({
-      customer_id: customerId,
-      device_id: deviceId,
-      application_id: applicationId,
-      parent_id: resourceId
-    });
-
-    this.setState({
-      form,
-      resourceId: resourceId,
-      resourceData: ResourceToJSON(this.props.resource),
-      childResources: childResources,
-      resourceMap: initResourceMap,
-      iconsMap: initIconsMap
-    });
+    await this.fetchData(false);
   }
 
   /**
    * Component did update method
+   *
+   * @param prevProps previous props
+   * @param prevState previous state
    */
   public componentDidUpdate = async (prevProps: Props, prevState: State) => {
     if (prevProps.resource !== this.props.resource || prevProps.resourcesUpdated !== this.props.resourcesUpdated) {
-
-      const { auth, customerId, deviceId, applicationId, resource } = this.props;
-      const resourceId = resource.id;
-
-      if (!auth || !auth.token || !resourceId) {
-        return;
-      }
-
-      const resourcesApi = ApiUtils.getResourcesApi(auth.token);
-      const childResources = await resourcesApi.listResources({
-        customer_id: customerId,
-        device_id: deviceId,
-        application_id: applicationId,
-        parent_id: resourceId
-      });
-      let form = initForm<ResourceSettingsForm>(
-        {
-          ...resource,
-        },
-        resourceRules
-      );
-
-      form = validateForm(form);
-      const { initResourceMap, initIconsMap } = this.updateMaps(resource);
-
-      this.setState({
-        updated: true,
-        form,
-        resourceData: ResourceToJSON(resource),
-        childResources: childResources,
-        resourceMap: initResourceMap,
-        iconsMap: initIconsMap
-      });
+      await this.fetchData(true);
     }
   }
 
   /**
    * Component render method
    */
-  public render() {
+  public render = () => {
+    const { classes, auth } = this.props;
     const { updated, dataChanged } = this.state;
-    const { classes } = this.props;
 
     if (updated) {
       this.setState({
@@ -202,63 +138,73 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
         >
           { strings.save }
         </Button>
-
         { this.renderFields() }
-
-        <Divider style={ { marginTop: theme.spacing(3), marginBottom: theme.spacing(3) } } />
-
-        <div className={ classes.gridRow }>
-          <div>
+        <Box mb={ 3 }>
+          <Divider/>
+        </Box>
+        <Box className={ classes.gridRow }>
+          <Box className={ classes.gridItem }>
             { this.renderUploaderAndPreview(strings.backgroundMedia, "background") }
-          </div>
-          <div>
+          </Box>
+          <Box className={ classes.gridItem }>
             { this.renderUploaderAndPreview(strings.menuImage, "menuImg") }
-          </div>
-          <div>
+          </Box>
+          <Box className={ classes.gridItem }>
             { this.renderUploaderAndPreview(strings.foregroundImage, "foreground") }
-          </div>
-        </div>
-
-        <Divider style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} />
-
-        <Typography variant="h4" style={{ marginBottom: theme.spacing(1) }}>{ strings.replacedIcons }</Typography>
+          </Box>
+        </Box>
+        <Box mt={ 3 } mb={ 3 }>
+          <Divider/>
+        </Box>
+        <Box mb={ 3 }>
+          <Typography variant="h4">
+            { strings.replacedIcons }
+          </Typography>
+        </Box>
         { this.renderIconList() }
         <AddIconDialog
+          auth={ auth }
           resource={ this.props.resource }
           onSave={ this.onIconFileChange }
           onToggle={ this.toggleDialog }
           open={ this.state.iconDialogOpen }
         />
-
-        <Divider style={ { marginTop: theme.spacing(3), marginBottom: theme.spacing(3) } } />
-
-        <Typography variant="h4" style={{ marginBottom: theme.spacing(1) }}>{ strings.childResources }</Typography>
+        <Box mt={ 3 } mb={ 3 }>
+          <Divider/>
+        </Box>
         { this.renderChildResources() }
-
-        <Divider style={ { marginTop: theme.spacing(3), marginBottom: theme.spacing(3) } } />
+        <Box mt={ 3 } mb={ 3 }>
+          <Divider/>
+        </Box>
         <VisibleWithRole role="admin">
-          <Typography style={ { marginTop: theme.spacing(3), marginBottom: theme.spacing(3) } } variant="h3">{ strings.advanced }</Typography>
-          <div className={ classes.gridRow } style={{ marginBottom: theme.spacing(3) }}>
-            <div>
-              <Typography variant="h4" style={{ marginBottom: theme.spacing(1) }}>{ strings.orderNumber }</Typography>
-              { this.renderFormField("order_number", strings.orderNumber, "number") }
-            </div>
-
-            <div>
-              <Typography variant="h4" style={{ marginBottom: theme.spacing(1) }}>{ strings.slug }</Typography>
+          <Box mt={ 3 } mb={ 3 }>
+            <Typography variant="h3">
+              { strings.advanced }
+            </Typography>
+          </Box>
+          <Box mb={ 3 } display="flex" flexDirection="row">
+            <Box mb={ 1 } mr={ 2 }>
+              <Typography variant="h4">
+                { strings.orderNumber }
+              </Typography>
+              { this.renderFormField("orderNumber", strings.orderNumber, "number") }
+            </Box>
+            <Box mb={ 1 }>
+              <Typography variant="h4">
+                { strings.slug }
+              </Typography>
               { this.renderFormField("slug", strings.slug, "text") }
-            </div>
-
-            <Divider style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} />
-          </div>
-          <div>
+            </Box>
+            <Box mt={ 3 } mb={ 3 }>
+              <Divider/>
+            </Box>
+          </Box>
+          <Box mb={ 3 }>
             { this.renderPropertiesTable() }
-          </div>
-          <Divider style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} />
-          <div>
+          </Box>
+          <Box>
             { this.renderStyleTable() }
-          </div>
-          <Divider style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} />
+          </Box>
         </VisibleWithRole>
       </div>
     );
@@ -271,13 +217,29 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
     const { resource } = this.props;
     return (
       <>
-        <Typography variant="h4" style={{ marginBottom: theme.spacing(1) }}>{ strings.name }</Typography>
+        <Box mb={ 1 }>
+          <Typography variant="h4">
+            { strings.name }
+          </Typography>
+        </Box>
         { this.renderFormField("name", strings.name, "text") }
-        <Typography style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(1) }} variant="h4">{ strings.title }</Typography>
-        { this.renderPropertiesField("title", strings.title, "text") }
-        <Typography style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(1) }} variant="h4">{ strings.nameText }</Typography>
+        <Box mt={ 3 } mb={ 1 }>
+          <Typography variant="h4">
+            { strings.nameText }
+          </Typography>
+        </Box>
         { this.renderPropertiesField("nameText", strings.nameText, "textarea") }
-        <Typography style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(1) }} variant="h4">{ strings.content }</Typography>
+        <Box mt={ 3 } mb={ 1 }>
+          <Typography variant="h4">
+            { strings.title }
+          </Typography>
+        </Box>
+        { this.renderPropertiesField("title", strings.title, "text") }
+        <Box mt={ 3 } mb={ 1 }>
+          <Typography variant="h4">
+            { strings.content }
+          </Typography>
+        </Box>
         { this.renderPropertiesField("content", strings.content, "textarea") }
         { resource.type === ResourceType.SLIDESHOW && this.renderSlideShowFields() }
       </>
@@ -373,21 +335,29 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
    * Render slideshow specific fields
    */
   private renderSlideShowFields = () => {
-    const { classes } = this.props;
     return (
-      <div className={ classes.gridRow }>
-        <div>
-          <Typography style={ { marginTop: theme.spacing(3), marginBottom: theme.spacing(1) } } variant="h4">{ strings.playback }</Typography>
-          <div style={{ marginLeft: theme.spacing(2) }}>
+      <Box display="flex" mt={ 3 }>
+        <Box mr={ 2 } mb={ 4 }>
+          <Box>
+            <Typography variant="h4">
+              { strings.playback }
+            </Typography>
+          </Box>
+          <Box ml={ 2 } mt={ 2 }>
             { this.renderCheckbox("autoplay", strings.autoplay) }
             { this.renderCheckbox("loop", strings.loop) }
-          </div>
-        </div>
-        <div>
-          <Typography style={ { marginTop: theme.spacing(3), marginBottom: theme.spacing(1) } } variant="h4">{ strings.slideTimeOnScreen }</Typography>
+          </Box>
+        </Box>
+        <Divider orientation="vertical" flexItem />
+        <Box ml={ 4 } mb={ 4 }>
+          <Box mb={ 1 }>
+            <Typography variant="h4">
+              { strings.slideTimeOnScreen }
+            </Typography>
+          </Box>
           { this.renderPropertiesField("slideTimeOnScreen", strings.slideTimeOnScreen, "text") }
-        </div>
-      </div>
+        </Box>
+      </Box>
     );
   }
 
@@ -616,9 +586,31 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
 
   /**
    * Render child resources
-   * TODO: Needs styles (Tuomas)
    */
   private renderChildResources = () => {
+    const { resource } = this.props;
+
+    const childTypes = resolveChildResourceTypes(resource.type);
+
+    if (childTypes.length === 0) {
+      return null;
+    }
+
+    return (
+      <>
+        <Typography variant="h4" style={{ marginBottom: theme.spacing(1) }}>
+          { strings.childResources }
+        </Typography>
+        { this.renderChildResourcesList() }
+      </>
+    );
+  }
+
+  /**
+   * Render child resources list
+   * TODO: Needs styles (Tuomas)
+   */
+  private renderChildResourcesList = () => {
     const { childResources } = this.state;
     const { classes } = this.props;
 
@@ -631,7 +623,7 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
         <TableRow key={ resource.name }>
           <TableCell component="th" scope="row">{ resource.name }</TableCell>
           <TableCell align="left">{ getLocalizedTypeString(resource.type) }</TableCell>
-          <TableCell align="center">{ resource.order_number }</TableCell>
+          <TableCell align="center">{ resource.orderNumber }</TableCell>
           <TableCell align="right">
             <IconButton
               size="small"
@@ -692,8 +684,8 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
           uploadButtonText={ previewItem ? strings.fileUpload.changeMedia : strings.fileUpload.addMedia }
           imagePath={ previewItem }
           allowSetUrl={ true }
-          onSave={ this.onPropertyFileChange }
-          onSetUrl={ this.onPropertyFileSetUrl }
+          onUpload={ this.onPropertyFileChange }
+          onSetUrl={ this.onPropertyFileChange }
           resource={ resource }
           uploadKey={ uploadKey }
           onDelete={ this.onPropertyFileDelete }
@@ -717,7 +709,7 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
         key;
 
       icons.push(
-        <div key={ key }>
+        <Box key={ key } className={ classes.gridItem }>
           <Typography variant="h5">
             { displayName }
           </Typography>
@@ -726,26 +718,30 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
             key={ key }
             imagePath={ value }
             allowSetUrl={ false }
-            onSave={ this.onIconFileChange }
+            onUpload={ this.onIconFileChange }
             onSetUrl={ () => {} }
             resource={ resource }
             uploadKey={ key }
             onDelete={ this.onIconFileDelete }
             />
-        </div>
+        </Box>
       );
     });
 
     return (
-      <div className={ classes.gridRow }>
+      <Box className={ classes.gridRow }>
         { icons }
-        <IconButton
-          className={ classes.iconButton }
-          onClick={ this.toggleDialog }
-        >
-          <AddIcon />
-        </IconButton>
-      </div>
+        <Box className={ classes.gridItem }>
+          <Box className={ classes.newItem }>
+            <IconButton
+              className={ classes.iconButton }
+              onClick={ this.toggleDialog }
+            >
+              <AddIcon fontSize="large" />
+            </IconButton>
+          </Box>
+        </Box>
+      </Box>
     );
   }
 
@@ -785,42 +781,32 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
 
   /**
    * Handles image change
+   *
+   * @param newUri new URI
+   * @param key key
    */
-  private onPropertyFileChange = async (files: File[], key: string) => {
-    const { customerId } = this.props;
-
-    const newUri = await this.upload(files, customerId);
+  private onPropertyFileChange = (newUri: string, key: string) => {
     const tempMap = this.state.resourceMap;
     tempMap.set(key, newUri);
-    this.setState({
-      resourceMap: tempMap,
-      dataChanged: true
-    });
-    this.onUpdateResource();
-  };
 
-  /**
-   * Handles image change
-   */
-  private onPropertyFileSetUrl = async (url: string, key: string) => {
-    const tempMap = this.state.resourceMap;
-    tempMap.set(key, url);
     this.setState({
       resourceMap: tempMap,
       dataChanged: true
     });
+
     this.onUpdateResource();
   };
 
   /**
    * Handles icon change
+   *
+   * @param newUri new URI
+   * @param key key
    */
-  private onIconFileChange = async (files: File[], key: string) => {
-    const { customerId } = this.props;
-
-    const newUri = await this.upload(files, customerId);
+  private onIconFileChange = (newUri: string, key: string) => {
     const tempMap = this.state.iconsMap;
     tempMap.set(key, newUri);
+
     this.setState({
       iconsMap: tempMap,
       dataChanged: true
@@ -878,9 +864,9 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
     const resource = {
       ...this.props.resource,
       name: form.values.name,
-      order_number: form.values.order_number,
+      orderNumber: form.values.orderNumber,
       slug: form.values.slug,
-      parent_id: form.values.parent_id,
+      parentId: form.values.parentId,
       type: form.values.type,
       id: form.values.id,
       data: resourceData["data"],
@@ -909,7 +895,7 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
   };
 
   /**
-   * Handles textfields change events
+   * Handles text fields change events
    * @param key
    * @param event
    */
@@ -948,22 +934,8 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
   };
 
   /**
-   * Upload file to S3
-   * @param files list of files
-   * @param customerId customer id
-   */
-  private async upload(files: File[], customerId: string) {
-    let newUri = "";
-    const file = files[0];
-    if (file) {
-      const response = await FileUpload.uploadFile(file, customerId);
-      newUri = response.uri;
-    }
-    return newUri;
-  }
-
-  /**
    * Push all property key value pairs from state maps to properties array
+   *
    * @param properties
    */
   private getPropertiesToUpdate(properties: KeyValueProperty[]) {
@@ -994,7 +966,10 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
    * @param oldData old data from table
    * @param newData new data from table
    */
-  private updateMapsOnTableDataChange = (oldData: ({ key: string; } & { value: string; }) | undefined, newData: { key: string; } & { value: string; }) => {
+  private updateMapsOnTableDataChange = (
+    oldData: ({ key: string; } & { value: string; }) | undefined,
+    newData: { key: string; } & { value: string; }
+  ) => {
     const { resourceMap, iconsMap } = this.state;
 
     if (oldData) {
@@ -1025,11 +1000,15 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
 
   /**
    * Adds resource to map
+   *
    * @param newData new data
    * @param iconsMap icons map
    * @param resourceMap resource map
    */
-  private addResourceToMap(newData: { key: string; } & { value: string; }, iconsMap: Map<string, string>, resourceMap: Map<string, string>) {
+  private addResourceToMap(
+    newData: { key: string; } & { value: string; },
+    iconsMap: Map<string, string>, resourceMap: Map<string, string>
+  ) {
     if (newData.key.startsWith("icon_")) {
       iconsMap.set(newData.key, newData.value);
     } else {
@@ -1039,15 +1018,64 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
 
   /**
    * Deletes resource from map
+   *
    * @param oldData  old data
    * @param iconsMap icons map
    * @param resourceMap resource map
    */
-  private deleteResourceFromMap(oldData: { key: string; } & { value: string; }, iconsMap: Map<string, string>, resourceMap: Map<string, string>) {
+  private deleteResourceFromMap(
+    oldData: { key: string; } & { value: string; },
+    iconsMap: Map<string, string>, resourceMap: Map<string, string>
+  ) {
     if (oldData.key.startsWith("icon_")) {
       iconsMap.delete(oldData.key);
     } else {
       resourceMap.delete(oldData.key);
+    }
+  }
+
+  /**
+   * Fetches data
+   *
+   * @param updated updated
+   */
+  private fetchData = async (updated: boolean) => {
+    const { auth, customerId, deviceId, applicationId, resource } = this.props;
+    const resourceId = resource.id;
+
+    if (!auth || !auth.token || !resourceId) {
+      return;
+    }
+
+    let form = initForm<ResourceSettingsForm>(
+      {
+        ...resource,
+      },
+      resourceRules
+    );
+
+    form = validateForm(form);
+    const { initResourceMap, initIconsMap } = this.updateMaps(resource);
+
+    try {
+      const childResources = await ApiUtils.getResourcesApi(auth.token).listResources({
+        customerId: customerId,
+        deviceId: deviceId,
+        applicationId: applicationId,
+        parentId: resourceId
+      });
+  
+      this.setState({
+        form: form,
+        updated: updated,
+        resourceId: resourceId,
+        resourceData: ResourceToJSON(this.props.resource),
+        childResources: childResources,
+        resourceMap: initResourceMap,
+        iconsMap: initIconsMap
+      });
+    } catch (error) {
+      this.context.setError(strings.errorManagement.resource.list, error);
     }
   }
 }

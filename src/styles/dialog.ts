@@ -9,9 +9,9 @@ export default createStyles({
     borderRadius: theme.shape.borderRadius,
     borderColor: "rgba(0, 0, 0, 0.8)",
     transition: "border-color 0.2s ease-out",
-     "& .MuiGrid-container": {
-       justifyContent: "center"
-     }
+    "& .MuiGrid-container": {
+      justifyContent: "center"
+    }
   },
   dropzoneText: {
     color: "rgba(0, 0, 0, 0.5)",
@@ -30,4 +30,25 @@ export default createStyles({
     alignItems: "center",
     justifyContent: "center"
   },
+
+  flexContainer: {
+    display: "flex",
+    alignItems: "center",
+    height: 20
+  },
+
+  linearProgress: {
+    flex: 1,
+    marginRight: 8
+  },
+
+  imagePreview: {
+    display: "flex",
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(0,0,0,0.1)",
+    borderRadius: theme.shape.borderRadius,
+    marginLeft: theme.spacing(2)
+  }
 });
