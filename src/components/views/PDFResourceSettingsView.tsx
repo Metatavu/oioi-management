@@ -249,7 +249,7 @@ class PDFResourceSettingsView extends React.Component<Props, State> {
           { title: strings.key, field: "key" },
           { title: strings.value, field: "value" }
         ]}
-        data={resourceData["styles"]}
+        data={ resourceData["styles"] }
         editable={{
           onRowAdd: newData =>
             new Promise<void>((resolve, reject) => {
