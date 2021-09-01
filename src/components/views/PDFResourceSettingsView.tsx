@@ -480,8 +480,9 @@ class PDFResourceSettingsView extends React.Component<Props, State> {
 
   /**
    * Handles resource text fields change events
-   * @param key
-   * @param event
+   *
+   * @param key key
+   * @param event React change event
    */
   private onHandleResourceTextChange = (key: keyof ResourceSettingsForm) => (event: React.ChangeEvent<HTMLInputElement>) => {
     const values = {
