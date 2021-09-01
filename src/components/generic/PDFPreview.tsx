@@ -53,7 +53,7 @@ class PDFPreview extends React.Component<Props, State> {
       uploadDialogTitle
     } = this.props;
 
-    let filename = path.split("/").pop();
+    const filename = path.split("/").pop();
 
     return (
       <Box className={ classes.previewElement }>
