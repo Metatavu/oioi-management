@@ -239,11 +239,11 @@ class PDFResourceSettingsView extends React.Component<Props, State> {
     return (
       <MaterialTable
         icons={{
-          Add: forwardRef((props, ref) => <AddCircleIcon color="secondary" { ...props } ref={ ref } />),
-          Delete: forwardRef((props, ref) => <DeleteIcon { ...props } ref={ ref } />),
-          Check: forwardRef((props, ref) => <CheckIcon { ...props } ref={ ref } />),
-          Clear: forwardRef((props, ref) => <ClearIcon { ...props } ref={ ref } />),
-          Edit: forwardRef((props, ref) => <EditIcon { ...props } ref={ ref } />)
+          Add: forwardRef((props, ref) => <AddCircleIcon color="secondary" { ...props } ref={ ref }/>),
+          Delete: forwardRef((props, ref) => <DeleteIcon { ...props } ref={ ref }/>),
+          Check: forwardRef((props, ref) => <CheckIcon { ...props } ref={ ref }/>),
+          Clear: forwardRef((props, ref) => <ClearIcon { ...props } ref={ ref }/>),
+          Edit: forwardRef((props, ref) => <EditIcon { ...props } ref={ ref }/>)
         }}
         columns={[
           { title: strings.key, field: "key" },
