@@ -29,6 +29,7 @@ import AppLayout from "../layouts/app-layout";
 import { ErrorContext } from "../containers/ErrorHandler";
 import { resolveChildResourceTypes } from "../../commons/resourceTypeHelper";
 import { toast } from "react-toastify";
+import PDFResourceSettingsView from "../views/PDFResourceSettingsView";
 
 /**
  * Component properties
@@ -448,6 +449,18 @@ class ApplicationEditor extends React.Component<Props, State> {
           onSaveChildren={ this.onUpdateChildResources }
           onDelete={ this.onDeleteResource }
           onDeleteChild={ this.onDeleteResource }
+          auth={ auth }
+          deviceId={ deviceId }
+          applicationId={ applicationId }
+        />;
+      case ResourceType.SLIDESHOWPDF:
+        return <PDFResourceSettingsView
+          resource={ resource }
+          customerId={ customerId }
+          resourcesUpdated={ resourceViewUpdated }
+          confirmationRequired={ this.confirmationRequired }
+          onSave={ this.onUpdateResource }
+          onDelete={ this.onDeleteResource }
           auth={ auth }
           deviceId={ deviceId }
           applicationId={ applicationId }
