@@ -187,7 +187,7 @@ class AddResourceDialog extends React.Component<Props, State> {
               <Grid item className={ classes.fullWidth }>
                 { this.renderField("orderNumber", strings.orderNumber, "number") }
               </Grid>
-              <Grid item className={classes.fullWidth}>
+              <Grid item className={ classes.fullWidth }>
                 { this.renderField("slug", strings.slug, "text") }
               </Grid>
             </Grid>
@@ -447,6 +447,18 @@ class AddResourceDialog extends React.Component<Props, State> {
       addingLanguage: resourceType === ResourceType.LANGUAGE,
       copyContentFromId: undefined
     });
+
+    if (resourceType === ResourceType.IMAGE) {
+      this.setState({
+        form: {
+          ...this.state.form,
+          values: {
+            ...this.state.form.values,
+            slug: "image"
+          }
+        }
+      });
+    }
   };
 
   /**
@@ -496,7 +508,7 @@ class AddResourceDialog extends React.Component<Props, State> {
     /**
      * If name changes slugify the name value and put it to url value
      */
-    if (key === "name" && form.values.name) {
+    if (key === "name" && form.values.name && form.values.type !== ResourceType.IMAGE) {
       const nameValue = form.values.name;
       form.values.slug = slugify(nameValue, {
         replacement: "",
