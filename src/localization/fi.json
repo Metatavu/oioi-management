@@ -123,6 +123,7 @@
 
   "resourceTypes": {
     "root": "Root",
+    "contentVersion": "Sisältöversio",
     "page": "Sivu",
     "slideshow": "Slideshow",
     "slideshowPdf": "Slideshow - PDF",

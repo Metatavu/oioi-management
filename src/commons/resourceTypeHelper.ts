@@ -18,6 +18,12 @@ export interface ResourceTypeObject {
 export const resolveChildResourceTypes = (type: ResourceType): ResourceTypeObject[] => ({
   [ResourceType.ROOT] : [
     {
+      value: ResourceType.CONTENTVERSION,
+      resourceLocal: strings.resourceTypes.contentVersion
+    }
+  ],
+  [ResourceType.CONTENTVERSION] : [
+    {
       value: ResourceType.INTRO,
       resourceLocal: strings.resourceTypes.intro
     }, {
@@ -106,6 +112,7 @@ export const resolveUploadLocalizationString = (type: ResourceType): ResourceTyp
       strings.fileUpload.changeMedia
     ]
   },
+  [ResourceType.CONTENTVERSION]: {},
   [ResourceType.INTRO]: {},
   [ResourceType.LANGUAGEMENU] : {},
   [ResourceType.LANGUAGE] : {},
@@ -172,6 +179,7 @@ export const getAllowedFileTypes = (type: ResourceType): string[] => {
  * @param type
  */
 export const getLocalizedTypeString = (type: ResourceType): string => ({
+  [ResourceType.CONTENTVERSION]: strings.resourceTypes.contentVersion,
   [ResourceType.ROOT] : strings.resourceTypes.root,
   [ResourceType.INTRO]: strings.resourceTypes.intro,
   [ResourceType.LANGUAGEMENU] : strings.resourceTypes.languageMenu,

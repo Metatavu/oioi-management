@@ -18,6 +18,7 @@
  * @enum {string}
  */
 export enum ResourceType {
+    CONTENTVERSION = 'CONTENT_VERSION',
     ROOT = 'ROOT',
     INTRO = 'INTRO',
     LANGUAGEMENU = 'LANGUAGE_MENU',
