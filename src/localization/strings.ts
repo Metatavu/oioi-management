@@ -132,6 +132,7 @@ export interface IStrings extends LocalizedStringsMethods {
    * Translations related to resource types
    */
   resourceTypes: {
+    contentVersion: string;
     root: string;
     video: string;
     page: string;

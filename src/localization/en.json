@@ -123,6 +123,7 @@
 
   "resourceTypes": {
     "root": "Root",
+    "contentVersion": "Content version",
     "page": "Page",
     "slideshow": "Slideshow",
     "slideshowPdf": "Slideshow - PDF",
