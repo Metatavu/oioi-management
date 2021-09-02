@@ -1325,8 +1325,6 @@ class ApplicationEditor extends React.Component<Props, State> {
       });
 
       setApplication(updatedApplication);
-
-      toast.success(strings.updateSuccessMessage);
     } catch (error) {
       this.context.setError(
         strings.formatString(strings.errorManagement.application.update, application.name),
