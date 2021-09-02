@@ -959,9 +959,9 @@ class ApplicationEditor extends React.Component<Props, State> {
    * @param pageId page id
    */
   private createPagePredefinedResources = async (pageId: string) => {
-      const title = await this.createResource("Otsikko", "title", ResourceType.TEXT, 1, pageId);
-      const content = await this.createResource("Leipäteksti", "text_content", ResourceType.TEXT, 3, pageId);
-      const background = await this.createResource("Taustakuva", "background", ResourceType.IMAGE, 4, pageId);
+      const title = await this.createResource("title", "title", ResourceType.TEXT, 1, pageId);
+      const content = await this.createResource("text_content", "text_content", ResourceType.TEXT, 3, pageId);
+      const background = await this.createResource("background", "background", ResourceType.IMAGE, 4, pageId);
 
       if (!title || !content || !background) {
         return;
