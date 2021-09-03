@@ -297,6 +297,8 @@ class AddResourceDialog extends React.Component<Props, State> {
       }
 
       if (foundTypes && foundTypes.length > 0) {
+        // Filter out PDF resource
+        foundTypes = foundTypes.filter(type => type.value !== ResourceType.PDF);
         foundTypes.map(item => {
           const menuItem = <MenuItem value={ item.value } key={ item.value }>{ item.resourceLocal }</MenuItem>;
           return menuItems.push(menuItem);
