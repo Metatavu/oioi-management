@@ -459,6 +459,18 @@ class AddResourceDialog extends React.Component<Props, State> {
         }
       });
     }
+
+    if (resourceType === ResourceType.TEXT) {
+      this.setState({
+        form: {
+          ...this.state.form,
+          values: {
+            ...this.state.form.values,
+            slug: "text_content"
+          }
+        }
+      });
+    }
   };
 
   /**
@@ -508,7 +520,7 @@ class AddResourceDialog extends React.Component<Props, State> {
     /**
      * If name changes slugify the name value and put it to url value
      */
-    if (key === "name" && form.values.name && form.values.type !== ResourceType.IMAGE) {
+    if (key === "name" && form.values.name && form.values.type !== ResourceType.IMAGE && form.values.type !== ResourceType.TEXT) {
       const nameValue = form.values.name;
       form.values.slug = slugify(nameValue, {
         replacement: "",
