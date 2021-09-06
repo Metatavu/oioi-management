@@ -56,7 +56,7 @@ export default class ApiUtils {
       middleware: [{ post: async (context) => {
         if (!context.response.ok) {
           if (context.response.status === 401) {
-            window.location.reload(true);
+            window.location.reload();
           }
         }
 
