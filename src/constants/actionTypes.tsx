@@ -1,38 +1,56 @@
 /**
- * Login action type
+ * Login action
  */
 export const LOGIN = "LOGIN";
 export type LOGIN = typeof LOGIN;
 
 /**
- * Logout action type
+ * Logout action
  */
 export const LOGOUT = "LOGOUT";
 export type LOGOUT = typeof LOGOUT;
 
 /**
- * Customer action type
+ * Set customer action
  */
 export const SET_CUSTOMER = "SET_CUSTOMER";
 export type SET_CUSTOMER = typeof SET_CUSTOMER;
 
 /**
- * Device action type
+ * Set device action
  */
 export const SET_DEVICE = "SET_DEVICE";
 export type SET_DEVICE = typeof SET_DEVICE;
 
 /**
- * Application action type
+ * Set application action
  */
 export const SET_APPLICATION = "SET_APPLICATION";
 export type SET_APPLICATION = typeof SET_APPLICATION;
 
 /**
- *
+ * Set content versions action
  */
-export const OPEN_RESOURCE = "OPEN_RESOURCE";
-export type OPEN_RESOURCE = typeof OPEN_RESOURCE;
+export const SET_CONTENT_VERSIONS = "SET_CONTENT_VERSIONS";
+export type SET_CONTENT_VERSIONS = typeof SET_CONTENT_VERSIONS;
+
+/**
+ * Select content version action
+ */
+export const SELECT_CONTENT_VERSION = "SELECT_CONTENT_VERSION";
+export type SELECT_CONTENT_VERSION = typeof SELECT_CONTENT_VERSION;
+
+/**
+ * Set resources action
+ */
+export const SET_RESOURCES = "SET_RESOURCES";
+export type SET_RESOURCES = typeof SET_RESOURCES;
+
+/**
+ * Select resource action
+ */
+export const SELECT_RESOURCE = "SELECT_RESOURCE";
+export type SELECT_RESOURCE = typeof SELECT_RESOURCE;
 
 /**
  *

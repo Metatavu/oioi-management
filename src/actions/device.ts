@@ -3,7 +3,7 @@ import { Device } from "../generated/client/src";
 import { ActionCreator } from "redux";
 
 /**
- * Interface for device action type
+ * Set device action
  */
 export interface SetDeviceAction {
   type: actionTypes.SET_DEVICE;
@@ -11,15 +11,13 @@ export interface SetDeviceAction {
 }
 
 /**
- * Function for dispatching customers
+ * Set device action creator
  *
- * @param device device being dispatched
+ * @param device device
  */
-export const setDevice: ActionCreator<SetDeviceAction> = (device: Device) => {
-  return {
-    type: actionTypes.SET_DEVICE,
-    device: device
-  };
-};
+export const setDevice: ActionCreator<SetDeviceAction> = (device: Device) => ({
+  type: actionTypes.SET_DEVICE,
+  device: device
+});
 
 export type DeviceAction = SetDeviceAction;

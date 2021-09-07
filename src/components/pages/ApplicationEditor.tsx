@@ -7,7 +7,7 @@ import styles from "../../styles/editor-view";
 import { ReduxState, ReduxActions } from "../../store";
 import { Dispatch } from "redux";
 import { connect } from "react-redux";
-import { AuthState, ErrorContextType } from "../../types";
+import { AuthState, ContentVersion, ErrorContextType } from "../../types";
 import ApiUtils from "../../utils/api";
 import { Customer, Device, Application, Resource, ResourceType } from "../../generated/client/src";
 import ResourceTreeItem from "../generic/ResourceTreeItem";
@@ -16,7 +16,7 @@ import ResourceSettingsView from "../views/ResourceSettingsView";
 import { setCustomer } from "../../actions/customer";
 import { setDevice } from "../../actions/device";
 import { setApplication } from "../../actions/application";
-import { openResource, updatedResourceView } from "../../actions/resources";
+import { selectResource, updatedResourceView } from "../../actions/resources";
 import SortableTree, { TreeItem as TreeItemSortable, NodeData, FullTree, OnMovePreviousAndNextLocation, ExtendedNodeData, OnDragPreviousAndNextLocation } from "react-sortable-tree";
 import FileExplorerTheme from "react-sortable-tree-theme-file-explorer";
 import MenuResourceSettingsView from "../views/MenuResourceSettingsView";
@@ -30,6 +30,7 @@ import { ErrorContext } from "../containers/ErrorHandler";
 import { resolveChildResourceTypes } from "../../commons/resourceTypeHelper";
 import { toast } from "react-toastify";
 import PDFResourceSettingsView from "../views/PDFResourceSettingsView";
+import { selectContentVersion, setContentVersions } from "../../actions/content-version";
 
 /**
  * Component properties
@@ -44,12 +45,15 @@ interface Props extends WithStyles<typeof styles> {
   setCustomer: typeof setCustomer;
   setDevice: typeof setDevice;
   setApplication: typeof setApplication;
+  setContentVersions: typeof setContentVersions;
+  selectContentVersion: typeof selectContentVersion;
   customer?: Customer;
   device?: Device;
   application?: Application;
-  openedResource?: Resource;
+  contentVersion?: Resource;
+  selectedResource?: Resource;
   resourceViewUpdated: number;
-  openResource: typeof openResource;
+  selectResource: typeof selectResource;
   updatedResourceView: typeof updatedResourceView;
 }
 
@@ -102,6 +106,9 @@ class ApplicationEditor extends React.Component<Props, State> {
    * Component will unmount life cycle method
    */
   public componentWillUnmount = () => {
+    const { selectResource } = this.props;
+
+    selectResource(undefined);
     document.removeEventListener("mousemove", this.handleMousemove);
     document.removeEventListener("mouseup", this.handleMouseup);
   }
@@ -110,14 +117,8 @@ class ApplicationEditor extends React.Component<Props, State> {
    * Component did mount life cycle method
    */
   public componentDidMount = async () => {
-    const { openResource, openedResource } = this.props;
-
     document.addEventListener("mousemove", this.handleMousemove);
     document.addEventListener("mouseup", this.handleMouseup);
-
-    if (openedResource) {
-      openResource(undefined);
-    }
 
     await this.fetchData();
     await this.loadTree();
@@ -130,13 +131,19 @@ class ApplicationEditor extends React.Component<Props, State> {
    * @param prevState previous state
    */
   public componentDidUpdate = async (prevProps: Props, prevState: State) => {
-    const prevRootResourceId = prevState.rootResource ? prevState.rootResource.id : undefined
 
-    if (this.state.rootResource && this.state.rootResource.id !== prevRootResourceId) {
+    const currentRootResourceId = this.state.rootResource?.id;
+    const prevRootResourceId = prevState.rootResource?.id;
+
+    if (currentRootResourceId !== prevRootResourceId) {
+      await this.loadContentVersions();
+    }
+
+    if (currentRootResourceId !== prevRootResourceId) {
       await this.loadTree();
     }
 
-    if (prevProps.openedResource && !this.props.openedResource) {
+    if (prevProps.selectedResource && !this.props.selectedResource) {
       this.setState({
         treeData: this.treeDataRenderAddButton(this.state.treeData || [], undefined)
       });
@@ -147,10 +154,10 @@ class ApplicationEditor extends React.Component<Props, State> {
    * Component render method
    */
   public render() {
-    const { classes, openedResource } = this.props;
+    const { classes, selectedResource } = this.props;
     const { treeResizing } = this.state;
 
-    const resourceType = openedResource ? openedResource.type : ResourceType.ROOT;
+    const resourceType = selectedResource ? selectedResource.type : ResourceType.ROOT;
     const localString = getLocalizedTypeString(resourceType);
 
     return (
@@ -166,14 +173,14 @@ class ApplicationEditor extends React.Component<Props, State> {
           >
             <div className={ classes.toolbar }>
               <Typography variant="h3" noWrap>
-                { openedResource && localString }
+                { selectedResource && localString }
               </Typography>
               <Button
                 disableElevation
                 className={ classes.deleteButton }
                 color="primary"
                 variant="contained"
-                disabled={ !openedResource }
+                disabled={ !selectedResource }
                 onClick={ this.onChildDelete }
               >
                 { strings.delete }
@@ -282,8 +289,8 @@ class ApplicationEditor extends React.Component<Props, State> {
       customer,
       device,
       application,
-      openedResource,
-      openResource
+      selectedResource,
+      selectResource
     } = this.props;
     const { treeData, parentResourceId } = this.state;
 
@@ -292,9 +299,9 @@ class ApplicationEditor extends React.Component<Props, State> {
         <List disablePadding>
           <ListItem
             style={{ height: 54 }}
-            selected={ openedResource === undefined }
+            selected={ selectedResource === undefined }
             button
-            onClick={ () => openResource(undefined) }
+            onClick={ () => selectResource(undefined) }
           >
             <Typography variant="h4">
               { strings.applicationSettings.settings }
@@ -364,7 +371,7 @@ class ApplicationEditor extends React.Component<Props, State> {
         deviceId={ deviceId }
         applicationId={ applicationId }
         classes={ classes }
-        onOpenResource={ this.onOpenResourceClick }
+        onSelectResource={ this.onSelectResourceClick }
         onDelete={ this.onChildDelete }
       />
     );
@@ -374,7 +381,7 @@ class ApplicationEditor extends React.Component<Props, State> {
    * Render editor method
    */
   private renderEditor = () => {
-    const { classes, customerId, deviceId, openedResource, application, auth } = this.props;
+    const { classes, customerId, deviceId, selectedResource, application, auth } = this.props;
     const { rootResource } = this.state;
 
     if (!rootResource) {
@@ -385,10 +392,10 @@ class ApplicationEditor extends React.Component<Props, State> {
       );
     }
 
-    if (openedResource) {
+    if (selectedResource) {
       return (
         <main className={ classes.content }>
-          { this.renderResourceSettingsView(openedResource, customerId) }
+          { this.renderResourceSettingsView(selectedResource, customerId) }
         </main>
       );
     } else if (application) {
@@ -517,13 +524,39 @@ class ApplicationEditor extends React.Component<Props, State> {
   };
 
   /**
+   * Loads content versions
+   */
+  private loadContentVersions = async () => {
+    const { application, customer, device, auth, setContentVersions } = this.props;
+    const { rootResource } = this.state;
+
+    if (!application || !customer || !device || !auth || !auth.token || !rootResource) {
+      return;
+    }
+
+    try {
+      const contentVersions = await ApiUtils.getResourcesApi(auth.token).listResources({
+        applicationId: application.id!,
+        customerId: customer.id!,
+        deviceId: device.id!,
+        parentId: rootResource.id
+      });
+
+      setContentVersions(contentVersions);
+    } catch (error) {
+      this.context.setError(strings.errorManagement.contentVersion.list, error);
+      return;
+    }
+  }
+
+  /**
    * Loads entire tree
    */
   private loadTree = async () => {
     const { application, customer, device, auth } = this.props;
     const { rootResource } = this.state;
 
-    if (!rootResource || !auth || !auth.token || !application || !customer || !device) {
+    if (!auth?.token || !rootResource || !application || !customer || !device) {
       return;
     }
 
@@ -792,8 +825,8 @@ class ApplicationEditor extends React.Component<Props, State> {
   private onChildDelete = async () => {
     const {
       auth,
-      openedResource,
-      openResource,
+      selectedResource,
+      selectResource,
       customerId,
       deviceId,
       applicationId,
@@ -805,9 +838,9 @@ class ApplicationEditor extends React.Component<Props, State> {
       return;
     }
 
-    if (openedResource && window.confirm(`${strings.deleteResourceDialogDescription} ${openedResource.name} ${ strings.andAllChildren}?`)) {
-      const childResourceId = openedResource.id;
-      openResource(undefined);
+    if (selectedResource && window.confirm(`${strings.deleteResourceDialogDescription} ${selectedResource.name} ${ strings.andAllChildren}?`)) {
+      const childResourceId = selectedResource.id;
+      selectResource(undefined);
       updatedResourceView();
       if (childResourceId) {
         try {
@@ -815,7 +848,7 @@ class ApplicationEditor extends React.Component<Props, State> {
             customerId: customerId,
             deviceId: deviceId,
             applicationId: applicationId,
-            resourceId: openedResource.id || ""
+            resourceId: selectedResource.id || ""
           });
 
           this.setState({
@@ -825,7 +858,7 @@ class ApplicationEditor extends React.Component<Props, State> {
           toast.success(strings.deleteSuccessMessage);
         } catch (error) {
           this.context.setError(
-            strings.formatString(strings.errorManagement.resource.delete, openedResource.name),
+            strings.formatString(strings.errorManagement.resource.delete, selectedResource.name),
             error
           );
         }
@@ -858,17 +891,17 @@ class ApplicationEditor extends React.Component<Props, State> {
   };
 
   /**
-   * on open resource click method
+   * on select resource click method
    *
    * @param resource resource
    */
-  private onOpenResourceClick = async (resource: Resource) => {
-    const { openResource } = this.props;
+  private onSelectResourceClick = async (resource: Resource) => {
+    const { selectResource } = this.props;
     const { confirmationRequired, treeData } = this.state;
 
     if (confirmationRequired) {
       if (window.confirm(`${strings.continueWithoutSaving}`)) {
-        openResource(resource);
+        selectResource(resource);
         this.setState({
           confirmationRequired: false
         });
@@ -876,7 +909,7 @@ class ApplicationEditor extends React.Component<Props, State> {
       return;
     }
 
-    openResource(resource);
+    selectResource(resource);
     this.setState({
       treeData: this.treeDataRenderAddButton(treeData || [], resource || "")
     });
@@ -1094,7 +1127,7 @@ class ApplicationEditor extends React.Component<Props, State> {
    * @param resource resource
    */
   private onUpdateResource = async (resource: Resource) => {
-    const { auth, customerId, deviceId, applicationId, openResource, updatedResourceView } = this.props;
+    const { auth, customerId, deviceId, applicationId, selectResource, updatedResourceView } = this.props;
     const { treeData } = this.state;
     const resourceId = resource.id;
 
@@ -1114,7 +1147,7 @@ class ApplicationEditor extends React.Component<Props, State> {
       });
 
       if (updatedResource.type !== ResourceType.ROOT) {
-        openResource(updatedResource);
+        selectResource(updatedResource);
       } else {
         this.setState({ rootResource: updatedResource });
       }
@@ -1237,10 +1270,10 @@ class ApplicationEditor extends React.Component<Props, State> {
    * Delete resource method
    *
    * @param resource resource
-   * @param nextOpenResource next open resource
+   * @param nextselectResource next open resource
    */
-  private onDeleteResource = async (resource: Resource, nextOpenResource?: Resource) => {
-    const { auth, customerId, deviceId, applicationId, openResource, updatedResourceView } = this.props;
+  private onDeleteResource = async (resource: Resource, nextselectResource?: Resource) => {
+    const { auth, customerId, deviceId, applicationId, selectResource, updatedResourceView } = this.props;
     const resourceId = resource.id;
 
     if (!auth || !auth.token || !resourceId) {
@@ -1278,7 +1311,7 @@ class ApplicationEditor extends React.Component<Props, State> {
           applicationId: applicationId,
           resourceId: resourceId
         });
-        openResource(nextOpenResource);
+        selectResource(nextselectResource);
 
         this.setState({
           treeData: this.treeDataDelete(resource.id || "", this.state.treeData || [])
@@ -1414,7 +1447,7 @@ class ApplicationEditor extends React.Component<Props, State> {
       }
     }
 
-    if (!currentApplication) {
+    if (!currentApplication || !currentApplication.rootResourceId) {
       return;
     }
 
@@ -1423,7 +1456,7 @@ class ApplicationEditor extends React.Component<Props, State> {
         customerId: customerId,
         deviceId: deviceId,
         applicationId: applicationId,
-        resourceId: currentApplication.rootResourceId!
+        resourceId: currentApplication.rootResourceId
       });
 
       this.setState({ rootResource: rootResource });
@@ -1441,10 +1474,12 @@ class ApplicationEditor extends React.Component<Props, State> {
 const mapStateToProps = (state: ReduxState) => ({
   auth: state.auth,
   locale: state.locale.locale,
-  openedResource: state.resource.resourceOpen,
+  selectedResource: state.resource.selectedResource,
   customer: state.customer.customer,
   device: state.device.device,
   application: state.application.application,
+  contentVersions: state.contentVersion.contentVersions,
+  selectedContentVersion: state.contentVersion.selectedContentVersion,
   resourceViewUpdated: state.resource.resourceViewUpdated
 });
 
@@ -1457,8 +1492,10 @@ const mapDispatchToProps = (dispatch: Dispatch<ReduxActions>) => ({
   setCustomer: (customer: Customer) => dispatch(setCustomer(customer)),
   setDevice: (device: Device) => dispatch(setDevice(device)),
   setApplication: (application: Application) => dispatch(setApplication(application)),
+  setContentVersions: (contentVersions: ContentVersion[]) => dispatch(setContentVersions(contentVersions)),
+  selectContentVersion: (contentVersion: ContentVersion) => dispatch(selectContentVersion(contentVersion)),
   updatedResourceView: () => dispatch(updatedResourceView()),
-  openResource: (resource?: Resource) => dispatch(openResource(resource))
+  selectResource: (resource?: Resource) => dispatch(selectResource(resource))
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(ApplicationEditor));

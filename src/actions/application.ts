@@ -3,7 +3,7 @@ import { Application } from "../generated/client/src";
 import { ActionCreator } from "redux";
 
 /**
- * Interface for customer action type
+ * Set application action
  */
 export interface SetApplicationAction {
   type: actionTypes.SET_APPLICATION;
@@ -11,15 +11,13 @@ export interface SetApplicationAction {
 }
 
 /**
- * Function for dispatching applications
+ * Set application action creator
  *
- * @param applications array of applications being dispatched
+ * @param application application
  */
-export const setApplication: ActionCreator<SetApplicationAction> = (application: Application) => {
-  return {
-    type: actionTypes.SET_APPLICATION,
-    application: application
-  };
-};
+export const setApplication: ActionCreator<SetApplicationAction> = (application: Application) => ({
+  type: actionTypes.SET_APPLICATION,
+  application: application
+});
 
 export type ApplicationAction = SetApplicationAction;

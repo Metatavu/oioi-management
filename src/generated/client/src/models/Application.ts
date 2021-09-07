@@ -38,6 +38,12 @@ export interface Application {
      */
     name: string;
     /**
+     * Id of currently active content version resource
+     * @type {string}
+     * @memberof Application
+     */
+    activeContentVersionResourceId?: string;
+    /**
      * Creation time
      * @type {Date}
      * @memberof Application
@@ -76,6 +82,7 @@ export function ApplicationFromJSONTyped(json: any, ignoreDiscriminator: boolean
         'id': !exists(json, 'id') ? undefined : json['id'],
         'rootResourceId': !exists(json, 'rootResourceId') ? undefined : json['rootResourceId'],
         'name': json['name'],
+        'activeContentVersionResourceId': !exists(json, 'activeContentVersionResourceId') ? undefined : json['activeContentVersionResourceId'],
         'createdAt': !exists(json, 'createdAt') ? undefined : (new Date(json['createdAt'])),
         'modifiedAt': !exists(json, 'modifiedAt') ? undefined : (new Date(json['modifiedAt'])),
         'creatorId': !exists(json, 'creatorId') ? undefined : json['creatorId'],
@@ -93,6 +100,7 @@ export function ApplicationToJSON(value?: Application | null): any {
     return {
         
         'name': value.name,
+        'activeContentVersionResourceId': value.activeContentVersionResourceId,
         'creatorId': value.creatorId,
         'lastModifierId': value.lastModifierId,
     };

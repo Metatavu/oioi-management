@@ -69,7 +69,7 @@
   "unknownErrorMessage": "Unknown error, try again later.",
   "badRequestErrorMessage": "Error in sent data, check all the fields and try again.",
   "forbiddenErrorMessage": "Forbidden, try to login again.",
-  "notFoundErrorMessage": "Content was not found, it may be deleted or moved.", 
+  "notFoundErrorMessage": "Content was not found, it may be deleted or moved.",
   "internalErrorMessage": "Internal server error, you may report this to system administrators.",
   "unavailableErrorMessage": "System is temporarily unavailable, if the problem persists, contact system administrators.",
   "updateSuccessMessage": "Updated",
@@ -187,6 +187,9 @@
       "find": "Error while loading application data",
       "update": "Error while updating data for application {0}",
       "delete": "Error while deleting application"
+    },
+    "contentVersion": {
+      "list": "Error while listing content versions"
     },
     "resource": {
       "list": "Error while listing resources",

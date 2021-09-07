@@ -1,8 +1,9 @@
 import { KeycloakInstance } from 'keycloak-js';
+import { ActionCreator } from 'redux';
 import * as actionTypes from '../constants/actionTypes';
 
 /**
- * Interface for login action type
+ * Login action
  */
 export interface LoginAction {
   type:  actionTypes.LOGIN;
@@ -10,33 +11,27 @@ export interface LoginAction {
 }
 
 /**
- * Interface for logout action type
+ * Logout action
  */
 export interface LogoutAction {
   type: actionTypes.LOGOUT;
 }
 
 /**
- * Redux login action generator
+ * Login action creator
  *
  * @param keycloak Keycloak instance
- * @returns Redux login action
  */
-export const login = (keycloak: KeycloakInstance): LoginAction => ({
+export const login: ActionCreator<LoginAction> = (keycloak: KeycloakInstance) => ({
   type: actionTypes.LOGIN,
   keycloak: keycloak
 });
 
 /**
- * Redux logout action generator
- *
- * @returns logout action
+ * Logout action creator
  */
-export const logout = (): LogoutAction => ({
+export const logout: ActionCreator<LogoutAction> = () => ({
   type: actionTypes.LOGOUT
 });
 
-/**
- * Union type for all Redux auth actions
- */
 export type AuthAction = LoginAction | LogoutAction;

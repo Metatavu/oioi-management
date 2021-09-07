@@ -3,13 +3,19 @@ import { Resource } from "../generated/client/src/models/Resource";
 import * as actionTypes from "../constants/actionTypes";
 
 /**
- * Open resource action
+ * Set resources action
  */
-export interface OpenResourceAction {
-  type: actionTypes.OPEN_RESOURCE;
-  payload: {
-    resource: Resource;
-  };
+export interface SetResourcesAction {
+  type: actionTypes.SET_RESOURCES;
+  payload: Resource[];
+}
+
+/**
+ * Set selected resource action
+ */
+export interface SelectResourceAction {
+  type: actionTypes.SELECT_RESOURCE;
+  payload: Resource;
 }
 
 export interface UpdatedResourceViewAction {
@@ -17,24 +23,29 @@ export interface UpdatedResourceViewAction {
 }
 
 /**
- * Open resource
- * @param resource
+ * Set resources action creator
+ *
+ * @param resource resource
  */
-export const openResource: ActionCreator<OpenResourceAction> = (resource: Resource) => {
-  return {
-    type: actionTypes.OPEN_RESOURCE,
-    payload: {
-      resource
-    }
-  };
-};
+export const setResources: ActionCreator<SetResourcesAction> = (resources: Resource[]) => ({
+  type: actionTypes.SET_RESOURCES,
+  payload: resources
+});
+
+/**
+ * Select resource action creator
+ *
+ * @param resource resource
+ */
+export const selectResource: ActionCreator<SelectResourceAction> = (resource: Resource) => ({
+  type: actionTypes.SELECT_RESOURCE,
+  payload: resource
+});
 
 export const updatedResourceView: ActionCreator<UpdatedResourceViewAction> = () => {
   return {
     type: actionTypes.UPDATED_RESOURCE_VIEW
   };
 };
-/**
- * Resource actions
- */
-export type ResourceAction = OpenResourceAction | UpdatedResourceViewAction;
+
+export type ResourceAction = SetResourcesAction | SelectResourceAction | UpdatedResourceViewAction;

@@ -4,10 +4,8 @@ import styles from "../../styles/editor-view";
 import { withStyles, WithStyles, ListItem, ListItemIcon, ListItemText, ListItemSecondaryAction } from "@material-ui/core";
 import { Resource, ResourceType } from "../../generated/client/src";
 import { AuthState } from "../../types";
-import { ReduxState, ReduxActions } from "../../store";
-import { Dispatch } from "redux";
+import { ReduxState } from "../../store";
 import { connect } from "react-redux";
-import { openResource } from "../../actions/resources";
 
 import LanguageIcon from "@material-ui/icons/Language";
 import PageIcon from "@material-ui/icons/CropLandscapeOutlined";
@@ -31,10 +29,9 @@ interface Props extends WithStyles<typeof styles> {
   applicationId: string;
   resource: Resource;
   auth?: AuthState;
-  openedResource?: Resource;
-  openResource: typeof openResource;
+  selectedResource?: Resource;
   onDelete: (resourceId: string) => void;
-  onOpenResource: (resource: Resource) => void;
+  onSelectResource: (resource: Resource) => void;
 }
 
 /**
@@ -69,7 +66,7 @@ class ResourceTreeItemClass extends React.Component<Props, State> {
    * Component render method
    */
   public render() {
-    const { classes, resource, openedResource } = this.props;
+    const { resource, selectedResource } = this.props;
 
     const icon = this.renderIconComponentByResourceType(resource.type);
 
@@ -78,7 +75,7 @@ class ResourceTreeItemClass extends React.Component<Props, State> {
     }
 
     return (
-      <ListItem onClick={ this.onTreeItemClick } key={ resource.id } selected={ openedResource && openedResource.id === resource.id }>
+      <ListItem onClick={ this.onTreeItemClick } key={ resource.id } selected={ selectedResource && selectedResource.id === resource.id }>
         <ListItemIcon style={{ minWidth: 0, marginRight: theme.spacing(1) }}>{ icon }</ListItemIcon>
         <ListItemText primary={ resource.name } />
       </ListItem>
@@ -138,7 +135,7 @@ class ResourceTreeItemClass extends React.Component<Props, State> {
    * On treeItem open method
    */
   private onTreeItemClick = async () => {
-    this.props.onOpenResource(this.props.resource);
+    this.props.onSelectResource(this.props.resource);
   };
 
   /**
@@ -158,15 +155,9 @@ class ResourceTreeItemClass extends React.Component<Props, State> {
 
 const mapStateToProps = (state: ReduxState) => ({
   auth: state.auth,
-  openedResource: state.resource.resourceOpen
+  openedResource: state.resource.selectedResource
 });
 
-const mapDispatchToProps = (dispatch: Dispatch<ReduxActions>) => {
-  return {
-    openResource: (resource?: Resource) => dispatch(openResource(resource))
-  };
-};
-
-const ResourceTreeItem = connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(ResourceTreeItemClass));
+const ResourceTreeItem = connect(mapStateToProps)(withStyles(styles)(ResourceTreeItemClass));
 
 export default ResourceTreeItem;

@@ -1,7 +1,8 @@
+import { ActionCreator } from "redux";
 import * as ActionTypes from "../constants/actionTypes";
 
 /**
- * Interface for set locale action type
+ * Set locale action
  */
 export interface SetLocaleAction {
   type: ActionTypes.SET_LOCALE;
@@ -9,16 +10,13 @@ export interface SetLocaleAction {
 }
 
 /**
- * Store method for set locale
+ * Set locale action creator
  *
- * @param locale locale string
- * @returns set locale action
+ * @param locale locale
  */
-export function setLocale(locale: string): SetLocaleAction {
-  return {
-    type: ActionTypes.SET_LOCALE,
-    locale: locale
-  };
-}
+export const setLocale: ActionCreator<SetLocaleAction> = (locale: string) => ({
+  type: ActionTypes.SET_LOCALE,
+  locale: locale
+});
 
 export type LocaleAction = SetLocaleAction;

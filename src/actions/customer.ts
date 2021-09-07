@@ -3,7 +3,7 @@ import { Customer } from "../generated/client/src";
 import { ActionCreator } from "redux";
 
 /**
- * Interface for customer action type
+ * Set customer action type
  */
 export interface SetCustomerAction {
   type: actionTypes.SET_CUSTOMER;
@@ -11,15 +11,13 @@ export interface SetCustomerAction {
 }
 
 /**
- * Function for dispatching customers
+ * Set customer action creator
  *
- * @param customer customer being dispatched
+ * @param customer customer
  */
-export const setCustomer: ActionCreator<SetCustomerAction> = (customer: Customer) => {
-  return {
-    type: actionTypes.SET_CUSTOMER,
-    customer: customer
-  };
-};
+export const setCustomer: ActionCreator<SetCustomerAction> = (customer: Customer) => ({
+  type: actionTypes.SET_CUSTOMER,
+  customer: customer
+});
 
 export type CustomerAction = SetCustomerAction;
