@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import * as React from "react";
 import { withStyles, WithStyles, TextField, Divider, Typography, Button, Box } from "@material-ui/core";
-import MaterialTable from "material-table";
+import MaterialTable, { MTableToolbar } from "material-table";
 import AddCircleIcon from "@material-ui/icons/AddCircle";
 import DeleteIcon from "@material-ui/icons/Delete";
 import CheckIcon from "@material-ui/icons/Check";
@@ -17,6 +17,7 @@ import { resourceRules, ResourceSettingsForm } from "../../commons/formRules";
 import VisibleWithRole from "../generic/VisibleWithRole";
 import { ErrorContext } from "../containers/ErrorHandler";
 import PDFPreview from "../generic/PDFPreview";
+import theme from "../../styles/theme";
 
 /**
  * Component props
@@ -236,6 +237,14 @@ class PDFResourceSettingsView extends React.Component<Props, State> {
   private renderStyleTable = () => {
     const { resourceData } = this.state;
 
+    const StyledMTableToolbar = withStyles({
+      root: {
+        paddingLeft: theme.spacing(2),
+        paddingRight: theme.spacing(2),
+        borderBottom: "1px solid rgba(0,0,0,0.1)"
+      },
+    })(MTableToolbar);
+
     return (
       <MaterialTable
         icons={{
@@ -300,6 +309,21 @@ class PDFResourceSettingsView extends React.Component<Props, State> {
             })
         }}
         title={ strings.styles }
+        components={{
+          Toolbar: props => (
+            <StyledMTableToolbar { ...props } />
+          ),
+        }}
+        localization={{
+          body: {
+            editTooltip: strings.edit,
+            deleteTooltip: strings.delete,
+            addTooltip: strings.addNew
+          },
+          header: {
+            actions: strings.actions
+          }
+        }}
         options={{
           grouping: false,
           search: false,
@@ -311,7 +335,8 @@ class PDFResourceSettingsView extends React.Component<Props, State> {
           paging: false,
           showTextRowsSelected: false,
           showFirstLastPageButtons: false,
-          showSelectAllCheckbox: false
+          showSelectAllCheckbox: false,
+          actionsColumnIndex: 3
         }}
       />
     );
@@ -322,6 +347,14 @@ class PDFResourceSettingsView extends React.Component<Props, State> {
    */
   private renderPropertiesTable = () => {
     const { resourceData } = this.state;
+
+    const StyledMTableToolbar = withStyles({
+      root: {
+        paddingLeft: theme.spacing(2),
+        paddingRight: theme.spacing(2),
+        borderBottom: "1px solid rgba(0,0,0,0.1)"
+      },
+    })(MTableToolbar);
 
     return (
       <MaterialTable
@@ -387,6 +420,21 @@ class PDFResourceSettingsView extends React.Component<Props, State> {
             })
         }}
         title={ strings.properties }
+        components={{
+          Toolbar: props => (
+            <StyledMTableToolbar { ...props } />
+          )
+        }}
+        localization={{
+          body: {
+            editTooltip: strings.edit,
+            deleteTooltip: strings.delete,
+            addTooltip: strings.addNew
+          },
+          header: {
+            actions: strings.actions
+          }
+        }}
         options={{
           grouping: false,
           search: false,
@@ -398,7 +446,8 @@ class PDFResourceSettingsView extends React.Component<Props, State> {
           paging: false,
           showTextRowsSelected: false,
           showFirstLastPageButtons: false,
-          showSelectAllCheckbox: false
+          showSelectAllCheckbox: false,
+          actionsColumnIndex: 3
         }}
       />
     )

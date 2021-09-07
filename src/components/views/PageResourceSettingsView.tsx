@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import * as React from "react";
-import { withStyles, WithStyles, TextField, Divider, Typography, Grid, Button, IconButton, Box } from "@material-ui/core";
-import MaterialTable from "material-table";
+import { withStyles, WithStyles, TextField, Divider, Typography, Button, IconButton, Box } from "@material-ui/core";
+import MaterialTable, { MTableToolbar } from "material-table";
 import AddCircleIcon from "@material-ui/icons/AddCircle";
 import DeleteIcon from "@material-ui/icons/Delete";
 import CheckIcon from "@material-ui/icons/Check";
@@ -12,7 +12,6 @@ import styles from "../../styles/editor-view";
 import strings from "../../localization/strings";
 import theme from "../../styles/theme";
 import { Resource, ResourceToJSON, ResourceType } from "../../generated/client/src";
-import FileUpload from "../../utils/file-upload";
 import { forwardRef } from "react";
 import { MessageType, initForm, Form, validateForm } from "ts-form-validation";
 import { AuthState, ErrorContextType } from "../../types";
@@ -252,6 +251,14 @@ class PageResourceSettingsView extends React.Component<Props, State> {
   private renderStyleTable = () => {
     const { resourceData } = this.state;
 
+    const StyledMTableToolbar = withStyles({
+      root: {
+        paddingLeft: theme.spacing(2),
+        paddingRight: theme.spacing(2),
+        borderBottom: "1px solid rgba(0,0,0,0.1)"
+      },
+    })(MTableToolbar);
+
     return (
       <MaterialTable
         icons={{
@@ -316,6 +323,21 @@ class PageResourceSettingsView extends React.Component<Props, State> {
             })
         }}
         title={ strings.styles }
+        components={{
+          Toolbar: props => (
+            <StyledMTableToolbar { ...props } />
+          )
+        }}
+        localization={{
+          body: {
+            editTooltip: strings.edit,
+            deleteTooltip: strings.delete,
+            addTooltip: strings.addNew
+          },
+          header: {
+            actions: strings.actions
+          }
+        }}
         options={{
           grouping: false,
           search: false,
@@ -327,7 +349,8 @@ class PageResourceSettingsView extends React.Component<Props, State> {
           paging: false,
           showTextRowsSelected: false,
           showFirstLastPageButtons: false,
-          showSelectAllCheckbox: false
+          showSelectAllCheckbox: false,
+          actionsColumnIndex: 3
         }}
       />
     );
@@ -338,6 +361,14 @@ class PageResourceSettingsView extends React.Component<Props, State> {
    */
   private renderPropertiesTable = () => {
     const { resourceData } = this.state;
+
+    const StyledMTableToolbar = withStyles({
+      root: {
+        paddingLeft: theme.spacing(2),
+        paddingRight: theme.spacing(2),
+        borderBottom: "1px solid rgba(0,0,0,0.1)"
+      },
+    })(MTableToolbar);
 
     return (
       <MaterialTable
@@ -403,6 +434,21 @@ class PageResourceSettingsView extends React.Component<Props, State> {
             })
         }}
         title={ strings.properties }
+        components={{
+          Toolbar: props => (
+            <StyledMTableToolbar { ...props } />
+          )
+        }}
+        localization={{
+          body: {
+            editTooltip: strings.edit,
+            deleteTooltip: strings.delete,
+            addTooltip: strings.addNew
+          },
+          header: {
+            actions: strings.actions
+          }
+        }}
         options={{
           grouping: false,
           search: false,
@@ -414,7 +460,8 @@ class PageResourceSettingsView extends React.Component<Props, State> {
           paging: false,
           showTextRowsSelected: false,
           showFirstLastPageButtons: false,
-          showSelectAllCheckbox: false
+          showSelectAllCheckbox: false,
+          actionsColumnIndex: 3
         }}
       />
     )
@@ -431,13 +478,17 @@ class PageResourceSettingsView extends React.Component<Props, State> {
     }
 
     const listItems = childResources.map(child =>
-      <React.Fragment key={child.id}>
-        <Divider style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} />
-        <Typography variant="h4" style={{ textTransform: "capitalize", marginBottom: theme.spacing(1) }}>{ child.name }</Typography>
-        <div style={{ display: "flex" }}>
+      <React.Fragment key={ child.id }>
+        <Box mt={ 3 } mb={ 3 }>
+          <Divider/>
+        </Box>
+        <Typography variant="h4" style={{ textTransform: "uppercase" }}>
+          { child.name }
+        </Typography>
+        <Box display="flex" mt={ 1 }>
           { this.renderChildResourceContentField(child) }
           { this.renderDeleteChild(child) }
-        </div>
+        </Box>
       </React.Fragment>
     );
 
