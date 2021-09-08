@@ -2,6 +2,7 @@ import LocalizedStrings, { LocalizedStringsMethods } from "localized-strings";
 
 export interface IStrings extends LocalizedStringsMethods {
   active: string;
+  actions: string;
   address: string;
   advanced: string;
   addNew: string;

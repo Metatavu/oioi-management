@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import * as React from "react";
-import { withStyles, WithStyles, TextField, Divider, Typography, Button, IconButton, Box } from "@material-ui/core";
+import { withStyles, WithStyles, TextField, Divider, Button, IconButton, Box } from "@material-ui/core";
 import MaterialTable from "material-table";
 import AddCircleIcon from "@material-ui/icons/AddCircle";
 import DeleteIcon from "@material-ui/icons/Delete";
@@ -20,6 +20,7 @@ import { resourceRules, ResourceSettingsForm } from "../../commons/formRules";
 import ImagePreview from "../generic/ImagePreview";
 import VisibleWithRole from "../generic/VisibleWithRole";
 import { ErrorContext } from "../containers/ErrorHandler";
+import StyledMTableToolbar from "../../styles/generic/styled-mtable-toolbar";
 
 /**
  * Component props
@@ -136,29 +137,20 @@ class PageResourceSettingsView extends React.Component<Props, State> {
           { strings.save }
         </Button>
         { this.renderField("name", strings.name, "text") }
-        <Box>
+        <Box mb={ 3 }>
           { this.renderChildResources() }
-          <Box mt={ 3 } mb={ 3 }>
-            <Divider/>
-          </Box>
           { this.renderAddChild() }
-          <Box mt={ 3 } mb={ 3 }>
-            <Divider/>
-          </Box>
+        </Box>
+        <Box mb={ 3 }>
+          <Divider/>
         </Box>
         <VisibleWithRole role="admin">
           { this.renderResourceFields() }
-          <Box>
+          <Box mt={ 3 } mb={ 3 }>
             { this.renderPropertiesTable() }
-            <Box mt={ 3 } mb={ 3 }>
-              <Divider/>
-            </Box>
           </Box>
           <Box>
             { this.renderStyleTable() }
-            <Box mt={ 3 } mb={ 3 }>
-              <Divider/>
-            </Box>
           </Box>
         </VisibleWithRole>
       </Box>
@@ -294,6 +286,21 @@ class PageResourceSettingsView extends React.Component<Props, State> {
             })
         }}
         title={ strings.styles }
+        components={{
+          Toolbar: props => (
+            <StyledMTableToolbar { ...props } />
+          )
+        }}
+        localization={{
+          body: {
+            editTooltip: strings.edit,
+            deleteTooltip: strings.delete,
+            addTooltip: strings.addNew
+          },
+          header: {
+            actions: strings.actions
+          }
+        }}
         options={{
           grouping: false,
           search: false,
@@ -305,7 +312,8 @@ class PageResourceSettingsView extends React.Component<Props, State> {
           paging: false,
           showTextRowsSelected: false,
           showFirstLastPageButtons: false,
-          showSelectAllCheckbox: false
+          showSelectAllCheckbox: false,
+          actionsColumnIndex: 3
         }}
       />
     );
@@ -381,6 +389,21 @@ class PageResourceSettingsView extends React.Component<Props, State> {
             })
         }}
         title={ strings.properties }
+        components={{
+          Toolbar: props => (
+            <StyledMTableToolbar { ...props } />
+          )
+        }}
+        localization={{
+          body: {
+            editTooltip: strings.edit,
+            deleteTooltip: strings.delete,
+            addTooltip: strings.addNew
+          },
+          header: {
+            actions: strings.actions
+          }
+        }}
         options={{
           grouping: false,
           search: false,
@@ -392,7 +415,8 @@ class PageResourceSettingsView extends React.Component<Props, State> {
           paging: false,
           showTextRowsSelected: false,
           showFirstLastPageButtons: false,
-          showSelectAllCheckbox: false
+          showSelectAllCheckbox: false,
+          actionsColumnIndex: 3
         }}
       />
     )
@@ -417,7 +441,7 @@ class PageResourceSettingsView extends React.Component<Props, State> {
       </React.Fragment>
     );
 
-    return(
+    return (
       <Box>
         { listItems }
       </Box>
@@ -434,14 +458,15 @@ class PageResourceSettingsView extends React.Component<Props, State> {
     }
 
     return (
-      <Button
-        style={{ marginLeft: theme.spacing(3), marginTop: theme.spacing(1) }}
-        color="primary"
-        startIcon={ <AddCircleIcon /> }
-        onClick={ () => this.props.onAddChild(resourceId) }
-      >
-        { strings.addNewResource }
-      </Button>
+      <Box mt={ 3 }>
+        <Button
+          color="primary"
+          startIcon={ <AddCircleIcon /> }
+          onClick={ () => this.props.onAddChild(resourceId) }
+        >
+          { strings.addNewResource }
+        </Button>
+      </Box>
     );
   }
 

@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import * as React from "react";
 import { withStyles, WithStyles, FormControlLabel, Checkbox, TextField, Divider, Typography, Button, TableContainer, Paper, Table, TableHead, TableRow, TableCell, TableBody, Box } from "@material-ui/core";
-import MaterialTable from "material-table";
+import MaterialTable, { MTableToolbar } from "material-table";
 import AddIcon from "@material-ui/icons/Add";
 import AddCircleIcon from "@material-ui/icons/AddCircle";
 import DeleteIcon from "@material-ui/icons/DeleteForever";
@@ -14,10 +14,8 @@ import theme from "../../styles/theme";
 import { Resource, ResourceToJSON, KeyValueProperty, ResourceType } from "../../generated/client/src";
 import { forwardRef } from "react";
 import { MessageType, initForm, Form, validateForm } from "ts-form-validation";
-
 import { AuthState, ErrorContextType } from "../../types";
 import ApiUtils from "../../utils/api";
-
 import IconButton from "@material-ui/core/IconButton";
 import { resourceRules, ResourceSettingsForm } from "../../commons/formRules";
 import ImagePreview from "../generic/ImagePreview";
@@ -27,6 +25,7 @@ import VisibleWithRole from "../generic/VisibleWithRole";
 import { getLocalizedTypeString } from "../../commons/resourceTypeHelper";
 import { ErrorContext } from "../containers/ErrorHandler";
 import { resolveChildResourceTypes } from "../../commons/resourceTypeHelper";
+import StyledMTableToolbar from "../../styles/generic/styled-mtable-toolbar";
 
 /**
  * Component props
@@ -406,7 +405,7 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
           { title: strings.key, field: "key" },
           { title: strings.value, field: "value" }
         ]}
-        data={resourceData["styles"]}
+        data={ resourceData["styles"] }
         editable={{
           onRowAdd: newData =>
             new Promise<void>((resolve, reject) => {
@@ -457,6 +456,21 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
             })
         }}
         title={ strings.styles }
+        components={{
+          Toolbar: props => (
+            <StyledMTableToolbar { ...props } />
+          )
+        }}
+        localization={{
+          body: {
+            editTooltip: strings.edit,
+            deleteTooltip: strings.delete,
+            addTooltip: strings.addNew
+          },
+          header: {
+            actions: strings.actions
+          }
+        }}
         options={{
           grouping: false,
           search: false,
@@ -468,7 +482,8 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
           paging: false,
           showTextRowsSelected: false,
           showFirstLastPageButtons: false,
-          showSelectAllCheckbox: false
+          showSelectAllCheckbox: false,
+          actionsColumnIndex: 3
         }}
       />
     );
@@ -548,6 +563,21 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
             })
         }}
         title={ strings.properties }
+        components={{
+          Toolbar: props => (
+            <StyledMTableToolbar { ...props } />
+          ),
+        }}
+        localization={{
+          body: {
+            editTooltip: strings.edit,
+            deleteTooltip: strings.delete,
+            addTooltip: strings.addNew
+          },
+          header: {
+            actions: strings.actions
+          }
+        }}
         options={{
           grouping: false,
           search: false,
@@ -559,7 +589,8 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
           paging: false,
           showTextRowsSelected: false,
           showFirstLastPageButtons: false,
-          showSelectAllCheckbox: false
+          showSelectAllCheckbox: false,
+          actionsColumnIndex: 3,
         }}
       />
     )
@@ -602,18 +633,24 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
     const listItems = childResources.map(resource => {
       return (
         <TableRow key={ resource.name }>
-          <TableCell component="th" scope="row">{ resource.name }</TableCell>
-          <TableCell align="left">{ getLocalizedTypeString(resource.type) }</TableCell>
-          <TableCell align="center">{ resource.orderNumber }</TableCell>
+          <TableCell component="th" scope="row">
+            { resource.name }
+          </TableCell>
+          <TableCell align="left">
+            { getLocalizedTypeString(resource.type) }
+          </TableCell>
+          <TableCell align="center">
+            { resource.orderNumber }
+          </TableCell>
           <TableCell align="right">
             <IconButton
               size="small"
-              className={ classes.iconButton }
               color="primary"
               edge="end"
               aria-label="delete"
               onClick={ () => this.props.onDelete(resource) }
-            >
+              title={ strings.delete }
+            > 
               <DeleteIcon />
             </IconButton>
           </TableCell>
@@ -623,13 +660,23 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
 
     return(
       <TableContainer component={ Paper }>
-        <Table size="small" className={ classes.table } aria-label="simple table">
+        <Table
+          size="small"
+          className={ classes.table }
+          aria-label="simple table"
+        >
           <TableHead>
             <TableRow>
-              <TableCell>{ strings.page }</TableCell>
-              <TableCell align="left">{ strings.type }</TableCell>
-              <TableCell align="center">{ strings.orderFromLeftToRight }</TableCell>
-              <TableCell align="right"></TableCell>
+              <TableCell>
+                { strings.page }
+              </TableCell>
+              <TableCell align="left">
+                { strings.type }
+              </TableCell>
+              <TableCell align="center">
+                { strings.orderFromLeftToRight }
+              </TableCell>
+              <TableCell align="right"/>
             </TableRow>
           </TableHead>
           <TableBody>
