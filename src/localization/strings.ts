@@ -104,6 +104,7 @@ export interface IStrings extends LocalizedStringsMethods {
    */
   applicationEditor: {
     dragSidebar: string;
+    loadingContentTree: string;
   };
 
   /**

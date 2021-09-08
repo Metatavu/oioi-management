@@ -184,15 +184,9 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
           </Box>
           <Box mb={ 3 } display="flex" flexDirection="row">
             <Box mb={ 1 } mr={ 2 }>
-              <Typography variant="h4">
-                { strings.orderNumber }
-              </Typography>
               { this.renderFormField("orderNumber", strings.orderNumber, "number") }
             </Box>
             <Box mb={ 1 }>
-              <Typography variant="h4">
-                { strings.slug }
-              </Typography>
               { this.renderFormField("slug", strings.slug, "text") }
             </Box>
             <Box mt={ 3 } mb={ 3 }>
@@ -217,31 +211,23 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
     const { resource } = this.props;
     return (
       <>
-        <Box mb={ 1 }>
-          <Typography variant="h4">
-            { strings.name }
-          </Typography>
+        <Box mb={ 3 }>
+          { this.renderFormField("name", strings.name, "text") }
         </Box>
-        { this.renderFormField("name", strings.name, "text") }
-        <Box mt={ 3 } mb={ 1 }>
-          <Typography variant="h4">
-            { strings.nameText }
-          </Typography>
+        <Box mb={ 3 }>
+          { this.renderPropertiesField("nameText", strings.nameText, "textarea") }
         </Box>
-        { this.renderPropertiesField("nameText", strings.nameText, "textarea") }
-        <Box mt={ 3 } mb={ 1 }>
-          <Typography variant="h4">
-            { strings.title }
-          </Typography>
+        <Box mb={ 3 }>
+          { this.renderPropertiesField("title", strings.title, "text") }
         </Box>
-        { this.renderPropertiesField("title", strings.title, "text") }
-        <Box mt={ 3 } mb={ 1 }>
-          <Typography variant="h4">
-            { strings.content }
-          </Typography>
+        <Box mb={ 3 }>
+          { this.renderPropertiesField("content", strings.content, "textarea") }
         </Box>
-        { this.renderPropertiesField("content", strings.content, "textarea") }
-        { resource.type === ResourceType.SLIDESHOW && this.renderSlideShowFields() }
+        { resource.type === ResourceType.SLIDESHOW &&
+        <Box mb={ 3 }>
+          { this.renderSlideShowFields() }
+        </Box>
+        }
       </>
     );
   }
@@ -270,7 +256,7 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
         onBlur={ this.onHandleBlur(key) }
         name={ key }
         variant="outlined"
-        placeholder={ placeholder }
+        label={ placeholder }
       /> );
     }
     return (
@@ -284,7 +270,7 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
         onBlur={ this.onHandleBlur(key) }
         name={ key }
         variant="outlined"
-        placeholder={ placeholder }
+        label={ placeholder }
       />
     );
   };
@@ -311,7 +297,7 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
           onBlur={ this.onHandleBlur(key) }
           name={ key }
           variant="outlined"
-          placeholder={ placeholder }
+          label={ placeholder }
         />
       );
     }
@@ -326,7 +312,7 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
         onBlur={ this.onHandleBlur(key) }
         name={ key }
         variant="outlined"
-        placeholder={ placeholder }
+        label={ placeholder }
       />
     );
   };
@@ -349,12 +335,7 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
           </Box>
         </Box>
         <Divider orientation="vertical" flexItem />
-        <Box ml={ 4 } mb={ 4 }>
-          <Box mb={ 1 }>
-            <Typography variant="h4">
-              { strings.slideTimeOnScreen }
-            </Typography>
-          </Box>
+        <Box ml={ 4 } display="flex" alignItems="center">
           { this.renderPropertiesField("slideTimeOnScreen", strings.slideTimeOnScreen, "text") }
         </Box>
       </Box>
@@ -677,7 +658,7 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
 
     return (
       <>
-        <Typography variant="h4" style={{ marginBottom: theme.spacing(1) }}>
+        <Typography variant="h4" style={{ marginBottom: theme.spacing(1), whiteSpace: "nowrap" }}>
           { title }
         </Typography>
         <ImagePreview

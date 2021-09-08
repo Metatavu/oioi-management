@@ -99,7 +99,8 @@
   "actionCannotBeReverted": "This action cannot be reverted.",
 
   "applicationEditor": {
-    "dragSidebar": "Click and drag to narrow or widen"
+    "dragSidebar": "Click and drag to narrow or widen",
+    "loadingContentTree": "Loading content tree..."
   },
 
   "fileUpload": {

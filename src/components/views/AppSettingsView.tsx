@@ -115,12 +115,23 @@ class AppSettingsView extends React.Component<Props, State> {
 
     if (importDone) {
       return (
-        <div><p>{ strings.importDone }</p></div>
+        <Box>
+          <Typography>
+            { strings.importDone }
+          </Typography>
+        </Box>
       );
     }
     if (importingContent) {
       return (
-        <div><p>{ strings.importInProgress }</p><br/><CircularProgress /></div>
+        <Box>
+          <Typography>
+            { strings.importInProgress }
+          </Typography>
+          <Box mt={ 2 }>
+            <CircularProgress/>
+          </Box>
+        </Box>
       );
     }
 
@@ -143,14 +154,12 @@ class AppSettingsView extends React.Component<Props, State> {
             <Typography variant="h4" style={{ marginBottom: theme.spacing(1) }}>{ strings.applicationId }</Typography>
             <Typography variant="body1" style={{ marginTop: theme.spacing(2) }}>{ this.props.application.id }</Typography>
           </div>
-          <div style={{ paddingBottom: theme.spacing(3) }}>
-            <Typography variant="h4" style={{ marginBottom: theme.spacing(1) }}>{ strings.applicationSettings.returnDelay }</Typography>
+          <Box mb={ 3 }>
             { this.renderTextField(strings.applicationSettings.returnDelay, 1, "text", undefined, "returnDelay") }
-          </div>
-          <div style={{ paddingBottom: theme.spacing(3) }}>
-            <Typography variant="h4" style={{ marginBottom: theme.spacing(1) }}>{ strings.applicationSettings.bundleId }</Typography>
+          </Box>
+          <Box mb={ 3 }>
             { this.renderTextField(strings.applicationSettings.bundleId, 1, "text", undefined, "bundleId") }
-          </div>
+          </Box>
         </div>
 
         <Divider style={{ marginBottom: theme.spacing(3) }} />
@@ -159,10 +168,10 @@ class AppSettingsView extends React.Component<Props, State> {
 
         <Divider style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} />
 
-        <div className={ classes.gridRow }>
-          <Box mb={ 1 }>
+        <Box display="flex" alignItems="flex-start">
+          <Box mb={ 1 } mr={ 4 }>
             <Box mb={ 1 }>
-              <Typography variant="h4">
+              <Typography variant="h4" style={{ whiteSpace: "nowrap" }}>
                 { strings.applicationSettings.background }
               </Typography>
             </Box>
@@ -171,13 +180,13 @@ class AppSettingsView extends React.Component<Props, State> {
 
           <Box mb={ 1 }>
             <Box mb={ 1 }>
-              <Typography variant="h4">
+              <Typography variant="h4" style={{ whiteSpace: "nowrap" }}>
                 { strings.applicationSettings.icon }
               </Typography>
             </Box>
             { this.renderMedia("applicationIcon") }
           </Box>
-        </div>
+        </Box>
         <Box mb={ 3 } mt={ 3 }>
           <Divider/>
         </Box>
@@ -376,18 +385,12 @@ class AppSettingsView extends React.Component<Props, State> {
   private renderFields = () => {
     return (
       <>
-        <div style={{ marginBottom: theme.spacing(3) }}>
-          <Typography variant="h4" style={{ marginBottom: theme.spacing(1) }}>
-            { strings.applicationName }
-          </Typography>
+        <Box mb={ 3 }>
           { this.renderTextField(strings.applicationName, 1, "text", "name") }
-        </div>
-        <div style={{ marginBottom: theme.spacing(3) }}>
-          <Typography variant="h4" style={{ marginBottom: theme.spacing(1) }}>
-            { strings.applicationSettings.teaserText }
-          </Typography>
+        </Box>
+        <Box mb={ 3 }>
           { this.renderTextField(strings.applicationSettings.teaserText, 8, "text", undefined, "teaserText") }
-        </div>
+        </Box>
       </>
     );
   }
@@ -424,7 +427,7 @@ class AppSettingsView extends React.Component<Props, State> {
           onBlur={ this.onHandleBlur(appKey) }
           name={ appKey }
           variant="outlined"
-          placeholder={ label }
+          label={ label }
         />
       );
     } else if (resourceKey) {
@@ -438,7 +441,7 @@ class AppSettingsView extends React.Component<Props, State> {
           onChange={ this.onHandleResourceChange(resourceKey) }
           name={ resourceKey }
           variant="outlined"
-          placeholder={ label }
+          label={ label }
         />
       );
     }

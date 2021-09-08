@@ -99,7 +99,8 @@
   "actionCannotBeReverted": "Toimintoa ei voi peruuttaa.",
   
   "applicationEditor": {
-    "dragSidebar": "Raahaa leveämmäksi / kapeammaksi"
+    "dragSidebar": "Raahaa leveämmäksi / kapeammaksi",
+    "loadingContentTree": "Ladataan sovelluspuuta..."
   },
 
   "fileUpload": {

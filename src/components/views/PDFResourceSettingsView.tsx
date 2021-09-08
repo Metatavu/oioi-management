@@ -128,12 +128,6 @@ class PDFResourceSettingsView extends React.Component<Props, State> {
         >
           { strings.save }
         </Button>
-
-        <Box mb={ 1 }>
-          <Typography variant="h4">
-            { strings.name }
-          </Typography>
-        </Box>
         { this.renderField("name", strings.name, "text") }
         { this.renderUploaderAndPreview() }
         <Box mt={ 3 } mb={ 3 }>
@@ -209,7 +203,7 @@ class PDFResourceSettingsView extends React.Component<Props, State> {
           onBlur={ this.onHandleBlur(key) }
           name={ key }
           variant="outlined"
-          placeholder={ placeholder }
+          label={ placeholder }
         />
       );
     }
@@ -225,7 +219,7 @@ class PDFResourceSettingsView extends React.Component<Props, State> {
         onBlur={ this.onHandleBlur(key) }
         name={ key }
         variant="outlined"
-        placeholder={ placeholder }
+        label={ placeholder }
       />
     );
   };

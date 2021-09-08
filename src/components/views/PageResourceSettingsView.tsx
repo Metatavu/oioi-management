@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import * as React from "react";
-import { withStyles, WithStyles, TextField, Divider, Typography, Grid, Button, IconButton, Box } from "@material-ui/core";
+import { withStyles, WithStyles, TextField, Divider, Typography, Button, IconButton, Box } from "@material-ui/core";
 import MaterialTable from "material-table";
 import AddCircleIcon from "@material-ui/icons/AddCircle";
 import DeleteIcon from "@material-ui/icons/Delete";
@@ -12,7 +12,6 @@ import styles from "../../styles/editor-view";
 import strings from "../../localization/strings";
 import theme from "../../styles/theme";
 import { Resource, ResourceToJSON, ResourceType } from "../../generated/client/src";
-import FileUpload from "../../utils/file-upload";
 import { forwardRef } from "react";
 import { MessageType, initForm, Form, validateForm } from "ts-form-validation";
 import { AuthState, ErrorContextType } from "../../types";
@@ -136,14 +135,7 @@ class PageResourceSettingsView extends React.Component<Props, State> {
         >
           { strings.save }
         </Button>
-
-        <Box mb={ 1 }>
-          <Typography variant="h4">
-            { strings.name }
-          </Typography>
-        </Box>
         { this.renderField("name", strings.name, "text") }
-
         <Box>
           { this.renderChildResources() }
           <Box mt={ 3 } mb={ 3 }>
@@ -154,22 +146,14 @@ class PageResourceSettingsView extends React.Component<Props, State> {
             <Divider/>
           </Box>
         </Box>
-
         <VisibleWithRole role="admin">
-          <Box mt={ 3 } mb={ 3 }>
-            <Typography variant="h3">
-              { strings.advanced }
-            </Typography>
-          </Box>
           { this.renderResourceFields() }
-
           <Box>
             { this.renderPropertiesTable() }
             <Box mt={ 3 } mb={ 3 }>
               <Divider/>
             </Box>
           </Box>
-
           <Box>
             { this.renderStyleTable() }
             <Box mt={ 3 } mb={ 3 }>
@@ -188,15 +172,9 @@ class PageResourceSettingsView extends React.Component<Props, State> {
     return (
       <Box mb={ 3 } display="flex" flexDirection="row">
         <Box mb={ 1 } mr={ 2 }>
-          <Typography variant="h4">
-            { strings.orderNumber }
-          </Typography>
           { this.renderField("orderNumber", strings.orderNumber, "number") }
         </Box>
         <Box mb={ 1 }>
-          <Typography variant="h4">
-            { strings.slug }
-          </Typography>
           { this.renderField("slug", strings.slug, "text") }
         </Box>
       </Box>
@@ -227,7 +205,7 @@ class PageResourceSettingsView extends React.Component<Props, State> {
         onBlur={ this.onHandleBlur(key) }
         name={ key }
         variant="outlined"
-        placeholder={ placeholder }
+        label={ placeholder }
       /> );
     }
     return (
@@ -241,7 +219,7 @@ class PageResourceSettingsView extends React.Component<Props, State> {
         onBlur={ this.onHandleBlur(key) }
         name={ key }
         variant="outlined"
-        placeholder={ placeholder }
+        label={ placeholder }
       />
     );
   };
@@ -431,20 +409,18 @@ class PageResourceSettingsView extends React.Component<Props, State> {
     }
 
     const listItems = childResources.map(child =>
-      <React.Fragment key={child.id}>
-        <Divider style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} />
-        <Typography variant="h4" style={{ textTransform: "capitalize", marginBottom: theme.spacing(1) }}>{ child.name }</Typography>
-        <div style={{ display: "flex" }}>
+      <React.Fragment key={ child.id }>
+        <Box display="flex" mt={ 3 }>
           { this.renderChildResourceContentField(child) }
           { this.renderDeleteChild(child) }
-        </div>
+        </Box>
       </React.Fragment>
     );
 
     return(
-      <div>
+      <Box>
         { listItems }
-      </div>
+      </Box>
     );
   };
 
@@ -503,7 +479,7 @@ class PageResourceSettingsView extends React.Component<Props, State> {
             onChange={ this.onHandleChildResourceTextChange(resource) }
             name={ resource.id }
             variant="outlined"
-            placeholder={ strings.resourceTypes.text }
+            label={ resource.name }
           />
         </>;
       case ResourceType.PDF:

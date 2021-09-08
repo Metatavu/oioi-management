@@ -174,12 +174,13 @@ export default createMuiTheme({
           backgroundColor: "rgba(38, 50, 56, 0.1)",
         },
         "&.Mui-selected": {
-          backgroundColor: "rgba(38, 50, 56, 0.1)",
+          backgroundColor: "rgba(0, 180, 216, 0.2)",
           "& .MuiTypography-body1": {
             fontFamily: "TTNorms-Bold",
           },
           "& ~ .MuiListItemSecondaryAction-root": {
-            opacity: 1
+            opacity: 1,
+            color: "#00B4D8"
           },
           "&:hover": {
             backgroundColor: "rgba(38, 50, 56, 0.1)"
@@ -210,6 +211,18 @@ export default createMuiTheme({
     MuiTableCell: {
       head: {
         fontFamily: "TTNorms-Bold",
+      }
+    },
+    MuiBreadcrumbs: {
+      separator: {
+        marginLeft: 16,
+        marginRight: 16
+      },
+      li: {
+        fontFamily: "TTNorms-Light",
+        "&:last-child": {
+          fontFamily: "TTNorms-Bold",
+        }
       }
     }
   }
