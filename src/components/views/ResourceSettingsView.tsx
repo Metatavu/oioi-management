@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import * as React from "react";
 import { withStyles, WithStyles, TextField, Divider, Typography, Button, Box } from "@material-ui/core";
-import MaterialTable from "material-table";
+import MaterialTable, { MTableToolbar } from "material-table";
 import AddCircleIcon from "@material-ui/icons/AddCircle";
 import DeleteIcon from "@material-ui/icons/Delete";
 import CheckIcon from "@material-ui/icons/Check";
@@ -13,7 +13,6 @@ import theme from "../../styles/theme";
 import { Resource, ResourceToJSON, ResourceType } from "../../generated/client/src";
 import { forwardRef } from "react";
 import { MessageType, initForm, Form, validateForm } from "ts-form-validation";
-
 import { ResourceSettingsForm, resourceRules } from "../../commons/formRules";
 import ImagePreview from "../generic/ImagePreview";
 import VisibleWithRole from "../generic/VisibleWithRole";
@@ -21,6 +20,7 @@ import { AuthState, ErrorContextType } from "../../types";
 import { ErrorContext } from "../containers/ErrorHandler";
 import { connect } from "react-redux";
 import { ReduxState } from "../../store";
+import StyledMTableToolbar from "../../styles/generic/styled-mtable-toolbar";
 
 /**
  * Component props
@@ -322,6 +322,21 @@ class ResourceSettingsView extends React.Component<Props, State> {
             })
         }}
         title={ strings.styles }
+        components={{
+          Toolbar: props => (
+            <StyledMTableToolbar { ...props } />
+          )
+        }}
+        localization={{
+          body: {
+            editTooltip: strings.edit,
+            deleteTooltip: strings.delete,
+            addTooltip: strings.addNew
+          },
+          header: {
+            actions: strings.actions
+          }
+        }}
         options={{
           grouping: false,
           search: false,
@@ -333,7 +348,8 @@ class ResourceSettingsView extends React.Component<Props, State> {
           paging: false,
           showTextRowsSelected: false,
           showFirstLastPageButtons: false,
-          showSelectAllCheckbox: false
+          showSelectAllCheckbox: false,
+          actionsColumnIndex: 3
         }}
       />
     );
@@ -400,6 +416,21 @@ class ResourceSettingsView extends React.Component<Props, State> {
             })
         }}
         title={ strings.properties }
+        components={{
+          Toolbar: props => (
+            <StyledMTableToolbar { ...props } />
+          )
+        }}
+        localization={{
+          body: {
+            editTooltip: strings.edit,
+            deleteTooltip: strings.delete,
+            addTooltip: strings.addNew
+          },
+          header: {
+            actions: strings.actions
+          }
+        }}
         options={{
           grouping: false,
           search: false,
@@ -411,7 +442,8 @@ class ResourceSettingsView extends React.Component<Props, State> {
           paging: false,
           showTextRowsSelected: false,
           showFirstLastPageButtons: false,
-          showSelectAllCheckbox: false
+          showSelectAllCheckbox: false,
+          actionsColumnIndex: 3
         }}
       />
     )
