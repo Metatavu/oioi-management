@@ -20,6 +20,7 @@ import { resourceRules, ResourceSettingsForm } from "../../commons/formRules";
 import ImagePreview from "../generic/ImagePreview";
 import VisibleWithRole from "../generic/VisibleWithRole";
 import { ErrorContext } from "../containers/ErrorHandler";
+import StyledMTableToolbar from "../../styles/generic/styled-mtable-toolbar";
 
 /**
  * Component props
@@ -251,14 +252,6 @@ class PageResourceSettingsView extends React.Component<Props, State> {
   private renderStyleTable = () => {
     const { resourceData } = this.state;
 
-    const StyledMTableToolbar = withStyles({
-      root: {
-        paddingLeft: theme.spacing(2),
-        paddingRight: theme.spacing(2),
-        borderBottom: "1px solid rgba(0,0,0,0.1)"
-      },
-    })(MTableToolbar);
-
     return (
       <MaterialTable
         icons={{
@@ -361,14 +354,6 @@ class PageResourceSettingsView extends React.Component<Props, State> {
    */
   private renderPropertiesTable = () => {
     const { resourceData } = this.state;
-
-    const StyledMTableToolbar = withStyles({
-      root: {
-        paddingLeft: theme.spacing(2),
-        paddingRight: theme.spacing(2),
-        borderBottom: "1px solid rgba(0,0,0,0.1)"
-      },
-    })(MTableToolbar);
 
     return (
       <MaterialTable
