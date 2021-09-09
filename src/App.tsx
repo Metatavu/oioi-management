@@ -18,6 +18,8 @@ import "moment/locale/fi";
 import "moment/locale/en-gb";
 import { Slide, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { blueGrey } from "@material-ui/core/colors";
+import CheckmarkIcon from "@material-ui/icons/Check";
 
 /**
  * Redux store
@@ -63,6 +65,12 @@ class App extends React.Component<Props, State> {
             hideProgressBar
             position="top-center"
             theme="dark"
+            toastStyle={{
+              backgroundColor: blueGrey[700],
+              fontFamily: "TTNorms-light",
+              fontSize: 16,
+            }}
+            icon={ <CheckmarkIcon htmlColor="#00B4D8"/> }
             draggable={ false }
             transition={ Slide }
             closeButton={ false }
