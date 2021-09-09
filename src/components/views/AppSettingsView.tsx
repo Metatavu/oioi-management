@@ -1,5 +1,5 @@
 import * as React from "react";
-import { withStyles, WithStyles, TextField, Button, Divider, Typography, CircularProgress, IconButton, Box } from "@material-ui/core";
+import { withStyles, WithStyles, TextField, Button, Divider, Typography, CircularProgress, IconButton, Box, Accordion, AccordionSummary, AccordionDetails } from "@material-ui/core";
 import styles from "../../styles/editor-view";
 import strings from "../../localization/strings";
 import theme from "../../styles/theme";
@@ -15,6 +15,7 @@ import VisibleWithRole from "../generic/VisibleWithRole";
 import AddIcon from "@material-ui/icons/Add";
 import { ErrorContext } from "../containers/ErrorHandler";
 import { toast } from "react-toastify";
+import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 
 /**
  * Component Props
@@ -147,27 +148,9 @@ class AppSettingsView extends React.Component<Props, State> {
         >
           { strings.save }
         </Button>
-
         <Typography style={{ marginBottom: theme.spacing(3) }} variant="h3">{ strings.applicationBasicInformation }</Typography>
-        <div style={{ display: "grid", gridAutoFlow: "column", gridAutoColumns: "max-content", gridGap: theme.spacing(3) }}>
-          <div style={{ paddingRight: theme.spacing(3), borderRight: "1px solid rgba(0,0,0,0.1)" }}>
-            <Typography variant="h4" style={{ marginBottom: theme.spacing(1) }}>{ strings.applicationId }</Typography>
-            <Typography variant="body1" style={{ marginTop: theme.spacing(2) }}>{ this.props.application.id }</Typography>
-          </div>
-          <Box mb={ 3 }>
-            { this.renderTextField(strings.applicationSettings.returnDelay, 1, "text", undefined, "returnDelay") }
-          </Box>
-          <Box mb={ 3 }>
-            { this.renderTextField(strings.applicationSettings.bundleId, 1, "text", undefined, "bundleId") }
-          </Box>
-        </div>
-
-        <Divider style={{ marginBottom: theme.spacing(3) }} />
-
         { this.renderFields() }
-
         <Divider style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} />
-
         <Box display="flex" alignItems="flex-start">
           <Box mb={ 1 } mr={ 4 }>
             <Box mb={ 1 }>
@@ -206,17 +189,65 @@ class AppSettingsView extends React.Component<Props, State> {
           onToggle={ this.toggleDialog }
           open={ this.state.iconDialogOpen }
         />
-
-        <VisibleWithRole role="admin">
-          <Box mb={ 3 } mt={ 3 }>
-            <Divider/>
-          </Box>
-          <Typography variant="h4">
-            { strings.importLabel }
-          </Typography>
-          <input onChange={ e => this.handleWallJsonImport(e.target.files)} type="file"/>
-        </VisibleWithRole>
+        { this.renderAdvancedSettings() }
       </div>
+    );
+  }
+
+  /**
+   * Renders advanced settings
+   */
+  private renderAdvancedSettings = () => {
+    return (
+      <>
+        <Box mt={ 3 } mb={ 3 }>
+          <Divider/>
+        </Box>
+        <Accordion>
+          <AccordionSummary
+            expandIcon={ <ExpandMoreIcon color="primary" /> }
+            aria-controls="panel1a-content"
+            id="panel1a-header"
+          >
+            <Typography variant="h4">
+              { strings.applicationSettings.advancedSettings }
+            </Typography>
+          </AccordionSummary>
+          <AccordionDetails>
+            <Box
+              mt={ 3 }
+              mb={ 3 }
+              display="flex"
+            >
+              <Typography variant="h5">
+                { strings.applicationId }
+              </Typography>
+              <Box ml={ 1 }>
+                <Typography variant="body1">
+                  { this.props.application.id }
+                </Typography>
+              </Box>
+            </Box>
+            <Box display="flex" mb={ 3 }>
+              <Box mr={ 1 }>
+                { this.renderTextField(strings.applicationSettings.returnDelay, 1, "text", undefined, "returnDelay") }
+              </Box>
+              <Box ml={ 1 }>
+                { this.renderTextField(strings.applicationSettings.bundleId, 1, "text", undefined, "bundleId") }
+              </Box>
+            </Box>
+            <VisibleWithRole role="admin">
+              <Divider/>
+              <Box mb={ 3 } mt={ 3 }>
+                <Typography variant="h5">
+                  { strings.importLabel }
+                </Typography>
+                <input onChange={ e => this.handleWallJsonImport(e.target.files)} type="file"/>
+              </Box>
+            </VisibleWithRole>
+          </AccordionDetails>
+        </Accordion>
+      </>
     );
   }
 

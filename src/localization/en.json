@@ -151,7 +151,8 @@
     "returnDelay": "Reset delay",
     "bundleId": "Bundle Id",
     "id": "Application id",
-    "addIcon": "Add icon"
+    "addIcon": "Add icon",
+    "advancedSettings": "Advanced settings"
   },
 
   "iconKeys": {

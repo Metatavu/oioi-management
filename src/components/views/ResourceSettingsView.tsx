@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import * as React from "react";
-import { withStyles, WithStyles, TextField, Divider, Typography, Button, Box } from "@material-ui/core";
-import MaterialTable, { MTableToolbar } from "material-table";
+import { withStyles, WithStyles, TextField, Divider, Typography, Button, Box, Accordion, AccordionDetails, AccordionSummary } from "@material-ui/core";
+import MaterialTable from "material-table";
 import AddCircleIcon from "@material-ui/icons/AddCircle";
 import DeleteIcon from "@material-ui/icons/Delete";
 import CheckIcon from "@material-ui/icons/Check";
@@ -20,6 +20,7 @@ import { ErrorContext } from "../containers/ErrorHandler";
 import { connect } from "react-redux";
 import { ReduxState } from "../../store";
 import StyledMTableToolbar from "../../styles/generic/styled-mtable-toolbar";
+import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 
 /**
  * Component props
@@ -144,7 +145,7 @@ class ResourceSettingsView extends React.Component<Props, State> {
     const { isFormValid } = this.state.form;
 
     return (
-      <div>
+      <Box>
         <Button
           className={ classes.saveButton }
           color="primary"
@@ -161,34 +162,10 @@ class ResourceSettingsView extends React.Component<Props, State> {
         <Box>
           { this.renderDataField(localizedDataString) }
         </Box>
-        <Box mb={ 3 } mt={ 3 }>
-          <Divider/>
-        </Box>
         <VisibleWithRole role="admin">
-          <Box mt={ 3 } mb={ 3 }>
-            <Typography variant="h3">
-              { strings.advanced }
-            </Typography>
-          </Box>
-          <Box mb={ 3 } display="flex" flexDirection="row">
-            <Box mb={ 1 } mr={ 2 }>
-              { this.renderField("orderNumber", strings.orderNumber, "number") }
-            </Box>
-            <Box ml={ 1 }>
-              { this.renderField("slug", strings.slug, "text") }
-            </Box>
-          </Box>
-          <Box mt={ 3 } mb={ 3 }>
-            <Divider/>
-          </Box>
-          <Box mb={ 4 }>
-            { this.renderPropertiesTable() }
-          </Box>
-          <Box>
-            { this.renderStyleTable() }
-          </Box>
+          { this.renderAdvancedSettings() }
         </VisibleWithRole>
-      </div>
+      </Box>
     );
   }
 
@@ -471,6 +448,48 @@ class ResourceSettingsView extends React.Component<Props, State> {
       );
     }
   };
+
+  /**
+   * Renders advanced settings
+   */
+  private renderAdvancedSettings = () => {
+    return (
+      <Box mt={ 3 }>
+        <Accordion>
+          <AccordionSummary
+            expandIcon={ <ExpandMoreIcon color="primary" /> }
+            aria-controls="panel1a-content"
+            id="panel1a-header"
+          >
+            <Typography variant="h4">
+              { strings.applicationSettings.advancedSettings }
+            </Typography>
+          </AccordionSummary>
+          <AccordionDetails>
+            <Box
+              mt={ 3 }
+              mb={ 3 }
+              display="flex"
+              flexDirection="row"
+            >
+              <Box mb={ 1 } mr={ 2 }>
+                { this.renderField("orderNumber", strings.orderNumber, "number") }
+              </Box>
+              <Box ml={ 1 }>
+                { this.renderField("slug", strings.slug, "text") }
+              </Box>
+            </Box>
+            <Box mb={ 4 }>
+              { this.renderPropertiesTable() }
+            </Box>
+            <Box>
+              { this.renderStyleTable() }
+            </Box>
+          </AccordionDetails>
+        </Accordion>
+      </Box>
+    );
+  }
 
   /**
    * Get localized string for data type method

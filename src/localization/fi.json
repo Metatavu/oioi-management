@@ -151,7 +151,8 @@
     "returnDelay": "Alkutilan paluuviive minuutteina",
     "bundleId": "Bundle Id",
     "id": "Sovelluksen id",
-    "addIcon": "Lisää ikoni"
+    "addIcon": "Lisää ikoni",
+    "advancedSettings": "Edistyneet asetukset"
   },
 
   "iconKeys": {

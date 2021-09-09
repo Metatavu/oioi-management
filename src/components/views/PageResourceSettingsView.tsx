@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import * as React from "react";
-import { withStyles, WithStyles, TextField, Divider, Button, IconButton, Box } from "@material-ui/core";
+import { withStyles, WithStyles, TextField, Divider, Button, IconButton, Box, Accordion, AccordionDetails, AccordionSummary, Typography } from "@material-ui/core";
 import MaterialTable from "material-table";
 import AddCircleIcon from "@material-ui/icons/AddCircle";
 import DeleteIcon from "@material-ui/icons/Delete";
@@ -21,6 +21,7 @@ import ImagePreview from "../generic/ImagePreview";
 import VisibleWithRole from "../generic/VisibleWithRole";
 import { ErrorContext } from "../containers/ErrorHandler";
 import StyledMTableToolbar from "../../styles/generic/styled-mtable-toolbar";
+import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 
 /**
  * Component props
@@ -145,13 +146,7 @@ class PageResourceSettingsView extends React.Component<Props, State> {
           <Divider/>
         </Box>
         <VisibleWithRole role="admin">
-          { this.renderResourceFields() }
-          <Box mt={ 3 } mb={ 3 }>
-            { this.renderPropertiesTable() }
-          </Box>
-          <Box>
-            { this.renderStyleTable() }
-          </Box>
+          { this.renderAdvancedSettings() }
         </VisibleWithRole>
       </Box>
     );
@@ -162,7 +157,7 @@ class PageResourceSettingsView extends React.Component<Props, State> {
    */
   private renderResourceFields = () => {
     return (
-      <Box mb={ 3 } display="flex" flexDirection="row">
+      <Box display="flex" flexDirection="row">
         <Box mb={ 1 } mr={ 2 }>
           { this.renderField("orderNumber", strings.orderNumber, "number") }
         </Box>
@@ -538,6 +533,36 @@ class PageResourceSettingsView extends React.Component<Props, State> {
         onSetUrl={ this.onChildResourceSetFileUrl }
         uploadKey={ resource.id }
       />
+    );
+  }
+
+  /**
+   * Renders advanced settings
+   */
+  private renderAdvancedSettings = () => {
+    return (
+      <Accordion>
+        <AccordionSummary
+          expandIcon={ <ExpandMoreIcon color="primary" /> }
+          aria-controls="panel1a-content"
+          id="panel1a-header"
+        >
+          <Typography variant="h4">
+            { strings.applicationSettings.advancedSettings }
+          </Typography>
+        </AccordionSummary>
+        <AccordionDetails>
+          <Box mt={ 3 }>
+            { this.renderResourceFields() }
+          </Box>
+          <Box mt={ 3 } mb={ 3 }>
+            { this.renderPropertiesTable() }
+          </Box>
+          <Box>
+            { this.renderStyleTable() }
+          </Box>
+        </AccordionDetails>
+      </Accordion>
     );
   }
 

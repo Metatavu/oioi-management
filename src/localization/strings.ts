@@ -165,6 +165,7 @@ export interface IStrings extends LocalizedStringsMethods {
     bundleId: string;
     id: string;
     addIcon: string;
+    advancedSettings: string;
   };
 
   /**

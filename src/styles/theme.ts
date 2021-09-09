@@ -224,6 +224,38 @@ export default createMuiTheme({
           fontFamily: "TTNorms-Bold",
         }
       }
+    },
+    MuiAccordion: {
+      root: {
+        border: "1px solid rgba(0,0,0,0.1)",
+        "&:before": {
+          display: "none"
+        }
+      }
+    },
+    MuiAccordionSummary: {
+      root: {
+        borderBottom: "1px solid rgba(0,0,0,0.1)",
+        height: 56,
+        minHeight: 56,
+        "&$expanded": {
+          height: 56,
+          minHeight: 56
+        }
+      },
+      expanded: {}
+    },
+    MuiAccordionDetails: {
+      root: {
+        backgroundColor: "#f6f6f6",
+        flexDirection: "column"
+      }
+    }
+  },
+  props: {
+    MuiAccordion: {
+      square: true,
+      elevation: 0
     }
   }
 });
