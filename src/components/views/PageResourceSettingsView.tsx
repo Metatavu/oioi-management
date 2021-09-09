@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import * as React from "react";
-import { withStyles, WithStyles, TextField, Divider, Button, IconButton, Box, Accordion, AccordionDetails, AccordionSummary, Typography } from "@material-ui/core";
+import { withStyles, WithStyles, TextField, Divider, Button, IconButton, Box, Accordion, AccordionDetails, AccordionSummary, Typography, Paper } from "@material-ui/core";
 import MaterialTable from "material-table";
 import AddCircleIcon from "@material-ui/icons/AddCircle";
 import DeleteIcon from "@material-ui/icons/Delete";
@@ -284,7 +284,8 @@ class PageResourceSettingsView extends React.Component<Props, State> {
         components={{
           Toolbar: props => (
             <StyledMTableToolbar { ...props } />
-          )
+          ),
+          Container: props => <Paper { ...props } elevation={ 0 } />
         }}
         localization={{
           body: {
@@ -387,7 +388,8 @@ class PageResourceSettingsView extends React.Component<Props, State> {
         components={{
           Toolbar: props => (
             <StyledMTableToolbar { ...props } />
-          )
+          ),
+          Container: props => <Paper { ...props } elevation={ 0 } />
         }}
         localization={{
           body: {

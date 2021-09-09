@@ -256,6 +256,9 @@ export default createMuiTheme({
     MuiAccordion: {
       square: true,
       elevation: 0
+    },
+    MuiPaper: {
+      elevation: 0
     }
   }
 });

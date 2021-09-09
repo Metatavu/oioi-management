@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import * as React from "react";
-import { withStyles, WithStyles, TextField, Divider, Typography, Button, Box, Accordion, AccordionDetails, AccordionSummary } from "@material-ui/core";
+import { withStyles, WithStyles, TextField, Divider, Typography, Button, Box, Accordion, AccordionDetails, AccordionSummary, Paper } from "@material-ui/core";
 import MaterialTable from "material-table";
 import AddCircleIcon from "@material-ui/icons/AddCircle";
 import DeleteIcon from "@material-ui/icons/Delete";
@@ -275,6 +275,7 @@ class PDFResourceSettingsView extends React.Component<Props, State> {
           Toolbar: props => (
             <StyledMTableToolbar { ...props } />
           ),
+          Container: props => <Paper { ...props } elevation={ 0 } />
         }}
         localization={{
           body: {
@@ -377,7 +378,8 @@ class PDFResourceSettingsView extends React.Component<Props, State> {
         components={{
           Toolbar: props => (
             <StyledMTableToolbar { ...props } />
-          )
+          ),
+          Container: props => <Paper {...props} elevation={ 0 } />
         }}
         localization={{
           body: {

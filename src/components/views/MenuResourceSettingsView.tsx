@@ -481,7 +481,8 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
         components={{
           Toolbar: props => (
             <StyledMTableToolbar { ...props } />
-          )
+          ),
+          Container: props => <Paper { ...props } elevation={ 0 } />
         }}
         localization={{
           body: {
@@ -589,6 +590,7 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
           Toolbar: props => (
             <StyledMTableToolbar { ...props } />
           ),
+          Container: props => <Paper { ...props } elevation={ 0 } />
         }}
         localization={{
           body: {
