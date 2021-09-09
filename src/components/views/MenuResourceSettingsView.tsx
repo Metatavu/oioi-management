@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import * as React from "react";
-import { withStyles, WithStyles, FormControlLabel, Checkbox, TextField, Divider, Typography, Button, TableContainer, Paper, Table, TableHead, TableRow, TableCell, TableBody, Box } from "@material-ui/core";
-import MaterialTable, { MTableToolbar } from "material-table";
+import { withStyles, WithStyles, FormControlLabel, Checkbox, TextField, Divider, Typography, Button, TableContainer, Paper, Table, TableHead, TableRow, TableCell, TableBody, Box, Accordion, AccordionSummary, AccordionDetails } from "@material-ui/core";
+import MaterialTable from "material-table";
 import AddIcon from "@material-ui/icons/Add";
 import AddCircleIcon from "@material-ui/icons/AddCircle";
 import DeleteIcon from "@material-ui/icons/DeleteForever";
@@ -26,6 +26,7 @@ import { getLocalizedTypeString } from "../../commons/resourceTypeHelper";
 import { ErrorContext } from "../containers/ErrorHandler";
 import { resolveChildResourceTypes } from "../../commons/resourceTypeHelper";
 import StyledMTableToolbar from "../../styles/generic/styled-mtable-toolbar";
+import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 
 /**
  * Component props
@@ -172,38 +173,8 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
           <Divider/>
         </Box>
         { this.renderChildResources() }
-        <Box mt={ 3 } mb={ 3 }>
-          <Divider/>
-        </Box>
         <VisibleWithRole role="admin">
-          <Box mt={ 3 } mb={ 3 }>
-            <Typography variant="h3">
-              { strings.advanced }
-            </Typography>
-          </Box>
-          <Box mb={ 3 } display="flex" flexDirection="row">
-            <Box mb={ 1 } mr={ 2 }>
-              <Typography variant="h4">
-                { strings.orderNumber }
-              </Typography>
-              { this.renderFormField("orderNumber", strings.orderNumber, "number") }
-            </Box>
-            <Box mb={ 1 }>
-              <Typography variant="h4">
-                { strings.slug }
-              </Typography>
-              { this.renderFormField("slug", strings.slug, "text") }
-            </Box>
-            <Box mt={ 3 } mb={ 3 }>
-              <Divider/>
-            </Box>
-          </Box>
-          <Box mb={ 3 }>
-            { this.renderPropertiesTable() }
-          </Box>
-          <Box>
-            { this.renderStyleTable() }
-          </Box>
+          { this.renderAdvancedSettings() }
         </VisibleWithRole>
       </div>
     );
@@ -216,31 +187,23 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
     const { resource } = this.props;
     return (
       <>
-        <Box mb={ 1 }>
-          <Typography variant="h4">
-            { strings.name }
-          </Typography>
+        <Box mb={ 3 }>
+          { this.renderFormField("name", strings.name, "text") }
         </Box>
-        { this.renderFormField("name", strings.name, "text") }
-        <Box mt={ 3 } mb={ 1 }>
-          <Typography variant="h4">
-            { strings.nameText }
-          </Typography>
+        <Box mb={ 3 }>
+          { this.renderPropertiesField("nameText", strings.nameText, "textarea") }
         </Box>
-        { this.renderPropertiesField("nameText", strings.nameText, "textarea") }
-        <Box mt={ 3 } mb={ 1 }>
-          <Typography variant="h4">
-            { strings.title }
-          </Typography>
+        <Box mb={ 3 }>
+          { this.renderPropertiesField("title", strings.title, "text") }
         </Box>
-        { this.renderPropertiesField("title", strings.title, "text") }
-        <Box mt={ 3 } mb={ 1 }>
-          <Typography variant="h4">
-            { strings.content }
-          </Typography>
+        <Box mb={ 3 }>
+          { this.renderPropertiesField("content", strings.content, "textarea") }
         </Box>
-        { this.renderPropertiesField("content", strings.content, "textarea") }
-        { resource.type === ResourceType.SLIDESHOW && this.renderSlideShowFields() }
+        { resource.type === ResourceType.SLIDESHOW &&
+        <Box mb={ 3 }>
+          { this.renderSlideShowFields() }
+        </Box>
+        }
       </>
     );
   }
@@ -269,7 +232,7 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
         onBlur={ this.onHandleBlur(key) }
         name={ key }
         variant="outlined"
-        placeholder={ placeholder }
+        label={ placeholder }
       /> );
     }
     return (
@@ -283,7 +246,7 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
         onBlur={ this.onHandleBlur(key) }
         name={ key }
         variant="outlined"
-        placeholder={ placeholder }
+        label={ placeholder }
       />
     );
   };
@@ -310,7 +273,7 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
           onBlur={ this.onHandleBlur(key) }
           name={ key }
           variant="outlined"
-          placeholder={ placeholder }
+          label={ placeholder }
         />
       );
     }
@@ -325,7 +288,7 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
         onBlur={ this.onHandleBlur(key) }
         name={ key }
         variant="outlined"
-        placeholder={ placeholder }
+        label={ placeholder }
       />
     );
   };
@@ -348,15 +311,55 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
           </Box>
         </Box>
         <Divider orientation="vertical" flexItem />
-        <Box ml={ 4 } mb={ 4 }>
-          <Box mb={ 1 }>
-            <Typography variant="h4">
-              { strings.slideTimeOnScreen }
-            </Typography>
-          </Box>
+        <Box ml={ 4 } display="flex" alignItems="center">
           { this.renderPropertiesField("slideTimeOnScreen", strings.slideTimeOnScreen, "text") }
         </Box>
       </Box>
+    );
+  }
+
+  /**
+   * Renders advanced settings
+   */
+  private renderAdvancedSettings = () => {
+    return (
+      <>
+        <Accordion>
+          <AccordionSummary
+            expandIcon={ <ExpandMoreIcon color="primary" /> }
+            aria-controls="panel1a-content"
+            id="panel1a-header"
+          >
+            <Typography variant="h4">
+              { strings.applicationSettings.advancedSettings }
+            </Typography>
+          </AccordionSummary>
+          <AccordionDetails>
+            <Box
+              mt={ 3 }
+              mb={ 3 }
+              display="flex"
+              flexDirection="row"
+            >
+              <Box mb={ 1 } mr={ 2 }>
+                { this.renderFormField("orderNumber", strings.orderNumber, "number") }
+              </Box>
+              <Box mb={ 1 }>
+                { this.renderFormField("slug", strings.slug, "text") }
+              </Box>
+              <Box mt={ 3 } mb={ 3 }>
+                <Divider/>
+              </Box>
+            </Box>
+            <Box mb={ 3 }>
+              { this.renderPropertiesTable() }
+            </Box>
+            <Box>
+              { this.renderStyleTable() }
+            </Box>
+          </AccordionDetails>
+        </Accordion>
+      </>
     );
   }
 
@@ -628,12 +631,12 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
     }
 
     return (
-      <>
+      <Box mb={ 3 }>
         <Typography variant="h4" style={{ marginBottom: theme.spacing(1) }}>
           { strings.childResources }
         </Typography>
         { this.renderChildResourcesList() }
-      </>
+      </Box>
     );
   }
 
@@ -724,7 +727,7 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
 
     return (
       <>
-        <Typography variant="h4" style={{ marginBottom: theme.spacing(1) }}>
+        <Typography variant="h4" style={{ marginBottom: theme.spacing(1), whiteSpace: "nowrap" }}>
           { title }
         </Typography>
         <ImagePreview

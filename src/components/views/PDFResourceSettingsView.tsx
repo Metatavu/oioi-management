@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import * as React from "react";
-import { withStyles, WithStyles, TextField, Divider, Typography, Button, Box } from "@material-ui/core";
-import MaterialTable, { MTableToolbar } from "material-table";
+import { withStyles, WithStyles, TextField, Divider, Typography, Button, Box, Accordion, AccordionDetails, AccordionSummary } from "@material-ui/core";
+import MaterialTable from "material-table";
 import AddCircleIcon from "@material-ui/icons/AddCircle";
 import DeleteIcon from "@material-ui/icons/Delete";
 import CheckIcon from "@material-ui/icons/Check";
@@ -17,8 +17,8 @@ import { resourceRules, ResourceSettingsForm } from "../../commons/formRules";
 import VisibleWithRole from "../generic/VisibleWithRole";
 import { ErrorContext } from "../containers/ErrorHandler";
 import PDFPreview from "../generic/PDFPreview";
-import theme from "../../styles/theme";
 import StyledMTableToolbar from "../../styles/generic/styled-mtable-toolbar";
+import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 
 /**
  * Component props
@@ -111,7 +111,7 @@ class PDFResourceSettingsView extends React.Component<Props, State> {
    */
   public render = () => {
     const { loading, dataChanged } = this.state;
-    const { classes, resource } = this.props;
+    const { classes } = this.props;
 
     if (loading) {
       return;
@@ -130,38 +130,13 @@ class PDFResourceSettingsView extends React.Component<Props, State> {
         >
           { strings.save }
         </Button>
-
-        <Box mb={ 1 }>
-          <Typography variant="h4">
-            { strings.name }
-          </Typography>
-        </Box>
         { this.renderField("name", strings.name, "text") }
         { this.renderUploaderAndPreview() }
         <Box mt={ 3 } mb={ 3 }>
           <Divider/>
         </Box>
         <VisibleWithRole role="admin">
-          <Box mt={ 3 } mb={ 3 }>
-            <Typography variant="h3">
-              { strings.advanced }
-            </Typography>
-          </Box>
-          { this.renderResourceFields() }
-
-          <Box>
-            { this.renderPropertiesTable() }
-            <Box mt={ 3 } mb={ 3 }>
-              <Divider/>
-            </Box>
-          </Box>
-
-          <Box>
-            { this.renderStyleTable() }
-            <Box mt={ 3 } mb={ 3 }>
-              <Divider/>
-            </Box>
-          </Box>
+          { this.renderAdvancedSettings() }
         </VisibleWithRole>
       </Box>
     );
@@ -173,15 +148,9 @@ class PDFResourceSettingsView extends React.Component<Props, State> {
   private renderResourceFields = () => (
     <Box mb={ 3 } display="flex" flexDirection="row">
       <Box mb={ 1 } mr={ 2 }>
-        <Typography variant="h4">
-          { strings.orderNumber }
-        </Typography>
         { this.renderField("orderNumber", strings.orderNumber, "number") }
       </Box>
       <Box mb={ 1 }>
-        <Typography variant="h4">
-          { strings.slug }
-        </Typography>
         { this.renderField("slug", strings.slug, "text") }
       </Box>
     </Box>
@@ -211,7 +180,7 @@ class PDFResourceSettingsView extends React.Component<Props, State> {
           onBlur={ this.onHandleBlur(key) }
           name={ key }
           variant="outlined"
-          placeholder={ placeholder }
+          label={ placeholder }
         />
       );
     }
@@ -227,7 +196,7 @@ class PDFResourceSettingsView extends React.Component<Props, State> {
         onBlur={ this.onHandleBlur(key) }
         name={ key }
         variant="outlined"
-        placeholder={ placeholder }
+        label={ placeholder }
       />
     );
   };
@@ -460,6 +429,38 @@ class PDFResourceSettingsView extends React.Component<Props, State> {
         onUpload={ this.onPdfFileChange }
         uploadKey={ resource.id }
       />
+    );
+  }
+
+  /**
+   * Renders advanced settings
+   */
+  private renderAdvancedSettings = () => {
+    return (
+      <Box mt={ 3 }>
+        <Accordion>
+          <AccordionSummary
+            expandIcon={ <ExpandMoreIcon color="primary" /> }
+            aria-controls="panel1a-content"
+            id="panel1a-header"
+          >
+            <Typography variant="h4">
+              { strings.applicationSettings.advancedSettings }
+            </Typography>
+          </AccordionSummary>
+          <AccordionDetails>
+            <Box mt={ 3 }>
+              { this.renderResourceFields() }
+            </Box>
+            <Box mb={ 3 }>
+              { this.renderPropertiesTable() }
+            </Box>
+            <Box>
+              { this.renderStyleTable() }
+            </Box>
+          </AccordionDetails>
+        </Accordion>
+      </Box>
     );
   }
 

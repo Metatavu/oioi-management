@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import * as React from "react";
-import { withStyles, WithStyles, TextField, Divider, Typography, Button, IconButton, Box } from "@material-ui/core";
-import MaterialTable, { MTableToolbar } from "material-table";
+import { withStyles, WithStyles, TextField, Divider, Button, IconButton, Box, Accordion, AccordionDetails, AccordionSummary, Typography } from "@material-ui/core";
+import MaterialTable from "material-table";
 import AddCircleIcon from "@material-ui/icons/AddCircle";
 import DeleteIcon from "@material-ui/icons/Delete";
 import CheckIcon from "@material-ui/icons/Check";
@@ -21,6 +21,7 @@ import ImagePreview from "../generic/ImagePreview";
 import VisibleWithRole from "../generic/VisibleWithRole";
 import { ErrorContext } from "../containers/ErrorHandler";
 import StyledMTableToolbar from "../../styles/generic/styled-mtable-toolbar";
+import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 
 /**
  * Component props
@@ -136,46 +137,16 @@ class PageResourceSettingsView extends React.Component<Props, State> {
         >
           { strings.save }
         </Button>
-
-        <Box mb={ 1 }>
-          <Typography variant="h4">
-            { strings.name }
-          </Typography>
-        </Box>
         { this.renderField("name", strings.name, "text") }
-
-        <Box>
+        <Box mb={ 3 }>
           { this.renderChildResources() }
-          <Box mt={ 3 } mb={ 3 }>
-            <Divider/>
-          </Box>
           { this.renderAddChild() }
-          <Box mt={ 3 } mb={ 3 }>
-            <Divider/>
-          </Box>
         </Box>
-
+        <Box mb={ 3 }>
+          <Divider/>
+        </Box>
         <VisibleWithRole role="admin">
-          <Box mt={ 3 } mb={ 3 }>
-            <Typography variant="h3">
-              { strings.advanced }
-            </Typography>
-          </Box>
-          { this.renderResourceFields() }
-
-          <Box>
-            { this.renderPropertiesTable() }
-            <Box mt={ 3 } mb={ 3 }>
-              <Divider/>
-            </Box>
-          </Box>
-
-          <Box>
-            { this.renderStyleTable() }
-            <Box mt={ 3 } mb={ 3 }>
-              <Divider/>
-            </Box>
-          </Box>
+          { this.renderAdvancedSettings() }
         </VisibleWithRole>
       </Box>
     );
@@ -186,17 +157,11 @@ class PageResourceSettingsView extends React.Component<Props, State> {
    */
   private renderResourceFields = () => {
     return (
-      <Box mb={ 3 } display="flex" flexDirection="row">
+      <Box display="flex" flexDirection="row">
         <Box mb={ 1 } mr={ 2 }>
-          <Typography variant="h4">
-            { strings.orderNumber }
-          </Typography>
           { this.renderField("orderNumber", strings.orderNumber, "number") }
         </Box>
         <Box mb={ 1 }>
-          <Typography variant="h4">
-            { strings.slug }
-          </Typography>
           { this.renderField("slug", strings.slug, "text") }
         </Box>
       </Box>
@@ -227,7 +192,7 @@ class PageResourceSettingsView extends React.Component<Props, State> {
         onBlur={ this.onHandleBlur(key) }
         name={ key }
         variant="outlined"
-        placeholder={ placeholder }
+        label={ placeholder }
       /> );
     }
     return (
@@ -241,7 +206,7 @@ class PageResourceSettingsView extends React.Component<Props, State> {
         onBlur={ this.onHandleBlur(key) }
         name={ key }
         variant="outlined"
-        placeholder={ placeholder }
+        label={ placeholder }
       />
     );
   };
@@ -464,23 +429,17 @@ class PageResourceSettingsView extends React.Component<Props, State> {
 
     const listItems = childResources.map(child =>
       <React.Fragment key={ child.id }>
-        <Box mt={ 3 } mb={ 3 }>
-          <Divider/>
-        </Box>
-        <Typography variant="h4" style={{ textTransform: "uppercase" }}>
-          { child.name }
-        </Typography>
-        <Box display="flex" mt={ 1 }>
+        <Box display="flex" mt={ 3 }>
           { this.renderChildResourceContentField(child) }
           { this.renderDeleteChild(child) }
         </Box>
       </React.Fragment>
     );
 
-    return(
-      <div>
+    return (
+      <Box>
         { listItems }
-      </div>
+      </Box>
     );
   };
 
@@ -494,14 +453,15 @@ class PageResourceSettingsView extends React.Component<Props, State> {
     }
 
     return (
-      <Button
-        style={{ marginLeft: theme.spacing(3), marginTop: theme.spacing(1) }}
-        color="primary"
-        startIcon={ <AddCircleIcon /> }
-        onClick={ () => this.props.onAddChild(resourceId) }
-      >
-        { strings.addNewResource }
-      </Button>
+      <Box mt={ 3 }>
+        <Button
+          color="primary"
+          startIcon={ <AddCircleIcon /> }
+          onClick={ () => this.props.onAddChild(resourceId) }
+        >
+          { strings.addNewResource }
+        </Button>
+      </Box>
     );
   }
 
@@ -539,7 +499,7 @@ class PageResourceSettingsView extends React.Component<Props, State> {
             onChange={ this.onHandleChildResourceTextChange(resource) }
             name={ resource.id }
             variant="outlined"
-            placeholder={ strings.resourceTypes.text }
+            label={ resource.name }
           />
         </>;
       case ResourceType.PDF:
@@ -573,6 +533,36 @@ class PageResourceSettingsView extends React.Component<Props, State> {
         onSetUrl={ this.onChildResourceSetFileUrl }
         uploadKey={ resource.id }
       />
+    );
+  }
+
+  /**
+   * Renders advanced settings
+   */
+  private renderAdvancedSettings = () => {
+    return (
+      <Accordion>
+        <AccordionSummary
+          expandIcon={ <ExpandMoreIcon color="primary" /> }
+          aria-controls="panel1a-content"
+          id="panel1a-header"
+        >
+          <Typography variant="h4">
+            { strings.applicationSettings.advancedSettings }
+          </Typography>
+        </AccordionSummary>
+        <AccordionDetails>
+          <Box mt={ 3 }>
+            { this.renderResourceFields() }
+          </Box>
+          <Box mt={ 3 } mb={ 3 }>
+            { this.renderPropertiesTable() }
+          </Box>
+          <Box>
+            { this.renderStyleTable() }
+          </Box>
+        </AccordionDetails>
+      </Accordion>
     );
   }
 

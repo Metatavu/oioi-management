@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import * as React from "react";
-import { withStyles, WithStyles, TextField, Divider, Typography, Button, Box } from "@material-ui/core";
-import MaterialTable, { MTableToolbar } from "material-table";
+import { withStyles, WithStyles, TextField, Divider, Typography, Button, Box, Accordion, AccordionDetails, AccordionSummary } from "@material-ui/core";
+import MaterialTable from "material-table";
 import AddCircleIcon from "@material-ui/icons/AddCircle";
 import DeleteIcon from "@material-ui/icons/Delete";
 import CheckIcon from "@material-ui/icons/Check";
@@ -9,7 +9,6 @@ import ClearIcon from "@material-ui/icons/Clear";
 import EditIcon from "@material-ui/icons/Edit";
 import styles from "../../styles/editor-view";
 import strings from "../../localization/strings";
-import theme from "../../styles/theme";
 import { Resource, ResourceToJSON, ResourceType } from "../../generated/client/src";
 import { forwardRef } from "react";
 import { MessageType, initForm, Form, validateForm } from "ts-form-validation";
@@ -21,6 +20,7 @@ import { ErrorContext } from "../containers/ErrorHandler";
 import { connect } from "react-redux";
 import { ReduxState } from "../../store";
 import StyledMTableToolbar from "../../styles/generic/styled-mtable-toolbar";
+import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 
 /**
  * Component props
@@ -141,12 +141,11 @@ class ResourceSettingsView extends React.Component<Props, State> {
     }
 
     const localizedDataString = this.getLocalizedDataString();
-    const dataField = this.renderDataField();
 
     const { isFormValid } = this.state.form;
 
     return (
-      <div>
+      <Box>
         <Button
           className={ classes.saveButton }
           color="primary"
@@ -156,51 +155,17 @@ class ResourceSettingsView extends React.Component<Props, State> {
         >
           { strings.save }
         </Button>
-
         { this.renderFields() }
-
-        <Divider style={ { marginBottom: theme.spacing(3) }} />
-
-        <Box>
-          <Box mb={ 1 }>
-            <Typography variant="h4">
-              { localizedDataString }
-            </Typography>
-          </Box>
-          { dataField }
-        </Box>
-        <Box mb={ 3 } mt={ 3 }>
+        <Box mb={ 3 }>
           <Divider/>
         </Box>
+        <Box>
+          { this.renderDataField(localizedDataString) }
+        </Box>
         <VisibleWithRole role="admin">
-          <Typography style={{ marginBottom: theme.spacing(3), marginTop: theme.spacing(3) }} variant="h3">
-            { strings.advanced }
-          </Typography>
-          <Box mb={ 3 } display="flex" flexDirection="row">
-            <Box mb={ 1 } mr={ 2 }>
-              <Typography variant="h4">
-                { strings.orderNumber }
-              </Typography>
-              { this.renderField("orderNumber", strings.orderNumber, "number") }
-            </Box>
-            <Box ml={ 1 }>
-              <Typography variant="h4">
-                { strings.slug }
-              </Typography>
-              { this.renderField("slug", strings.slug, "text") }
-            </Box>
-          </Box>
-          <Box mt={ 3 } mb={ 3 }>
-              <Divider/>
-            </Box>
-          <Box mb={ 4 }>
-            { this.renderPropertiesTable() }
-          </Box>
-          <Box>
-            { this.renderStyleTable() }
-          </Box>
+          { this.renderAdvancedSettings() }
         </VisibleWithRole>
-      </div>
+      </Box>
     );
   }
 
@@ -210,9 +175,6 @@ class ResourceSettingsView extends React.Component<Props, State> {
   private renderFields = () => {
     return (
       <Box>
-        <Typography variant="h4" style={{ marginBottom: theme.spacing(1) }}>
-          { strings.name }
-        </Typography>
         { this.renderField("name", strings.name, "text") }
       </Box>
     );
@@ -242,7 +204,7 @@ class ResourceSettingsView extends React.Component<Props, State> {
         onBlur={ this.onHandleBlur(key) }
         name={ key }
         variant="outlined"
-        placeholder={ placeholder }
+        label={ placeholder }
       /> );
     }
     return (
@@ -256,7 +218,7 @@ class ResourceSettingsView extends React.Component<Props, State> {
         onBlur={ this.onHandleBlur(key) }
         name={ key }
         variant="outlined"
-        placeholder={ placeholder }
+        label={ placeholder }
       />
     );
   };
@@ -452,7 +414,7 @@ class ResourceSettingsView extends React.Component<Props, State> {
   /**
    * Render file drop zone method
    */
-  private renderDataField = () => {
+  private renderDataField = (label: string) => {
     const { resource } = this.props;
     const resourceType = resource.type;
 
@@ -463,7 +425,7 @@ class ResourceSettingsView extends React.Component<Props, State> {
           name="data"
           value={ this.state.resourceData ? this.state.resourceData["data"] : undefined }
           onChange={ this.onDataChange }
-          label={ strings.resourceTypes.text }
+          label={ label }
           multiline
           margin="normal"
           variant="outlined"
@@ -473,21 +435,61 @@ class ResourceSettingsView extends React.Component<Props, State> {
       const fileData = this.state.form.values.data || "";
 
       return (
-        <Box>
-          <ImagePreview
-            uploadButtonText={ fileData ? strings.fileUpload.changeFile : strings.fileUpload.addFile }
-            imagePath={ fileData }
-            allowSetUrl={ true }
-            onUpload={ this.onFileOrUriChange }
-            onSetUrl={ this.onFileOrUriChange }
-            resource={ resource }
-            uploadKey="data"
-            onDelete={ this.onImageFileDelete }
-          />
-        </Box>
+        <ImagePreview
+          uploadButtonText={ fileData ? strings.fileUpload.changeFile : strings.fileUpload.addFile }
+          imagePath={ fileData }
+          allowSetUrl={ true }
+          onUpload={ this.onFileOrUriChange }
+          onSetUrl={ this.onFileOrUriChange }
+          resource={ resource }
+          uploadKey="data"
+          onDelete={ this.onImageFileDelete }
+        />
       );
     }
   };
+
+  /**
+   * Renders advanced settings
+   */
+  private renderAdvancedSettings = () => {
+    return (
+      <Box mt={ 3 }>
+        <Accordion>
+          <AccordionSummary
+            expandIcon={ <ExpandMoreIcon color="primary" /> }
+            aria-controls="panel1a-content"
+            id="panel1a-header"
+          >
+            <Typography variant="h4">
+              { strings.applicationSettings.advancedSettings }
+            </Typography>
+          </AccordionSummary>
+          <AccordionDetails>
+            <Box
+              mt={ 3 }
+              mb={ 3 }
+              display="flex"
+              flexDirection="row"
+            >
+              <Box mb={ 1 } mr={ 2 }>
+                { this.renderField("orderNumber", strings.orderNumber, "number") }
+              </Box>
+              <Box ml={ 1 }>
+                { this.renderField("slug", strings.slug, "text") }
+              </Box>
+            </Box>
+            <Box mb={ 4 }>
+              { this.renderPropertiesTable() }
+            </Box>
+            <Box>
+              { this.renderStyleTable() }
+            </Box>
+          </AccordionDetails>
+        </Accordion>
+      </Box>
+    );
+  }
 
   /**
    * Get localized string for data type method
