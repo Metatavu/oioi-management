@@ -8,11 +8,13 @@ export const useEditorLayoutStyles = makeStyles({
     height: "100vh",
     width: "100%",
     display: "flex",
-    flexDirection: "column"
+    flexDirection: "column",
+    overflow: "hidden"
   },
 
   content: {
-    flex: 1
+    height: "100%",
+    maxHeight: "100%"
   }
 
 }, {

@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Container, Typography, Grid, Card, withStyles, WithStyles, CardActionArea } from "@material-ui/core";
+import { Container, Typography, Grid, Card, withStyles, WithStyles, CardActionArea, CircularProgress, Box, Fade } from "@material-ui/core";
 import img from "../../resources/images/geopark.png";
 import AddIcon from "@material-ui/icons/AddCircle";
 import styles from "../../styles/card-item";
@@ -40,6 +40,7 @@ interface State {
   deleteDialogOpen: boolean;
   customerInDialog?: Customer;
   dialogType: DialogType;
+  loading: boolean;
 }
 
 /**
@@ -60,6 +61,7 @@ class CustomersList extends React.Component<Props, State> {
       editorDialogOpen: false,
       deleteDialogOpen: false,
       customerInDialog: undefined,
+      loading: false,
       customers: [],
       dialogType: "new"
     };
@@ -77,12 +79,17 @@ class CustomersList extends React.Component<Props, State> {
    */
   public render = () => {
     const { classes } = this.props;
-    const { editorDialogOpen, deleteDialogOpen, customerInDialog, dialogType } = this.state;
+    const { 
+      editorDialogOpen,
+      deleteDialogOpen,
+      customerInDialog,
+      dialogType
+    } = this.state;
     const cards = this.state.customers.map((customer, index) => this.renderCard(customer, `${index}${customer.name}`));
 
     return (
       <AppLayout>
-        <Container maxWidth="xl" className="page-content">
+        <Container maxWidth="xl" className={ classes.pageContent }>
           <Typography className={ classes.heading } variant="h2">
             { strings.customers }
           </Typography>
@@ -105,8 +112,32 @@ class CustomersList extends React.Component<Props, State> {
             handleClose={ () => this.setState({ deleteDialogOpen: false }) }
             title={ strings.deleteConfirmation }
           />
+          { this.renderLoader() }
         </Container>
       </AppLayout>
+    );
+  }
+
+  /**
+   * Loader render method
+   */
+  private renderLoader = () => {
+    const { classes } = this.props;
+    const { loading } = this.state;
+
+    return (
+      <Fade in={ loading } timeout={ 200 }>
+        <Box className={ classes.loaderOverlay }>
+          <Box alignSelf="center" textAlign="center">
+            <CircularProgress color="inherit" />
+            <Box mt={ 2 }>
+              <Typography color="inherit">
+                { strings.customersList.loadingCustomers }
+              </Typography>
+            </Box>
+          </Box>
+        </Box>
+      </Fade>
     );
   }
 
@@ -335,13 +366,20 @@ class CustomersList extends React.Component<Props, State> {
   private fetchData = async () => {
     const { auth } = this.props;
 
+    this.setState({
+      loading: true
+    });
+
     if (!auth || !auth.token) {
       return;
     }
 
     try {
       const customers = await ApiUtils.getCustomersApi(auth.token).listCustomers();
-      this.setState({ customers: customers });
+      this.setState({ 
+        customers: customers,
+        loading: false
+      });
     } catch (error) {
       this.context.setError(strings.errorManagement.customer.list, error);
     }

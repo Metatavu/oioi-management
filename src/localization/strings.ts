@@ -101,6 +101,27 @@ export interface IStrings extends LocalizedStringsMethods {
   actionCannotBeReverted: string;
 
   /**
+   * Translations related to customers list screen
+   */
+  customersList: {
+    loadingCustomers: string;
+  }
+
+  /**
+   * Translations related to applications list screen
+   */
+  applicationsList: {
+    loadingApplications: string;
+  }
+
+  /**
+   * Translations related to devices list screen
+   */
+  devicesList: {
+    loadingDevices: string;
+  }
+
+  /**
    * Translations related to application editor
    */
   applicationEditor: {
