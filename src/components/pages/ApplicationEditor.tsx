@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Typography, Divider, List, ListItem, AppBar, WithStyles, withStyles, Drawer, Button, CircularProgress, ListItemIcon, ListItemText, ListItemSecondaryAction, Fade, Box } from "@material-ui/core";
+import { Typography, Divider, List, ListItem, AppBar, WithStyles, withStyles, Drawer, Button, CircularProgress, ListItemIcon, ListItemText, ListItemSecondaryAction, Fade, Box, ListItemAvatar, Avatar, LinearProgress } from "@material-ui/core";
 import { History } from "history";
 import AppSettingsView from "../views/AppSettingsView";
 import strings from "../../localization/strings";
@@ -21,7 +21,7 @@ import SortableTree, { TreeItem as TreeItemSortable, NodeData, FullTree, OnMoveP
 import FileExplorerTheme from "react-sortable-tree-theme-file-explorer";
 import MenuResourceSettingsView from "../views/MenuResourceSettingsView";
 import AddIcon from "@material-ui/icons/AddCircle";
-import ChevronRight from "@material-ui/icons/ChevronRight";
+import SettingsIcon from "@material-ui/icons/Tune";
 import PageResourceSettingsView from "../views/PageResourceSettingsView";
 import theme from "../../styles/theme";
 import { getLocalizedTypeString } from "../../commons/resourceTypeHelper";
@@ -31,6 +31,8 @@ import { resolveChildResourceTypes } from "../../commons/resourceTypeHelper";
 import { toast } from "react-toastify";
 import PDFResourceSettingsView from "../views/PDFResourceSettingsView";
 import { selectContentVersion, setContentVersions } from "../../actions/content-version";
+import { blueGrey } from "@material-ui/core/colors";
+import ChevronRight from "@material-ui/icons/ChevronRight";
 
 /**
  * Component properties
@@ -303,9 +305,12 @@ class ApplicationEditor extends React.Component<Props, State> {
             button
             onClick={ () => selectResource(undefined) }
           >
-            <Typography variant="h4">
-              { strings.applicationSettings.settings }
-            </Typography>
+            <ListItemAvatar>
+              <Avatar style={{ height: 28, width: 28, background: blueGrey[900] }}>
+                <SettingsIcon fontSize="small" htmlColor="#fff" />
+              </Avatar>
+            </ListItemAvatar>
+            <ListItemText primary={ strings.applicationSettings.settings } />
             <ListItemSecondaryAction>
               <ChevronRight />
             </ListItemSecondaryAction>
@@ -331,9 +336,16 @@ class ApplicationEditor extends React.Component<Props, State> {
           </>
         }
         { !treeData &&
-          <div style={{ padding: "1rem" }}>
-            <CircularProgress />
-          </div>
+          <Box className={ classes.treeLoaderContainer }>
+            <Box textAlign="center">
+              <LinearProgress/>
+              <Box mt={ 2 }>
+                <Typography>
+                  { strings.applicationEditor.loadingContentTree }
+                </Typography>
+              </Box>
+            </Box>
+          </Box>
         }
         <AddResourceDialog
           open={ this.state.addResourceDialogOpen }
@@ -387,7 +399,11 @@ class ApplicationEditor extends React.Component<Props, State> {
     if (!rootResource) {
       return (
         <main className={ classes.content }>
-          <CircularProgress />
+          <Box className={ classes.loaderContainer }>
+            <Box>
+              <CircularProgress />
+            </Box>
+          </Box>
         </main>
       );
     }

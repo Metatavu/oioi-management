@@ -2,6 +2,7 @@ import LocalizedStrings, { LocalizedStringsMethods } from "localized-strings";
 
 export interface IStrings extends LocalizedStringsMethods {
   active: string;
+  actions: string;
   address: string;
   advanced: string;
   addNew: string;
@@ -104,6 +105,7 @@ export interface IStrings extends LocalizedStringsMethods {
    */
   applicationEditor: {
     dragSidebar: string;
+    loadingContentTree: string;
   };
 
   /**
@@ -163,6 +165,7 @@ export interface IStrings extends LocalizedStringsMethods {
     bundleId: string;
     id: string;
     addIcon: string;
+    advancedSettings: string;
   };
 
   /**

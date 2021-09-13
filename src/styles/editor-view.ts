@@ -15,6 +15,31 @@ export default createStyles({
     overflowY: "auto",
   },
 
+  treeLoaderContainer: {
+    top: 54,
+    left: 0,
+    right: 0,
+    paddingTop: theme.spacing(4),
+    position: "absolute",
+    display:"flex",
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    background: "#fff"
+  },
+
+  loaderContainer: {
+    top: 0,
+    left: 300,
+    right: 0,
+    bottom: 0,
+    position: "absolute",
+    display:"flex",
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center"
+  },
+
   drawer: {
     gridArea: "drawer",
     position: "relative",

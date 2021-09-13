@@ -1,5 +1,6 @@
 {
   "active": "Aktiivinen",
+  "actions": "Toiminnot",
   "address": "Osoite (valinnainen)",
   "addNew": "Lisää..",
   "addNewIcon": "Lisää uusi ikoni",
@@ -99,7 +100,8 @@
   "actionCannotBeReverted": "Toimintoa ei voi peruuttaa.",
 
   "applicationEditor": {
-    "dragSidebar": "Raahaa leveämmäksi / kapeammaksi"
+    "dragSidebar": "Raahaa leveämmäksi / kapeammaksi",
+    "loadingContentTree": "Ladataan sovelluspuuta..."
   },
 
   "fileUpload": {
@@ -149,7 +151,8 @@
     "returnDelay": "Alkutilan paluuviive minuutteina",
     "bundleId": "Bundle Id",
     "id": "Sovelluksen id",
-    "addIcon": "Lisää ikoni"
+    "addIcon": "Lisää ikoni",
+    "advancedSettings": "Edistyneet asetukset"
   },
 
   "iconKeys": {

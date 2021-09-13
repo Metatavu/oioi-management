@@ -174,12 +174,13 @@ export default createMuiTheme({
           backgroundColor: "rgba(38, 50, 56, 0.1)",
         },
         "&.Mui-selected": {
-          backgroundColor: "rgba(38, 50, 56, 0.1)",
+          backgroundColor: "rgba(0, 180, 216, 0.2)",
           "& .MuiTypography-body1": {
             fontFamily: "TTNorms-Bold",
           },
           "& ~ .MuiListItemSecondaryAction-root": {
-            opacity: 1
+            opacity: 1,
+            color: "#00B4D8"
           },
           "&:hover": {
             backgroundColor: "rgba(38, 50, 56, 0.1)"
@@ -211,6 +212,53 @@ export default createMuiTheme({
       head: {
         fontFamily: "TTNorms-Bold",
       }
+    },
+    MuiBreadcrumbs: {
+      separator: {
+        marginLeft: 16,
+        marginRight: 16
+      },
+      li: {
+        fontFamily: "TTNorms-Light",
+        "&:last-child": {
+          fontFamily: "TTNorms-Bold",
+        }
+      }
+    },
+    MuiAccordion: {
+      root: {
+        border: "1px solid rgba(0,0,0,0.1)",
+        "&:before": {
+          display: "none"
+        }
+      }
+    },
+    MuiAccordionSummary: {
+      root: {
+        borderBottom: "1px solid rgba(0,0,0,0.1)",
+        height: 56,
+        minHeight: 56,
+        "&$expanded": {
+          height: 56,
+          minHeight: 56
+        }
+      },
+      expanded: {}
+    },
+    MuiAccordionDetails: {
+      root: {
+        backgroundColor: "#f6f6f6",
+        flexDirection: "column"
+      }
+    }
+  },
+  props: {
+    MuiAccordion: {
+      square: true,
+      elevation: 0
+    },
+    MuiPaper: {
+      elevation: 0
     }
   }
 });

@@ -187,7 +187,7 @@ class AddResourceDialog extends React.Component<Props, State> {
               <Grid item className={ classes.fullWidth }>
                 { this.renderField("orderNumber", strings.orderNumber, "number") }
               </Grid>
-              <Grid item className={classes.fullWidth}>
+              <Grid item className={ classes.fullWidth }>
                 { this.renderField("slug", strings.slug, "text") }
               </Grid>
             </Grid>
@@ -297,6 +297,8 @@ class AddResourceDialog extends React.Component<Props, State> {
       }
 
       if (foundTypes && foundTypes.length > 0) {
+        // Filter out PDF resource
+        foundTypes = foundTypes.filter(type => type.value !== ResourceType.PDF);
         foundTypes.map(item => {
           const menuItem = <MenuItem value={ item.value } key={ item.value }>{ item.resourceLocal }</MenuItem>;
           return menuItems.push(menuItem);
@@ -447,6 +449,30 @@ class AddResourceDialog extends React.Component<Props, State> {
       addingLanguage: resourceType === ResourceType.LANGUAGE,
       copyContentFromId: undefined
     });
+
+    if (resourceType === ResourceType.IMAGE) {
+      this.setState({
+        form: {
+          ...this.state.form,
+          values: {
+            ...this.state.form.values,
+            slug: "image"
+          }
+        }
+      });
+    }
+
+    if (resourceType === ResourceType.TEXT) {
+      this.setState({
+        form: {
+          ...this.state.form,
+          values: {
+            ...this.state.form.values,
+            slug: "text_content"
+          }
+        }
+      });
+    }
   };
 
   /**
@@ -496,7 +522,7 @@ class AddResourceDialog extends React.Component<Props, State> {
     /**
      * If name changes slugify the name value and put it to url value
      */
-    if (key === "name" && form.values.name) {
+    if (key === "name" && form.values.name && form.values.type !== ResourceType.IMAGE && form.values.type !== ResourceType.TEXT) {
       const nameValue = form.values.name;
       form.values.slug = slugify(nameValue, {
         replacement: "",

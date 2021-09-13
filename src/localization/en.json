@@ -1,5 +1,6 @@
 {
   "active": "Active",
+  "actions": "Actions",
   "address": "Address (optional)",
   "addNew": "Add..",
   "addNewIcon": "Add new icon",
@@ -99,7 +100,8 @@
   "actionCannotBeReverted": "This action cannot be reverted.",
 
   "applicationEditor": {
-    "dragSidebar": "Click and drag to narrow or widen"
+    "dragSidebar": "Click and drag to narrow or widen",
+    "loadingContentTree": "Loading content tree..."
   },
 
   "fileUpload": {
@@ -149,7 +151,8 @@
     "returnDelay": "Reset delay",
     "bundleId": "Bundle Id",
     "id": "Application id",
-    "addIcon": "Add icon"
+    "addIcon": "Add icon",
+    "advancedSettings": "Advanced settings"
   },
 
   "iconKeys": {

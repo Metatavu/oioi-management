@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import * as React from "react";
-import { withStyles, WithStyles, FormControlLabel, Checkbox, TextField, Divider, Typography, Button, TableContainer, Paper, Table, TableHead, TableRow, TableCell, TableBody, Box } from "@material-ui/core";
+import { withStyles, WithStyles, FormControlLabel, Checkbox, TextField, Divider, Typography, Button, TableContainer, Paper, Table, TableHead, TableRow, TableCell, TableBody, Box, Accordion, AccordionSummary, AccordionDetails } from "@material-ui/core";
 import MaterialTable from "material-table";
 import AddIcon from "@material-ui/icons/Add";
 import AddCircleIcon from "@material-ui/icons/AddCircle";
@@ -14,10 +14,8 @@ import theme from "../../styles/theme";
 import { Resource, ResourceToJSON, KeyValueProperty, ResourceType } from "../../generated/client/src";
 import { forwardRef } from "react";
 import { MessageType, initForm, Form, validateForm } from "ts-form-validation";
-
 import { AuthState, ErrorContextType } from "../../types";
 import ApiUtils from "../../utils/api";
-
 import IconButton from "@material-ui/core/IconButton";
 import { resourceRules, ResourceSettingsForm } from "../../commons/formRules";
 import ImagePreview from "../generic/ImagePreview";
@@ -27,6 +25,8 @@ import VisibleWithRole from "../generic/VisibleWithRole";
 import { getLocalizedTypeString } from "../../commons/resourceTypeHelper";
 import { ErrorContext } from "../containers/ErrorHandler";
 import { resolveChildResourceTypes } from "../../commons/resourceTypeHelper";
+import StyledMTableToolbar from "../../styles/generic/styled-mtable-toolbar";
+import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 
 /**
  * Component props
@@ -173,38 +173,8 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
           <Divider/>
         </Box>
         { this.renderChildResources() }
-        <Box mt={ 3 } mb={ 3 }>
-          <Divider/>
-        </Box>
         <VisibleWithRole role="admin">
-          <Box mt={ 3 } mb={ 3 }>
-            <Typography variant="h3">
-              { strings.advanced }
-            </Typography>
-          </Box>
-          <Box mb={ 3 } display="flex" flexDirection="row">
-            <Box mb={ 1 } mr={ 2 }>
-              <Typography variant="h4">
-                { strings.orderNumber }
-              </Typography>
-              { this.renderFormField("orderNumber", strings.orderNumber, "number") }
-            </Box>
-            <Box mb={ 1 }>
-              <Typography variant="h4">
-                { strings.slug }
-              </Typography>
-              { this.renderFormField("slug", strings.slug, "text") }
-            </Box>
-            <Box mt={ 3 } mb={ 3 }>
-              <Divider/>
-            </Box>
-          </Box>
-          <Box mb={ 3 }>
-            { this.renderPropertiesTable() }
-          </Box>
-          <Box>
-            { this.renderStyleTable() }
-          </Box>
+          { this.renderAdvancedSettings() }
         </VisibleWithRole>
       </div>
     );
@@ -217,31 +187,23 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
     const { resource } = this.props;
     return (
       <>
-        <Box mb={ 1 }>
-          <Typography variant="h4">
-            { strings.name }
-          </Typography>
+        <Box mb={ 3 }>
+          { this.renderFormField("name", strings.name, "text") }
         </Box>
-        { this.renderFormField("name", strings.name, "text") }
-        <Box mt={ 3 } mb={ 1 }>
-          <Typography variant="h4">
-            { strings.nameText }
-          </Typography>
+        <Box mb={ 3 }>
+          { this.renderPropertiesField("nameText", strings.nameText, "textarea") }
         </Box>
-        { this.renderPropertiesField("nameText", strings.nameText, "textarea") }
-        <Box mt={ 3 } mb={ 1 }>
-          <Typography variant="h4">
-            { strings.title }
-          </Typography>
+        <Box mb={ 3 }>
+          { this.renderPropertiesField("title", strings.title, "text") }
         </Box>
-        { this.renderPropertiesField("title", strings.title, "text") }
-        <Box mt={ 3 } mb={ 1 }>
-          <Typography variant="h4">
-            { strings.content }
-          </Typography>
+        <Box mb={ 3 }>
+          { this.renderPropertiesField("content", strings.content, "textarea") }
         </Box>
-        { this.renderPropertiesField("content", strings.content, "textarea") }
-        { resource.type === ResourceType.SLIDESHOW && this.renderSlideShowFields() }
+        { resource.type === ResourceType.SLIDESHOW &&
+        <Box mb={ 3 }>
+          { this.renderSlideShowFields() }
+        </Box>
+        }
       </>
     );
   }
@@ -270,7 +232,7 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
         onBlur={ this.onHandleBlur(key) }
         name={ key }
         variant="outlined"
-        placeholder={ placeholder }
+        label={ placeholder }
       /> );
     }
     return (
@@ -284,7 +246,7 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
         onBlur={ this.onHandleBlur(key) }
         name={ key }
         variant="outlined"
-        placeholder={ placeholder }
+        label={ placeholder }
       />
     );
   };
@@ -311,7 +273,7 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
           onBlur={ this.onHandleBlur(key) }
           name={ key }
           variant="outlined"
-          placeholder={ placeholder }
+          label={ placeholder }
         />
       );
     }
@@ -326,7 +288,7 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
         onBlur={ this.onHandleBlur(key) }
         name={ key }
         variant="outlined"
-        placeholder={ placeholder }
+        label={ placeholder }
       />
     );
   };
@@ -349,15 +311,55 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
           </Box>
         </Box>
         <Divider orientation="vertical" flexItem />
-        <Box ml={ 4 } mb={ 4 }>
-          <Box mb={ 1 }>
-            <Typography variant="h4">
-              { strings.slideTimeOnScreen }
-            </Typography>
-          </Box>
+        <Box ml={ 4 } display="flex" alignItems="center">
           { this.renderPropertiesField("slideTimeOnScreen", strings.slideTimeOnScreen, "text") }
         </Box>
       </Box>
+    );
+  }
+
+  /**
+   * Renders advanced settings
+   */
+  private renderAdvancedSettings = () => {
+    return (
+      <>
+        <Accordion>
+          <AccordionSummary
+            expandIcon={ <ExpandMoreIcon color="primary" /> }
+            aria-controls="panel1a-content"
+            id="panel1a-header"
+          >
+            <Typography variant="h4">
+              { strings.applicationSettings.advancedSettings }
+            </Typography>
+          </AccordionSummary>
+          <AccordionDetails>
+            <Box
+              mt={ 3 }
+              mb={ 3 }
+              display="flex"
+              flexDirection="row"
+            >
+              <Box mb={ 1 } mr={ 2 }>
+                { this.renderFormField("orderNumber", strings.orderNumber, "number") }
+              </Box>
+              <Box mb={ 1 }>
+                { this.renderFormField("slug", strings.slug, "text") }
+              </Box>
+              <Box mt={ 3 } mb={ 3 }>
+                <Divider/>
+              </Box>
+            </Box>
+            <Box mb={ 3 }>
+              { this.renderPropertiesTable() }
+            </Box>
+            <Box>
+              { this.renderStyleTable() }
+            </Box>
+          </AccordionDetails>
+        </Accordion>
+      </>
     );
   }
 
@@ -425,7 +427,7 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
           { title: strings.key, field: "key" },
           { title: strings.value, field: "value" }
         ]}
-        data={resourceData["styles"]}
+        data={ resourceData["styles"] }
         editable={{
           onRowAdd: newData =>
             new Promise<void>((resolve, reject) => {
@@ -476,6 +478,22 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
             })
         }}
         title={ strings.styles }
+        components={{
+          Toolbar: props => (
+            <StyledMTableToolbar { ...props } />
+          ),
+          Container: props => <Paper { ...props } elevation={ 0 } />
+        }}
+        localization={{
+          body: {
+            editTooltip: strings.edit,
+            deleteTooltip: strings.delete,
+            addTooltip: strings.addNew
+          },
+          header: {
+            actions: strings.actions
+          }
+        }}
         options={{
           grouping: false,
           search: false,
@@ -487,7 +505,8 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
           paging: false,
           showTextRowsSelected: false,
           showFirstLastPageButtons: false,
-          showSelectAllCheckbox: false
+          showSelectAllCheckbox: false,
+          actionsColumnIndex: 3
         }}
       />
     );
@@ -567,6 +586,22 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
             })
         }}
         title={ strings.properties }
+        components={{
+          Toolbar: props => (
+            <StyledMTableToolbar { ...props } />
+          ),
+          Container: props => <Paper { ...props } elevation={ 0 } />
+        }}
+        localization={{
+          body: {
+            editTooltip: strings.edit,
+            deleteTooltip: strings.delete,
+            addTooltip: strings.addNew
+          },
+          header: {
+            actions: strings.actions
+          }
+        }}
         options={{
           grouping: false,
           search: false,
@@ -578,7 +613,8 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
           paging: false,
           showTextRowsSelected: false,
           showFirstLastPageButtons: false,
-          showSelectAllCheckbox: false
+          showSelectAllCheckbox: false,
+          actionsColumnIndex: 3,
         }}
       />
     )
@@ -597,12 +633,12 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
     }
 
     return (
-      <>
+      <Box mb={ 3 }>
         <Typography variant="h4" style={{ marginBottom: theme.spacing(1) }}>
           { strings.childResources }
         </Typography>
         { this.renderChildResourcesList() }
-      </>
+      </Box>
     );
   }
 
@@ -621,18 +657,24 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
     const listItems = childResources.map(resource => {
       return (
         <TableRow key={ resource.name }>
-          <TableCell component="th" scope="row">{ resource.name }</TableCell>
-          <TableCell align="left">{ getLocalizedTypeString(resource.type) }</TableCell>
-          <TableCell align="center">{ resource.orderNumber }</TableCell>
+          <TableCell component="th" scope="row">
+            { resource.name }
+          </TableCell>
+          <TableCell align="left">
+            { getLocalizedTypeString(resource.type) }
+          </TableCell>
+          <TableCell align="center">
+            { resource.orderNumber }
+          </TableCell>
           <TableCell align="right">
             <IconButton
               size="small"
-              className={ classes.iconButton }
               color="primary"
               edge="end"
               aria-label="delete"
               onClick={ () => this.props.onDelete(resource) }
-            >
+              title={ strings.delete }
+            > 
               <DeleteIcon />
             </IconButton>
           </TableCell>
@@ -642,13 +684,23 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
 
     return(
       <TableContainer component={ Paper }>
-        <Table size="small" className={ classes.table } aria-label="simple table">
+        <Table
+          size="small"
+          className={ classes.table }
+          aria-label="simple table"
+        >
           <TableHead>
             <TableRow>
-              <TableCell>{ strings.page }</TableCell>
-              <TableCell align="left">{ strings.type }</TableCell>
-              <TableCell align="center">{ strings.orderFromLeftToRight }</TableCell>
-              <TableCell align="right"></TableCell>
+              <TableCell>
+                { strings.page }
+              </TableCell>
+              <TableCell align="left">
+                { strings.type }
+              </TableCell>
+              <TableCell align="center">
+                { strings.orderFromLeftToRight }
+              </TableCell>
+              <TableCell align="right"/>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -677,7 +729,7 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
 
     return (
       <>
-        <Typography variant="h4" style={{ marginBottom: theme.spacing(1) }}>
+        <Typography variant="h4" style={{ marginBottom: theme.spacing(1), whiteSpace: "nowrap" }}>
           { title }
         </Typography>
         <ImagePreview
