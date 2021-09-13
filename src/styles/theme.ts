@@ -77,35 +77,6 @@ export default createMuiTheme({
         "body": {
           margin: 0
         },
-        ".wrapper": {
-          overflow: "hidden",
-          height: "100vh",
-          display: "grid",
-          gridTemplateRows: "auto auto 1fr",
-          gridTemplateAreas: `
-            "header"
-            "breadcrumb"
-            "content"
-          `
-        },
-        ".content": {
-          gridArea: "content"
-        },
-        ".page-content": {
-          overflow: "hidden",
-          maxHeight: "100%",
-          height: "100%",
-          paddingBottom: 50,
-          paddingTop: 50,
-          "@media screen and (max-width: 600px)": {
-            paddingTop: 25
-          }
-        },
-        ".card-list": {
-          overflowY: "auto",
-          maxHeight: "calc(100% - 50px)",
-          marginBottom: 0
-        },
         "::-webkit-scrollbar": {
           width: 10
         },

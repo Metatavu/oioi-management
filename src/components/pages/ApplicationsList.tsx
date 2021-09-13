@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Container, Typography, Grid, Card, withStyles, WithStyles, CardActionArea } from "@material-ui/core";
+import { Container, Typography, Grid, Card, withStyles, WithStyles, CardActionArea, Box, CircularProgress, Fade } from "@material-ui/core";
 import img from "../../resources/images/infowall.png";
 import AddIcon from "@material-ui/icons/AddCircle";
 import styles from "../../styles/card-item";
@@ -45,6 +45,7 @@ interface State {
   applications: Application[];
   deleteDialogOpen: boolean;
   applicationImages?: { id: string, src: string }[];
+  loading: boolean;
 }
 
 /**
@@ -64,7 +65,8 @@ class ApplicationsList extends React.Component<Props, State> {
     this.state = {
       applications: [],
       applicationInDialog: undefined,
-      deleteDialogOpen: false
+      deleteDialogOpen: false,
+      loading: false
     };
   }
 
@@ -85,11 +87,16 @@ class ApplicationsList extends React.Component<Props, State> {
 
     return (
       <AppLayout>
-        <Container maxWidth="xl" className="page-content">
+        <Container maxWidth="xl" className={ classes.pageContent }>
           <Typography className={ classes.heading } variant="h2">
             { customer ? customer.name : strings.loading } / { device ? device.name : strings.loading } / { strings.applications }
           </Typography>
-          <Grid container spacing={ 5 } direction="row" className="card-list">
+          <Grid
+            container
+            spacing={ 5 }
+            direction="row"
+            className={ classes.cardList }
+          >
             { cards }
             { this.renderAdd() }
           </Grid>
@@ -101,8 +108,32 @@ class ApplicationsList extends React.Component<Props, State> {
             handleClose={ () => this.setState({ deleteDialogOpen: false }) }
             title={ strings.deleteConfirmation }
           />
+          { this.renderLoader() }
         </Container>
       </AppLayout>
+    );
+  }
+
+  /**
+   * Loader render method
+   */
+  private renderLoader = () => {
+    const { classes } = this.props;
+    const { loading } = this.state;
+
+    return (
+      <Fade in={ loading } timeout={ 200 }>
+        <Box className={ classes.loaderOverlay }>
+          <Box alignSelf="center" textAlign="center">
+            <CircularProgress color="inherit" />
+            <Box mt={ 2 }>
+              <Typography color="inherit">
+                { strings.applicationsList.loadingApplications }
+              </Typography>
+            </Box>
+          </Box>
+        </Box>
+      </Fade>
     );
   }
 
@@ -284,6 +315,10 @@ class ApplicationsList extends React.Component<Props, State> {
   private fetchData = async () => {
     const { auth, customerId, deviceId, setDevice, setCustomer, customer, device } = this.props;
 
+    this.setState({
+      loading: true
+    })
+
     if (!auth || !auth.token) {
       return;
     }
@@ -323,7 +358,8 @@ class ApplicationsList extends React.Component<Props, State> {
       );
       this.setState({
         applications: applications,
-        applicationImages: applicationImages
+        applicationImages: applicationImages,
+        loading: false
       });
     } catch (error) {
       setError(strings.errorManagement.application.list, error);

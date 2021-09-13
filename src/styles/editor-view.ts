@@ -94,11 +94,13 @@ export default createStyles({
     position: "absolute",
     height: "100%"
   },
+
   content: {
     gridArea: "content",
     padding: theme.spacing(3),
     background: "#F6F6F6",
-    overflowY: "auto"
+    overflowY: "auto",
+    maxHeight: "calc(100% - 115px)"
   },
 
   treeWrapper: {

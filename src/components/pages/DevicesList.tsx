@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Container, Typography, Grid, Card, withStyles, WithStyles, CardActionArea } from "@material-ui/core";
+import { Container, Typography, Grid, Card, withStyles, WithStyles, CardActionArea, Fade, Box, CircularProgress } from "@material-ui/core";
 import AddIcon from "@material-ui/icons/AddCircle";
 import styles from "../../styles/card-item";
 import { History } from "history";
@@ -42,6 +42,7 @@ interface State {
   deleteDialogOpen: boolean;
   deviceInDialog?: Device;
   devices: Device[];
+  loading: boolean;
 }
 
 /**
@@ -63,7 +64,8 @@ class DevicesList extends React.Component<Props, State> {
       devices: [],
       dialogType: "new",
       deviceInDialog: undefined,
-      deleteDialogOpen: false
+      deleteDialogOpen: false,
+      loading: false
     };
   }
 
@@ -91,12 +93,17 @@ class DevicesList extends React.Component<Props, State> {
 
     return (
       <AppLayout>
-        <Container maxWidth="xl" className="page-content">
+        <Container maxWidth="xl" className={ classes.pageContent }>
           <Typography className={ classes.heading } variant="h2">
             { customer ? customer.name : strings.loading } / { strings.devices }
           </Typography>
-          <Grid container spacing={ 5 } direction="row" className="card-list">
-            { cards }
+          <Grid
+            container
+            spacing={ 5 }
+            direction="row"
+            className={ classes.cardList }
+          >
+            { cards } 
             { this.renderAdd() }
           </Grid>
           <DeviceDialog
@@ -115,8 +122,32 @@ class DevicesList extends React.Component<Props, State> {
             handleClose={ this.onDeleteDialogCloseClick }
             title={ strings.deleteConfirmation }
           />
+          { this.renderLoader() }
         </Container>
       </AppLayout>
+    );
+  }
+
+  /**
+   * Loader render method
+   */
+  private renderLoader = () => {
+    const { classes } = this.props;
+    const { loading } = this.state;
+
+    return (
+      <Fade in={ loading } timeout={ 200 }>
+        <Box className={ classes.loaderOverlay }>
+          <Box alignSelf="center" textAlign="center">
+            <CircularProgress color="inherit" />
+            <Box mt={ 2 }>
+              <Typography color="inherit">
+                { strings.devicesList.loadingDevices }
+              </Typography>
+            </Box>
+          </Box>
+        </Box>
+      </Fade>
     );
   }
 
@@ -364,6 +395,10 @@ class DevicesList extends React.Component<Props, State> {
   private fetchData = async () => {
     const { auth, customerId, setCustomer, customer } = this.props;
 
+    this.setState({
+      loading: true
+    });
+
     if (!auth || !auth.token) {
       return;
     }
@@ -382,7 +417,10 @@ class DevicesList extends React.Component<Props, State> {
 
     try {
       const devices = await ApiUtils.getDevicesApi(auth.token).listDevices({ customerId: customerId });
-      this.setState({ devices: devices });
+      this.setState({
+        devices: devices,
+        loading: false
+      });
     } catch (error) {
       setError(strings.errorManagement.device.list, error);
       return;
