@@ -96,6 +96,10 @@ export default createStyles({
     justifyContent: "center"
   },
 
+  title: {
+    color: "#fff"
+  },
+
   actionArea: {
     position: "relative"
   },

@@ -6,31 +6,25 @@ import { History } from "history";
 import CardItem from "../generic/CardItem";
 import DeviceDialog from "../generic/DeviceDialog";
 import strings from "../../localization/strings";
-import { Device, Customer } from "../../generated/client/src";
-import ApiUtils from "../../utils/api";
-import { AuthState, DialogType, ErrorContextType } from "../../types";
-import { ReduxState, ReduxActions } from "../../store";
-import { Dispatch } from "redux";
-import { connect } from "react-redux";
+import { Device, Customer } from "../../generated/client";
+import Api from "../../api";
+import { DialogType, ErrorContextType } from "../../types";
+import { ReduxState, ReduxDispatch } from "app/store";
+import { connect, ConnectedProps } from "react-redux";
 import DeleteDialog from "../generic/DeleteDialog";
-import { setDevice } from "../../actions/device";
-import { setCustomer } from "../../actions/customer";
 import VisibleWithRole from "../generic/VisibleWithRole";
 import AppLayout from "../layouts/app-layout";
 import { ErrorContext } from "../containers/ErrorHandler";
 import { toast } from "react-toastify";
+import { setDevice } from "features/device-slice";
+import { setCustomer } from "features/customer-slice";
 
 /**
- * Component props
+ * Component properties
  */
-interface Props extends WithStyles<typeof styles> {
+interface Props extends ExternalProps {
   history: History;
   customerId: string;
-  customer?: Customer;
-  locale: string;
-  auth: AuthState;
-  setCustomer: typeof setCustomer;
-  setDevice: typeof setDevice;
 }
 
 /**
@@ -80,7 +74,7 @@ class DevicesList extends React.Component<Props, State> {
    * Component render method
    */
   public render = () => {
-    const { classes, customer, auth } = this.props;
+    const { classes, customer, keycloak } = this.props;
     const {
       devices,
       deviceInDialog,
@@ -107,7 +101,7 @@ class DevicesList extends React.Component<Props, State> {
             { this.renderAdd() }
           </Grid>
           <DeviceDialog
-            auth={ auth }
+            keycloak={ keycloak }
             open={ editorDialogOpen }
             device={ deviceInDialog }
             dialogType={ dialogType }
@@ -258,15 +252,15 @@ class DevicesList extends React.Component<Props, State> {
    * @param device device
    */
   private onDeleteDeviceClick = async (device: Device) => {
-    const { auth, customerId } = this.props;
+    const { keycloak, customerId } = this.props;
     const { devices } = this.state;
 
-    if (!auth || !auth.token || !device.id) {
+    if (!keycloak?.token || !device.id) {
       return;
     }
 
     try {
-      await ApiUtils.getDevicesApi(auth.token).deleteDevice({
+      await Api.getDevicesApi(keycloak.token).deleteDevice({
         customerId: customerId,
         deviceId: device.id
       });
@@ -305,15 +299,15 @@ class DevicesList extends React.Component<Props, State> {
    * @param device device
    */
   private saveNewDevice = async (device: Device) => {
-    const { auth, customerId } = this.props;
+    const { keycloak, customerId } = this.props;
     const { devices } = this.state;
 
-    if (!auth || !auth.token) {
+    if (!keycloak?.token) {
       return;
     }
 
     try {
-      const newDevice = await ApiUtils.getDevicesApi(auth.token).createDevice({
+      const newDevice = await Api.getDevicesApi(keycloak.token).createDevice({
         customerId: customerId,
         device: device
       });
@@ -337,15 +331,15 @@ class DevicesList extends React.Component<Props, State> {
    * @param id device id
    */
   private updateDevice = async (device: Device, id: string) => {
-    const { auth, customerId } = this.props;
+    const { keycloak, customerId } = this.props;
     const { devices } = this.state;
 
-    if (!auth || !auth.token) {
+    if (!keycloak?.token) {
       return;
     }
 
     try {
-      const updatedDevice = await ApiUtils.getDevicesApi(auth.token).updateDevice({
+      const updatedDevice = await Api.getDevicesApi(keycloak.token).updateDevice({
         deviceId: id,
         customerId: customerId,
         device: device
@@ -393,13 +387,13 @@ class DevicesList extends React.Component<Props, State> {
    * Fetches initial data
    */
   private fetchData = async () => {
-    const { auth, customerId, setCustomer, customer } = this.props;
+    const { keycloak, customerId, setCustomer, customer } = this.props;
 
     this.setState({
       loading: true
     });
 
-    if (!auth || !auth.token) {
+    if (!keycloak?.token) {
       return;
     }
 
@@ -407,7 +401,7 @@ class DevicesList extends React.Component<Props, State> {
 
     if (!customer || customer.id !== customerId) {
       try {
-        const currentCustomer = await ApiUtils.getCustomersApi(auth.token).findCustomer({ customerId: customerId });
+        const currentCustomer = await Api.getCustomersApi(keycloak.token).findCustomer({ customerId: customerId });
         setCustomer(currentCustomer);
       } catch (error) {
         setError(strings.errorManagement.customer.find, error);
@@ -416,7 +410,8 @@ class DevicesList extends React.Component<Props, State> {
     }
 
     try {
-      const devices = await ApiUtils.getDevicesApi(auth.token).listDevices({ customerId: customerId });
+      const devices = await Api.getDevicesApi(keycloak.token).listDevices({ customerId: customerId });
+
       this.setState({
         devices: devices,
         loading: false
@@ -434,7 +429,7 @@ class DevicesList extends React.Component<Props, State> {
  * @param state Redux state
  */
 const mapStateToProps = (state: ReduxState) => ({
-  auth: state.auth,
+  keycloak: state.auth.keycloak,
   customer: state.customer.customer,
   locale: state.locale.locale
 });
@@ -444,9 +439,13 @@ const mapStateToProps = (state: ReduxState) => ({
  *
  * @param dispatch Redux dispatch
  */
-const mapDispatchToProps = (dispatch: Dispatch<ReduxActions>) => ({
+const mapDispatchToProps = (dispatch: ReduxDispatch) => ({
   setCustomer: (customer: Customer) => dispatch(setCustomer(customer)),
   setDevice: (device: Device) => dispatch(setDevice(device))
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(DevicesList));
+const connector = connect(mapStateToProps, mapDispatchToProps);
+
+type ExternalProps = ConnectedProps<typeof connector> & WithStyles<typeof styles>;
+
+export default connector(withStyles(styles)(DevicesList));

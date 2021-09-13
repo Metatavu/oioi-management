@@ -7,18 +7,17 @@ import DeleteIcon from "@material-ui/icons/Delete";
 import CheckIcon from "@material-ui/icons/Check";
 import ClearIcon from "@material-ui/icons/Clear";
 import EditIcon from "@material-ui/icons/Edit";
-import styles from "../../styles/editor-view";
-import strings from "../../localization/strings";
-import { Resource, ResourceToJSON, ResourceType } from "../../generated/client/src";
+import styles from "styles/editor-view";
+import strings from "localization/strings";
+import { Resource, ResourceToJSON, ResourceType } from "generated/client";
 import { forwardRef } from "react";
 import { MessageType, initForm, Form, validateForm } from "ts-form-validation";
-import { ResourceSettingsForm, resourceRules } from "../../commons/formRules";
+
+import { ResourceSettingsForm, resourceRules } from "commons/formRules";
 import ImagePreview from "../generic/ImagePreview";
 import VisibleWithRole from "../generic/VisibleWithRole";
-import { AuthState, ErrorContextType } from "../../types";
+import { ErrorContextType } from "types";
 import { ErrorContext } from "../containers/ErrorHandler";
-import { connect } from "react-redux";
-import { ReduxState } from "../../store";
 import StyledMTableToolbar from "../../styles/generic/styled-mtable-toolbar";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 
@@ -26,7 +25,6 @@ import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
  * Component props
  */
 interface Props extends WithStyles<typeof styles> {
-  auth: AuthState;
   resource: Resource;
   customerId: string;
   onUpdate: (resource: Resource) => void;
@@ -635,13 +633,4 @@ class ResourceSettingsView extends React.Component<Props, State> {
   };
 }
 
-/**
- * Maps redux state to props
- *
- * @param state redux state
- */
-const mapStateToProps = (state: ReduxState) => ({
-  auth: state.auth
-});
-
-export default connect(mapStateToProps)(withStyles(styles)(ResourceSettingsView));
+export default withStyles(styles)(ResourceSettingsView);

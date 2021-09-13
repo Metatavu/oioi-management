@@ -1,46 +1,27 @@
 import * as React from "react";
-import {
-  withStyles,
-  WithStyles,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Button,
-  TextField,
-  Divider,
-  Grid,
-  Typography,
-  Select,
-  MenuItem,
-  InputLabel,
-  Box,
-  IconButton
-} from "@material-ui/core";
+import { withStyles, WithStyles, Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, Divider, Grid, Typography, Select, MenuItem, InputLabel, Box, IconButton } from "@material-ui/core";
 import styles from "../../styles/dialog";
 import strings from "../../localization/strings";
-import { Resource, ResourceType } from "../../generated/client/src";
+import { Resource, ResourceType } from "../../generated/client";
 import { FormValidationRules, validateForm, Form, initForm, MessageType } from "ts-form-validation";
-import { AuthState, ErrorContextType } from "../../types/index";
-import ApiUtils from "../../utils/api";
+import { ErrorContextType } from "../../types/index";
+import Api from "../../api";
 import { ResourceTypeObject, resolveChildResourceTypes } from "../../commons/resourceTypeHelper";
 import slugify from "slugify";
 import { ErrorContext } from "../containers/ErrorHandler";
 import CloseIcon from "@material-ui/icons/Close";
+import { connect, ConnectedProps } from "react-redux";
+import { ReduxDispatch, ReduxState } from "app/store";
+import { addResources } from "features/resource-slice";
+import { toast } from "react-toastify";
+import { ResourceUtils } from "utils/resource";
 
 /**
  * Component props
  */
-interface Props extends WithStyles<typeof styles> {
-  auth: AuthState;
+interface Props extends ExternalProps {
   open: boolean;
-  parentResourceId?: string;
-  customerId?: string;
-  deviceId?: string;
-  applicationId?: string;
-  rootResourceId?: string;
-  onSave(resource: Resource, copyFromId?: string): void;
-  handleClose(): void;
+  onClose(): void;
 }
 
 /**
@@ -137,7 +118,7 @@ class AddResourceDialog extends React.Component<Props, State> {
    * Component render method
    */
   public render = () => {
-    const { classes, open, handleClose } = this.props;
+    const { classes, open, onClose } = this.props;
     const { addingLanguage, form } = this.state;
     const { isFormValid } = form;
 
@@ -146,7 +127,7 @@ class AddResourceDialog extends React.Component<Props, State> {
         maxWidth="sm"
         fullWidth
         open={ open }
-        onClose={ handleClose }
+        onClose={ onClose }
         aria-labelledby="dialog-title"
         onBackdropClick={ this.onAddResourceDialogBackDropClick }
       >
@@ -313,18 +294,18 @@ class AddResourceDialog extends React.Component<Props, State> {
    * Gets resource type
    */
   private getResourceType = async () => {
-    const { auth, customerId, deviceId, applicationId, parentResourceId } = this.props;
+    const { keycloak, customer, device, application, parentResource } = this.props;
 
-    if (!auth || !auth.token || !applicationId || !customerId || !deviceId || !parentResourceId) {
+    if (!keycloak?.token || !application?.id || !customer?.id || !device?.id || !parentResource?.id) {
       return;
     }
 
     try {
-      const foundResource = await ApiUtils.getResourcesApi(auth.token).findResource({
-        applicationId: applicationId,
-        customerId: customerId,
-        deviceId: deviceId,
-        resourceId: parentResourceId
+      const foundResource = await Api.getResourcesApi(keycloak.token).findResource({
+        applicationId: application.id,
+        customerId: customer.id,
+        deviceId: device.id,
+        resourceId: parentResource.id
       });
       this.setState({ parentResourceType : foundResource.type });
     } catch (error) {
@@ -362,21 +343,42 @@ class AddResourceDialog extends React.Component<Props, State> {
   /**
    * Handles save button click
    */
-  private onSaveNewResource = () => {
-    const { onSave, parentResourceId } = this.props;
-    const { copyContentFromId, form } = this.state;
+  private onSaveNewResource = async () => {
+    const { parentResource, addResources, onClose } = this.props;
+    const { copyContentFromId, form, resourceType } = this.state;
+    const { name, orderNumber, slug } = form.values;
 
-    if (!parentResourceId) {
+    if (!parentResource?.id || !resourceType || !name || !orderNumber || !slug) {
       return;
     }
 
-    const newResource = {
-      ...form.values,
-      type: this.state.resourceType,
-      parentId: parentResourceId
-    } as Resource;
+    try {
+      const createdResources: Resource[] = [];
 
-    onSave(newResource, copyContentFromId);
+      if (copyContentFromId && parentResource?.id) {
+        createdResources.push(...await this.copyResource(copyContentFromId, parentResource.id));
+      } else {
+        const resource = await this.createResource({
+          ...form.values,
+          name: name,
+          orderNumber: orderNumber,
+          slug: slug,
+          type: resourceType,
+          parentId: parentResource.id,
+        });
+
+        createdResources.push(resource);
+
+        if (resourceType === ResourceType.PAGE) {
+          createdResources.push(...await this.createPagePredefinedResources(resource));
+        }
+      }
+
+      addResources(createdResources);
+      toast.success(strings.createSuccessMessage);
+    } catch (error) {
+      this.context.setError(strings.errorManagement.resource.create);
+    }
 
     this.setState(
       {
@@ -390,14 +392,121 @@ class AddResourceDialog extends React.Component<Props, State> {
         ),
         resourceType: undefined
       },
-      () => this.props.handleClose()
+      () => onClose()
     );
   };
+
+  /**
+   * Creates resource
+   *
+   * @param resource resource
+   * @param copyResourceId ID of resource to make a copy of
+   * @param copyResourceParentId ID of resource that acts as a parent of the created resource copy
+   */
+  private createResource = async (resource: Resource) => {
+    const { keycloak, customer, device, application } = this.props;
+
+    if (!keycloak?.token || !customer?.id || !device?.id || !application?.id) {
+      return Promise.reject("Token, customer, device or application missing");
+    }
+
+    try {
+      return await Api.getResourcesApi(keycloak.token).createResource({
+        applicationId: application.id,
+        customerId: customer.id,
+        deviceId: device.id,
+        resource: resource
+      });
+    } catch (error) {
+      return Promise.reject(strings.errorManagement.resource.create);
+    }
+  }
+
+  /**
+   * Copies resource with given ID under parent resource with given ID
+   *
+   * @param copyResourceId copy resource ID
+   * @param copyResourceParentId copy resource parent ID
+   *
+   * @returns all created resources
+   */
+  private copyResource = async (copyResourceId: string, copyResourceParentId: string): Promise<Resource[]> => {
+    const { keycloak, customer, device, application } = this.props;
+
+    if (!keycloak?.token || !customer?.id || !device?.id || !application?.id) {
+      return Promise.reject("Token, customer, device or application missing");
+    }
+
+    try {
+      const baseResource = await Api.getResourcesApi(keycloak.token).createResource({
+        applicationId: application.id,
+        customerId: customer.id,
+        deviceId: device.id,
+        copyResourceId: copyResourceId,
+        copyResourceParentId: copyResourceParentId
+      });
+
+      const branchResources = await this.listBranchResources(baseResource);
+
+      return [ baseResource, ...branchResources ];
+    } catch (error) {
+      return Promise.reject(strings.errorManagement.resource.create);
+    }
+  }
+
+  /**
+   * Creates pre-defined resources for given page
+   *
+   * @param pageId page id
+   */
+  private createPagePredefinedResources = async (page: Resource) => {
+    try {
+      if (!page.id) {
+        return Promise.reject("No page ID");
+      }
+
+      return await Promise.all(
+        ResourceUtils.getPagePredefinedResources(page.id).map(resource => this.createResource(resource))
+      );
+    } catch (error) {
+      return Promise.reject(error);
+    }
+  }
+
+  /**
+   * Lists resources from branch
+   *
+   * @param resource resource
+   */
+  private listBranchResources = async (resource: Resource): Promise<Resource[]> => {
+    const { keycloak, customer, device, application } = this.props;
+
+    if (!keycloak?.token || !customer?.id || !device?.id || !application?.id) {
+      return Promise.reject("Token, customer, device or application missing");
+    }
+
+    try {
+      const children = await Api.getResourcesApi(keycloak.token).listResources({
+        applicationId: application.id,
+        customerId: customer.id,
+        deviceId: device.id,
+        parentId: resource.id
+      });
+
+      const childrenOfChildren = await Promise.all(children.map(this.listBranchResources));
+
+      return [ ...children, ...childrenOfChildren.flat() ];
+    } catch (error) {
+      return Promise.reject(error);
+    }
+  }
 
   /**
    * Handles close click and resets form values
    */
   private onCloseClick = () => {
+    const { onClose } = this.props;
+
     this.setState(
       {
         form: initForm<AddResourceForm>(
@@ -410,7 +519,7 @@ class AddResourceDialog extends React.Component<Props, State> {
         ),
         resourceType: undefined
       },
-      () => this.props.handleClose()
+      () => onClose()
     );
   };
 
@@ -543,24 +652,23 @@ class AddResourceDialog extends React.Component<Props, State> {
    * Updates data
    */
   private updateData = async () => {
-    const { customerId, deviceId, applicationId, parentResourceId, auth } = this.props;
+    const { customer, device, application, parentResource, keycloak } = this.props;
 
-    if (!auth || !auth.token || !customerId || !deviceId || !applicationId || !parentResourceId) {
+    if (!keycloak?.token || !customer?.id || !device?.id || !application?.id || !parentResource?.id) {
       return;
     }
 
     let childResources: Resource[] = [];
     try {
-      childResources = await ApiUtils.getResourcesApi(auth.token).listResources({
-        customerId: customerId,
-        deviceId: deviceId,
-        applicationId: applicationId,
-        parentId: parentResourceId
+      childResources = await Api.getResourcesApi(keycloak.token).listResources({
+        customerId: customer.id,
+        deviceId: device.id,
+        applicationId: application.id,
+        parentId: parentResource.id
       });
     } catch (error) {
       this.context.setError(strings.errorManagement.resource.listChild, error);
     }
-
 
     let form = initForm<AddResourceForm>(
       {
@@ -590,4 +698,30 @@ class AddResourceDialog extends React.Component<Props, State> {
   }
 }
 
-export default withStyles(styles)(AddResourceDialog);
+/**
+ * Map Redux state to props
+ *
+ * @param state state
+ */
+const mapStateToProps = (state: ReduxState) => ({
+  keycloak: state.auth.keycloak,
+  customer: state.customer.customer,
+  device: state.device.device,
+  application: state.application.application,
+  parentResource: state.resource.selectedResource
+});
+
+/**
+ * Map Redux dispatch to props
+ *
+ * @param dispatch dispatch
+ */
+const mapDispatchToProps = (dispatch: ReduxDispatch) => ({
+  addResources: (resources: Resource[]) => dispatch(addResources(resources))
+});
+
+const connector = connect(mapStateToProps, mapDispatchToProps);
+
+type ExternalProps = ConnectedProps<typeof connector> & WithStyles<typeof styles>;
+
+export default connector(withStyles(styles)(AddResourceDialog));

@@ -9,26 +9,26 @@ import ClearIcon from "@material-ui/icons/Clear";
 import EditIcon from "@material-ui/icons/Edit";
 import styles from "../../styles/editor-view";
 import strings from "../../localization/strings";
-import { Resource, ResourceToJSON } from "../../generated/client/src";
+import { Resource, ResourceToJSON } from "../../generated/client";
 import { forwardRef } from "react";
 import { MessageType, initForm, Form, validateForm } from "ts-form-validation";
-import { AuthState, ErrorContextType } from "../../types";
+import { ErrorContextType } from "../../types";
 import { resourceRules, ResourceSettingsForm } from "../../commons/formRules";
 import VisibleWithRole from "../generic/VisibleWithRole";
 import { ErrorContext } from "../containers/ErrorHandler";
 import PDFPreview from "../generic/PDFPreview";
 import StyledMTableToolbar from "../../styles/generic/styled-mtable-toolbar";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
+import { KeycloakInstance } from "keycloak-js";
 
 /**
  * Component props
  */
 interface Props extends WithStyles<typeof styles> {
+  keycloak?: KeycloakInstance;
   deviceId: string;
   applicationId: string;
-  auth: AuthState;
   resource: Resource;
-  resourcesUpdated: number;
   customerId: string;
   onSave: (resource: Resource) => void;
   onDelete: (resource: Resource) => void;
@@ -81,28 +81,19 @@ class PDFResourceSettingsView extends React.Component<Props, State> {
    * Component did mount life cycle handler
    */
   public componentDidMount = async () => {
-    const { auth } = this.props;
-    if (!auth || !auth.token) {
-      return;
-    }
-
-    this.updateComponentData();
+    const { keycloak } = this.props;
+    keycloak?.token && this.updateComponentData();
   }
 
   /**
    * Component did update  life cycle handler
    *
    * @param prevProps previous props
-   * @param prevState previous state
    */
-  public componentDidUpdate = async (prevProps: Props, prevState: State) => {
-    const { auth, resource, resourcesUpdated } = this.props;
-    if (prevProps.resource !== resource || prevProps.resourcesUpdated !== resourcesUpdated) {
-      if (!auth || !auth.token) {
-        return;
-      }
-
-      this.updateComponentData();
+  public componentDidUpdate = async (prevProps: Props) => {
+    const { keycloak, resource } = this.props;
+    if (prevProps.resource !== resource) {
+      keycloak?.token && this.updateComponentData();
     }
   }
 

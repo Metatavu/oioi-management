@@ -1,14 +1,14 @@
-import { createMuiTheme, responsiveFontSizes } from "@material-ui/core";
+import { createTheme, responsiveFontSizes } from "@material-ui/core";
 import { blueGrey, grey } from "@material-ui/core/colors";
 
-let theme = createMuiTheme();
+let theme = createTheme();
 theme = responsiveFontSizes(theme);
 
-export default createMuiTheme({
+export default createTheme({
+
   palette: {
     primary: { main: blueGrey[900] },
     secondary: { main: grey[900] },
-
     background: {
       default: blueGrey[200],
       paper: blueGrey[50]
@@ -23,6 +23,7 @@ export default createMuiTheme({
       main: "#d41b3f"
     },
   },
+
   typography: {
     fontFamily: "TTNorms-Regular",
     h1: {
@@ -71,6 +72,7 @@ export default createMuiTheme({
       fontFamily: "TTNorms-Black",
     }
   },
+
   overrides: {
     MuiCssBaseline: {
       "@global": {
@@ -232,4 +234,5 @@ export default createMuiTheme({
       elevation: 0
     }
   }
+
 });

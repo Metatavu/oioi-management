@@ -1,7 +1,6 @@
 import { Config } from "../app/config";
 import Keycloak from "keycloak-js";
 import { KeycloakInstance } from "keycloak-js";
-import { AuthState } from "../types";
 import { isSafari } from "react-device-detect";
 
 /**
@@ -54,7 +53,7 @@ export class AuthUtils {
    *
    * @returns promise of initialized auth state
    */
-  public static initAuth = async (): Promise<AuthState> => {
+  public static initAuth = async (): Promise<KeycloakInstance> => {
     try {
       const keycloak = Keycloak(Config.get().auth);
 

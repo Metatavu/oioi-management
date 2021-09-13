@@ -1,4 +1,4 @@
-import { ResourceType } from "../generated/client/src";
+import { ResourceType } from "../generated/client";
 import strings from "../localization/strings";
 
 export interface ResourceTypeObject {

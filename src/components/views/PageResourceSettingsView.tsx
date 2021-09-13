@@ -11,27 +11,27 @@ import DeleteForeverIcon from "@material-ui/icons/DeleteForever";
 import styles from "../../styles/editor-view";
 import strings from "../../localization/strings";
 import theme from "../../styles/theme";
-import { Resource, ResourceToJSON, ResourceType } from "../../generated/client/src";
+import { Resource, ResourceToJSON, ResourceType } from "../../generated/client";
 import { forwardRef } from "react";
 import { MessageType, initForm, Form, validateForm } from "ts-form-validation";
-import { AuthState, ErrorContextType } from "../../types";
-import ApiUtils from "../../utils/api";
+import { ErrorContextType } from "../../types";
+import Api from "../../api";
 import { resourceRules, ResourceSettingsForm } from "../../commons/formRules";
 import ImagePreview from "../generic/ImagePreview";
 import VisibleWithRole from "../generic/VisibleWithRole";
 import { ErrorContext } from "../containers/ErrorHandler";
 import StyledMTableToolbar from "../../styles/generic/styled-mtable-toolbar";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
+import { KeycloakInstance } from "keycloak-js";
 
 /**
  * Component props
  */
 interface Props extends WithStyles<typeof styles> {
+  keycloak?: KeycloakInstance;
   deviceId: string;
   applicationId: string;
-  auth: AuthState;
   resource: Resource;
-  resourcesUpdated: number;
   customerId: string;
   onAddChild: (parentId: string) => void;
   onSave: (resource: Resource) => void;
@@ -88,12 +88,8 @@ class PageResourceSettingsView extends React.Component<Props, State> {
    * Component did mount life cycle handler
    */
   public componentDidMount = async () => {
-    const { auth } = this.props;
-    if (!auth || !auth.token) {
-      return;
-    }
-
-    this.updateComponentData();
+    const { keycloak } = this.props;
+    keycloak?.token && this.updateComponentData();
   }
 
   /**
@@ -102,14 +98,10 @@ class PageResourceSettingsView extends React.Component<Props, State> {
    * @param prevProps previous props
    * @param prevState previous state
    */
-  public componentDidUpdate = async (prevProps: Props, prevState: State) => {
-    if (prevProps.resource !== this.props.resource || prevProps.resourcesUpdated !== this.props.resourcesUpdated) {
-      const { auth } = this.props;
-      if (!auth || !auth.token) {
-        return;
-      }
-
-      this.updateComponentData();
+  public componentDidUpdate = async (prevProps: Props) => {
+    if (prevProps.resource !== this.props.resource) {
+      const { keycloak } = this.props;
+      keycloak?.token && this.updateComponentData()
     }
   }
 
@@ -596,15 +588,15 @@ class PageResourceSettingsView extends React.Component<Props, State> {
    * Gets child resources
    */
   private getChildResources = async () => {
-    const { auth, customerId, deviceId, applicationId, resource } = this.props;
+    const { keycloak, customerId, deviceId, applicationId, resource } = this.props;
     const resourceId = resource.id;
 
-    if (!auth || !auth.token || !resourceId) {
+    if (!keycloak?.token || !resourceId) {
       return;
     }
 
     try {
-      return await ApiUtils.getResourcesApi(auth.token).listResources({
+      return await Api.getResourcesApi(keycloak.token).listResources({
         customerId: customerId,
         deviceId: deviceId,
         applicationId: applicationId,

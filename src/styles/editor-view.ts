@@ -1,6 +1,6 @@
 import { createStyles } from "@material-ui/core";
 import theme from "../styles/theme";
-import { fade } from "@material-ui/core/styles";
+import { alpha } from "@material-ui/core/styles";
 
 export default createStyles({
 
@@ -8,10 +8,13 @@ export default createStyles({
     position: "relative",
     display: "grid",
     gridTemplateColumns: "auto 1fr",
-    gridTemplateRows: "auto auto 1fr",
-    gridTemplateAreas: '"drawer appbar" "drawer content" "drawer content"',
+    gridTemplateRows: "auto 1fr",
+    gridTemplateAreas: `
+      "drawer appbar"
+      "drawer content"
+    `,
     borderTop: "1px solid #ddd",
-    height: "100%",
+    height: "calc(100vh - 114px)",
     overflowY: "auto",
   },
 
@@ -99,8 +102,7 @@ export default createStyles({
     gridArea: "content",
     padding: theme.spacing(3),
     background: "#F6F6F6",
-    overflowY: "auto",
-    maxHeight: "calc(100% - 115px)"
+    overflowY: "auto"
   },
 
   treeWrapper: {
@@ -155,7 +157,7 @@ export default createStyles({
   treeGroup: {
     marginLeft: 12,
     paddingLeft: 12,
-    borderLeft: `1px dashed ${fade(theme.palette.text.primary, 0.4)}`
+    borderLeft: `1px dashed ${alpha(theme.palette.text.primary, 0.4)}`
   },
 
   treeLabel: {

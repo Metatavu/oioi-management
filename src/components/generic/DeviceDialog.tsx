@@ -3,19 +3,20 @@ import { withStyles, WithStyles, Dialog, DialogTitle, DialogContent, DialogActio
 import styles from "../../styles/dialog";
 import { DropzoneArea } from "material-ui-dropzone";
 import strings from "../../localization/strings";
-import { Device } from "../../generated/client/src";
-import { AuthState, DialogType, ErrorContextType, UploadData } from "../../types";
-import { KeyValueProperty } from "../../generated/client/src/models/KeyValueProperty";
+import { Device } from "../../generated/client";
+import { DialogType, ErrorContextType, UploadData } from "../../types";
+import { KeyValueProperty } from "../../generated/client/models/KeyValueProperty";
 import { FormValidationRules, MessageType, validateForm, initForm, Form } from "ts-form-validation";
 import FileUpload from "../../utils/file-upload";
 import { ErrorContext } from "../containers/ErrorHandler";
 import CloseIcon from "@material-ui/icons/Close";
+import { KeycloakInstance } from "keycloak-js";
 
 /**
  * Component properties
  */
 interface Props extends WithStyles<typeof styles> {
-  auth: AuthState;
+  keycloak?: KeycloakInstance;
   open: boolean;
   dialogType: DialogType;
   device?: Device;
@@ -468,9 +469,9 @@ class DeviceDialog extends React.Component<Props, State> {
    * @param callback file upload progress callback function
    */
   private onImageChange = async (files: File[]) => {
-    const { auth } = this.props;
+    const { keycloak } = this.props;
 
-    if (!auth || !auth.token) {
+    if (!keycloak?.token) {
       return;
     }
 
@@ -481,7 +482,7 @@ class DeviceDialog extends React.Component<Props, State> {
     }
 
     try {
-      const uploadData = await FileUpload.upload(auth.token, file, this.updateProgress);
+      const uploadData = await FileUpload.upload(keycloak.token, file, this.updateProgress);
       const { xhrRequest, uploadUrl, formData } = uploadData;
       this.setState({ uploadData: uploadData });
       xhrRequest.open("POST", uploadUrl, true);
