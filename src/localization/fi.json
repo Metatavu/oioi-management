@@ -99,6 +99,18 @@
   "urlAddressDialogLabel": "URL-osoite",
   "actionCannotBeReverted": "Toimintoa ei voi peruuttaa.",
 
+  "customersList": {
+    "loadingCustomers": "Ladataan asiakkaita..."
+  },
+
+  "devicesList": {
+    "loadingDevices": "Ladataan laitteita..."
+  },
+
+  "applicationsList": {
+    "loadingApplications": "Ladataan sovelluksia..."
+  },
+
   "applicationEditor": {
     "dragSidebar": "Raahaa leveämmäksi / kapeammaksi",
     "loadingContentTree": "Ladataan sovelluspuuta..."

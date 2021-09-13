@@ -99,6 +99,18 @@
   "urlAddressDialogLabel": "URL Address",
   "actionCannotBeReverted": "This action cannot be reverted.",
 
+  "customersList": {
+    "loadingCustomers": "Loading customers..."
+  },
+
+  "devicesList": {
+    "loadingDevices": "Loading devices..."
+  },
+
+  "applicationsList": {
+    "loadingApplications": "Loading applications..."
+  },
+
   "applicationEditor": {
     "dragSidebar": "Click and drag to narrow or widen",
     "loadingContentTree": "Loading content tree..."
