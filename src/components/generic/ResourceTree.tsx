@@ -182,6 +182,8 @@ class ResourceTree extends React.Component<Props, State> {
    * Builds tree structure
    *
    * @param resources resources
+   * @param rootId root ID
+   *
    * @returns tree structure as array of data nodes
    */
   private buildTree = (resources: Resource[], rootId: string): TreeItem[] => {
