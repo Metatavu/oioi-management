@@ -110,7 +110,7 @@ class AppSettingsView extends React.Component<Props, State> {
   /**
    * Component render method
    */
-  public render() {
+  public render = () => {
     const { classes, keycloak } = this.props;
     const { importDone, importingContent, dataChanged, applicationForm } = this.state;
 
