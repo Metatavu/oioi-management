@@ -814,6 +814,8 @@ class ApplicationEditor extends React.Component<Props, State> {
    * Returns root resource
    *
    * @param application application
+   *
+   * @returns found resource
    */
   private getRootResource = async (application: Application): Promise<Resource> => {
     const { keycloak, customerId, deviceId, applicationId } = this.props;
