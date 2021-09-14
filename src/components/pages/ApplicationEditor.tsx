@@ -844,6 +844,8 @@ class ApplicationEditor extends React.Component<Props, State> {
    * Lists content versions
    *
    * @param application application
+   *
+   * @returns list of resources
    */
   private listContentVersions = async (application: Application): Promise<Resource[]> => {
     const { keycloak, customerId, deviceId, applicationId } = this.props;
