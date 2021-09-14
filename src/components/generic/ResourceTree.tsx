@@ -399,6 +399,8 @@ class ResourceTree extends React.Component<Props, State> {
    * Updates resource
    *
    * @param resource resource to update
+   *
+   * @returns updated resource
    */
   private updateResource = (resource: Resource): Promise<Resource> => {
     const { keycloak, customer, device, application } = this.props;
