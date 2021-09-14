@@ -36,10 +36,7 @@ const styles = (theme: Theme) =>
  *
  * @param props component properties
  */
-const BreadCrumb: React.FC<Props> = ({
-  classes,
-  level
-}) => {
+const BreadCrumb: React.FC<Props> = ({ classes, level }) => {
   const customer = useAppSelector(selectCustomer);
   const device = useAppSelector(selectDevice);
   const application = useAppSelector(selectApplication);
