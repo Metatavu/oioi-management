@@ -759,6 +759,8 @@ class ApplicationEditor extends React.Component<Props, State> {
 
   /**
    * Returns device
+   *
+   * @returns found device
    */
   private getDevice = async (): Promise<Device> => {
     const { keycloak, customerId, deviceId, device } = this.props;
