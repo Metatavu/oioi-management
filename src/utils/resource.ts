@@ -5,6 +5,13 @@ import { Resource, ResourceType } from "generated/client";
  */
 export class ResourceUtils {
 
+  /**
+   * Returns if resource type is valid parent type
+   *
+   * @param parentType parent resource type
+   * @param childType child resource type
+   * @returns is resource type valid parent
+   */
   static isValidParentType = (parentType?: ResourceType, childType?: ResourceType) => {
     if (parentType && childType) {
       return !!ALLOWED_CHILD_RESOURCE_TYPES.get(parentType)?.includes(childType);
