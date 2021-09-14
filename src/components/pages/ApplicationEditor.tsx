@@ -465,6 +465,8 @@ class ApplicationEditor extends React.Component<Props, State> {
    * Returns whole branch of resource tree structure starting from given parent resource
    *
    * @param parentResource parent resource
+   *
+   * @returns List of resources
    */
   private getResourceBranch = (parentResource: Resource): Resource[] => {
     const { resources } = this.props;
