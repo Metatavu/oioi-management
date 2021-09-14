@@ -875,6 +875,8 @@ class ApplicationEditor extends React.Component<Props, State> {
    * List child resources
    *
    * @param parentId parent ID
+   *
+   * @returns list of child resources
    */
   private listChildResources = async (parentId: string): Promise<Resource[]> => {
     const { keycloak, customerId, deviceId, applicationId } = this.props;
