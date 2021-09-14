@@ -12,7 +12,6 @@ import strings from "localization/strings";
 import { Resource, ResourceToJSON, ResourceType } from "generated/client";
 import { forwardRef } from "react";
 import { MessageType, initForm, Form, validateForm } from "ts-form-validation";
-
 import { ResourceSettingsForm, resourceRules } from "commons/formRules";
 import ImagePreview from "../generic/ImagePreview";
 import VisibleWithRole from "../generic/VisibleWithRole";
