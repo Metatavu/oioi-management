@@ -400,8 +400,7 @@ class AddResourceDialog extends React.Component<Props, State> {
    * Creates resource
    *
    * @param resource resource
-   * @param copyResourceId ID of resource to make a copy of
-   * @param copyResourceParentId ID of resource that acts as a parent of the created resource copy
+   * @returns Promise of created resource or reject
    */
   private createResource = async (resource: Resource) => {
     const { keycloak, customer, device, application } = this.props;
