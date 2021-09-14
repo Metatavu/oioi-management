@@ -161,7 +161,8 @@ class ResourceTree extends React.Component<Props, State> {
   /**
    * Toggles item expanded state
    *
-   * @param item item
+   * @param item tree item or resource
+   * @param expanded expanded
    */
   private toggleExpanded = (item: TreeItem | Resource, expanded: boolean) => {
     const { expandedKeys } = this.state;
