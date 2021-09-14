@@ -49,7 +49,6 @@ export class ResourceUtils {
       orderNumber: 3
     }
   ];
-
 }
 
 /**
