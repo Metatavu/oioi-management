@@ -475,6 +475,8 @@ class AddResourceDialog extends React.Component<Props, State> {
    * Lists resources from branch
    *
    * @param resource resource
+   *
+   * @returns created resources
    */
   private listBranchResources = async (resource: Resource): Promise<Resource[]> => {
     const { keycloak, customer, device, application } = this.props;
