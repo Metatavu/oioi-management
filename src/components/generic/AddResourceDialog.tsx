@@ -455,7 +455,7 @@ class AddResourceDialog extends React.Component<Props, State> {
   /**
    * Creates pre-defined resources for given page
    *
-   * @param pageId page id
+   * @param page page resource
    */
   private createPagePredefinedResources = async (page: Resource) => {
     try {
