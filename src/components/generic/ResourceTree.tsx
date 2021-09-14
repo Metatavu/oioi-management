@@ -426,8 +426,10 @@ class ResourceTree extends React.Component<Props, State> {
    * List child resources
    *
    * @param parentId parent ID
+   *
+   * @returns list for resources
    */
-  private listChildResources = async (parentId: React.Key) => {
+  private listChildResources = async (parentId: React.Key): Promise<Resource[]> => {
     const { keycloak, customer, device, application } = this.props;
 
     if (!keycloak?.token) {
