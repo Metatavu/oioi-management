@@ -231,6 +231,9 @@ export interface IStrings extends LocalizedStringsMethods {
       update: string;
       delete: string;
     };
+    contentVersion: {
+      list: string;
+    };
     resource: {
       list: string;
       listChild: string;

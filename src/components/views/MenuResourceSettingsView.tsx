@@ -11,11 +11,11 @@ import EditIcon from "@material-ui/icons/Edit";
 import styles from "../../styles/editor-view";
 import strings from "../../localization/strings";
 import theme from "../../styles/theme";
-import { Resource, ResourceToJSON, KeyValueProperty, ResourceType } from "../../generated/client/src";
+import { Resource, ResourceToJSON, KeyValueProperty, ResourceType } from "../../generated/client";
 import { forwardRef } from "react";
 import { MessageType, initForm, Form, validateForm } from "ts-form-validation";
-import { AuthState, ErrorContextType } from "../../types";
-import ApiUtils from "../../utils/api";
+import { ErrorContextType } from "../../types";
+import Api from "../../api";
 import IconButton from "@material-ui/core/IconButton";
 import { resourceRules, ResourceSettingsForm } from "../../commons/formRules";
 import ImagePreview from "../generic/ImagePreview";
@@ -27,6 +27,7 @@ import { ErrorContext } from "../containers/ErrorHandler";
 import { resolveChildResourceTypes } from "../../commons/resourceTypeHelper";
 import StyledMTableToolbar from "../../styles/generic/styled-mtable-toolbar";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
+import { KeycloakInstance } from "keycloak-js";
 
 /**
  * Component props
@@ -34,10 +35,9 @@ import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 interface Props extends WithStyles<typeof styles> {
   deviceId: string;
   applicationId: string;
-  auth: AuthState;
+  keycloak?: KeycloakInstance;
   resource: Resource;
   customerId: string;
-  resourcesUpdated: number;
   confirmationRequired: (value: boolean) => void;
   onUpdate: (resource: Resource) => void;
   onDelete: (resource: Resource) => void;
@@ -106,7 +106,7 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
    * @param prevState previous state
    */
   public componentDidUpdate = async (prevProps: Props, prevState: State) => {
-    if (prevProps.resource !== this.props.resource || prevProps.resourcesUpdated !== this.props.resourcesUpdated) {
+    if (prevProps.resource !== this.props.resource) {
       await this.fetchData(true);
     }
   }
@@ -115,7 +115,7 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
    * Component render method
    */
   public render = () => {
-    const { classes, auth } = this.props;
+    const { classes, keycloak } = this.props;
     const { updated, dataChanged } = this.state;
 
     if (updated) {
@@ -163,7 +163,7 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
         </Box>
         { this.renderIconList() }
         <AddIconDialog
-          auth={ auth }
+          keycloak={ keycloak }
           resource={ this.props.resource }
           onSave={ this.onIconFileChange }
           onToggle={ this.toggleDialog }
@@ -1092,10 +1092,10 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
    * @param updated updated
    */
   private fetchData = async (updated: boolean) => {
-    const { auth, customerId, deviceId, applicationId, resource } = this.props;
+    const { keycloak, customerId, deviceId, applicationId, resource } = this.props;
     const resourceId = resource.id;
 
-    if (!auth || !auth.token || !resourceId) {
+    if (!keycloak?.token || !resourceId) {
       return;
     }
 
@@ -1110,13 +1110,13 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
     const { initResourceMap, initIconsMap } = this.updateMaps(resource);
 
     try {
-      const childResources = await ApiUtils.getResourcesApi(auth.token).listResources({
+      const childResources = await Api.getResourcesApi(keycloak.token).listResources({
         customerId: customerId,
         deviceId: deviceId,
         applicationId: applicationId,
         parentId: resourceId
       });
-  
+
       this.setState({
         form: form,
         updated: updated,

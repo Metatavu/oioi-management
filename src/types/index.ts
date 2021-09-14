@@ -1,15 +1,14 @@
-import { KeycloakInstance } from "keycloak-js";
-import { Customer, Device, Application } from "../generated/client/src";
+import { Resource } from "../generated/client";
 
-export type AuthState = KeycloakInstance | null;
-
-export type CustomerState = Customer;
-
-export type DeviceState = Device;
-
-export type ApplicationsState = Application[];
-
+/**
+ * Dialog type
+ */
 export type DialogType = "edit" | "show" | "new";
+
+/**
+ * Content version type
+ */
+export type ContentVersion = Resource;
 
 /**
  * Configuration

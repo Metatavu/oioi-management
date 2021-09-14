@@ -1,88 +1,76 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import * as React from "react";
-import styles from "../../styles/editor-view";
-import { withStyles, WithStyles, ListItem, ListItemIcon, ListItemText, ListItemSecondaryAction } from "@material-ui/core";
-import { Resource, ResourceType } from "../../generated/client/src";
-import { AuthState } from "../../types";
-import { ReduxState, ReduxActions } from "../../store";
-import { Dispatch } from "redux";
-import { connect } from "react-redux";
-import { openResource } from "../../actions/resources";
+import styles from "styles/generic/resource-tree-item";
+import { withStyles, WithStyles, ListItem, ListItemIcon, ListItemText } from "@material-ui/core";
+import { Resource, ResourceType } from "generated/client";
+import { ReduxDispatch, ReduxState } from "app/store";
+import { connect, ConnectedProps } from "react-redux";
+import { selectResource } from "features/resource-slice";
 
 import LanguageIcon from "@material-ui/icons/Language";
 import PageIcon from "@material-ui/icons/CropLandscapeOutlined";
 import IntroIcon from "@material-ui/icons/VideoLibraryOutlined";
 import MenuIcon from "@material-ui/icons/Menu";
 import SlideshowIcon from "@material-ui/icons/SlideshowOutlined";
-import UnknownIcon from "@material-ui/icons/HelpOutlineOutlined";
 import VideoIcon from "@material-ui/icons/PlayCircleOutlineOutlined";
 import TextIcon from "@material-ui/icons/TitleOutlined";
 import PDFIcon from "@material-ui/icons/PictureAsPdfOutlined";
 import ImageIcon from "@material-ui/icons/ImageOutlined";
 import ApplicationIcon from "@material-ui/icons/LaptopMacOutlined";
-import theme from "../../styles/theme";
 
 /**
  * Component props
  */
-interface Props extends WithStyles<typeof styles> {
-  customerId: string;
-  deviceId: string;
-  applicationId: string;
+interface Props extends ExternalProps {
   resource: Resource;
-  auth?: AuthState;
-  openedResource?: Resource;
-  openResource: typeof openResource;
-  onDelete: (resourceId: string) => void;
-  onOpenResource: (resource: Resource) => void;
+  onSelect?: (resource: Resource) => void;
 }
 
 /**
- * Component state
+ * Resource tree item
  */
-interface State {
-  parentResourceId?: string;
-}
-
-/**
- * Creates tree item
- */
-class ResourceTreeItemClass extends React.Component<Props, State> {
-  /**
-   * Constructor
-   *
-   * @param props component properties
-   */
-  constructor(props: Props) {
-    super(props);
-    this.state = {};
-  }
-
-  /**
-   * Component did update
-   * @param prevProps
-   * @param prevState
-   */
-  public componentDidUpdate = async (prevProps: Props, prevState: State) => {};
+class ResourceTreeItem extends React.Component<Props> {
 
   /**
    * Component render method
    */
   public render() {
-    const { classes, resource, openedResource } = this.props;
-
-    const icon = this.renderIconComponentByResourceType(resource.type);
-
-    if (!resource.id) {
-      return;
-    }
+    const {
+      classes,
+      resource,
+      selectedResource
+    } = this.props;
 
     return (
-      <ListItem onClick={ this.onTreeItemClick } key={ resource.id } selected={ openedResource && openedResource.id === resource.id }>
-        <ListItemIcon style={{ minWidth: 0, marginRight: theme.spacing(1) }}>{ icon }</ListItemIcon>
-        <ListItemText primary={ resource.name } />
+      <ListItem
+        key={ resource.id }
+        selected={ selectedResource?.id === resource.id }
+        onClick={ () => this.onSelectResource(resource) }
+      >
+        <ListItemIcon className={ classes.icon }>
+          { this.renderIcon(resource.type) }
+        </ListItemIcon>
+        <ListItemText primary={ resource.name }/>
       </ListItem>
     );
+  }
+
+  /**
+   * Returns icon by resource type
+   *
+   * @param type resource type
+   */
+  private renderIcon = (type: ResourceType) => {
+    const NodeIcon = this.getIconByResourceType(type);
+
+    if (NodeIcon) {
+      return (
+        <NodeIcon
+          fontSize="small"
+          style={{ marginRight: 10 }}
+        />
+      );
+    }
   }
 
   /**
@@ -90,83 +78,56 @@ class ResourceTreeItemClass extends React.Component<Props, State> {
    *
    * @param resourceType resource type
    */
-  private renderIconComponentByResourceType = (resourceType: ResourceType) => {
-    switch (resourceType) {
-      case ResourceType.INTRO: {
-        return <IntroIcon fontSize="small" />;
-      }
-      case ResourceType.PAGE: {
-        return <PageIcon fontSize="small" />;
-      }
-      case ResourceType.IMAGE: {
-        return <ImageIcon fontSize="small" />;
-      }
-      case ResourceType.VIDEO: {
-        return <VideoIcon fontSize="small" />;
-      }
-      case ResourceType.TEXT: {
-        return <TextIcon fontSize="small" />;
-      }
-      case ResourceType.PDF: {
-        return <PDFIcon fontSize="small" />;
-      }
-      case ResourceType.LANGUAGEMENU: {
-        return <LanguageIcon fontSize="small" />;
-      }
-      case ResourceType.LANGUAGE: {
-        return <LanguageIcon fontSize="small" />;
-      }
-      case ResourceType.MENU: {
-        return <MenuIcon fontSize="small" />;
-      }
-      case ResourceType.SLIDESHOW : {
-        return <SlideshowIcon fontSize="small" />;
-      }
-      case ResourceType.SLIDESHOWPDF : {
-        return <PDFIcon fontSize="small" />;
-      }
-      case ResourceType.APPLICATION : {
-        return <ApplicationIcon fontSize="small" />;
-      }
-      default: {
-        return <UnknownIcon fontSize="small" />;
-      }
-    }
-  };
+  private getIconByResourceType = (type: ResourceType) => ({
+    [ResourceType.ROOT]: null,
+    [ResourceType.CONTENTVERSION]: null,
+    [ResourceType.INTRO]: IntroIcon,
+    [ResourceType.PAGE]: PageIcon,
+    [ResourceType.IMAGE]: ImageIcon,
+    [ResourceType.VIDEO]: VideoIcon,
+    [ResourceType.TEXT]: TextIcon,
+    [ResourceType.PDF]: PDFIcon,
+    [ResourceType.LANGUAGEMENU]: LanguageIcon,
+    [ResourceType.LANGUAGE]: LanguageIcon,
+    [ResourceType.MENU]: MenuIcon,
+    [ResourceType.SLIDESHOW]: SlideshowIcon,
+    [ResourceType.SLIDESHOWPDF]: PDFIcon,
+    [ResourceType.APPLICATION]: ApplicationIcon
+  })[type];
 
   /**
-   * On treeItem open method
+   * Event handler for select resource
+   *
+   * @param resource resource
    */
-  private onTreeItemClick = async () => {
-    this.props.onOpenResource(this.props.resource);
-  };
+  private onSelectResource = (resource: Resource) => {
+    const { onSelect, selectResource } = this.props;
 
-  /**
-   * check if resource is allowed to have children method
-   */
-  private isAllowedChildren = (): boolean => {
-    const resourceType = this.props.resource.type;
-    if (!resourceType) {
-      return false;
-    }
-
-    return (
-      resourceType !== ResourceType.IMAGE && resourceType !== ResourceType.PDF && resourceType !== ResourceType.TEXT && resourceType !== ResourceType.VIDEO
-    );
-  };
+    selectResource(resource);
+    onSelect && onSelect(resource);
+  }
 }
 
+/**
+ * Map Redux state to props
+ *
+ * @param state Redux state
+ */
 const mapStateToProps = (state: ReduxState) => ({
-  auth: state.auth,
-  openedResource: state.resource.resourceOpen
+  selectedResource: state.resource.selectedResource
 });
 
-const mapDispatchToProps = (dispatch: Dispatch<ReduxActions>) => {
-  return {
-    openResource: (resource?: Resource) => dispatch(openResource(resource))
-  };
-};
+/**
+ * Map Redux dispatch to props
+ *
+ * @param dispatch Redux dispatch
+ */
+const mapDispatchToProps = (dispatch: ReduxDispatch) => ({
+  selectResource: (resource?: Resource) => dispatch(selectResource(resource))
+});
 
-const ResourceTreeItem = connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(ResourceTreeItemClass));
+const connector = connect(mapStateToProps, mapDispatchToProps);
 
-export default ResourceTreeItem;
+type ExternalProps = ConnectedProps<typeof connector> & WithStyles<typeof styles>;
+
+export default connector(withStyles(styles)(ResourceTreeItem));

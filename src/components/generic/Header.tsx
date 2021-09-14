@@ -4,25 +4,21 @@ import SignOutIcon from "@material-ui/icons/ExitToAppSharp";
 import logo from "../../resources/svg/oioi-logo.svg";
 import { Link } from "react-router-dom";
 import styles from "../../styles/header";
-import { ReduxState, ReduxActions } from "../../store";
-import { Dispatch } from "redux";
-import { logout } from "../../actions/auth";
-import { connect } from "react-redux";
-import { AuthState } from "../../types";
-import { setLocale } from "../../actions/locale";
+import { ReduxState, ReduxDispatch } from "app/store";
+import { connect, ConnectedProps } from "react-redux";
 import strings from "../../localization/strings";
+import { logout } from "features/auth-slice";
+import { setLocale } from "features/locale-slice";
 
-interface Props extends WithStyles<typeof styles> {
-  logout: typeof logout;
-  auth: AuthState;
-  locale: string;
-  setLocale: typeof setLocale;
-}
+/**
+ * Component props
+ */
+interface Props extends ExternalProps { }
 
-interface State {
-}
-
-class Header extends React.Component<Props, State> {
+/**
+ * Header component
+ */
+class Header extends React.Component<Props> {
 
   /**
    * Constructor
@@ -31,8 +27,7 @@ class Header extends React.Component<Props, State> {
    */
   constructor(props: Props) {
     super(props);
-    this.state = {
-    };
+    this.state = { };
   }
 
   /**
@@ -97,26 +92,38 @@ class Header extends React.Component<Props, State> {
    * Handle logout
    */
   private onLogOutClick = () => {
-    const { auth, logout } = this.props;
-    if (!auth) {
+    const { keycloak, logout } = this.props;
+    if (!keycloak) {
       return;
     }
 
     logout();
-    auth.logout();
+    keycloak.logout();
   }
 }
 
+/**
+ * Map Redux state to component properties
+ *
+ * @param state Redux state
+ */
 const mapStateToProps = (state: ReduxState) => ({
-  auth: state.auth,
+  keycloak: state.auth.keycloak,
   locale: state.locale.locale
 });
 
-const mapDispatchToProps = (dispatch: Dispatch<ReduxActions>) => {
-  return {
-    logout: () => dispatch(logout()),
-    setLocale: (locale: string) => dispatch(setLocale(locale))
-  }
-}
+/**
+ * Map Redux dispatch to component properties
+ *
+ * @param dispatch Redux dispatch
+ */
+const mapDispatchToProps = (dispatch: ReduxDispatch) => ({
+  logout: () => dispatch(logout()),
+  setLocale: (locale: string) => dispatch(setLocale(locale))
+});
 
-export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(Header));
+const connector = connect(mapStateToProps, mapDispatchToProps);
+
+type ExternalProps = ConnectedProps<typeof connector> & WithStyles<typeof styles>;
+
+export default connector(withStyles(styles)(Header));

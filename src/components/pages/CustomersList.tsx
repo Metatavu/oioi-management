@@ -6,29 +6,25 @@ import styles from "../../styles/card-item";
 import { History } from "history";
 import CardItem from "../generic/CardItem";
 import CustomerDialog from "../generic/CustomerDialog";
-import { AuthState, ErrorContextType } from "../../types";
-import { Dispatch } from "redux";
-import { ReduxActions, ReduxState } from "../../store";
-import { connect } from "react-redux";
-import { Customer } from "../../generated/client/src";
-import ApiUtils from "../../utils/api";
+import { ErrorContextType } from "../../types";
+import { ReduxDispatch, ReduxState } from "app/store";
+import { connect, ConnectedProps } from "react-redux";
+import { Customer } from "../../generated/client";
+import Api from "../../api";
 import strings from "../../localization/strings";
 import DeleteDialog from "../generic/DeleteDialog";
 import { DialogType } from "../../types/index";
-import { setCustomer } from "../../actions/customer";
 import VisibleWithRole from "../generic/VisibleWithRole";
 import AppLayout from "../layouts/app-layout";
 import { ErrorContext } from "../containers/ErrorHandler";
 import { toast } from "react-toastify";
+import { setCustomer } from "features/customer-slice";
 
 /**
  * Component props
  */
-interface Props extends WithStyles<typeof styles> {
+interface Props extends ExternalProps {
   history: History;
-  auth: AuthState;
-  locale: string;
-  setCustomer: typeof setCustomer;
 }
 
 /**
@@ -247,15 +243,15 @@ class CustomersList extends React.Component<Props, State> {
    * @param customer customer
    */
   private onDeleteCustomerClick = async (customer: Customer) => {
-    const { auth } = this.props;
+    const { keycloak } = this.props;
     const { customers } = this.state;
 
-    if (!auth || !auth.token || !customer.id) {
+    if (!keycloak?.token || !customer.id) {
       return;
     }
 
     try {
-      await ApiUtils.getCustomersApi(auth.token).deleteCustomer({ customerId: customer.id });
+      await Api.getCustomersApi(keycloak.token).deleteCustomer({ customerId: customer.id });
       this.setState({ customers: customers.filter(c => c.id !== customer.id) });
 
       toast.success(strings.deleteSuccessMessage);
@@ -291,15 +287,15 @@ class CustomersList extends React.Component<Props, State> {
    * @param customer customer
    */
   private saveCustomer = async (customer: Customer) => {
-    const { auth } = this.props;
+    const { keycloak } = this.props;
     const { customers } = this.state;
 
-    if (!auth || !auth.token) {
+    if (!keycloak?.token) {
       return;
     }
 
     try {
-      const newCustomer = await ApiUtils.getCustomersApi(auth.token).createCustomer({ customer: customer });
+      const newCustomer = await Api.getCustomersApi(keycloak.token).createCustomer({ customer: customer });
       this.setState({ customers: [ ...customers, newCustomer ] });
       toast.success(strings.createSuccessMessage);
     } catch (error) {
@@ -316,15 +312,15 @@ class CustomersList extends React.Component<Props, State> {
    * @param id customer id
    */
   private updateCustomer = async (customer: Customer, id: string) => {
-    const { auth } = this.props;
+    const { keycloak } = this.props;
     const { customers } = this.state;
 
-    if (!auth || !auth.token) {
+    if (!keycloak?.token) {
       return;
     }
 
     try {
-      const updatedCustomer = await ApiUtils.getCustomersApi(auth.token).updateCustomer({
+      const updatedCustomer = await Api.getCustomersApi(keycloak.token).updateCustomer({
         customerId: id,
         customer: customer
       });
@@ -364,19 +360,20 @@ class CustomersList extends React.Component<Props, State> {
    * Fetches initial data
    */
   private fetchData = async () => {
-    const { auth } = this.props;
+    const { keycloak } = this.props;
 
     this.setState({
       loading: true
     });
 
-    if (!auth || !auth.token) {
+    if (!keycloak?.token) {
       return;
     }
 
     try {
-      const customers = await ApiUtils.getCustomersApi(auth.token).listCustomers();
-      this.setState({ 
+      const customers = await Api.getCustomersApi(keycloak.token).listCustomers();
+
+      this.setState({
         customers: customers,
         loading: false
       });
@@ -392,7 +389,7 @@ class CustomersList extends React.Component<Props, State> {
  * @param state redux state
  */
 const mapStateToProps = (state: ReduxState) => ({
-  auth: state.auth,
+  keycloak: state.auth.keycloak,
   locale: state.locale.locale
 });
 
@@ -401,10 +398,12 @@ const mapStateToProps = (state: ReduxState) => ({
  *
  * @param dispatch
  */
-const mapDispatchToProps = (dispatch: Dispatch<ReduxActions>) => {
-  return {
-    setCustomer: (customer: Customer) => dispatch(setCustomer(customer))
-  };
-};
+const mapDispatchToProps = (dispatch: ReduxDispatch) => ({
+  setCustomer: (customer: Customer) => dispatch(setCustomer(customer))
+});
 
-export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(CustomersList));
+const connector = connect(mapStateToProps, mapDispatchToProps);
+
+type ExternalProps = ConnectedProps<typeof connector> & WithStyles<typeof styles>;
+
+export default connector(withStyles(styles)(CustomersList));

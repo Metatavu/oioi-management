@@ -1,43 +1,17 @@
 import * as React from "react";
-import { connect } from "react-redux";
-import { AuthState } from "../../types";
-import strings from "../../localization/strings";
-import { ReduxState } from "../../store";
-import { Customer, Device, Application } from "../../generated/client/src";
 import { Breadcrumbs, Link, createStyles, Theme, WithStyles, withStyles } from "@material-ui/core";
 import { Link as RouterLink } from "react-router-dom";
+import { useAppSelector } from "app/hooks";
+import { selectCustomer } from "features/customer-slice";
+import { selectDevice } from "features/device-slice";
+import { selectApplication } from "features/application-slice";
 
 /**
  * Component properties
  */
 interface Props extends WithStyles<typeof styles> {
-  /**
-   * State of authentication
-   */
-  auth: AuthState;
-  /**
-   * Currently selected customer
-   */
-  customer?: Customer;
-  /**
-   * Currently selected device
-   */
-  device?: Device;
-  /**
-   * Currently selected applications
-   */
-  application?: Application;
-
-  /**
-   * Current navigation level
-   */
   level: number;
 }
-
-/**
- * Component state
- */
-interface State {}
 
 /**
  * Component styles
@@ -58,67 +32,56 @@ const styles = (theme: Theme) =>
   });
 
 /**
- * Creates bread crumb component
+ * Bread crumb
+ *
+ * @param props component properties
  */
-class BreadCrumb extends React.Component<Props, State> {
-  /**
-   * Constructor
-   *
-   * @param props component properties
-   */
-  constructor(props: Props) {
-    super(props);
-    this.state = {
-      applications: []
-    };
-  }
+const BreadCrumb: React.FC<Props> = ({ classes, level }) => {
+  const customer = useAppSelector(selectCustomer);
+  const device = useAppSelector(selectDevice);
+  const application = useAppSelector(selectApplication);
 
   /**
-   * Component render method
+   * Renders single breadcrumb
+   *
+   * @param title title
+   * @param path path
    */
-  public render() {
-    const { classes, customer, device, application, level } = this.props;
-    return (
-      <div className={classes.breadcrumb}>
-        <Breadcrumbs aria-label="breadcrumb">
-          <Link component={RouterLink} className="bc-link" to="/" >
-            Main
-          </Link>
-          {customer && level > 1 && (
-            <Link component={RouterLink} className="bc-link" to={`/${customer.id}/devices`} >
-              {customer ? customer.name : strings.loading}
-            </Link>
-          )}
-          {customer && device && level > 3 && (
-            <Link component={RouterLink} className="bc-link" to={`/${customer.id}/devices/${device.id}/applications`} >
-              {device ? device.name : strings.loading}
-            </Link>
-          )}
-          {customer && device && application && level > 4 && (
-            <Link
-              component={RouterLink}
-              className="bc-link"
-              to={`/${customer.id}/devices/${device.id}/applications/${application.id}`}
-            >
-              {application ? application.name : strings.loading}
-            </Link>
-          )}
-        </Breadcrumbs>
-      </div>
-    );
-  }
+  const renderBreadcrumb = (title: string, path: string) => (
+    <Link
+      component={ RouterLink }
+      className="bc-link"
+      to={ path }
+    >
+      { title }
+    </Link>
+  );
+
+  return (
+    <div className={ classes.breadcrumb }>
+      <Breadcrumbs aria-label="breadcrumb">
+        { renderBreadcrumb("Main", "/") }
+        { customer && level > 1 &&
+          renderBreadcrumb(
+            customer.name,
+            `/${customer.id}/devices`
+          )
+        }
+        { customer && device && level > 3 &&
+          renderBreadcrumb(
+            device.name,
+            `/${customer.id}/devices/${device.id}/applications`
+          )
+        }
+        { customer && device && application && level > 4 &&
+          renderBreadcrumb(
+            application.name,
+            `/${customer.id}/devices/${device.id}/applications/${application.id}`
+          )
+        }
+      </Breadcrumbs>
+    </div>
+  );
 }
 
-/**
- * Maps redux state to props
- *
- * @param state redux state
- */
-const mapStateToProps = (state: ReduxState) => ({
-  auth: state.auth,
-  customer: state.customer.customer,
-  device: state.device.device,
-  application: state.application.application
-});
-
-export default connect(mapStateToProps)(withStyles(styles)(BreadCrumb));
+export default withStyles(styles)(BreadCrumb);

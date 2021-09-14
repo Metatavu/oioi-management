@@ -70,7 +70,7 @@
   "unknownErrorMessage": "Tuntematon virhe, yritä myöhemmin uudelleen",
   "badRequestErrorMessage": "Virhe lähetetyissä tiedoissa, tarkista tiedot ja yritä uudelleen",
   "forbiddenErrorMessage": "Pääsy estetty, yritä kirjautua uudelleen sisään",
-  "notFoundErrorMessage": "Haettua tietoa ei löytynyt, se voi olla poistettu tai siirretty", 
+  "notFoundErrorMessage": "Haettua tietoa ei löytynyt, se voi olla poistettu tai siirretty",
   "internalErrorMessage": "Palvelimella tapahtui virhe, voit raportoida virheestä järjestelmän ylläpitäjälle",
   "unavailableErrorMessage": "Palvelu on väliaikaisesti poissa käytöstä, jos ongelma ei katoa, ota yhteyttä järjestelmän ylläpitäjiin.",
   "updateSuccessMessage": "Päivitys onnistui.",
@@ -110,7 +110,7 @@
   "applicationsList": {
     "loadingApplications": "Ladataan sovelluksia..."
   },
-  
+
   "applicationEditor": {
     "dragSidebar": "Raahaa leveämmäksi / kapeammaksi",
     "loadingContentTree": "Ladataan sovelluspuuta..."
@@ -202,6 +202,9 @@
       "find": "Virhe haettaessa sovelluksen tietoja",
       "update": "Virhe päivittäessä sovellusta {0}",
       "delete": "Virhe poistaessa sovellusta"
+    },
+    "contentVersion": {
+      "list": "Virhe listattaessa sisältöversioita"
     },
     "resource": {
       "list": "Virhe listattaessa resursseja",

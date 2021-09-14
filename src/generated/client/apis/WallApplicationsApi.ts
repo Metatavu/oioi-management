@@ -33,8 +33,8 @@ export interface GetApplicationJsonRequest {
 export class WallApplicationsApi extends runtime.BaseAPI {
 
     /**
-     * Returns application wall JSON
-     * Returns application wall JSON
+     * Returns application wall JSON of active content version
+     * Returns application wall JSON of active content version
      */
     async getApplicationJsonRaw(requestParameters: GetApplicationJsonRequest): Promise<runtime.ApiResponse<WallApplication>> {
         if (requestParameters.applicationId === null || requestParameters.applicationId === undefined) {
@@ -60,8 +60,8 @@ export class WallApplicationsApi extends runtime.BaseAPI {
     }
 
     /**
-     * Returns application wall JSON
-     * Returns application wall JSON
+     * Returns application wall JSON of active content version
+     * Returns application wall JSON of active content version
      */
     async getApplicationJson(requestParameters: GetApplicationJsonRequest): Promise<WallApplication> {
         const response = await this.getApplicationJsonRaw(requestParameters);

@@ -1,5 +1,5 @@
 import { FormValidationRules } from "ts-form-validation";
-import { Application, Resource } from "../generated/client/src";
+import { Application, Resource } from "../generated/client";
 
 import strings from "../localization/strings";
 

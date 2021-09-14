@@ -3,19 +3,20 @@ import { withStyles, WithStyles, TextField, Button, Divider, Typography, Circula
 import styles from "../../styles/editor-view";
 import strings from "../../localization/strings";
 import theme from "../../styles/theme";
-import { Application, Resource, KeyValueProperty } from "../../generated/client/src";
+import { Application, Resource, KeyValueProperty } from "../../generated/client";
 import { Form, initForm, validateForm, MessageType } from "ts-form-validation";
 import { ApplicationForm, applicationRules, ResourceSettingsForm } from "../../commons/formRules";
 import AddIconDialog from "../generic/AddIconDialog";
 import ImagePreview from "../generic/ImagePreview";
-import { AuthState, ErrorContextType } from "../../types";
-import ApiUtils from "../../utils/api";
+import { ErrorContextType } from "../../types";
+import Api from "../../api";
 import { IconKeys, getLocalizedIconTypeString, getDefaultIconURL } from "../../commons/iconTypeHelper";
 import VisibleWithRole from "../generic/VisibleWithRole";
 import AddIcon from "@material-ui/icons/Add";
 import { ErrorContext } from "../containers/ErrorHandler";
 import { toast } from "react-toastify";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
+import { KeycloakInstance } from "keycloak-js";
 
 /**
  * Component Props
@@ -25,7 +26,7 @@ interface Props extends WithStyles<typeof styles> {
   customerId: string;
   deviceId: string;
   rootResource: Resource;
-  auth: AuthState;
+  keycloak?: KeycloakInstance;
   onUpdateApplication: (application: Application) => void;
   onUpdateRootResource: (rootResource: Resource) => void;
   confirmationRequired: (value: boolean) => void;
@@ -95,9 +96,8 @@ class AppSettingsView extends React.Component<Props, State> {
    * Component did update life cycle handler
    *
    * @param prevProps previous props
-   * @param prevState previous state
    */
-  public componentDidUpdate = (prevProps: Props, prevState: State) => {
+  public componentDidUpdate = (prevProps: Props) => {
     const { rootResource } = this.props;
     let { applicationForm } = this.state;
 
@@ -110,45 +110,42 @@ class AppSettingsView extends React.Component<Props, State> {
   /**
    * Component render method
    */
-  public render() {
-    const { classes, auth } = this.props;
-    const { importDone, importingContent, dataChanged } = this.state;
+  public render = () => {
+    const { classes, keycloak } = this.props;
+    const { importDone, importingContent, dataChanged, applicationForm } = this.state;
 
-    if (importDone) {
+    if (importDone || importingContent) {
       return (
         <Box>
           <Typography>
-            { strings.importDone }
+            { importDone ?
+              strings.importDone :
+              strings.importInProgress
+            }
           </Typography>
-        </Box>
-      );
-    }
-    if (importingContent) {
-      return (
-        <Box>
-          <Typography>
-            { strings.importInProgress }
-          </Typography>
-          <Box mt={ 2 }>
-            <CircularProgress/>
-          </Box>
+          { importingContent &&
+            <Box mt={ 2 }>
+              <CircularProgress/>
+            </Box>
+          }
         </Box>
       );
     }
 
-    const { isFormValid } = this.state.applicationForm;
     return (
-      <div>
+      <>
         <Button
           className={ classes.saveButton }
           color="primary"
           variant="outlined"
-          disabled={ !isFormValid || !dataChanged }
+          disabled={ !applicationForm.isFormValid || !dataChanged }
           onClick={ this.onUpdateApplication }
         >
           { strings.save }
         </Button>
-        <Typography style={{ marginBottom: theme.spacing(3) }} variant="h3">{ strings.applicationBasicInformation }</Typography>
+        <Typography style={{ marginBottom: theme.spacing(3) }} variant="h3">
+          { strings.applicationBasicInformation }
+        </Typography>
         { this.renderFields() }
         <Divider style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} />
         <Box display="flex" alignItems="flex-start">
@@ -183,14 +180,14 @@ class AppSettingsView extends React.Component<Props, State> {
           { this.renderIconList() }
         </div>
         <AddIconDialog
-          auth={ auth }
+          keycloak={ keycloak }
           resource={ this.props.rootResource }
           onSave={ this.onIconFileChange }
           onToggle={ this.toggleDialog }
           open={ this.state.iconDialogOpen }
         />
         { this.renderAdvancedSettings() }
-      </div>
+      </>
     );
   }
 
@@ -297,13 +294,13 @@ class AppSettingsView extends React.Component<Props, State> {
    * @returns boolean promise
    */
   private importWallJsonItems = async (parentId: string, items: any[]): Promise<boolean> => {
-    const { auth, application, customerId, deviceId } = this.props;
+    const { keycloak, application, customerId, deviceId } = this.props;
 
-    if (!auth || !auth.token) {
+    if (!keycloak?.token) {
       return false;
     }
 
-    const resourcesApi = ApiUtils.getResourcesApi(auth.token);
+    const resourcesApi = Api.getResourcesApi(keycloak.token);
 
     try {
       for(let i = 0; i < items.length; i++) {
@@ -333,9 +330,9 @@ class AppSettingsView extends React.Component<Props, State> {
    * @param data wall JSON data
    */
   private importRootProperties = async (data: any) => {
-    const { auth, application, customerId, deviceId, rootResource } = this.props;
+    const { keycloak, application, customerId, deviceId, rootResource } = this.props;
 
-    if (!auth || !auth.token) {
+    if (!keycloak?.token) {
       return false;
     }
 
@@ -354,7 +351,7 @@ class AppSettingsView extends React.Component<Props, State> {
     });
 
     try {
-      await ApiUtils.getResourcesApi(auth.token).updateResource({
+      await Api.getResourcesApi(keycloak.token).updateResource({
         resource: { ...rootResource, properties: rootProperties },
         applicationId: application.id!,
         customerId: customerId,

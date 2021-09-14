@@ -4,8 +4,6 @@ import { ThemeProvider } from "@material-ui/styles";
 import { CssBaseline, responsiveFontSizes } from "@material-ui/core";
 import { Provider as ReduxProvider } from "react-redux";
 import theme from "./styles/theme";
-import { createStore } from "redux";
-import { ReduxState, ReduxActions, rootReducer } from "./store";
 import strings from "./localization/strings";
 import AccessTokenRefresh from "./components/containers/AccessTokenRefresh";
 import ApplicationEditor from "./components/pages/ApplicationEditor";
@@ -20,11 +18,7 @@ import { Slide, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { blueGrey } from "@material-ui/core/colors";
 import CheckmarkIcon from "@material-ui/icons/Check";
-
-/**
- * Redux store
- */
-const store = createStore<ReduxState, ReduxActions, any, any>(rootReducer);
+import { store } from "app/store";
 
 /**
  * Interface representing component properties

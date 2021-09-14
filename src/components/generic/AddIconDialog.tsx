@@ -2,7 +2,7 @@ import * as React from "react";
 import { withStyles, WithStyles, Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, Divider, Typography, MenuItem, Box, IconButton, LinearProgress } from "@material-ui/core";
 import styles from "../../styles/dialog";
 import strings from "../../localization/strings";
-import { Resource } from "../../generated/client/src";
+import { Resource } from "../../generated/client";
 import slugify from "slugify";
 import { getLocalizedIconTypeString, IconKeys } from "../../commons/iconTypeHelper";
 import { ChangeEvent } from "react";
@@ -10,12 +10,14 @@ import { Alert } from "@material-ui/lab";
 import CloseIcon from "@material-ui/icons/Close";
 import { DropzoneArea } from "material-ui-dropzone";
 import FileUpload from "../../utils/file-upload";
-import { AuthState, UploadData } from "../../types";
+import { UploadData } from "../../types";
+import { KeycloakInstance } from "keycloak-js";
+
 /**
  * Component props
  */
 interface Props extends WithStyles<typeof styles> {
-  auth: AuthState;
+  keycloak?: KeycloakInstance;
   open: boolean;
   resource: Resource;
   onSave: (newUri: string, key: string) => void;
@@ -35,8 +37,7 @@ interface State {
 }
 
 /**
- * Creates Add resource dialog
- * @author Jari Nykänen
+ * Create Add resource dialog
  */
 class AddIconDialog extends React.Component<Props, State> {
   /**
@@ -220,9 +221,9 @@ class AddIconDialog extends React.Component<Props, State> {
    * @param callback file upload progress callback function
    */
   private onImageChange = async (files: File[]) => {
-    const { auth } = this.props;
+    const { keycloak } = this.props;
 
-    if (!auth || !auth.token) {
+    if (!keycloak?.token) {
       return;
     }
 
@@ -233,7 +234,7 @@ class AddIconDialog extends React.Component<Props, State> {
     }
 
     try {
-      const uploadData = await FileUpload.upload(auth.token, file, this.updateProgress);
+      const uploadData = await FileUpload.upload(keycloak.token, file, this.updateProgress);
       const { xhrRequest, uploadUrl, formData } = uploadData;
       this.setState({ uploadData: uploadData });
       xhrRequest.open("POST", uploadUrl, true);

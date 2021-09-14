@@ -1,7 +1,7 @@
 import * as React from "react";
 import { Dialog, AppBar, Toolbar, IconButton, withStyles, WithStyles, Box, Typography } from "@material-ui/core";
 import styles from "../../styles/editor-view";
-import { Resource, ResourceType } from "../../generated/client/src";
+import { Resource, ResourceType } from "../../generated/client";
 
 import CloseIcon from "@material-ui/icons/Close";
 import DeleteIcon from "@material-ui/icons/DeleteForever";

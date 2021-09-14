@@ -2,21 +2,20 @@ import * as React from "react";
 import { withStyles, WithStyles, Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, Divider, Typography, LinearProgress, Box, IconButton } from "@material-ui/core";
 import styles from "../../styles/dialog";
 import { DropzoneArea } from "material-ui-dropzone";
-import { Customer } from "../../generated/client/src";
+import { Customer } from "../../generated/client";
 import strings from "../../localization/strings";
 import FileUpload from "../../utils/file-upload";
-import { AuthState, DialogType, ErrorContextType, UploadData } from "../../types/index";
+import { DialogType, ErrorContextType, UploadData } from "../../types/index";
 import { FormValidationRules, validateForm, Form, initForm, MessageType } from "ts-form-validation";
 import { ErrorContext } from "../containers/ErrorHandler";
-import { connect } from "react-redux";
-import { ReduxState } from "../../store";
+import { connect, ConnectedProps } from "react-redux";
+import { ReduxState } from "app/store";
 import CloseIcon from "@material-ui/icons/Close";
 
 /**
  * Component properties
  */
-interface Props extends WithStyles<typeof styles> {
-  auth: AuthState;
+interface Props extends ExternalProps {
   open: boolean;
   dialogType: DialogType;
   customer?: Customer;
@@ -392,9 +391,9 @@ class CustomerDialog extends React.Component<Props, State> {
    * @param callback file upload progress callback function
    */
   private onImageChange = async (files: File[]) => {
-    const { auth } = this.props;
+    const { keycloak } = this.props;
 
-    if (!auth || !auth.token) {
+    if (!keycloak || !keycloak.token) {
       return;
     }
 
@@ -405,7 +404,7 @@ class CustomerDialog extends React.Component<Props, State> {
     }
 
     try {
-      const uploadData = await FileUpload.upload(auth.token, file, this.updateProgress);
+      const uploadData = await FileUpload.upload(keycloak.token, file, this.updateProgress);
       const { xhrRequest, uploadUrl, formData } = uploadData;
       this.setState({ uploadData: uploadData });
       xhrRequest.open("POST", uploadUrl, true);
@@ -467,7 +466,11 @@ class CustomerDialog extends React.Component<Props, State> {
  * @param state redux state
  */
 const mapStateToProps = (state: ReduxState) => ({
-  auth: state.auth
+  keycloak: state.auth.keycloak
 });
 
-export default connect(mapStateToProps)(withStyles(styles)(CustomerDialog));
+const connector = connect(mapStateToProps);
+
+type ExternalProps = ConnectedProps<typeof connector> & WithStyles<typeof styles>;
+
+export default connector(withStyles(styles)(CustomerDialog));

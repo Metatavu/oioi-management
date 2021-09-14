@@ -1,10 +1,10 @@
-import { Configuration, CustomersApi, DevicesApi, ApplicationsApi, ResourcesApi } from "../generated/client/src";
+import { Configuration, CustomersApi, DevicesApi, ApplicationsApi, ResourcesApi } from "../generated/client";
 import { Config } from "../app/config";
 
 /**
- * Utility class for loading api with predefined configuration
+ * Class for loading API with predefined configuration
  */
-export default class ApiUtils {
+export default class Api {
 
   /**
    * Gets initialized customers api
@@ -12,7 +12,7 @@ export default class ApiUtils {
    * @param token access token
    */
   public static getCustomersApi(token: string) {
-    return new CustomersApi(ApiUtils.getConfiguration(token));
+    return new CustomersApi(Api.getConfiguration(token));
   }
 
   /**
@@ -21,7 +21,7 @@ export default class ApiUtils {
    * @param token access token
    */
   public static getApplicationsApi(token: string) {
-    return new ApplicationsApi(ApiUtils.getConfiguration(token));
+    return new ApplicationsApi(Api.getConfiguration(token));
   }
 
   /**
@@ -30,7 +30,7 @@ export default class ApiUtils {
    * @param token access token
    */
   public static getDevicesApi(token: string) {
-    return new DevicesApi(ApiUtils.getConfiguration(token));
+    return new DevicesApi(Api.getConfiguration(token));
   }
 
   /**
@@ -39,13 +39,11 @@ export default class ApiUtils {
    * @param token access token
    */
   public static getResourcesApi(token: string) {
-    return new ResourcesApi(ApiUtils.getConfiguration(token));
+    return new ResourcesApi(Api.getConfiguration(token));
   }
 
   /**
    * Gets api configuration
-   *
-   * TODO: Remove Noty library
    *
    * @param token access token
    */
@@ -53,14 +51,14 @@ export default class ApiUtils {
     return new Configuration({
       basePath: Config.get().api.baseUrl,
       accessToken: token,
-      middleware: [{ post: async (context) => {
-        if (!context.response.ok) {
-          if (context.response.status === 401) {
-            window.location.reload(true);
+      middleware: [{ post: async ({ response }) => {
+        if (!response.ok) {
+          if (response.status === 401) {
+            window.location.reload();
           }
         }
 
-        return context.response;
+        return response;
       }}]
     });
   }

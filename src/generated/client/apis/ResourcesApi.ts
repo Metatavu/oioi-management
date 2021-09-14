@@ -21,13 +21,18 @@ import {
     Resource,
     ResourceFromJSON,
     ResourceToJSON,
+    ResourceType,
+    ResourceTypeFromJSON,
+    ResourceTypeToJSON,
 } from '../models';
 
 export interface CreateResourceRequest {
-    resource: Resource;
     customerId: string;
     deviceId: string;
     applicationId: string;
+    resource?: Resource;
+    copyResourceId?: string;
+    copyResourceParentId?: string;
 }
 
 export interface DeleteResourceRequest {
@@ -49,6 +54,7 @@ export interface ListResourcesRequest {
     deviceId: string;
     applicationId: string;
     parentId?: string;
+    resourceType?: ResourceType;
 }
 
 export interface UpdateResourceRequest {
@@ -69,10 +75,6 @@ export class ResourcesApi extends runtime.BaseAPI {
      * Create a resource
      */
     async createResourceRaw(requestParameters: CreateResourceRequest): Promise<runtime.ApiResponse<Resource>> {
-        if (requestParameters.resource === null || requestParameters.resource === undefined) {
-            throw new runtime.RequiredError('resource','Required parameter requestParameters.resource was null or undefined when calling createResource.');
-        }
-
         if (requestParameters.customerId === null || requestParameters.customerId === undefined) {
             throw new runtime.RequiredError('customerId','Required parameter requestParameters.customerId was null or undefined when calling createResource.');
         }
@@ -86,6 +88,14 @@ export class ResourcesApi extends runtime.BaseAPI {
         }
 
         const queryParameters: runtime.HTTPQuery = {};
+
+        if (requestParameters.copyResourceId !== undefined) {
+            queryParameters['copyResourceId'] = requestParameters.copyResourceId;
+        }
+
+        if (requestParameters.copyResourceParentId !== undefined) {
+            queryParameters['copyResourceParentId'] = requestParameters.copyResourceParentId;
+        }
 
         const headerParameters: runtime.HTTPHeaders = {};
 
@@ -243,6 +253,10 @@ export class ResourcesApi extends runtime.BaseAPI {
 
         if (requestParameters.parentId !== undefined) {
             queryParameters['parentId'] = requestParameters.parentId;
+        }
+
+        if (requestParameters.resourceType !== undefined) {
+            queryParameters['resourceType'] = requestParameters.resourceType;
         }
 
         const headerParameters: runtime.HTTPHeaders = {};
