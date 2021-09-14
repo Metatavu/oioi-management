@@ -426,7 +426,6 @@ class AddResourceDialog extends React.Component<Props, State> {
    *
    * @param copyResourceId copy resource ID
    * @param copyResourceParentId copy resource parent ID
-   *
    * @returns all created resources
    */
   private copyResource = async (copyResourceId: string, copyResourceParentId: string): Promise<Resource[]> => {
