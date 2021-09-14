@@ -202,7 +202,9 @@ class ResourceTree extends React.Component<Props, State> {
    * Recursive tree
    *
    * @param resources resources
-   * @param parentResource parent resource
+   * @param parentId parent ID
+   *
+   * @returns list of tree items
    */
   private recursiveTree = (resources: Resource[], parentId: string): TreeItem[] => {
     const { selectedResource } = this.props;
