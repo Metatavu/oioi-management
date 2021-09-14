@@ -92,6 +92,7 @@ class PDFResourceSettingsView extends React.Component<Props, State> {
    */
   public componentDidUpdate = async (prevProps: Props) => {
     const { keycloak, resource } = this.props;
+
     if (prevProps.resource !== resource) {
       keycloak?.token && this.updateComponentData();
     }
