@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import * as React from "react";
 import styles from "styles/generic/resource-tree-item";
-import { withStyles, WithStyles, ListItem, ListItemIcon, ListItemText } from "@material-ui/core";
-import { Resource, ResourceType } from "generated/client";
+import { withStyles, WithStyles, ListItem, ListItemIcon, ListItemText, Box, Tooltip } from "@material-ui/core";
+import { Resource, ResourceLock, ResourceType } from "generated/client";
 import { ReduxDispatch, ReduxState } from "app/store";
 import { connect, ConnectedProps } from "react-redux";
 import { selectResource } from "features/resource-slice";
@@ -17,6 +17,8 @@ import TextIcon from "@material-ui/icons/TitleOutlined";
 import PDFIcon from "@material-ui/icons/PictureAsPdfOutlined";
 import ImageIcon from "@material-ui/icons/ImageOutlined";
 import ApplicationIcon from "@material-ui/icons/LaptopMacOutlined";
+import LockIcon from "../../resources/svg/lock-icon";
+import Api from "api";
 
 /**
  * Component props
@@ -24,33 +26,85 @@ import ApplicationIcon from "@material-ui/icons/LaptopMacOutlined";
 interface Props extends ExternalProps {
   resource: Resource;
   onSelect?: (resource: Resource) => void;
+  locked: boolean;
+  loading: boolean;
+}
+
+/**
+ * Component state
+ */
+interface State {
+  lockInfo?: ResourceLock;
 }
 
 /**
  * Resource tree item
  */
-class ResourceTreeItem extends React.Component<Props> {
+class ResourceTreeItem extends React.Component<Props, State> {
+
+  /**
+   * Component constructor
+   *
+   * @param props component properties
+   */
+  constructor(props: Props) {
+    super(props);
+    this.state = {
+    };
+  }
+
+  /**
+   * Component did mount life cycle handler
+   */
+  public componentDidMount = async () => {
+    await this.fetchLockInfo();
+  }
+
+  /**
+   * Component did update life cycle handler
+   *
+   * @param prevProps previous props
+   */
+  public componentDidUpdate = async (prevProps: Props) => {
+    if (!prevProps.locked && this.props.locked) {
+      await this.fetchLockInfo();
+    }
+  }
 
   /**
    * Component render method
    */
-  public render() {
+  public render = () => {
     const {
       classes,
       resource,
-      selectedResource
+      selectedResource,
+      locked,
+      loading
     } = this.props;
+    const { lockInfo } = this.state;
 
     return (
       <ListItem
         key={ resource.id }
         selected={ selectedResource?.id === resource.id }
-        onClick={ () => this.onSelectResource(resource) }
+        onClick={ () => (selectedResource?.id !== resource.id && !locked) && this.onSelectResource(resource) }
+        disabled={ loading || (selectedResource?.id !== resource.id && locked) }
       >
         <ListItemIcon className={ classes.icon }>
           { this.renderIcon(resource.type) }
         </ListItemIcon>
         <ListItemText primary={ resource.name }/>
+        { (locked && !loading) &&
+          <Tooltip title={ lockInfo?.userDisplayName || ""}>
+            <Box marginLeft="20px">
+              <LockIcon
+                fontSize="large"
+                htmlColor="#eb5757"
+              />
+            </Box>
+          </Tooltip> 
+        }
       </ListItem>
     );
   }
@@ -74,7 +128,7 @@ class ResourceTreeItem extends React.Component<Props> {
   }
 
   /**
-   * get icon component by resource type method
+   * Get icon component by resource type method
    *
    * @param resourceType resource type
    */
@@ -106,6 +160,26 @@ class ResourceTreeItem extends React.Component<Props> {
     selectResource(resource);
     onSelect && onSelect(resource);
   }
+
+  /**
+   * Fetches lock info
+   */
+  private fetchLockInfo = async () => {
+    const { keycloak, customer, device, application, resource } = this.props;
+
+    if (!keycloak?.token || !customer?.id || !device?.id || !application?.id || !resource.id) {
+      return;
+    }
+
+    const lockInfo = await Api.getResourcesApi(keycloak.token).findResourceLock({
+      customerId: customer.id,
+      deviceId: device.id,
+      applicationId: application.id,
+      resourceId: resource.id,
+    });
+
+    this.setState({ lockInfo: lockInfo });
+  }
 }
 
 /**
@@ -114,7 +188,11 @@ class ResourceTreeItem extends React.Component<Props> {
  * @param state Redux state
  */
 const mapStateToProps = (state: ReduxState) => ({
-  selectedResource: state.resource.selectedResource
+  keycloak: state.auth.keycloak,
+  selectedResource: state.resource.selectedResource,
+  customer: state.customer.customer,
+  device: state.device.device,
+  application: state.application.application,
 });
 
 /**

@@ -102,9 +102,8 @@ class ResourceSettingsView extends React.Component<Props, State> {
    * Component did update life cycle handler
    *
    * @param prevProps previous props
-   * @param prevState previous state
    */
-  public componentDidUpdate = (prevProps: Props, prevState: State) => {
+  public componentDidUpdate = (prevProps: Props) => {
     if (prevProps.resource !== this.props.resource) {
       const { resource } = this.props;
       let form = initForm<ResourceSettingsForm>(

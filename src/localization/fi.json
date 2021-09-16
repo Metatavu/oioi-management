@@ -213,7 +213,8 @@
       "find": "Virhe haettaessa resurssin tietoja",
       "update": "Virhe päivittäessä resurssin tietoja",
       "updateChild": "Virhe päivittäessä alaresurssin tietoja",
-      "delete": "Virhe poistettaessa resurssia {0}"
+      "delete": "Virhe poistettaessa resurssia {0}",
+      "newLock": "Virhe resurssin lukituksessa"
     },
     "file": {
       "upload": "Virhe lähetettäessä tiedostoa: {0}"
