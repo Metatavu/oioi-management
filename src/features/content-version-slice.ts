@@ -28,16 +28,37 @@ export const contentVersionSlice = createSlice({
     setContentVersions: (state: ContentVersionState, { payload }: PayloadAction<ContentVersion[]>) => {
       state.contentVersions = payload;
     },
+    addContentVersion: (state: ContentVersionState, { payload }: PayloadAction<ContentVersion>) => {
+      state.contentVersions.push(payload);
+    },
+    updateContentVersion: (state: ContentVersionState, { payload }: PayloadAction<ContentVersion>) => {
+      state.contentVersions = state.contentVersions.map(contentVersion =>
+        contentVersion.id === payload.id ? payload : contentVersion
+      );
+    },
+    deleteContentVersion: (state: ContentVersionState, { payload }: PayloadAction<ContentVersion>) => {
+      state.contentVersions = state.contentVersions.filter(contentVersion => contentVersion.id !== payload.id);
+
+      if (state.selectedContentVersion?.id === payload.id) {
+        state.selectedContentVersion = undefined;
+      }
+    },
     selectContentVersion: (state: ContentVersionState, { payload }: PayloadAction<ContentVersion | undefined>) => {
       state.selectedContentVersion = payload;
-    },
+    }
   }
 });
 
 /**
  * Content version actions from created content version slice
  */
-export const { setContentVersions, selectContentVersion } = contentVersionSlice.actions;
+export const {
+  setContentVersions,
+  addContentVersion,
+  updateContentVersion,
+  deleteContentVersion,
+  selectContentVersion
+} = contentVersionSlice.actions;
 
 /**
  * Select content versions selector

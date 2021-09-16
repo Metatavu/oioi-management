@@ -52,7 +52,13 @@ export const resourceSlice = createSlice({
 /**
  * Resource actions from created resource slice
  */
-export const { setResources, addResources, updateResources, deleteResources, selectResource } = resourceSlice.actions;
+export const {
+  setResources,
+  addResources,
+  updateResources,
+  deleteResources,
+  selectResource
+} = resourceSlice.actions;
 
 /**
  * Select resources selector

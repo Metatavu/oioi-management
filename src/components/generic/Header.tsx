@@ -55,7 +55,7 @@ class Header extends React.Component<Props> {
           <Box>
             { this.renderLanguageSelection() }
           </Box>
-          <IconButton 
+          <IconButton
             edge="end"
             className={ classes.signOutBtn }
             onClick={ this.onLogOutClick }>

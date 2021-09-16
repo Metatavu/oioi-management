@@ -167,6 +167,22 @@
     "advancedSettings": "Advanced settings"
   },
 
+  "contentVersionControls": {
+    "contentVersion": "Version",
+    "notSelected": "Not selected",
+    "addNewVersion": "New version",
+    "setActive": "Set active",
+    "alreadyActive": "Version is already active",
+    "versionNotSelected": "Content version not selected",
+    "activeVersion": "Active version",
+    "deleteVersion": "Delete version",
+    "createNew": "Create new",
+    "alreadyExists": "Name is already taken",
+    "content": "Content",
+    "empty": "Empty",
+    "activeVersionUpdateSuccess": "Updated active content version"
+  },
+
   "iconKeys": {
     "iconHome": "Home normal",
     "iconHomeActive": "Home active",
@@ -204,7 +220,10 @@
       "delete": "Error while deleting application"
     },
     "contentVersion": {
-      "list": "Error while listing content versions"
+      "list": "Error while listing content versions",
+      "create": "Error while creating new content version",
+      "update": "Error while updating content version",
+      "delete": "Error while deleting content version"
     },
     "resource": {
       "list": "Error while listing resources",

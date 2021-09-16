@@ -11,7 +11,7 @@ import EditIcon from "@material-ui/icons/Edit";
 import styles from "../../styles/editor-view";
 import strings from "../../localization/strings";
 import theme from "../../styles/theme";
-import { Resource, ResourceToJSON, KeyValueProperty, ResourceType } from "../../generated/client";
+import { Resource, KeyValueProperty, ResourceType, ResourceToJSON } from "../../generated/client";
 import { forwardRef } from "react";
 import { MessageType, initForm, Form, validateForm } from "ts-form-validation";
 import { ErrorContextType } from "../../types";
@@ -28,6 +28,7 @@ import { resolveChildResourceTypes } from "../../commons/resourceTypeHelper";
 import StyledMTableToolbar from "../../styles/generic/styled-mtable-toolbar";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import { KeycloakInstance } from "keycloak-js";
+import { nanoid } from "@reduxjs/toolkit";
 
 /**
  * Component props
@@ -50,7 +51,6 @@ interface State {
   form: Form<ResourceSettingsForm>;
   resourceId: string;
   resourceData: any;
-  updated: boolean;
   childResources?: Resource[];
   dataChanged: boolean;
   resourceMap: Map<string, string>;
@@ -86,7 +86,6 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
       iconsMap: new Map(),
       resourceId: "",
       resourceData: {},
-      updated: false,
       dataChanged: false,
       iconDialogOpen: false
     };
@@ -96,18 +95,17 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
    * Component did mount life cycle handler
    */
   public componentDidMount = async () => {
-    await this.fetchData(false);
+    await this.fetchData();
   }
 
   /**
    * Component did update method
    *
    * @param prevProps previous props
-   * @param prevState previous state
    */
-  public componentDidUpdate = async (prevProps: Props, prevState: State) => {
+  public componentDidUpdate = async (prevProps: Props) => {
     if (prevProps.resource !== this.props.resource) {
-      await this.fetchData(true);
+      await this.fetchData();
     }
   }
 
@@ -116,16 +114,8 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
    */
   public render = () => {
     const { classes, keycloak } = this.props;
-    const { updated, dataChanged } = this.state;
-
-    if (updated) {
-      this.setState({
-        updated: false
-      });
-      return <div />;
-    }
-
-    const { isFormValid } = this.state.form;
+    const { dataChanged, form } = this.state;
+    const { isFormValid } = form;
 
     return (
       <div>
@@ -185,6 +175,7 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
    */
   private renderFields = () => {
     const { resource } = this.props;
+
     return (
       <>
         <Box mb={ 3 }>
@@ -210,34 +201,20 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
 
   /**
    * Renders form text field
+   *
    * @param key to look for
    * @param label label to be shown
    * @param type text field type
    */
   private renderFormField = (key: keyof ResourceSettingsForm, placeholder: string, type: string) => {
-    const {
-      values,
-      messages: { [key]: message }
-    } = this.state.form;
-    if (type === "textarea") {
-      return ( <TextField
-        fullWidth
-        multiline
-        rows={ 8 }
-        type={ type }
-        error={ message && message.type === MessageType.ERROR }
-        helperText={ message && message.message }
-        value={ values[key] || "" }
-        onChange={ this.onHandleResourceTextChange(key) }
-        onBlur={ this.onHandleBlur(key) }
-        name={ key }
-        variant="outlined"
-        label={ placeholder }
-      /> );
-    }
+    const { form } = this.state;
+    const { values, messages: { [key]: message } } = form;
+
     return (
       <TextField
         fullWidth
+        multiline={ type === "textarea" }
+        rows={ type === "textarea" ? 8 : undefined }
         type={ type }
         error={ message && message.type === MessageType.ERROR }
         helperText={ message && message.message }
@@ -253,37 +230,24 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
 
   /**
    * Renders properties field
+   *
    * @param key to look for
    * @param label label to be shown
    * @param type text field type
    */
   private renderPropertiesField = (key: keyof ResourceSettingsForm, placeholder: string, type: string) => {
-    const { messages: { [key]: message } } = this.state.form;
-    if (type === "textarea") {
-      return (
-        <TextField
-          fullWidth
-          multiline
-          rows={ 8 }
-          type={ type }
-          error={ message && message.type === MessageType.ERROR }
-          helperText={ message && message.message }
-          value={ this.state.resourceMap.get(key) || "" }
-          onChange={ this.onHandleChange(key) }
-          onBlur={ this.onHandleBlur(key) }
-          name={ key }
-          variant="outlined"
-          label={ placeholder }
-        />
-      );
-    }
+    const { resourceMap, form } = this.state;
+    const { messages: { [key]: message } } = form;
+
     return (
       <TextField
         fullWidth
+        multiline={ type === "textarea" }
+        rows={ type === "textarea" ? 8 : undefined }
         type={ type }
         error={ message && message.type === MessageType.ERROR }
         helperText={ message && message.message }
-        value={ this.state.resourceMap.get(key) || "" }
+        value={ resourceMap.get(key) || "" }
         onChange={ this.onHandleChange(key) }
         onBlur={ this.onHandleBlur(key) }
         name={ key }
@@ -365,8 +329,9 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
 
   /**
    * Handles resource text fields change events
-   * @param key
-   * @param event
+   *
+   * @param key data key
+   * @param event change event
    */
   private onHandleResourceTextChange = (key: keyof ResourceSettingsForm) => (event: React.ChangeEvent<HTMLInputElement>) => {
     const values = {
@@ -394,16 +359,23 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
 
   /**
    * Render checkbox
+   *
+   * @param key data key
+   * @param label label
    */
   private renderCheckbox = (key: keyof ResourceSettingsForm, label: string) => {
     const { resourceMap } = this.state;
     const value = (resourceMap.get(key) === "true");
+
     return (
-      <FormControlLabel control={
-        <Checkbox
-          checked={ value }
-          onChange={ e => this.onHandleCheckBoxChange(key, e.target.checked) }
-        />} label={ label }
+      <FormControlLabel
+        label={ label }
+        control={
+          <Checkbox
+            checked={ value }
+            onChange={ e => this.onHandleCheckBoxChange(key, e.target.checked) }
+          />
+        }
       />
     );
   }
@@ -416,6 +388,7 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
 
     return (
       <MaterialTable
+        key={ nanoid() }
         icons={{
           Add: forwardRef((props, ref) => <AddCircleIcon color="secondary" { ...props } ref={ ref } />),
           Delete: forwardRef((props, ref) => <DeleteIcon { ...props } ref={ ref } />),
@@ -427,62 +400,43 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
           { title: strings.key, field: "key" },
           { title: strings.value, field: "value" }
         ]}
-        data={ resourceData["styles"] }
+        data={ resourceData.styles }
         editable={{
-          onRowAdd: newData =>
-            new Promise<void>((resolve, reject) => {
-              {
-                const { resourceData } = this.state;
-                const styles = resourceData["styles"];
-                styles.push(newData);
-                resourceData["styles"] = styles;
-                this.props.confirmationRequired(true);
-                this.setState({
-                  resourceData: resourceData,
-                  dataChanged: true
-                }, () => resolve());
-              }
-              resolve();
-            }),
-          onRowUpdate: (newData, oldData) =>
-            new Promise<void>((resolve, reject) => {
-              {
-                const { resourceData } = this.state;
-                const styles = resourceData["styles"];
-                const index = styles.indexOf(oldData);
-                styles[index] = newData;
-                resourceData["styles"] = styles;
-                this.props.confirmationRequired(true);
-                this.setState({
-                  resourceData: resourceData,
-                  dataChanged: true
-                }, () => resolve());
-              }
-              resolve();
-            }),
-          onRowDelete: oldData =>
-            new Promise<void>((resolve, reject) => {
-              {
-                const { resourceData } = this.state;
-                const styles = resourceData["styles"];
-                const index = styles.indexOf(oldData);
-                styles.splice(index, 1);
-                resourceData["styles"] = styles;
-                this.props.confirmationRequired(true);
-                this.setState({
-                  resourceData: resourceData,
-                  dataChanged: true
-                }, () => resolve());
-              }
-              resolve();
-            })
+          onRowAdd: async newData => {
+            const updatedData = { ...resourceData };
+            updatedData.styles.push(newData);
+            this.props.confirmationRequired(true);
+
+            this.setState({
+              dataChanged: true,
+              resourceData: updatedData
+            });
+          },
+          onRowUpdate: async (newData, oldData) => {
+            const updatedData = { ...resourceData };
+            updatedData.styles.splice(updatedData.styles.indexOf(oldData), 1, newData);
+            this.props.confirmationRequired(true);
+
+            this.setState({
+              dataChanged: true,
+              resourceData: updatedData
+            });
+          },
+          onRowDelete: async oldData => {
+            const updatedData = { ...resourceData };
+            updatedData.styles.splice(updatedData.styles.indexOf(oldData), 1);
+            this.props.confirmationRequired(true);
+
+            this.setState({
+              dataChanged: true,
+              resourceData: updatedData
+            });
+          }
         }}
         title={ strings.styles }
         components={{
-          Toolbar: props => (
-            <StyledMTableToolbar { ...props } />
-          ),
-          Container: props => <Paper { ...props } elevation={ 0 } />
+          Toolbar: props => <StyledMTableToolbar { ...props }/>,
+          Container: props => <Paper { ...props } elevation={ 0 }/>
         }}
         localization={{
           body: {
@@ -520,6 +474,7 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
 
     return (
       <MaterialTable
+        key={ nanoid() }
         icons={{
           Add: forwardRef((props, ref) => <AddCircleIcon color="secondary" { ...props } ref={ ref } />),
           Delete: forwardRef((props, ref) => <DeleteIcon { ...props } ref={ ref } />),
@@ -531,66 +486,48 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
           { title: strings.key, field: "key" },
           { title: strings.value, field: "value" }
         ]}
-        data={ resourceData["properties"] }
+        data={ resourceData.properties }
         editable={{
-          onRowAdd: newData =>
-            new Promise<void>((resolve, reject) => {
-              {
-                const { resourceData, resourceMap, iconsMap } = this.state;
-                const properties = resourceData["properties"];
-                properties.push(newData);
-                resourceData["properties"] = properties;
-                this.addResourceToMap(newData, iconsMap, resourceMap);
-                this.props.confirmationRequired(true);
-                this.setState({
-                  resourceData: resourceData,
-                  dataChanged: true
-                }, () => resolve());
-              }
-              resolve();
-            }),
-          onRowUpdate: (newData, oldData) =>
-            new Promise<void>((resolve, reject) => {
-              {
-                const { resourceData } = this.state;
-                const properties = resourceData["properties"];
-                const index = properties.indexOf(oldData);
-                properties[index] = newData;
+          onRowAdd: async newData => {
+            const { resourceMap, iconsMap } = this.state;
+            const updatedData = { ...resourceData };
+            updatedData.properties.push(newData);
+            this.addResourceToMap(newData, iconsMap, resourceMap);
+            this.props.confirmationRequired(true);
 
-                this.updateMapsOnTableDataChange(oldData, newData);
-                this.props.confirmationRequired(true);
-                resourceData["properties"] = properties;
-                this.setState({
-                  resourceData: resourceData,
-                  dataChanged: true
-                }, () => resolve());
-              }
-              resolve();
-            }),
-          onRowDelete: oldData =>
-            new Promise<void>((resolve, reject) => {
-              {
-                const { resourceData, iconsMap, resourceMap } = this.state;
-                const properties = resourceData["properties"];
-                const index = properties.indexOf(oldData);
-                properties.splice(index, 1);
-                resourceData["properties"] = properties;
-                this.deleteResourceFromMap(oldData, iconsMap, resourceMap);
-                this.props.confirmationRequired(true);
-                this.setState({
-                  resourceData: resourceData,
-                  dataChanged: true
-                }, () => resolve());
-              }
-              resolve();
-            })
+            this.setState({
+              dataChanged: true,
+              resourceData: updatedData
+            });
+          },
+          onRowUpdate: async (newData, oldData) => {
+            const updatedData = { ...resourceData };
+            updatedData.properties.splice(updatedData.properties.indexOf(oldData), 1, newData);
+            this.updateMapsOnTableDataChange(oldData, newData);
+            this.props.confirmationRequired(true);
+
+            this.setState({
+              dataChanged: true,
+              resourceData: updatedData
+            });
+          },
+          onRowDelete: async oldData => {
+            const { iconsMap, resourceMap } = this.state;
+            const updatedData = { ...resourceData };
+            updatedData.properties.splice(updatedData.properties.indexOf(oldData), 1);
+            this.deleteResourceFromMap(oldData, iconsMap, resourceMap);
+            this.props.confirmationRequired(true);
+
+            this.setState({
+              resourceData: resourceData,
+              dataChanged: true
+            });
+          }
         }}
         title={ strings.properties }
         components={{
-          Toolbar: props => (
-            <StyledMTableToolbar { ...props } />
-          ),
-          Container: props => <Paper { ...props } elevation={ 0 } />
+          Toolbar: props => <StyledMTableToolbar { ...props }/>,
+          Container: props => <Paper { ...props } elevation={ 0 }/>
         }}
         localization={{
           body: {
@@ -614,7 +551,7 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
           showTextRowsSelected: false,
           showFirstLastPageButtons: false,
           showSelectAllCheckbox: false,
-          actionsColumnIndex: 3,
+          actionsColumnIndex: 3
         }}
       />
     )
@@ -674,7 +611,7 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
               aria-label="delete"
               onClick={ () => this.props.onDelete(resource) }
               title={ strings.delete }
-            > 
+            >
               <DeleteIcon />
             </IconButton>
           </TableCell>
@@ -892,6 +829,8 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
 
   /**
    * Delete icon file with key
+   *
+   * @param key key
    */
   private onIconFileDelete = (key: string) => {
     const tempMap = this.state.iconsMap;
@@ -911,29 +850,32 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
   private onUpdateResource = () => {
     const { onUpdate } = this.props;
     const { form, resourceData } = this.state;
-    const properties: KeyValueProperty[] = [];
-    this.getPropertiesToUpdate(properties);
-    const resource = {
+    const { id, name, slug, orderNumber, type, parentId } = form.values;
+
+    if (!id || !name || !slug || !orderNumber || !type || !parentId) {
+      return;
+    }
+
+    onUpdate({
       ...this.props.resource,
-      name: form.values.name,
-      orderNumber: form.values.orderNumber,
-      slug: form.values.slug,
-      parentId: form.values.parentId,
-      type: form.values.type,
-      id: form.values.id,
-      data: resourceData["data"],
-      styles: resourceData["styles"],
-      properties: properties.filter(p => !!p.value)
-    } as Resource;
-    onUpdate(resource);
-    this.setState({
-      dataChanged: false
+      name: name,
+      orderNumber: orderNumber,
+      slug: slug,
+      parentId: parentId,
+      type: type,
+      id: id,
+      data: resourceData?.data,
+      styles: resourceData?.styles,
+      properties: this.getPropertiesToUpdate().filter(p => !!p.value)
     });
+
+    this.setState({ dataChanged: false });
   };
   /**
-   * Handles textfields change events
-   * @param key
-   * @param event
+   * Event handler for text field change
+   *
+   * @param key key
+   * @param event change event
    */
   private onHandleChange = (key: keyof ResourceSettingsForm) => (event: React.ChangeEvent<HTMLInputElement>) => {
     const copy = this.state.resourceMap;
@@ -947,9 +889,10 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
   };
 
   /**
-   * Handles text fields change events
-   * @param key
-   * @param event
+   * Event handler for checkbox change
+   *
+   * @param key key
+   * @param event change event
    */
   private onHandleCheckBoxChange = (key: keyof ResourceSettingsForm, value: boolean) => {
     const copy = this.state.resourceMap;
@@ -963,8 +906,9 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
   };
 
   /**
-   * Handles fields blur event
-   * @param key
+   * Event handler for blur
+   *
+   * @param key key
    */
   private onHandleBlur = (key: keyof ResourceSettingsForm) => () => {
     let form = { ...this.state.form };
@@ -988,10 +932,12 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
   /**
    * Push all property key value pairs from state maps to properties array
    *
-   * @param properties
+   * @returns list of key-value properties
    */
-  private getPropertiesToUpdate(properties: KeyValueProperty[]) {
+  private getPropertiesToUpdate = () => {
     const { resourceMap, iconsMap } = this.state;
+
+    const properties: KeyValueProperty[] = [];
 
     resourceMap.forEach((value: string, key: string) => {
       const index = properties.findIndex((p: KeyValueProperty) => p.key === key);
@@ -1010,6 +956,8 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
         properties.push({ key: key, value: value || "" });
       }
     });
+
+    return properties;
   }
 
   /**
@@ -1088,10 +1036,8 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
 
   /**
    * Fetches data
-   *
-   * @param updated updated
    */
-  private fetchData = async (updated: boolean) => {
+  private fetchData = async () => {
     const { keycloak, customerId, deviceId, applicationId, resource } = this.props;
     const resourceId = resource.id;
 
@@ -1119,9 +1065,8 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
 
       this.setState({
         form: form,
-        updated: updated,
         resourceId: resourceId,
-        resourceData: ResourceToJSON(this.props.resource),
+        resourceData: ResourceToJSON(resource),
         childResources: childResources,
         resourceMap: initResourceMap,
         iconsMap: initIconsMap
