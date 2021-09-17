@@ -90,7 +90,7 @@ class ResourceTreeItem extends React.Component<Props, State> {
       <ListItem
         key={ resource.id }
         selected={ selected }
-        onClick={ () => (selectedResource?.id !== resource.id && !locked) && this.onSelectResource(resource) }
+        onClick={ () => selectedResource?.id !== resource.id && !locked && this.onSelectResource(resource) }
         disabled={ loading || (selectedResource?.id !== resource.id && locked) }
       >
         <ListItemIcon className={ classes.icon }>
