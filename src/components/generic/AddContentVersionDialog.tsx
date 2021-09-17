@@ -89,7 +89,7 @@ class AddContentVersionDialog extends React.Component<Props, State> {
           { this.renderDialogContent() }
         </DialogContent>
         <Box mt={ 3 }>
-          <Divider />
+          <Divider/>
         </Box>
         <DialogActions>
           { this.renderDialogActions() }
