@@ -42,8 +42,8 @@ class ResourceTree extends React.Component<Props, State> {
 
   static contextType: React.Context<ErrorContextType> = ErrorContext;
 
-  private resourceLockInterval: NodeJS.Timeout | undefined = undefined;
-  private resourceLocksInterval: NodeJS.Timeout | undefined = undefined;
+  private resourceLockInterval?: NodeJS.Timeout;
+  private resourceLocksInterval?: NodeJS.Timeout;
 
   /**
    * Component constructor
@@ -414,11 +414,13 @@ class ResourceTree extends React.Component<Props, State> {
     id: resource.id,
     parentId: resource.parentId,
     orderNumber: resource.orderNumber,
-    title: <ResourceTreeItem
-      resource={ resource }
-      locked={ locked }
-      loading={ loading }
-    />,
+    title: (
+      <ResourceTreeItem
+        resource={ resource }
+        locked={ locked }
+        loading={ loading }
+      />
+    ),
     expanded: this.state.expandedKeys.includes(resource.id || ""),
     resource: resource
   });
