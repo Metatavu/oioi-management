@@ -190,6 +190,24 @@ export interface IStrings extends LocalizedStringsMethods {
   };
 
   /**
+   * Translations related to content version controls
+   */
+  contentVersionControls: {
+    contentVersion: string;
+    notSelected: string;
+    addNewVersion: string;
+    setActive: string;
+    alreadyActive: string;
+    versionNotSelected: string;
+    activeVersion: string;
+    deleteVersion: string;
+    alreadyExists: string;
+    content: string;
+    empty: string;
+    activeVersionUpdateSuccess: string;
+  };
+
+  /**
    * Translations related to icon keys
    */
   iconKeys: {
@@ -233,6 +251,9 @@ export interface IStrings extends LocalizedStringsMethods {
     };
     contentVersion: {
       list: string;
+      create: string;
+      update: string;
+      delete: string;
     };
     resource: {
       list: string;

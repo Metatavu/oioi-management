@@ -128,10 +128,8 @@ class AddResourceDialog extends React.Component<Props, State> {
         fullWidth
         open={ open }
         onClose={ onClose }
-        aria-labelledby="dialog-title"
-        onBackdropClick={ this.onAddResourceDialogBackDropClick }
       >
-        <DialogTitle id="dialog-title" disableTypography>
+        <DialogTitle disableTypography>
           <Box display="flex" justifyContent="space-between" alignItems="center">
             <Typography variant="h4">
               { strings.addNewResource }
@@ -521,23 +519,6 @@ class AddResourceDialog extends React.Component<Props, State> {
       },
       () => onClose()
     );
-  };
-
-  /**
-   * Handles dialog back drop click
-   */
-  private onAddResourceDialogBackDropClick = () => {
-    this.setState({
-      form: initForm<AddResourceForm>(
-        {
-          name: undefined,
-          orderNumber: undefined,
-          slug: undefined
-        },
-        rules
-      ),
-      resourceType: undefined
-    });
   };
 
   /**

@@ -23,6 +23,7 @@ import { ErrorContext } from "../containers/ErrorHandler";
 import StyledMTableToolbar from "../../styles/generic/styled-mtable-toolbar";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import { KeycloakInstance } from "keycloak-js";
+import { nanoid } from "@reduxjs/toolkit";
 
 /**
  * Component props
@@ -89,6 +90,7 @@ class PageResourceSettingsView extends React.Component<Props, State> {
    */
   public componentDidMount = async () => {
     const { keycloak } = this.props;
+
     keycloak?.token && this.updateComponentData();
   }
 
@@ -96,12 +98,12 @@ class PageResourceSettingsView extends React.Component<Props, State> {
    * Component did update  life cycle handler
    *
    * @param prevProps previous props
-   * @param prevState previous state
    */
   public componentDidUpdate = async (prevProps: Props) => {
-    if (prevProps.resource !== this.props.resource) {
-      const { keycloak } = this.props;
-      keycloak?.token && this.updateComponentData()
+    const { resource, keycloak } = this.props;
+
+    if (prevProps.resource !== resource) {
+      keycloak?.token && this.updateComponentData();
     }
   }
 
@@ -162,34 +164,19 @@ class PageResourceSettingsView extends React.Component<Props, State> {
 
   /**
    * Renders text field
+   *
    * @param key to look for
    * @param label label to be shown
    * @param type text field type
    */
   private renderField = (key: keyof ResourceSettingsForm, placeholder: string, type: string) => {
-    const {
-      values,
-      messages: { [key]: message }
-    } = this.state.form;
-    if (type === "textarea") {
-      return ( <TextField
-        fullWidth
-        multiline
-        rows={ 8 }
-        type={ type }
-        error={ message && message.type === MessageType.ERROR }
-        helperText={ message && message.message }
-        value={ values[key] || "" }
-        onChange={ this.onHandleResourceTextChange(key) }
-        onBlur={ this.onHandleBlur(key) }
-        name={ key }
-        variant="outlined"
-        label={ placeholder }
-      /> );
-    }
+    const { values, messages: { [key]: message } } = this.state.form;
+
     return (
       <TextField
         fullWidth
+        multiline={ type === "textarea" }
+        rows={ type === "textarea" ? 8 : undefined }
         type={ type }
         error={ message && message.type === MessageType.ERROR }
         helperText={ message && message.message }
@@ -211,6 +198,7 @@ class PageResourceSettingsView extends React.Component<Props, State> {
 
     return (
       <MaterialTable
+        key={ nanoid() }
         icons={{
           Add: forwardRef((props, ref) => <AddCircleIcon color="secondary" { ...props } ref={ ref } />),
           Delete: forwardRef((props, ref) => <DeleteIcon { ...props } ref={ ref } />),
@@ -222,62 +210,43 @@ class PageResourceSettingsView extends React.Component<Props, State> {
           { title: strings.key, field: "key" },
           { title: strings.value, field: "value" }
         ]}
-        data={resourceData["styles"]}
+        data={ resourceData.styles }
         editable={{
-          onRowAdd: newData =>
-            new Promise<void>((resolve, reject) => {
-              {
-                const { resourceData } = this.state;
-                const styles = resourceData["styles"];
-                styles.push(newData);
-                resourceData["styles"] = styles;
-                this.props.confirmationRequired(true);
-                this.setState({
-                  resourceData: resourceData,
-                  dataChanged: true
-                }, () => resolve());
-              }
-              resolve();
-            }),
-          onRowUpdate: (newData, oldData) =>
-            new Promise<void>((resolve, reject) => {
-              {
-                const { resourceData } = this.state;
-                const styles = resourceData["styles"];
-                const index = styles.indexOf(oldData);
-                styles[index] = newData;
-                resourceData["styles"] = styles;
-                this.props.confirmationRequired(true);
-                this.setState({
-                  resourceData: resourceData,
-                  dataChanged: true
-                }, () => resolve());
-              }
-              resolve();
-            }),
-          onRowDelete: oldData =>
-            new Promise<void>((resolve, reject) => {
-              {
-                const { resourceData } = this.state;
-                const styles = resourceData["styles"];
-                const index = styles.indexOf(oldData);
-                styles.splice(index, 1);
-                resourceData["styles"] = styles;
-                this.props.confirmationRequired(true);
-                this.setState({
-                  resourceData: resourceData,
-                  dataChanged: true
-                }, () => resolve());
-              }
-              resolve();
-            })
+          onRowAdd: async newData => {
+            const updatedData = { ...resourceData };
+            updatedData.styles.push(newData);
+            this.props.confirmationRequired(true);
+
+            this.setState({
+              dataChanged: true,
+              resourceData: updatedData
+            });
+          },
+          onRowUpdate: async (newData, oldData) => {
+            const updatedData = { ...resourceData };
+            updatedData.styles.splice(updatedData.styles.indexOf(oldData), 1, newData);
+            this.props.confirmationRequired(true);
+
+            this.setState({
+              dataChanged: true,
+              resourceData: updatedData
+            });
+          },
+          onRowDelete: async oldData => {
+            const updatedData = { ...resourceData };
+            updatedData.styles.splice(updatedData.styles.indexOf(oldData), 1);
+            this.props.confirmationRequired(true);
+
+            this.setState({
+              dataChanged: true,
+              resourceData: updatedData
+            });
+          }
         }}
         title={ strings.styles }
         components={{
-          Toolbar: props => (
-            <StyledMTableToolbar { ...props } />
-          ),
-          Container: props => <Paper { ...props } elevation={ 0 } />
+          Toolbar: props => <StyledMTableToolbar { ...props } />,
+          Container: props => <Paper { ...props } elevation={ 0 }/>
         }}
         localization={{
           body: {
@@ -315,6 +284,7 @@ class PageResourceSettingsView extends React.Component<Props, State> {
 
     return (
       <MaterialTable
+        key={ nanoid() }
         icons={{
           Add: forwardRef((props, ref) => <AddCircleIcon color="secondary" { ...props } ref={ ref } />),
           Delete: forwardRef((props, ref) => <DeleteIcon { ...props } ref={ ref } />),
@@ -326,62 +296,43 @@ class PageResourceSettingsView extends React.Component<Props, State> {
           { title: strings.key, field: "key" },
           { title: strings.value, field: "value" }
         ]}
-        data={resourceData["properties"]}
+        data={ resourceData.properties }
         editable={{
-          onRowAdd: newData =>
-            new Promise<void>((resolve, reject) => {
-              {
-                const { resourceData } = this.state;
-                const properties = resourceData["properties"];
-                properties.push(newData);
-                resourceData["properties"] = properties;
-                this.props.confirmationRequired(true);
-                this.setState({
-                  resourceData: resourceData,
-                  dataChanged: true
-                }, () => resolve());
-              }
-              resolve();
-            }),
-          onRowUpdate: (newData, oldData) =>
-            new Promise<void>((resolve, reject) => {
-              {
-                const { resourceData } = this.state;
-                const properties = resourceData["properties"];
-                const index = properties.indexOf(oldData);
-                properties[index] = newData;
-                resourceData["properties"] = properties;
-                this.props.confirmationRequired(true);
-                this.setState({
-                  resourceData: resourceData,
-                  dataChanged: true
-                }, () => resolve());
-              }
-              resolve();
-            }),
-          onRowDelete: oldData =>
-            new Promise<void>((resolve, reject) => {
-              {
-                const { resourceData } = this.state;
-                const properties = resourceData["properties"];
-                const index = properties.indexOf(oldData);
-                properties.splice(index, 1);
-                resourceData["properties"] = properties;
-                this.props.confirmationRequired(true);
-                this.setState({
-                  resourceData: resourceData,
-                  dataChanged: true
-                }, () => resolve());
-              }
-              resolve();
-            })
+          onRowAdd: async newData => {
+            const updatedData = { ...resourceData };
+            updatedData.properties.push(newData);
+            this.props.confirmationRequired(true);
+
+            this.setState({
+              dataChanged: true,
+              resourceData: updatedData
+            });
+          },
+          onRowUpdate: async (newData, oldData) => {
+            const updatedData = { ...resourceData };
+            updatedData.properties.splice(updatedData.properties.indexOf(oldData), 1, newData);
+            this.props.confirmationRequired(true);
+
+            this.setState({
+              dataChanged: true,
+              resourceData: updatedData
+            });
+          },
+          onRowDelete: async oldData => {
+            const updatedData = { ...resourceData };
+            updatedData.properties.splice(updatedData.properties.indexOf(oldData), 1);
+            this.props.confirmationRequired(true);
+
+            this.setState({
+              resourceData: resourceData,
+              dataChanged: true
+            });
+          }
         }}
         title={ strings.properties }
         components={{
-          Toolbar: props => (
-            <StyledMTableToolbar { ...props } />
-          ),
-          Container: props => <Paper { ...props } elevation={ 0 } />
+          Toolbar: props => <StyledMTableToolbar { ...props } />,
+          Container: props => <Paper { ...props } elevation={ 0 }/>
         }}
         localization={{
           body: {
@@ -441,7 +392,9 @@ class PageResourceSettingsView extends React.Component<Props, State> {
    * Renders add child resource button
    */
   private renderAddChild = () => {
-    const resourceId = this.props.resource.id;
+    const { resource, onAddChild } = this.props;
+    const resourceId = resource?.id;
+
     if (!resourceId) {
       return;
     }
@@ -451,7 +404,7 @@ class PageResourceSettingsView extends React.Component<Props, State> {
         <Button
           color="primary"
           startIcon={ <AddCircleIcon /> }
-          onClick={ () => this.props.onAddChild(resourceId) }
+          onClick={ () => onAddChild(resourceId) }
         >
           { strings.addNewResource }
         </Button>
@@ -461,6 +414,8 @@ class PageResourceSettingsView extends React.Component<Props, State> {
 
   /**
    * Renders delete child resource button
+   *
+   * @param resource resource
    */
   private renderDeleteChild = (resource: Resource) => {
     const { classes } = this.props;
@@ -566,15 +521,14 @@ class PageResourceSettingsView extends React.Component<Props, State> {
   private updateComponentData = async () => {
     const { resource } = this.props;
     const resourceId = resource.id;
+
     if (!resourceId) {
       return;
     }
 
     const childResources = await this.getChildResources();
     const resourceData = ResourceToJSON(resource);
-    const form = validateForm(
-      initForm<ResourceSettingsForm>(resource, resourceRules)
-    );
+    const form = validateForm(initForm<ResourceSettingsForm>(resource, resourceRules));
 
     this.setState({
       form,
@@ -613,25 +567,29 @@ class PageResourceSettingsView extends React.Component<Props, State> {
   private onSaveChanges = async () => {
     const { onSave, onSaveChildren } = this.props;
     const { resourceData, childResources, form } = this.state;
+    const { id, name, slug, orderNumber, type, parentId } = form.values;
 
-    const resource = {
-      name: form.values.name,
-      orderNumber: form.values.orderNumber,
-      slug: form.values.slug,
-      parentId: form.values.parentId,
-      type: form.values.type,
-      id: form.values.id,
-      data: resourceData["data"],
-      styles: resourceData["styles"],
-      properties: resourceData["properties"]
-    } as Resource;
+    if (!id || !name || !slug || !orderNumber || !type || !parentId) {
+      return;
+    }
 
-    onSave(resource);
+    onSave({
+      id: id,
+      name: name,
+      slug: slug,
+      orderNumber: orderNumber,
+      type: type,
+      parentId: parentId,
+      data: resourceData.data,
+      styles: resourceData.styles,
+      properties: resourceData.properties
+    });
+
     childResources && onSaveChildren(childResources);
 
     this.setState({
-      resourceData,
-      dataChanged: false
+      dataChanged: false,
+      resourceData
     });
   };
 
@@ -647,11 +605,11 @@ class PageResourceSettingsView extends React.Component<Props, State> {
       return;
     }
 
-    const resourceIndex = childResources.findIndex(resource => resource.id === childResource.id);
-    childResources.splice(resourceIndex, 1, childResource);
     this.setState({
-      childResources,
-      dataChanged: true
+      dataChanged: true,
+      childResources: childResources.map(resource =>
+        resource.id === childResource.id ? childResource : resource
+      )
     });
 
     this.props.confirmationRequired(true);
@@ -663,24 +621,14 @@ class PageResourceSettingsView extends React.Component<Props, State> {
    * @param event
    */
   private onHandleResourceTextChange = (key: keyof ResourceSettingsForm) => (event: React.ChangeEvent<HTMLInputElement>) => {
-    const values = {
-      ...this.state.form.values,
-      [key]: event.target.value
-    };
-
-    const form = validateForm(
-      {
-        ...this.state.form,
-        values
-      },
-      {
-        usePreprocessor: false
-      }
-    );
+    const { form } = this.state;
 
     this.setState({
-      form,
-      dataChanged: true
+      dataChanged: true,
+      form: validateForm({
+        ...form,
+        values: { ...form.values, [key]: event.target.value }
+      }, { usePreprocessor: false })
     });
 
     this.props.confirmationRequired(true);
@@ -688,10 +636,11 @@ class PageResourceSettingsView extends React.Component<Props, State> {
 
   /**
    * Handles child resource text change
+   *
+   * @param childResource child resource
    */
   private onHandleChildResourceTextChange = (childResource: Resource) => (event: React.ChangeEvent<HTMLInputElement>) => {
-    childResource.data = event.target.value;
-    this.updateChildResource(childResource);
+    this.updateChildResource({ ...childResource, data: event.target.value });
   }
 
   /**
@@ -712,8 +661,7 @@ class PageResourceSettingsView extends React.Component<Props, State> {
       return;
     }
 
-    const updatedChildResource: Resource = { ...childResources[resourceIndex], data: newUri };
-    this.updateChildResource(updatedChildResource);
+    this.updateChildResource({ ...childResources[resourceIndex], data: newUri });
   };
 
   /**
@@ -733,14 +681,15 @@ class PageResourceSettingsView extends React.Component<Props, State> {
       return 500;
     }
 
-    const updatedChildResource: Resource = { ...childResources[resourceIndex], data: url };
-    this.updateChildResource(updatedChildResource);
+    this.updateChildResource({ ...childResources[resourceIndex], data: url });
 
     return 200;
   };
 
   /**
    * Handles child resource file delete
+   *
+   * @param resourceId resource ID
    */
   private onChildResourceFileDelete = (resourceId: string) => {
     const { childResources } = this.state;
@@ -753,29 +702,26 @@ class PageResourceSettingsView extends React.Component<Props, State> {
       return;
     }
 
-    const updatedChildResource: Resource = { ...childResources[resourceIndex], data: undefined };
-    this.updateChildResource(updatedChildResource);
+    this.updateChildResource({ ...childResources[resourceIndex], data: undefined });
   }
 
   /**
-   * Handles fields blur event
-   * @param key
+   * Event handler creator for blur
+   *
+   * @param key key
    */
   private onHandleBlur = (key: keyof ResourceSettingsForm) => () => {
-    let form = { ...this.state.form };
-    const filled = {
-      ...form.filled,
-      [key]: true
-    };
-
-    form = validateForm({
-      ...this.state.form,
-      filled
-    });
+    const { form } = this.state;
 
     this.setState({
-      form,
-      dataChanged: true
+      dataChanged: true,
+      form: validateForm({
+        ...this.state.form,
+        filled: {
+          ...form.filled,
+          [key]: true
+        }
+      })
     });
 
     this.props.confirmationRequired(true);

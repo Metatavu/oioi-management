@@ -36,6 +36,13 @@ export interface ErrorContextType {
 }
 
 /**
+ * Form errors
+ */
+export type FormErrors<T> = {
+  [K in keyof T]?: string;
+}
+
+/**
  * Pre-signed POST data response from S3
  */
 export type PreSignedPostDataResponse =
@@ -59,4 +66,13 @@ export interface UploadData {
   key: string;
   formData: FormData;
   cdnBasePath: string;
+}
+
+/**
+ * API request metadata
+ */
+export interface ApiRequestMetadata {
+  customerId: string;
+  deviceId: string;
+  applicationId: string;
 }

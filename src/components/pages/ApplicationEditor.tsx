@@ -29,6 +29,7 @@ import { setDevice } from "features/device-slice";
 import { deleteResources, selectResource, setResources, updateResources } from "features/resource-slice";
 import { ReduxDispatch, ReduxState } from "app/store";
 import ResourceTree from "components/generic/ResourceTree";
+import ContentVersionControls from "components/generic/ContentVersionControls";
 
 /**
  * Component properties
@@ -103,11 +104,20 @@ class ApplicationEditor extends React.Component<Props, State> {
    * Component did update life cycle method
    *
    * @param prevProps previous properties
-   * @param prevState previous state
    */
-  public componentDidUpdate = async (prevProps: Props, prevState: State) => {
-    if (prevProps.application?.id !== this.props.application?.id) {
+  public componentDidUpdate = async (prevProps: Props) => {
+    const { application, selectedContentVersion } = this.props;
+
+    if (prevProps.application?.id !== application?.id) {
+      this.setState({ loading: true });
       await this.fetchData();
+      this.setState({ loading: false });
+    }
+
+    if (selectedContentVersion?.id && prevProps.selectedContentVersion?.id !== selectedContentVersion.id) {
+      this.setState({ loading: true });
+      await this.setResources(selectedContentVersion?.id);
+      this.setState({ loading: false });
     }
   };
 
@@ -143,9 +153,14 @@ class ApplicationEditor extends React.Component<Props, State> {
             className={ classes.appBar }
           >
             <div className={ classes.toolbar }>
-              <Typography variant="h3" noWrap>
-                { selectedResource && getLocalizedTypeString(resourceType) }
-              </Typography>
+              { selectedResource &&
+                <Typography variant="h3" noWrap>
+                  { selectedResource && getLocalizedTypeString(resourceType) }
+                </Typography>
+              }
+              { !selectedResource &&
+                <ContentVersionControls/>
+              }
               <Button
                 disableElevation
                 className={ classes.deleteButton }
@@ -320,9 +335,9 @@ class ApplicationEditor extends React.Component<Props, State> {
    */
   private renderEditor = () => {
     const { classes, customerId, deviceId, selectedResource, application, keycloak } = this.props;
-    const { rootResource } = this.state;
+    const { loading, rootResource } = this.state;
 
-    if (!rootResource) {
+    if (loading || !rootResource) {
       return (
         <main className={ classes.content }>
           <Box className={ classes.loaderContainer }>
@@ -733,6 +748,24 @@ class ApplicationEditor extends React.Component<Props, State> {
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : error;
       this.context.setError(errorMessage, error);
+    }
+  }
+
+  /**
+   * Sets resources to ones found under content version with given ID
+   *
+   * @param contentVersionId content version ID
+   */
+  private setResources = async (contentVersionId: string) => {
+    const { setResources } = this.props;
+
+    try {
+      const resources = await this.listChildResources(contentVersionId);
+      const childResources = await Promise.all(resources.map(resource => this.listChildResources(resource.id!)));
+      resources.push(...childResources.flat());
+      setResources(resources);
+    } catch (error) {
+      this.context.setError(strings.errorManagement.resource.list, error);
     }
   }
 
