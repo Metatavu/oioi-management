@@ -167,6 +167,22 @@
     "advancedSettings": "Edistyneet asetukset"
   },
 
+  "contentVersionControls": {
+    "contentVersion": "Versio",
+    "notSelected": "Ei valittu",
+    "addNewVersion": "Uusi versio",
+    "setActive": "Aseta aktiiviseksi",
+    "alreadyActive": "Versio on jo aktiivinen",
+    "versionNotSelected": "Ei valittua versiota",
+    "activeVersion": "Aktiivinen versio",
+    "deleteVersion": "Poista versio",
+    "createNew": "Luo uusi",
+    "alreadyExists": "Nimi on jo varattu",
+    "content": "Sisältö",
+    "empty": "Tyhjä",
+    "activeVersionUpdateSuccess": "Aktiivinen versio päivitetty"
+  },
+
   "iconKeys": {
     "iconHome": "Koti normaali",
     "iconHomeActive": "Koti aktiivinen",
@@ -204,7 +220,10 @@
       "delete": "Virhe poistaessa sovellusta"
     },
     "contentVersion": {
-      "list": "Virhe listattaessa sisältöversioita"
+      "list": "Virhe listattaessa sisältöversioita",
+      "create": "Virhe luotaessa uutta sisältöversiota",
+      "update": "Virhe päivitettäessä sisältöversiota",
+      "delete": "Virhe poistettaessa sisältöversiota"
     },
     "resource": {
       "list": "Virhe listattaessa resursseja",

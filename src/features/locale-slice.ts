@@ -6,14 +6,14 @@ import strings from "localization/strings";
  * Locale state
  */
 export type LocaleState = {
-  locale?: string;
+  locale: string;
 }
 
 /**
  * Initial locale state
  */
 const initialState: LocaleState = {
-  locale: undefined
+  locale: strings.getLanguage()
 }
 
 /**

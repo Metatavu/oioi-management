@@ -19,6 +19,7 @@ import { ErrorContextType } from "types";
 import { ErrorContext } from "../containers/ErrorHandler";
 import StyledMTableToolbar from "../../styles/generic/styled-mtable-toolbar";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
+import { nanoid } from "@reduxjs/toolkit";
 
 /**
  * Component props
@@ -38,7 +39,6 @@ interface State {
   form: Form<ResourceSettingsForm>;
   resourceId: string;
   resourceData: any;
-  updated: boolean;
   dataChanged: boolean;
 }
 
@@ -69,7 +69,6 @@ class ResourceSettingsView extends React.Component<Props, State> {
 
       resourceId: "",
       resourceData: {},
-      updated: false,
       dataChanged: false
     };
   }
@@ -79,6 +78,7 @@ class ResourceSettingsView extends React.Component<Props, State> {
    */
   public componentDidMount = () => {
     const resourceId = this.props.resource.id;
+
     if (!resourceId) {
       return;
     }
@@ -91,6 +91,7 @@ class ResourceSettingsView extends React.Component<Props, State> {
     );
 
     form = validateForm(form);
+
     this.setState({
       form,
       resourceId: resourceId,
@@ -105,8 +106,9 @@ class ResourceSettingsView extends React.Component<Props, State> {
    * @param prevState previous state
    */
   public componentDidUpdate = (prevProps: Props, prevState: State) => {
-    if (prevProps.resource !== this.props.resource) {
-      const { resource } = this.props;
+    const { resource } = this.props;
+
+    if (prevProps.resource !== resource) {
       let form = initForm<ResourceSettingsForm>(
         {
           ...resource
@@ -115,10 +117,10 @@ class ResourceSettingsView extends React.Component<Props, State> {
       );
 
       form = validateForm(form);
+
       this.setState({
-        updated: true,
         form,
-        resourceData: ResourceToJSON(this.props.resource)
+        resourceData: ResourceToJSON(resource)
       });
     }
   }
@@ -127,19 +129,11 @@ class ResourceSettingsView extends React.Component<Props, State> {
    * Component render method
    */
   public render = () => {
-    const { updated, dataChanged } = this.state;
     const { classes } = this.props;
-
-    if (updated) {
-      this.setState({
-        updated: false
-      });
-      return <div></div>;
-    }
+    const { dataChanged, form } = this.state;
+    const { isFormValid } = form;
 
     const localizedDataString = this.getLocalizedDataString();
-
-    const { isFormValid } = this.state.form;
 
     return (
       <Box>
@@ -178,35 +172,21 @@ class ResourceSettingsView extends React.Component<Props, State> {
   }
 
   /**
-   * Renders textfield
+   * Renders text field
+   *
    * @param key to look for
    * @param placeholder placeholder text to be shown
    * @param type text field type
    */
   private renderField = (key: keyof ResourceSettingsForm, placeholder: string, type: string) => {
-    const {
-      values,
-      messages: { [key]: message }
-    } = this.state.form;
-    if (type === "textarea") {
-      return ( <TextField
-        fullWidth
-        multiline
-        rows={ 8 }
-        type={ type }
-        error={ message && message.type === MessageType.ERROR}
-        helperText={ message && message.message}
-        value={ values[key] || "" }
-        onChange={ this.onHandleChange(key) }
-        onBlur={ this.onHandleBlur(key) }
-        name={ key }
-        variant="outlined"
-        label={ placeholder }
-      /> );
-    }
+    const { form } = this.state;
+    const { values, messages: { [key]: message } } = form;
+
     return (
       <TextField
         fullWidth
+        multiline={ type === "textarea" }
+        rows={ type === "textarea" ? 8 : undefined }
         type={ type }
         error={ message && message.type === MessageType.ERROR }
         helperText={ message && message.message }
@@ -228,6 +208,7 @@ class ResourceSettingsView extends React.Component<Props, State> {
 
     return (
       <MaterialTable
+        key={ nanoid() }
         icons={{
           Add: forwardRef((props, ref) => <AddCircleIcon color="secondary" { ...props } ref={ ref } />),
           Delete: forwardRef((props, ref) => <DeleteIcon { ...props } ref={ ref } />),
@@ -239,52 +220,42 @@ class ResourceSettingsView extends React.Component<Props, State> {
           { title: strings.key, field: "key" },
           { title: strings.value, field: "value" }
         ]}
-        data={ resourceData["styles"] }
+        data={ resourceData.styles }
         editable={{
-          onRowAdd: newData =>
-            new Promise<void>((resolve, reject) => {
-              {
-                const { resourceData } = this.state;
-                const styles = resourceData["styles"];
-                styles.push(newData);
-                resourceData["styles"] = styles;
-                this.setState({ resourceData: resourceData, dataChanged: true }, () => resolve());
-                this.props.confirmationRequired(true);
-              }
-              resolve();
-            }),
-          onRowUpdate: (newData, oldData) =>
-            new Promise<void>((resolve, reject) => {
-              {
-                const { resourceData } = this.state;
-                const styles = resourceData["styles"];
-                const index = styles.indexOf(oldData);
-                styles[index] = newData;
-                resourceData["styles"] = styles;
-                this.setState({ resourceData: resourceData, dataChanged: true }, () => resolve());
-                this.props.confirmationRequired(true);
-              }
-              resolve();
-            }),
-          onRowDelete: oldData =>
-            new Promise<void>((resolve, reject) => {
-              {
-                const { resourceData } = this.state;
-                const styles = resourceData["styles"];
-                const index = styles.indexOf(oldData);
-                styles.splice(index, 1);
-                resourceData["styles"] = styles;
-                this.setState({ resourceData: resourceData, dataChanged: true }, () => resolve());
-                this.props.confirmationRequired(true);
-              }
-              resolve();
-            })
+          onRowAdd: async newData => {
+            const updatedData = { ...resourceData };
+            updatedData.styles.push(newData);
+            this.props.confirmationRequired(true);
+
+            this.setState({
+              dataChanged: true,
+              resourceData: updatedData
+            });
+          },
+          onRowUpdate: async (newData, oldData) => {
+            const updatedData = { ...resourceData };
+            updatedData.styles.splice(updatedData.styles.indexOf(oldData), 1, newData);
+            this.props.confirmationRequired(true);
+
+            this.setState({
+              dataChanged: true,
+              resourceData: updatedData
+            });
+          },
+          onRowDelete: async oldData => {
+            const updatedData = { ...resourceData };
+            updatedData.styles.splice(updatedData.styles.indexOf(oldData), 1);
+            this.props.confirmationRequired(true);
+
+            this.setState({
+              dataChanged: true,
+              resourceData: updatedData
+            });
+          }
         }}
         title={ strings.styles }
         components={{
-          Toolbar: props => (
-            <StyledMTableToolbar { ...props } />
-          ),
+          Toolbar: props => <StyledMTableToolbar { ...props } />,
           Container: props => <Paper { ...props } elevation={ 0 } />
         }}
         localization={{
@@ -316,13 +287,14 @@ class ResourceSettingsView extends React.Component<Props, State> {
   };
 
   /**
-   * Render table that constain properties data
+   * Render table that contains properties data
    */
   private renderPropertiesTable = () => {
     const { resourceData } = this.state;
 
     return (
       <MaterialTable
+        key={ nanoid() }
         icons={{
           Add: forwardRef((props, ref) => <AddCircleIcon color="secondary" { ...props } ref={ ref } />),
           Delete: forwardRef((props, ref) => <DeleteIcon { ...props } ref={ ref } />),
@@ -334,52 +306,42 @@ class ResourceSettingsView extends React.Component<Props, State> {
           { title: strings.key, field: "key" },
           { title: strings.value, field: "value" }
         ]}
-        data={resourceData["properties"]}
+        data={ resourceData.properties }
         editable={{
-          onRowAdd: newData =>
-            new Promise<void>((resolve, reject) => {
-              {
-                const { resourceData } = this.state;
-                const properties = resourceData["properties"];
-                properties.push(newData);
-                resourceData["properties"] = properties;
-                this.setState({ resourceData: resourceData, dataChanged: true }, () => resolve());
-                this.props.confirmationRequired(true);
-              }
-              resolve();
-            }),
-          onRowUpdate: (newData, oldData) =>
-            new Promise<void>((resolve, reject) => {
-              {
-                const { resourceData } = this.state;
-                const properties = resourceData["properties"];
-                const index = properties.indexOf(oldData);
-                properties[index] = newData;
-                resourceData["properties"] = properties;
-                this.setState({ resourceData: resourceData, dataChanged: true }, () => resolve());
-                this.props.confirmationRequired(true);
-              }
-              resolve();
-            }),
-          onRowDelete: oldData =>
-            new Promise<void>((resolve, reject) => {
-              {
-                const { resourceData } = this.state;
-                const properties = resourceData["properties"];
-                const index = properties.indexOf(oldData);
-                properties.splice(index, 1);
-                resourceData["properties"] = properties;
-                this.setState({ resourceData: resourceData, dataChanged: true }, () => resolve());
-                this.props.confirmationRequired(true);
-              }
-              resolve();
-            })
+          onRowAdd: async newData => {
+            const updatedData = { ...resourceData };
+            updatedData.properties.push(newData);
+            this.props.confirmationRequired(true);
+
+            this.setState({
+              dataChanged: true,
+              resourceData: updatedData
+            });
+          },
+          onRowUpdate: async (newData, oldData) => {
+            const updatedData = { ...resourceData };
+            updatedData.properties.splice(updatedData.properties.indexOf(oldData), 1, newData);
+            this.props.confirmationRequired(true);
+
+            this.setState({
+              dataChanged: true,
+              resourceData: updatedData
+            });
+          },
+          onRowDelete: async oldData => {
+            const updatedData = { ...resourceData };
+            updatedData.properties.splice(updatedData.properties.indexOf(oldData), 1);
+            this.props.confirmationRequired(true);
+
+            this.setState({
+              resourceData: resourceData,
+              dataChanged: true
+            });
+          }
         }}
         title={ strings.properties }
         components={{
-          Toolbar: props => (
-            <StyledMTableToolbar { ...props } />
-          ),
+          Toolbar: props => <StyledMTableToolbar { ...props } />,
           Container: props => <Paper { ...props } elevation={ 0 } />
         }}
         localization={{
@@ -412,17 +374,19 @@ class ResourceSettingsView extends React.Component<Props, State> {
 
   /**
    * Render file drop zone method
+   *
+   * @param label label
    */
   private renderDataField = (label: string) => {
     const { resource } = this.props;
-    const resourceType = resource.type;
+    const { form, resourceData } = this.state;
 
-    if (resourceType === ResourceType.TEXT) {
+    if (resource.type === ResourceType.TEXT) {
       return (
         <TextField
           fullWidth
           name="data"
-          value={ this.state.resourceData ? this.state.resourceData["data"] : undefined }
+          value={ resourceData.data || "" }
           onChange={ this.onDataChange }
           label={ label }
           multiline
@@ -430,22 +394,22 @@ class ResourceSettingsView extends React.Component<Props, State> {
           variant="outlined"
         />
       );
-    } else {
-      const fileData = this.state.form.values.data || "";
-
-      return (
-        <ImagePreview
-          uploadButtonText={ fileData ? strings.fileUpload.changeFile : strings.fileUpload.addFile }
-          imagePath={ fileData }
-          allowSetUrl={ true }
-          onUpload={ this.onFileOrUriChange }
-          onSetUrl={ this.onFileOrUriChange }
-          resource={ resource }
-          uploadKey="data"
-          onDelete={ this.onImageFileDelete }
-        />
-      );
     }
+
+    const fileData = form.values.data || "";
+
+    return (
+      <ImagePreview
+        uploadButtonText={ fileData ? strings.fileUpload.changeFile : strings.fileUpload.addFile }
+        imagePath={ fileData }
+        allowSetUrl={ true }
+        onUpload={ this.onFileOrUriChange }
+        onSetUrl={ this.onFileOrUriChange }
+        resource={ resource }
+        uploadKey="data"
+        onDelete={ this.onImageFileDelete }
+      />
+    );
   };
 
   /**
@@ -455,11 +419,7 @@ class ResourceSettingsView extends React.Component<Props, State> {
     return (
       <Box mt={ 3 }>
         <Accordion>
-          <AccordionSummary
-            expandIcon={ <ExpandMoreIcon color="primary" /> }
-            aria-controls="panel1a-content"
-            id="panel1a-header"
-          >
+          <AccordionSummary expandIcon={ <ExpandMoreIcon color="primary" /> }>
             <Typography variant="h4">
               { strings.applicationSettings.advancedSettings }
             </Typography>
@@ -495,23 +455,13 @@ class ResourceSettingsView extends React.Component<Props, State> {
    */
   private getLocalizedDataString = (): string => {
     const { resource } = this.props;
-    const resourceType = resource.type;
-    switch (resourceType) {
-      case ResourceType.IMAGE: {
-        return strings.resourceTypes.image;
-      }
-      case ResourceType.PDF: {
-        return strings.resourceTypes.pdf;
-      }
-      case ResourceType.TEXT: {
-        return strings.resourceTypes.text;
-      }
-      case ResourceType.VIDEO: {
-        return strings.resourceTypes.video;
-      }
-      default: {
-        return strings.file;
-      }
+
+    switch (resource.type) {
+      case ResourceType.IMAGE: return strings.resourceTypes.image;
+      case ResourceType.PDF: return strings.resourceTypes.pdf;
+      case ResourceType.TEXT: return strings.resourceTypes.text;
+      case ResourceType.VIDEO: return strings.resourceTypes.video;
+      default: return strings.file;
     }
   };
 
@@ -523,36 +473,41 @@ class ResourceSettingsView extends React.Component<Props, State> {
    */
   private onFileOrUriChange = (newUri: string, key: string) => {
     const { resourceData } = this.state;
-    resourceData[key] = newUri;
 
-    this.setState({ resourceData: resourceData });
+    this.setState({
+      resourceData: { ...resourceData, key: newUri }
+    });
+
     this.onUpdateResource();
   };
 
   /**
    * Handles image delete
    */
-  private onImageFileDelete = (key?: string) => {
+  private onImageFileDelete = () => {
     const { resourceData } = this.state;
-    resourceData["data"] = "";
+
     this.setState({
-      resourceData: { ...resourceData }
+      resourceData: { ...resourceData, data: "" }
     });
 
     this.onUpdateResource();
   };
 
   /**
-   * Handles data change
+   * Event handler for data change
+   *
+   * @param event change event
    */
-  private onDataChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  private onDataChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { resourceData } = this.state;
-    resourceData[e.target.name] = e.target.value;
+    const { name, value } = event.target;
 
     this.setState({
-      resourceData: resourceData,
-      dataChanged: true
+      dataChanged: true,
+      resourceData: { ...resourceData, [name]: value }
     });
+
     this.props.confirmationRequired(true);
   };
 
@@ -561,16 +516,25 @@ class ResourceSettingsView extends React.Component<Props, State> {
    */
   private onUpdateResource = () => {
     const { onUpdate } = this.props;
-    const { resourceData } = this.state;
+    const { resourceData, form } = this.state;
+    const { id, name, slug, orderNumber, type, parentId } = form.values;
 
-    const resource = {
-      ...this.state.form.values,
-      data: this.state.resourceData["data"],
-      styles: this.state.resourceData["styles"],
-      properties: this.state.resourceData["properties"]
-    } as Resource;
+    if (!id || !name || !slug || !orderNumber || !type || !parentId) {
+      return;
+    }
 
-    onUpdate(resource);
+    onUpdate({
+      id: id,
+      name: name,
+      slug: slug,
+      orderNumber: orderNumber,
+      type: type,
+      parentId: parentId,
+      data: resourceData.data,
+      styles: resourceData.styles,
+      properties: resourceData.properties
+    });
+
     this.setState({
       resourceData: resourceData,
       dataChanged: false
@@ -584,48 +548,36 @@ class ResourceSettingsView extends React.Component<Props, State> {
    * @param event React change event
    */
   private onHandleChange = (key: keyof ResourceSettingsForm) => (event: React.ChangeEvent<HTMLInputElement>) => {
-    const values = {
-      ...this.state.form.values,
-      [key]: event.target.value
-    };
-
-    const form = validateForm(
-      {
-        ...this.state.form,
-        values
-      },
-      {
-        usePreprocessor: false
-      }
-    );
+    const { form } = this.state;
 
     this.setState({
-      form:form,
-      dataChanged: true
+      dataChanged: true,
+      form: validateForm({
+        ...form,
+        values: { ...form.values, [key]: event.target.value }
+      }, { usePreprocessor: false })
     });
 
     this.props.confirmationRequired(true);
   };
 
   /**
-   * Handles fields blur event
-   * @param key
+   * Event handler creator for blur
+   *
+   * @param key key
    */
   private onHandleBlur = (key: keyof ResourceSettingsForm) => () => {
-    let form = { ...this.state.form };
-    const filled = {
-      ...form.filled,
-      [key]: true
-    };
-
-    form = validateForm({
-      ...this.state.form,
-      filled
-    });
+    const { form } = this.state;
 
     this.setState({
-      form: form,
-      dataChanged: true
+      dataChanged: true,
+      form: validateForm({
+        ...this.state.form,
+        filled: {
+          ...form.filled,
+          [key]: true
+        }
+      })
     });
 
     this.props.confirmationRequired(true);
