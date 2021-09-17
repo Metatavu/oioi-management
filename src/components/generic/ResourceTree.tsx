@@ -167,6 +167,7 @@ class ResourceTree extends React.Component<Props, State> {
       <>
         { this.renderAdd() }
         <SortableTree
+          key={ "SortableTree" }
           className={ classes.treeWrapper }
           innerStyle={{ padding: theme.spacing(2) }}
           rowHeight={ 36 }
@@ -182,6 +183,7 @@ class ResourceTree extends React.Component<Props, State> {
         />
         { selectedResource?.id &&
           <AddResourceDialog
+            key={ "AddResourceDialog" }
             open={ addResourceDialogOpen }
             onClose={ () => this.setState({ addResourceDialogOpen: false }) }
           />
@@ -388,7 +390,8 @@ class ResourceTree extends React.Component<Props, State> {
       }
 
       const locked = lockedResourceIds.includes(resource.id);
-      const treeItem = this.translateToTreeItem(resource, locked, loading);
+      const parentLocked = lockedResourceIds.includes(resource.parentId);
+      const treeItem = this.translateToTreeItem(resource, locked, parentLocked, loading);
 
       const children: TreeItem[] = [];
 
@@ -435,13 +438,15 @@ class ResourceTree extends React.Component<Props, State> {
    * @param resource resource
    * @returns translated tree item
    */
-  private translateToTreeItem = (resource: Resource, locked: boolean, loading: boolean): TreeItem => ({
+  private translateToTreeItem = (resource: Resource, locked: boolean, parentLocked: boolean, loading: boolean): TreeItem => ({
     id: resource.id,
     parentId: resource.parentId,
     orderNumber: resource.orderNumber,
     title: (
       <ResourceTreeItem
+        parent={ this.props.resources.find(_resource => _resource.id === resource.parentId) }
         resource={ resource }
+        parentLocked={ parentLocked }
         locked={ locked }
         loading={ loading }
       />
