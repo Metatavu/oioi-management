@@ -84,10 +84,12 @@ class ResourceTreeItem extends React.Component<Props, State> {
     } = this.props;
     const { lockInfo } = this.state;
 
+    const selected = selectedResource?.id === resource.id;
+
     return (
       <ListItem
         key={ resource.id }
-        selected={ selectedResource?.id === resource.id }
+        selected={ selected }
         onClick={ () => (selectedResource?.id !== resource.id && !locked) && this.onSelectResource(resource) }
         disabled={ loading || (selectedResource?.id !== resource.id && locked) }
       >
@@ -95,12 +97,12 @@ class ResourceTreeItem extends React.Component<Props, State> {
           { this.renderIcon(resource.type) }
         </ListItemIcon>
         <ListItemText primary={ resource.name }/>
-        { (locked && !loading) &&
+        { (locked && !loading && !selected) &&
           <Tooltip title={ lockInfo?.userDisplayName || ""}>
-            <Box marginLeft="20px">
+            <Box className={ classes.lockContainer }>
               <LockIcon
-                fontSize="large"
-                htmlColor="#eb5757"
+                fontSize="small"
+                color="error"
               />
             </Box>
           </Tooltip> 
