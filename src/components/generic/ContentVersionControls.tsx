@@ -206,19 +206,17 @@ class ContentVersionControls extends React.Component<Props, State> {
   /**
    * Renders add new button
    */
-  private renderAddNewButton = () => {
-    return (
-      <ListItem
-        button
-        onClick={ () => this.setState({ addContentVersionDialogOpen: true, popOverAnchor: null }) }
-      >
-        <ListItemIcon>
-          <AddIcon/>
-        </ListItemIcon>
-        <ListItemText primary={ strings.contentVersionControls.addNewVersion }/>
-      </ListItem>
-    );
-  }
+  private renderAddNewButton = () => (
+    <ListItem
+      button
+      onClick={ () => this.setState({ addContentVersionDialogOpen: true, popOverAnchor: null }) }
+    >
+      <ListItemIcon>
+        <AddIcon/>
+      </ListItemIcon>
+     <ListItemText primary={ strings.contentVersionControls.addNewVersion }/>
+    </ListItem>
+  );
 
   /**
    * Renders add new dialog
