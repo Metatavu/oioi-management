@@ -157,13 +157,11 @@ class AddContentVersionDialog extends React.Component<Props, State> {
   /**
    * Renders empty option
    */
-  private renderEmptyOption = () => {
-    return (
-      <MenuItem value={ EMPTY_VALUE }>
-        { strings.contentVersionControls.empty }
-      </MenuItem>
-    );
-  }
+  private renderEmptyOption = () => (
+    <MenuItem value={ EMPTY_VALUE }>
+      { strings.contentVersionControls.empty }
+    </MenuItem>
+  );
 
   /**
    * Renders content version option
