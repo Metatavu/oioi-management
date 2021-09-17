@@ -98,7 +98,7 @@ class ResourceTreeItem extends React.Component<Props, State> {
         </ListItemIcon>
         <ListItemText primary={ resource.name }/>
         { locked && !loading && !selected &&
-          <Tooltip title={ lockInfo?.userDisplayName || ""}>
+          <Tooltip title={ lockInfo?.userDisplayName || "" }>
             <Box className={ classes.lockContainer }>
               <LockIcon
                 fontSize="small"
