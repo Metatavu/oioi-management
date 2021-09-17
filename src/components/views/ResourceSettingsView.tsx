@@ -103,9 +103,8 @@ class ResourceSettingsView extends React.Component<Props, State> {
    * Component did update life cycle handler
    *
    * @param prevProps previous props
-   * @param prevState previous state
    */
-  public componentDidUpdate = (prevProps: Props, prevState: State) => {
+  public componentDidUpdate = (prevProps: Props) => {
     const { resource } = this.props;
 
     if (prevProps.resource !== resource) {

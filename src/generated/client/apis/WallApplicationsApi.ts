@@ -27,6 +27,11 @@ export interface GetApplicationJsonRequest {
     applicationId: string;
 }
 
+export interface GetApplicationJsonForContentVersionRequest {
+    applicationId: string;
+    slug: string;
+}
+
 /**
  * 
  */
@@ -65,6 +70,46 @@ export class WallApplicationsApi extends runtime.BaseAPI {
      */
     async getApplicationJson(requestParameters: GetApplicationJsonRequest): Promise<WallApplication> {
         const response = await this.getApplicationJsonRaw(requestParameters);
+        return await response.value();
+    }
+
+    /**
+     * Returns application wall JSON of given content version slug
+     * Returns application wall JSON of given content version slug
+     */
+    async getApplicationJsonForContentVersionRaw(requestParameters: GetApplicationJsonForContentVersionRequest): Promise<runtime.ApiResponse<WallApplication>> {
+        if (requestParameters.applicationId === null || requestParameters.applicationId === undefined) {
+            throw new runtime.RequiredError('applicationId','Required parameter requestParameters.applicationId was null or undefined when calling getApplicationJsonForContentVersion.');
+        }
+
+        if (requestParameters.slug === null || requestParameters.slug === undefined) {
+            throw new runtime.RequiredError('slug','Required parameter requestParameters.slug was null or undefined when calling getApplicationJsonForContentVersion.');
+        }
+
+        const queryParameters: runtime.HTTPQuery = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        if (this.configuration && this.configuration.apiKey) {
+            headerParameters["X-API-KEY"] = this.configuration.apiKey("X-API-KEY"); // ApiKeyAuth authentication
+        }
+
+        const response = await this.request({
+            path: `/v1/application/{applicationId}/version/{slug}`.replace(`{${"applicationId"}}`, encodeURIComponent(String(requestParameters.applicationId))).replace(`{${"slug"}}`, encodeURIComponent(String(requestParameters.slug))),
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        });
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => WallApplicationFromJSON(jsonValue));
+    }
+
+    /**
+     * Returns application wall JSON of given content version slug
+     * Returns application wall JSON of given content version slug
+     */
+    async getApplicationJsonForContentVersion(requestParameters: GetApplicationJsonForContentVersionRequest): Promise<WallApplication> {
+        const response = await this.getApplicationJsonForContentVersionRaw(requestParameters);
         return await response.value();
     }
 
