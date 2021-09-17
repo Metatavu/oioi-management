@@ -37,6 +37,11 @@ class ContentVersionControls extends React.Component<Props, State> {
 
   static contextType: React.Context<ErrorContextType> = ErrorContext;
 
+  /**
+   * Constructor
+   *
+   * @param props component properties
+   */
   constructor(props: Props) {
     super(props);
     this.state = {
