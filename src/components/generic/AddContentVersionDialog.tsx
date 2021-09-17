@@ -168,13 +168,11 @@ class AddContentVersionDialog extends React.Component<Props, State> {
    *
    * @param contentVersion content version
    */
-  private renderContentVersionOption = (contentVersion: ContentVersion) => {
-    return (
-      <MenuItem key={ contentVersion.id } value={ contentVersion.id }>
-        { contentVersion.name }
-      </MenuItem>
-    )
-  }
+  private renderContentVersionOption = (contentVersion: ContentVersion) => (
+    <MenuItem key={ contentVersion.id } value={ contentVersion.id }>
+      { contentVersion.name }
+    </MenuItem>
+  )
 
   /**
    * Renders dialog actions
