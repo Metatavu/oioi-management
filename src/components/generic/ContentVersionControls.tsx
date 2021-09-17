@@ -8,7 +8,7 @@ import { ApiRequestMetadata, ContentVersion, ErrorContextType } from "types";
 import strings from "localization/strings";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import AddIcon from "@material-ui/icons/AddCircle";
-import PlayCircleOutlineOutlinedIcon from '@material-ui/icons/PlayCircleOutlineOutlined';
+import PlayCircleOutlineOutlinedIcon from "@material-ui/icons/PlayCircleOutlineOutlined";
 import { setApplication } from "features/application-slice";
 import { Application, ResourceType } from "generated/client";
 import Api from "api";
