@@ -6,6 +6,7 @@ export * from './KeyValueProperty';
 export * from './Media';
 export * from './MediaType';
 export * from './Resource';
+export * from './ResourceLock';
 export * from './ResourceType';
 export * from './WallApplication';
 export * from './WallDevice';

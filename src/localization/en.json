@@ -236,7 +236,8 @@
       "find": "Error while loading resource data",
       "update": "Error while updating resource data",
       "updateChild": "Error while updating child resource data",
-      "delete": "Error while deleting resource {0}"
+      "delete": "Error while deleting resource {0}",
+      "newLock": "Error while locking resource"
     },
     "file": {
       "upload": "Error while uploading file: {0}"
