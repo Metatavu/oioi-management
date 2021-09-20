@@ -9,7 +9,8 @@ const env = cleanEnv(process.env, {
   REACT_APP_KEYCLOAK_REALM: str(),
   REACT_APP_KEYCLOAK_CLIENT_ID: str(),
   REACT_APP_API_BASE_URL: url(),
-  REACT_APP_FILE_UPLOAD_PATH: url()
+  REACT_APP_FILE_UPLOAD_PATH: url(),
+  REACT_APP_CDN_BASE_URL: url()
 });
 
 /**
@@ -32,7 +33,8 @@ export class Config {
       baseUrl: env.REACT_APP_API_BASE_URL
     },
     files: {
-      uploadPath: env.REACT_APP_FILE_UPLOAD_PATH
+      uploadPath: env.REACT_APP_FILE_UPLOAD_PATH,
+      cdnPath: env.REACT_APP_CDN_BASE_URL
     }
   });
 

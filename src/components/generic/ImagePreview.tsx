@@ -86,7 +86,7 @@ class ImagePreview extends React.Component<Props, State> {
         <img
           src={ imagePath }
           alt="File"
-          height="200"
+          height="175"
           className={ classes.imagePreview }
         />;
     }

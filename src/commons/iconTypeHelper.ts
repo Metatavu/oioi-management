@@ -1,3 +1,4 @@
+import { Config } from "app/config";
 import strings from "../localization/strings";
 
 /**
@@ -46,18 +47,22 @@ export const getLocalizedIconTypeString = (type: IconKeys): string => ({
  * @param type icon key
  */
 export const getDefaultIconURL = (type: IconKeys): string => ({
-  [IconKeys.ICONHOME] : "https://oioi-static.metatavu.io/BTN_home.png",
-  [IconKeys.ICONHOMEACTIVE]: "https://oioi-static.metatavu.io/BTN_home_active.png",
-  [IconKeys.ICONBACK] : "https://oioi-static.metatavu.io/BTN_back.png",
-  [IconKeys.ICONBACKACTIVE] : "https://oioi-static.metatavu.io/BTN_back_active.png",
-  [IconKeys.ICONFORWARD]: "https://oioi-static.metatavu.io/BTN_forward.png",
-  [IconKeys.ICONFORWARDACTIVE] : "https://oioi-static.metatavu.io/BTN_forward_active.png",
-  [IconKeys.ICONCLOSE]: "https://oioi-static.metatavu.io/BTN_close.png",
-  [IconKeys.ICONCLOSEACTIVE]: "https://oioi-static.metatavu.io/BTN_close_active.png",
-  [IconKeys.ICONEXITAPP] : "https://oioi-static.metatavu.io/BTN_exit_app.png",
-  [IconKeys.ICONEXITAPPACTIVE]: "https://oioi-static.metatavu.io/BTN_exit_app_active.png",
-  [IconKeys.ICONLEFT] : "https://oioi-static.metatavu.io/BTN_left.png",
-  [IconKeys.ICONLEFTACTIVE]: "https://oioi-static.metatavu.io/BTN_left_active.png",
-  [IconKeys.ICONRIGHT] : "https://oioi-static.metatavu.io/BTN_right.png",
-  [IconKeys.ICONRIGHTACTIVE]: "https://oioi-static.metatavu.io/BTN_right_active.png",
+  [IconKeys.ICONHOME] : getCdnUrl("BTN_home.png"),
+  [IconKeys.ICONHOMEACTIVE]: getCdnUrl("BTN_home_active.png"),
+  [IconKeys.ICONBACK] : getCdnUrl("BTN_back.png"),
+  [IconKeys.ICONBACKACTIVE] : getCdnUrl("BTN_back_active.png"),
+  [IconKeys.ICONFORWARD]: getCdnUrl("BTN_forward.png"),
+  [IconKeys.ICONFORWARDACTIVE] : getCdnUrl("BTN_forward_active.png"),
+  [IconKeys.ICONCLOSE]: getCdnUrl("BTN_close.png"),
+  [IconKeys.ICONCLOSEACTIVE]: getCdnUrl("BTN_close_active.png"),
+  [IconKeys.ICONEXITAPP] : getCdnUrl("BTN_exit_app.png"),
+  [IconKeys.ICONEXITAPPACTIVE]: getCdnUrl("BTN_exit_app_active.png"),
+  [IconKeys.ICONLEFT] : getCdnUrl("BTN_left.png"),
+  [IconKeys.ICONLEFTACTIVE]: getCdnUrl("BTN_left_active.png"),
+  [IconKeys.ICONRIGHT] : getCdnUrl("BTN_right.png"),
+  [IconKeys.ICONRIGHTACTIVE]: getCdnUrl("BTN_right_active.png")
 })[type];
+
+const getCdnUrl = (filename: string): string => {
+  return `${Config.get().files.cdnPath}/${filename}`;
+}
