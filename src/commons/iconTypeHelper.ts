@@ -63,6 +63,9 @@ export const getDefaultIconURL = (type: IconKeys): string => ({
   [IconKeys.ICONRIGHTACTIVE]: getCdnUrl("BTN_right_active.png")
 })[type];
 
-const getCdnUrl = (filename: string): string => {
-  return `${Config.get().files.cdnPath}/${filename}`;
-}
+/**
+ * Returns complete URL for CDN resource from given file name in CDN
+ *
+ * @param fileName file name
+ */
+const getCdnUrl = (filename: string) => `${Config.get().files.cdnPath}/${filename}`;
