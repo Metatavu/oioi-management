@@ -1,3 +1,4 @@
+import { Config } from "app/config";
 import strings from "../localization/strings";
 
 /**
@@ -13,7 +14,11 @@ export enum IconKeys {
   ICONCLOSE = "icon_close",
   ICONCLOSEACTIVE = "icon_close_active",
   ICONEXITAPP = "icon_exit_app",
-  ICONEXITAPPACTIVE = "icon_exit_app_active"
+  ICONEXITAPPACTIVE = "icon_exit_app_active",
+  ICONLEFT = "icon_left",
+  ICONLEFTACTIVE = "icon_left_active",
+  ICONRIGHT = "icon_right",
+  ICONRIGHTACTIVE = "icon_right_active"
 }
 
 /**
@@ -31,6 +36,10 @@ export const getLocalizedIconTypeString = (type: IconKeys): string => ({
   [IconKeys.ICONCLOSEACTIVE]: strings.iconKeys.iconCloseActive,
   [IconKeys.ICONEXITAPP] : strings.iconKeys.iconExitApp,
   [IconKeys.ICONEXITAPPACTIVE]: strings.iconKeys.iconExitAppActive,
+  [IconKeys.ICONLEFT] : strings.iconKeys.iconLeft,
+  [IconKeys.ICONLEFTACTIVE]: strings.iconKeys.iconLeftActive,
+  [IconKeys.ICONRIGHT] : strings.iconKeys.iconRight,
+  [IconKeys.ICONRIGHTACTIVE]: strings.iconKeys.iconRightActive
 })[type];
 
 /**
@@ -38,14 +47,25 @@ export const getLocalizedIconTypeString = (type: IconKeys): string => ({
  * @param type icon key
  */
 export const getDefaultIconURL = (type: IconKeys): string => ({
-  [IconKeys.ICONHOME] : "https://oioi-static.metatavu.io/default_icon_home.png",
-  [IconKeys.ICONHOMEACTIVE]: "https://oioi-static.metatavu.io/default_icon_home_active.png",
-  [IconKeys.ICONBACK] : "https://oioi-static.metatavu.io/default_icon_back.png",
-  [IconKeys.ICONBACKACTIVE] : "https://oioi-static.metatavu.io/default_icon_back_active.png",
-  [IconKeys.ICONFORWARD]: "https://oioi-static.metatavu.io/default_icon_forward.png",
-  [IconKeys.ICONFORWARDACTIVE] : "https://oioi-static.metatavu.io/default_icon_forward_active.png",
-  [IconKeys.ICONCLOSE]: "https://oioi-static.metatavu.io/default_icon_close.png",
-  [IconKeys.ICONCLOSEACTIVE]: "https://oioi-static.metatavu.io/default_icon_close_active.png",
-  [IconKeys.ICONEXITAPP] : "https://oioi-static.metatavu.io/default_icon_close_app.png",
-  [IconKeys.ICONEXITAPPACTIVE]: "https://oioi-static.metatavu.io/default_icon_close_app_active.png",
+  [IconKeys.ICONHOME] : getCdnUrl("BTN_home.png"),
+  [IconKeys.ICONHOMEACTIVE]: getCdnUrl("BTN_home_active.png"),
+  [IconKeys.ICONBACK] : getCdnUrl("BTN_back.png"),
+  [IconKeys.ICONBACKACTIVE] : getCdnUrl("BTN_back_active.png"),
+  [IconKeys.ICONFORWARD]: getCdnUrl("BTN_forward.png"),
+  [IconKeys.ICONFORWARDACTIVE] : getCdnUrl("BTN_forward_active.png"),
+  [IconKeys.ICONCLOSE]: getCdnUrl("BTN_close.png"),
+  [IconKeys.ICONCLOSEACTIVE]: getCdnUrl("BTN_close_active.png"),
+  [IconKeys.ICONEXITAPP] : getCdnUrl("BTN_exit_app.png"),
+  [IconKeys.ICONEXITAPPACTIVE]: getCdnUrl("BTN_exit_app_active.png"),
+  [IconKeys.ICONLEFT] : getCdnUrl("BTN_left.png"),
+  [IconKeys.ICONLEFTACTIVE]: getCdnUrl("BTN_left_active.png"),
+  [IconKeys.ICONRIGHT] : getCdnUrl("BTN_right.png"),
+  [IconKeys.ICONRIGHTACTIVE]: getCdnUrl("BTN_right_active.png")
 })[type];
+
+/**
+ * Returns complete URL for CDN resource from given file name in CDN
+ *
+ * @param fileName file name
+ */
+const getCdnUrl = (filename: string) => `${Config.get().files.cdnPath}/${filename}`;

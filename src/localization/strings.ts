@@ -221,6 +221,10 @@ export interface IStrings extends LocalizedStringsMethods {
     iconCloseActive: string;
     iconExitApp: string;
     iconExitAppActive: string;
+    iconLeft: string;
+    iconLeftActive: string;
+    iconRight: string;
+    iconRightActive: string;
   };
 
   /**
@@ -263,6 +267,7 @@ export interface IStrings extends LocalizedStringsMethods {
       update: string;
       updateChild: string;
       delete: string;
+      newLock: string;
     };
     file: {
       upload: string;

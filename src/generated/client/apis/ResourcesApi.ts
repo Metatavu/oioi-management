@@ -21,6 +21,9 @@ import {
     Resource,
     ResourceFromJSON,
     ResourceToJSON,
+    ResourceLock,
+    ResourceLockFromJSON,
+    ResourceLockToJSON,
     ResourceType,
     ResourceTypeFromJSON,
     ResourceTypeToJSON,
@@ -42,11 +45,30 @@ export interface DeleteResourceRequest {
     resourceId: string;
 }
 
+export interface DeleteResourceLockRequest {
+    customerId: string;
+    deviceId: string;
+    applicationId: string;
+    resourceId: string;
+}
+
 export interface FindResourceRequest {
     customerId: string;
     deviceId: string;
     applicationId: string;
     resourceId: string;
+}
+
+export interface FindResourceLockRequest {
+    customerId: string;
+    deviceId: string;
+    applicationId: string;
+    resourceId: string;
+}
+
+export interface GetLockedResourceIdsRequest {
+    applicationId: string;
+    resourceId?: string;
 }
 
 export interface ListResourcesRequest {
@@ -59,6 +81,14 @@ export interface ListResourcesRequest {
 
 export interface UpdateResourceRequest {
     resource: Resource;
+    customerId: string;
+    deviceId: string;
+    applicationId: string;
+    resourceId: string;
+}
+
+export interface UpdateResourceLockRequest {
+    resourceLock: ResourceLock;
     customerId: string;
     deviceId: string;
     applicationId: string;
@@ -181,6 +211,57 @@ export class ResourcesApi extends runtime.BaseAPI {
     }
 
     /**
+     * Delete an resource lock
+     * Delete resource lock
+     */
+    async deleteResourceLockRaw(requestParameters: DeleteResourceLockRequest): Promise<runtime.ApiResponse<void>> {
+        if (requestParameters.customerId === null || requestParameters.customerId === undefined) {
+            throw new runtime.RequiredError('customerId','Required parameter requestParameters.customerId was null or undefined when calling deleteResourceLock.');
+        }
+
+        if (requestParameters.deviceId === null || requestParameters.deviceId === undefined) {
+            throw new runtime.RequiredError('deviceId','Required parameter requestParameters.deviceId was null or undefined when calling deleteResourceLock.');
+        }
+
+        if (requestParameters.applicationId === null || requestParameters.applicationId === undefined) {
+            throw new runtime.RequiredError('applicationId','Required parameter requestParameters.applicationId was null or undefined when calling deleteResourceLock.');
+        }
+
+        if (requestParameters.resourceId === null || requestParameters.resourceId === undefined) {
+            throw new runtime.RequiredError('resourceId','Required parameter requestParameters.resourceId was null or undefined when calling deleteResourceLock.');
+        }
+
+        const queryParameters: runtime.HTTPQuery = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        if (this.configuration && this.configuration.accessToken) {
+            const token = this.configuration.accessToken;
+            const tokenString = typeof token === 'function' ? token("BearerAuth", []) : token;
+
+            if (tokenString) {
+                headerParameters["Authorization"] = `Bearer ${tokenString}`;
+            }
+        }
+        const response = await this.request({
+            path: `/v1/customers/{customerId}/devices/{deviceId}/applications/{applicationId}/resources/{resourceId}/lock`.replace(`{${"customerId"}}`, encodeURIComponent(String(requestParameters.customerId))).replace(`{${"deviceId"}}`, encodeURIComponent(String(requestParameters.deviceId))).replace(`{${"applicationId"}}`, encodeURIComponent(String(requestParameters.applicationId))).replace(`{${"resourceId"}}`, encodeURIComponent(String(requestParameters.resourceId))),
+            method: 'DELETE',
+            headers: headerParameters,
+            query: queryParameters,
+        });
+
+        return new runtime.VoidApiResponse(response);
+    }
+
+    /**
+     * Delete an resource lock
+     * Delete resource lock
+     */
+    async deleteResourceLock(requestParameters: DeleteResourceLockRequest): Promise<void> {
+        await this.deleteResourceLockRaw(requestParameters);
+    }
+
+    /**
      * Finds an resource
      * Finds a resource
      */
@@ -229,6 +310,102 @@ export class ResourcesApi extends runtime.BaseAPI {
      */
     async findResource(requestParameters: FindResourceRequest): Promise<Resource> {
         const response = await this.findResourceRaw(requestParameters);
+        return await response.value();
+    }
+
+    /**
+     * Finds an resource lock
+     * Finds a resource lock
+     */
+    async findResourceLockRaw(requestParameters: FindResourceLockRequest): Promise<runtime.ApiResponse<ResourceLock>> {
+        if (requestParameters.customerId === null || requestParameters.customerId === undefined) {
+            throw new runtime.RequiredError('customerId','Required parameter requestParameters.customerId was null or undefined when calling findResourceLock.');
+        }
+
+        if (requestParameters.deviceId === null || requestParameters.deviceId === undefined) {
+            throw new runtime.RequiredError('deviceId','Required parameter requestParameters.deviceId was null or undefined when calling findResourceLock.');
+        }
+
+        if (requestParameters.applicationId === null || requestParameters.applicationId === undefined) {
+            throw new runtime.RequiredError('applicationId','Required parameter requestParameters.applicationId was null or undefined when calling findResourceLock.');
+        }
+
+        if (requestParameters.resourceId === null || requestParameters.resourceId === undefined) {
+            throw new runtime.RequiredError('resourceId','Required parameter requestParameters.resourceId was null or undefined when calling findResourceLock.');
+        }
+
+        const queryParameters: runtime.HTTPQuery = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        if (this.configuration && this.configuration.accessToken) {
+            const token = this.configuration.accessToken;
+            const tokenString = typeof token === 'function' ? token("BearerAuth", []) : token;
+
+            if (tokenString) {
+                headerParameters["Authorization"] = `Bearer ${tokenString}`;
+            }
+        }
+        const response = await this.request({
+            path: `/v1/customers/{customerId}/devices/{deviceId}/applications/{applicationId}/resources/{resourceId}/lock`.replace(`{${"customerId"}}`, encodeURIComponent(String(requestParameters.customerId))).replace(`{${"deviceId"}}`, encodeURIComponent(String(requestParameters.deviceId))).replace(`{${"applicationId"}}`, encodeURIComponent(String(requestParameters.applicationId))).replace(`{${"resourceId"}}`, encodeURIComponent(String(requestParameters.resourceId))),
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        });
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => ResourceLockFromJSON(jsonValue));
+    }
+
+    /**
+     * Finds an resource lock
+     * Finds a resource lock
+     */
+    async findResourceLock(requestParameters: FindResourceLockRequest): Promise<ResourceLock> {
+        const response = await this.findResourceLockRaw(requestParameters);
+        return await response.value();
+    }
+
+    /**
+     * Returns resource ids for locked resources
+     * Returns resource ids for locked resources
+     */
+    async getLockedResourceIdsRaw(requestParameters: GetLockedResourceIdsRequest): Promise<runtime.ApiResponse<Array<string>>> {
+        if (requestParameters.applicationId === null || requestParameters.applicationId === undefined) {
+            throw new runtime.RequiredError('applicationId','Required parameter requestParameters.applicationId was null or undefined when calling getLockedResourceIds.');
+        }
+
+        const queryParameters: runtime.HTTPQuery = {};
+
+        if (requestParameters.resourceId !== undefined) {
+            queryParameters['resourceId'] = requestParameters.resourceId;
+        }
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        if (this.configuration && this.configuration.accessToken) {
+            const token = this.configuration.accessToken;
+            const tokenString = typeof token === 'function' ? token("BearerAuth", []) : token;
+
+            if (tokenString) {
+                headerParameters["Authorization"] = `Bearer ${tokenString}`;
+            }
+        }
+        const response = await this.request({
+            path: `/v1/application/{applicationId}/lockedResourceIds`.replace(`{${"applicationId"}}`, encodeURIComponent(String(requestParameters.applicationId))),
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        });
+
+        return new runtime.JSONApiResponse<any>(response);
+    }
+
+    /**
+     * Returns resource ids for locked resources
+     * Returns resource ids for locked resources
+     */
+    async getLockedResourceIds(requestParameters: GetLockedResourceIdsRequest): Promise<Array<string>> {
+        const response = await this.getLockedResourceIdsRaw(requestParameters);
         return await response.value();
     }
 
@@ -344,6 +521,65 @@ export class ResourcesApi extends runtime.BaseAPI {
      */
     async updateResource(requestParameters: UpdateResourceRequest): Promise<Resource> {
         const response = await this.updateResourceRaw(requestParameters);
+        return await response.value();
+    }
+
+    /**
+     * Updates resource lock
+     * Updates resource lock
+     */
+    async updateResourceLockRaw(requestParameters: UpdateResourceLockRequest): Promise<runtime.ApiResponse<ResourceLock>> {
+        if (requestParameters.resourceLock === null || requestParameters.resourceLock === undefined) {
+            throw new runtime.RequiredError('resourceLock','Required parameter requestParameters.resourceLock was null or undefined when calling updateResourceLock.');
+        }
+
+        if (requestParameters.customerId === null || requestParameters.customerId === undefined) {
+            throw new runtime.RequiredError('customerId','Required parameter requestParameters.customerId was null or undefined when calling updateResourceLock.');
+        }
+
+        if (requestParameters.deviceId === null || requestParameters.deviceId === undefined) {
+            throw new runtime.RequiredError('deviceId','Required parameter requestParameters.deviceId was null or undefined when calling updateResourceLock.');
+        }
+
+        if (requestParameters.applicationId === null || requestParameters.applicationId === undefined) {
+            throw new runtime.RequiredError('applicationId','Required parameter requestParameters.applicationId was null or undefined when calling updateResourceLock.');
+        }
+
+        if (requestParameters.resourceId === null || requestParameters.resourceId === undefined) {
+            throw new runtime.RequiredError('resourceId','Required parameter requestParameters.resourceId was null or undefined when calling updateResourceLock.');
+        }
+
+        const queryParameters: runtime.HTTPQuery = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json;charset=utf-8';
+
+        if (this.configuration && this.configuration.accessToken) {
+            const token = this.configuration.accessToken;
+            const tokenString = typeof token === 'function' ? token("BearerAuth", []) : token;
+
+            if (tokenString) {
+                headerParameters["Authorization"] = `Bearer ${tokenString}`;
+            }
+        }
+        const response = await this.request({
+            path: `/v1/customers/{customerId}/devices/{deviceId}/applications/{applicationId}/resources/{resourceId}/lock`.replace(`{${"customerId"}}`, encodeURIComponent(String(requestParameters.customerId))).replace(`{${"deviceId"}}`, encodeURIComponent(String(requestParameters.deviceId))).replace(`{${"applicationId"}}`, encodeURIComponent(String(requestParameters.applicationId))).replace(`{${"resourceId"}}`, encodeURIComponent(String(requestParameters.resourceId))),
+            method: 'PUT',
+            headers: headerParameters,
+            query: queryParameters,
+            body: ResourceLockToJSON(requestParameters.resourceLock),
+        });
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => ResourceLockFromJSON(jsonValue));
+    }
+
+    /**
+     * Updates resource lock
+     * Updates resource lock
+     */
+    async updateResourceLock(requestParameters: UpdateResourceLockRequest): Promise<ResourceLock> {
+        const response = await this.updateResourceLockRaw(requestParameters);
         return await response.value();
     }
 

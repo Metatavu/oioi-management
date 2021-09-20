@@ -193,7 +193,11 @@
     "iconClose": "Sulje normaali",
     "iconCloseActive": "Sulje aktiivinen",
     "iconExitApp": "Sulje sovellus",
-    "iconExitAppActive": "Sulje sovellus aktiivinen"
+    "iconExitAppActive": "Sulje sovellus aktiivinen",
+    "iconLeft": "Vasemmalle normaali",
+    "iconLeftActive": "Vasemmalle aktiivinen",
+    "iconRight": "Oikealle normaali",
+    "iconRightActive": "Oikealle aktiivinen"
   },
 
   "errorManagement": {
@@ -232,7 +236,8 @@
       "find": "Virhe haettaessa resurssin tietoja",
       "update": "Virhe päivittäessä resurssin tietoja",
       "updateChild": "Virhe päivittäessä alaresurssin tietoja",
-      "delete": "Virhe poistettaessa resurssia {0}"
+      "delete": "Virhe poistettaessa resurssia {0}",
+      "newLock": "Virhe resurssin lukituksessa"
     },
     "file": {
       "upload": "Virhe lähetettäessä tiedostoa: {0}"

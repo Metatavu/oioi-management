@@ -103,13 +103,19 @@ class AddResourceDialog extends React.Component<Props, State> {
   }
 
   /**
+   * Component did mount life cycle handler
+   */
+  public componentDidMount = async () => {
+    await this.updateData();
+  }
+
+  /**
    * Component did update life cycle handler
    *
    * @param prevProps previous properties
-   * @param prevState previous state
    */
-  public componentDidUpdate = async (prevProps: Props, prevState: State) => {
-    if (prevProps !== this.props) {
+  public componentDidUpdate = async (prevProps: Props) => {
+    if (prevProps.parentResource !== this.props.parentResource) {
       await this.updateData();
     }
   };

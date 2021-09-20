@@ -24,6 +24,7 @@ export interface Configuration {
   };
   files: {
     uploadPath: string;
+    cdnPath: string;
   };
 }
 

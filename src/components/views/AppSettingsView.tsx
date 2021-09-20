@@ -147,7 +147,9 @@ class AppSettingsView extends React.Component<Props, State> {
           { strings.applicationBasicInformation }
         </Typography>
         { this.renderFields() }
-        <Divider style={{ marginTop: theme.spacing(3), marginBottom: theme.spacing(3) }} />
+        <Box mb={ 3 } mt={ 3 }>
+          <Divider/>
+        </Box>
         <Box display="flex" alignItems="flex-start">
           <Box mb={ 1 } mr={ 4 }>
             <Box mb={ 1 }>
@@ -176,9 +178,9 @@ class AppSettingsView extends React.Component<Props, State> {
           </Typography>
         </Box>
 
-        <div className={ classes.gridRow }>
+        <Box className={ classes.gridRow }>
           { this.renderIconList() }
-        </div>
+        </Box>
         <AddIconDialog
           keycloak={ keycloak }
           resource={ this.props.rootResource }

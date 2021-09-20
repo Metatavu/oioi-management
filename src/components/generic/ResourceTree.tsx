@@ -18,6 +18,7 @@ import { toast } from "react-toastify";
 import { ResourceUtils } from "utils/resource";
 import AddResourceDialog from "./AddResourceDialog";
 import theme from "styles/theme";
+import { Config } from "app/config";
 
 /**
  * Component properties
@@ -31,6 +32,8 @@ interface State {
   treeData: TreeItem[];
   expandedKeys: string[];
   addResourceDialogOpen: boolean;
+  lockedResourceIds: string[];
+  loading: boolean;
 }
 
 /**
@@ -39,6 +42,9 @@ interface State {
 class ResourceTree extends React.Component<Props, State> {
 
   static contextType: React.Context<ErrorContextType> = ErrorContext;
+
+  private resourceLockInterval?: NodeJS.Timeout;
+  private resourceLocksInterval?: NodeJS.Timeout;
 
   /**
    * Component constructor
@@ -50,7 +56,9 @@ class ResourceTree extends React.Component<Props, State> {
     this.state = {
       treeData: [],
       expandedKeys: [],
-      addResourceDialogOpen: false
+      addResourceDialogOpen: false,
+      lockedResourceIds: [],
+      loading: false
     };
   }
 
@@ -58,13 +66,27 @@ class ResourceTree extends React.Component<Props, State> {
    * Component did mount life cycle method
    */
   public componentDidMount = async () => {
-    const { resources, contentVersion } = this.props;
+    const {
+      resources,
+      contentVersion,
+      keycloak,
+      customer,
+      device,
+      application
+    } = this.props;
 
-    if (!contentVersion?.id) {
+    if (!keycloak?.token || !customer?.id || !device?.id || !application?.id || !contentVersion?.id) {
       return;
     }
 
-    this.setState({ treeData: this.buildTree(resources, contentVersion.id) });
+    const lockedResourceIds = await Api.getResourcesApi(keycloak.token).getLockedResourceIds({ applicationId: application.id });
+
+    this.setState({
+      lockedResourceIds: lockedResourceIds
+    }, () => this.setState({ treeData: this.buildTree(resources) }));
+
+    this.resourceLocksInterval = setInterval(this.fetchLockedResourceIds, 5000);
+    window.addEventListener("beforeunload", this.componentCleanup);
   }
 
   /**
@@ -75,6 +97,12 @@ class ResourceTree extends React.Component<Props, State> {
   public componentDidUpdate = async (prevProps: Props) => {
     const { resources, contentVersion, selectedResource } = this.props;
 
+    if (prevProps.selectedResource?.id !== selectedResource?.id) {
+      this.setState({ loading: true }, () => this.setState({ treeData: this.buildTree(resources) }));
+      await this.releaseAndAcquireLock(selectedResource, prevProps.selectedResource);
+      this.resourceLockInterval = setInterval(this.renewLock, 10000);
+    }
+
     if (!contentVersion?.id) {
       return;
     }
@@ -83,7 +111,49 @@ class ResourceTree extends React.Component<Props, State> {
       return;
     }
 
-    this.setState({ treeData: this.buildTree(resources, contentVersion.id) });
+    this.setState({ treeData: this.buildTree(resources) });
+  }
+
+  /**
+   * Component will unmount life cycle handler
+   */
+  public componentWillUnmount = async () => {
+    this.componentCleanup();
+    window.removeEventListener("beforeunload", this.componentCleanup);
+  }
+
+  /**
+   * Component clean up for unmount and beforeunload page event
+   */
+  private componentCleanup = async () => {
+    this.resourceLocksInterval && clearInterval(this.resourceLocksInterval);
+    this.releaseLockWithServiceWorker();
+  }
+
+  /**
+   * Releases lock with service worker
+   */
+  private releaseLockWithServiceWorker = () => {
+    const { keycloak, customer, device, application, selectedResource } = this.props;
+
+    if (!keycloak?.token || !customer?.id || !device?.id || !application?.id || !selectedResource?.id) {
+      return;
+    }
+
+    navigator.serviceWorker.controller?.postMessage({
+      url: `${Config.get().api.baseUrl}/v1/customers/${customer.id}/devices/${device.id}/applications/${application.id}/resources/${selectedResource.id}/lock`,
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json;charset=UTF-8",
+        "Authorization": `Bearer ${keycloak.token}`
+      },
+      body: JSON.stringify({
+        customerId: customer.id,
+        deviceId: device.id,
+        applicationId: application.id,
+        resourceId: selectedResource.id
+      })
+    });
   }
 
   /**
@@ -182,11 +252,10 @@ class ResourceTree extends React.Component<Props, State> {
    * Builds tree structure
    *
    * @param resources resources
-   * @param rootId root ID
    *
    * @returns tree structure as array of data nodes
    */
-  private buildTree = (resources: Resource[], rootId: string): TreeItem[] => {
+  private buildTree = (resources: Resource[]): TreeItem[] => {
     const { contentVersion } = this.props;
 
     if (!contentVersion?.id) {
@@ -199,6 +268,109 @@ class ResourceTree extends React.Component<Props, State> {
   }
 
   /**
+   * Releases single resource lock
+   *
+   * @param resource resource
+   */
+  private releaseLock = async (resource: Resource) => {
+    const { keycloak, customer, device, application } = this.props;
+
+    if (!keycloak?.token || !customer?.id || !device?.id || !application?.id || !resource.id) {
+      return;
+    }
+
+    await Api.getResourcesApi(keycloak.token).deleteResourceLock({
+      customerId: customer.id,
+      deviceId: device.id,
+      applicationId: application.id,
+      resourceId: resource.id
+    });
+  }
+
+  /**
+   * Release old resource lock and acquire new lock for selected resource
+   *
+   * @param previousResource previous resource
+   * @param newResource new resource
+   */
+  private releaseAndAcquireLock = async (newResource?: Resource, previousResource?: Resource) => {
+    const { keycloak, customer, device, application } = this.props;
+    let tempLockedResourceIds = [ ...this.state.lockedResourceIds ];
+
+    if (!keycloak?.token || !customer?.id || !device?.id || !application?.id || !newResource?.id) {
+      return;
+    }
+
+    const resourcesApi = Api.getResourcesApi(keycloak.token);
+    try {
+      if (previousResource && tempLockedResourceIds.includes(previousResource.id!)) {
+        await this.releaseLock(previousResource);
+        this.resourceLockInterval && clearInterval(this.resourceLockInterval);
+        tempLockedResourceIds = tempLockedResourceIds.filter(id => id !== previousResource.id);
+      }
+    } catch (error) {
+      console.error("Error while releasing lock", error);
+    }
+
+    try {
+      await resourcesApi.updateResourceLock({
+        customerId: customer.id,
+        deviceId: device.id,
+        applicationId: application.id,
+        resourceId: newResource.id,
+        resourceLock: {}
+      });
+
+      tempLockedResourceIds.push(newResource.id);
+      this.setState({ lockedResourceIds: tempLockedResourceIds });
+
+    } catch (error) {
+      this.context.setError(strings.errorManagement.resource.newLock, error);
+    }
+
+    this.setState({ loading: false });
+  }
+
+  /**
+   * Renews single lock 
+   */
+  private renewLock = async () => {
+    const {
+      keycloak,
+      customer,
+      device,
+      application,
+      selectedResource
+    } = this.props;
+
+    if (!keycloak?.token || !customer?.id || !device?.id || !application?.id || !selectedResource?.id) {
+      return;
+    }
+
+    await Api.getResourcesApi(keycloak.token).updateResourceLock({
+      customerId: customer.id,
+      deviceId: device.id,
+      applicationId: application.id,
+      resourceId: selectedResource.id,
+      resourceLock: {}
+    });
+  }
+
+  /**
+   * Fetches locked resource ids
+   */
+  private fetchLockedResourceIds = async () => {
+    const { keycloak, application, resources } = this.props;
+
+    if (!keycloak?.token || !application?.id) {
+      return;
+    }
+
+    const newLocks = await Api.getResourcesApi(keycloak.token).getLockedResourceIds({ applicationId: application.id });
+    this.setState({ lockedResourceIds: newLocks }, () => this.setState({ treeData: this.buildTree(resources) }));
+  }
+
+  /**
    * Recursive tree
    *
    * @param resources resources
@@ -208,13 +380,16 @@ class ResourceTree extends React.Component<Props, State> {
    */
   private recursiveTree = (resources: Resource[], parentId: string): TreeItem[] => {
     const { selectedResource } = this.props;
+    const { lockedResourceIds, loading } = this.state;
 
     const tree = [ ...resources ].reduce<TreeItem[]>((tree, resource) => {
       if (!resource?.id || resource.parentId !== parentId) {
         return tree;
       }
 
-      const treeItem = this.translateToTreeItem(resource);
+      const locked = lockedResourceIds.includes(resource.id);
+      const parentLocked = lockedResourceIds.includes(resource.parentId);
+      const treeItem = this.translateToTreeItem(resource, locked, parentLocked, loading);
 
       const children: TreeItem[] = [];
 
@@ -261,11 +436,19 @@ class ResourceTree extends React.Component<Props, State> {
    * @param resource resource
    * @returns translated tree item
    */
-  private translateToTreeItem = (resource: Resource): TreeItem => ({
+  private translateToTreeItem = (resource: Resource, locked: boolean, parentLocked: boolean, loading: boolean): TreeItem => ({
     id: resource.id,
     parentId: resource.parentId,
     orderNumber: resource.orderNumber,
-    title: <ResourceTreeItem resource={ resource }/>,
+    title: (
+      <ResourceTreeItem
+        parent={ this.props.resources.find(_resource => _resource.id === resource.parentId) }
+        resource={ resource }
+        parentLocked={ parentLocked }
+        locked={ locked }
+        loading={ loading }
+      />
+    ),
     expanded: this.state.expandedKeys.includes(resource.id || ""),
     resource: resource
   });
@@ -365,7 +548,9 @@ class ResourceTree extends React.Component<Props, State> {
    * @param data tree data object
    */
   private canDrag = (data: ExtendedNodeData) => {
-    return !!data.node.resource;
+    const { lockedResourceIds } = this.state;
+
+    return !!data.node.resource && !lockedResourceIds.includes(data.node.resource.id);
   }
 
   /**
