@@ -67,6 +67,7 @@ export interface UploadData {
   key: string;
   formData: FormData;
   cdnBasePath: string;
+  fileType: string;
 }
 
 /**
