@@ -25,7 +25,9 @@ import Api from "api";
  */
 interface Props extends ExternalProps {
   resource: Resource;
+  parent?: Resource;
   onSelect?: (resource: Resource) => void;
+  parentLocked: boolean;
   locked: boolean;
   loading: boolean;
 }
@@ -79,19 +81,24 @@ class ResourceTreeItem extends React.Component<Props, State> {
       classes,
       resource,
       selectedResource,
+      parentLocked,
       locked,
-      loading
+      loading,
+      parent
     } = this.props;
     const { lockInfo } = this.state;
 
     const selected = selectedResource?.id === resource.id;
+    const parentSelected = parent?.id === selectedResource?.id;
+    const parentTypeIsPage = parent?.type === ResourceType.PAGE;
+    const disabled = loading || (selectedResource?.id !== resource.id && locked) || (parentLocked && parentTypeIsPage && !parentSelected);
 
     return (
       <ListItem
         key={ resource.id }
         selected={ selected }
-        onClick={ () => selectedResource?.id !== resource.id && !locked && this.onSelectResource(resource) }
-        disabled={ loading || (selectedResource?.id !== resource.id && locked) }
+        onClick={ () => !disabled && this.onSelectResource(resource) }
+        disabled={ disabled }
       >
         <ListItemIcon className={ classes.icon }>
           { this.renderIcon(resource.type) }
