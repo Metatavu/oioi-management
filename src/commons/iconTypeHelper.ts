@@ -39,7 +39,7 @@ export const getLocalizedIconTypeString = (type: IconKeys): string => ({
   [IconKeys.ICONLEFT] : strings.iconKeys.iconLeft,
   [IconKeys.ICONLEFTACTIVE]: strings.iconKeys.iconLeftActive,
   [IconKeys.ICONRIGHT] : strings.iconKeys.iconRight,
-  [IconKeys.ICONRIGHTACTIVE]: strings.iconKeys.iconRightActive,
+  [IconKeys.ICONRIGHTACTIVE]: strings.iconKeys.iconRightActive
 })[type];
 
 /**
