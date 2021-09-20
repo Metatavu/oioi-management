@@ -182,7 +182,6 @@ class ResourceTree extends React.Component<Props, State> {
         />
         { selectedResource?.id &&
           <AddResourceDialog
-            key={ "AddResourceDialog" }
             open={ addResourceDialogOpen }
             onClose={ () => this.setState({ addResourceDialogOpen: false }) }
           />
