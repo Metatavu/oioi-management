@@ -23,6 +23,17 @@ export class ResourceUtils {
   }
 
   /**
+   * Returns resource type from given file type or undefined if file type is unexpected
+   *
+   * @param fileType file type
+   */
+  static getResourceTypeFromFileType = (fileType?: string) => {
+    if (fileType?.startsWith("image/")) return ResourceType.IMAGE;
+    if (fileType?.startsWith("video/")) return ResourceType.VIDEO;
+    return undefined;
+  }
+
+  /**
    * Returns list of pre-defined page child resources
    *
    * @param parentId parent ID

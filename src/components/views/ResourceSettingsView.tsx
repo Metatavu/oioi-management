@@ -20,6 +20,7 @@ import { ErrorContext } from "../containers/ErrorHandler";
 import StyledMTableToolbar from "../../styles/generic/styled-mtable-toolbar";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import { nanoid } from "@reduxjs/toolkit";
+import { ResourceUtils } from "utils/resource";
 
 /**
  * Component props
@@ -57,16 +58,12 @@ class ResourceSettingsView extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = {
-      form: initForm<ResourceSettingsForm>(
-        {
-          name: undefined,
-          orderNumber: undefined,
-          slug: undefined,
-          data: undefined
-        },
-        resourceRules
-      ),
-
+      form: initForm<ResourceSettingsForm>({
+        name: undefined,
+        orderNumber: undefined,
+        slug: undefined,
+        data: undefined
+      }, resourceRules),
       resourceId: "",
       resourceData: {},
       dataChanged: false
@@ -77,25 +74,17 @@ class ResourceSettingsView extends React.Component<Props, State> {
    * Component did mount life cycle handler
    */
   public componentDidMount = () => {
-    const resourceId = this.props.resource.id;
+    const { resource } = this.props;
+    const resourceId = resource.id;
 
     if (!resourceId) {
       return;
     }
 
-    let form = initForm<ResourceSettingsForm>(
-      {
-        ...this.props.resource
-      },
-      resourceRules
-    );
-
-    form = validateForm(form);
-
     this.setState({
-      form,
+      form: validateForm(initForm<ResourceSettingsForm>({ ...resource }, resourceRules)),
       resourceId: resourceId,
-      resourceData: ResourceToJSON(this.props.resource)
+      resourceData: ResourceToJSON(resource)
     });
   }
 
@@ -103,23 +92,13 @@ class ResourceSettingsView extends React.Component<Props, State> {
    * Component did update life cycle handler
    *
    * @param prevProps previous props
-   * @param prevState previous state
    */
-  public componentDidUpdate = (prevProps: Props, prevState: State) => {
+  public componentDidUpdate = (prevProps: Props) => {
     const { resource } = this.props;
 
     if (prevProps.resource !== resource) {
-      let form = initForm<ResourceSettingsForm>(
-        {
-          ...resource
-        },
-        resourceRules
-      );
-
-      form = validateForm(form);
-
       this.setState({
-        form,
+        form: validateForm(initForm<ResourceSettingsForm>({ ...resource }, resourceRules)),
         resourceData: ResourceToJSON(resource)
       });
     }
@@ -132,8 +111,6 @@ class ResourceSettingsView extends React.Component<Props, State> {
     const { classes } = this.props;
     const { dataChanged, form } = this.state;
     const { isFormValid } = form;
-
-    const localizedDataString = this.getLocalizedDataString();
 
     return (
       <Box>
@@ -151,7 +128,7 @@ class ResourceSettingsView extends React.Component<Props, State> {
           <Divider/>
         </Box>
         <Box>
-          { this.renderDataField(localizedDataString) }
+          { this.renderDataField(this.getLocalizedDataString()) }
         </Box>
         <VisibleWithRole role="admin">
           { this.renderAdvancedSettings() }
@@ -402,7 +379,7 @@ class ResourceSettingsView extends React.Component<Props, State> {
       <ImagePreview
         uploadButtonText={ fileData ? strings.fileUpload.changeFile : strings.fileUpload.addFile }
         imagePath={ fileData }
-        allowSetUrl={ true }
+        allowSetUrl
         onUpload={ this.onFileOrUriChange }
         onSetUrl={ this.onFileOrUriChange }
         resource={ resource }
@@ -466,16 +443,25 @@ class ResourceSettingsView extends React.Component<Props, State> {
   };
 
   /**
-   * Handles file and URI change
+   * Event handler for file and URI change
    *
    * @param newUri new URI
    * @param key resource key
+   * @param fileType file type
    */
-  private onFileOrUriChange = (newUri: string, key: string) => {
-    const { resourceData } = this.state;
+  private onFileOrUriChange = (newUri: string, key: string, fileType?: string) => {
+    const { resourceData, form } = this.state;
+    const values = { ...form.values };
+
+    const resourceType = ResourceUtils.getResourceTypeFromFileType(fileType);
+
+    if (resourceType && resourceType !== values.type) {
+      values.type = resourceType;
+    }
 
     this.setState({
-      resourceData: { ...resourceData, key: newUri }
+      resourceData: { ...resourceData, [key]: newUri },
+      form: { ...form, values: values }
     });
 
     this.onUpdateResource();
@@ -500,6 +486,7 @@ class ResourceSettingsView extends React.Component<Props, State> {
    * @param event change event
    */
   private onDataChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { confirmationRequired } = this.props;
     const { resourceData } = this.state;
     const { name, value } = event.target;
 
@@ -508,7 +495,7 @@ class ResourceSettingsView extends React.Component<Props, State> {
       resourceData: { ...resourceData, [name]: value }
     });
 
-    this.props.confirmationRequired(true);
+    confirmationRequired(true);
   };
 
   /**
@@ -542,23 +529,23 @@ class ResourceSettingsView extends React.Component<Props, State> {
   };
 
   /**
-   * Handles text fields change events
+   * Event handler creator for text field change events
    *
    * @param key key
    * @param event React change event
    */
   private onHandleChange = (key: keyof ResourceSettingsForm) => (event: React.ChangeEvent<HTMLInputElement>) => {
-    const { form } = this.state;
+    const { confirmationRequired } = this.props;
+    const form = { ...this.state.form };
+
+    form.values = { ...form.values, [key]: event.target.value };
 
     this.setState({
       dataChanged: true,
-      form: validateForm({
-        ...form,
-        values: { ...form.values, [key]: event.target.value }
-      }, { usePreprocessor: false })
+      form: validateForm(form, { usePreprocessor: false })
     });
 
-    this.props.confirmationRequired(true);
+    confirmationRequired(true);
   };
 
   /**
@@ -567,20 +554,16 @@ class ResourceSettingsView extends React.Component<Props, State> {
    * @param key key
    */
   private onHandleBlur = (key: keyof ResourceSettingsForm) => () => {
-    const { form } = this.state;
+    const { confirmationRequired } = this.props;
+    const form = { ...this.state.form };
+    form.filled = { ...form.filled, [key]: true };
 
     this.setState({
       dataChanged: true,
-      form: validateForm({
-        ...this.state.form,
-        filled: {
-          ...form.filled,
-          [key]: true
-        }
-      })
+      form: validateForm(form)
     });
 
-    this.props.confirmationRequired(true);
+    confirmationRequired(true);
   };
 }
 

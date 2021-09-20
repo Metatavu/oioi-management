@@ -19,7 +19,7 @@ interface Props extends ExternalProps {
   allowedFileTypes: string[];
   allowSetUrl?: boolean;
   uploadButtonText: string;
-  onUpload: (uri: string, key: string) => void;
+  onUpload: (uri: string, key: string, type: string) => void;
   onSetUrl?: (url: string, key?: string) => void;
   title?: string;
 }
@@ -108,8 +108,8 @@ class FileUploader extends React.Component<Props, State> {
         onConfirm={ this.closeDialog  }
         title={ title || strings.fileUpload.uploadFile }
         cancelButtonText={ strings.fileUpload.cancel }
-        fullWidth={ true }
-        ignoreOutsideClicks={ true }
+        fullWidth
+        ignoreOutsideClicks
       >
         { this.renderUploader() }
       </GenericDialog>
@@ -169,7 +169,7 @@ class FileUploader extends React.Component<Props, State> {
         dropzoneText={ strings.fileUpload.uploadFile }
         onDrop={ this.onFileUpload }
         showPreviewsInDropzone={ false }
-        maxFileSize={ 314572800 * 1000000 }
+        maxFileSize={ 4 * 1024 * 1024 * 1024 }
         filesLimit={ 1 }
       />
     );
@@ -356,7 +356,7 @@ class FileUploader extends React.Component<Props, State> {
     }
 
     setTimeout(() => {
-      onUpload(`${uploadData.cdnBasePath}/${uploadData.key}`, uploadKey || "");
+      onUpload(`${uploadData.cdnBasePath}/${uploadData.key}`, uploadKey || "", uploadData.fileType);
       this.closeDialog();
     }, 3000);
   }
@@ -365,6 +365,7 @@ class FileUploader extends React.Component<Props, State> {
    * Handle save/upload
    *
    * @param files list of files
+   * @param event drop event
    */
   private onFileUpload = async (files: File[]) => {
     const { keycloak } = this.props;
@@ -373,12 +374,10 @@ class FileUploader extends React.Component<Props, State> {
       return;
     }
 
-    const fileToUpload = files[0];
-
     this.setState({ uploading: true, progress: 0 });
 
     try {
-      const uploadData = await FileUpload.upload(keycloak.token, fileToUpload, this.updateProgress);
+      const uploadData = await FileUpload.upload(keycloak.token, files[0], this.updateProgress);
       const { xhrRequest, uploadUrl, formData } = uploadData;
       this.setState({ uploadData: uploadData });
       xhrRequest.open("POST", uploadUrl, true);
