@@ -24,6 +24,7 @@ export interface Configuration {
   };
   files: {
     uploadPath: string;
+    cdnPath: string;
   };
 }
 
@@ -66,6 +67,7 @@ export interface UploadData {
   key: string;
   formData: FormData;
   cdnBasePath: string;
+  fileType: string;
 }
 
 /**

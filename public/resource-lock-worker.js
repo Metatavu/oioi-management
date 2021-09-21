@@ -1,5 +1,5 @@
 /* eslint-disable no-restricted-globals */
-self.addEventListener("message", async (event) => {
+self.addEventListener("message", async event => {
   const { url, method, headers, body } = event.data;
 
   try {

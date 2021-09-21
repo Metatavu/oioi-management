@@ -221,6 +221,10 @@ export interface IStrings extends LocalizedStringsMethods {
     iconCloseActive: string;
     iconExitApp: string;
     iconExitAppActive: string;
+    iconLeft: string;
+    iconLeftActive: string;
+    iconRight: string;
+    iconRightActive: string;
   };
 
   /**

@@ -24,6 +24,7 @@ import StyledMTableToolbar from "../../styles/generic/styled-mtable-toolbar";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import { KeycloakInstance } from "keycloak-js";
 import { nanoid } from "@reduxjs/toolkit";
+import { ResourceUtils } from "utils/resource";
 
 /**
  * Component props
@@ -69,15 +70,11 @@ class PageResourceSettingsView extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = {
-      form: initForm<ResourceSettingsForm>(
-        {
-          name: undefined,
-          orderNumber: undefined,
-          slug: undefined
-        },
-        resourceRules
-      ),
-
+      form: initForm<ResourceSettingsForm>({
+        name: undefined,
+        orderNumber: undefined,
+        slug: undefined
+      }, resourceRules),
       resourceId: "",
       resourceData: {},
       loading: false,
@@ -181,7 +178,7 @@ class PageResourceSettingsView extends React.Component<Props, State> {
         error={ message && message.type === MessageType.ERROR }
         helperText={ message && message.message }
         value={ values[key] || "" }
-        onChange={ this.onHandleResourceTextChange(key) }
+        onChange={ this.onResourceTextChange(key) }
         onBlur={ this.onHandleBlur(key) }
         name={ key }
         variant="outlined"
@@ -461,7 +458,9 @@ class PageResourceSettingsView extends React.Component<Props, State> {
   }
 
   /**
-   * Renders file uploaders for background image and custom icons
+   * Renders file uploader for background image and custom icons
+   *
+   * @param resource resource
    */
   private renderUploaderAndPreview = (resource: Resource) => {
 
@@ -491,11 +490,7 @@ class PageResourceSettingsView extends React.Component<Props, State> {
   private renderAdvancedSettings = () => {
     return (
       <Accordion>
-        <AccordionSummary
-          expandIcon={ <ExpandMoreIcon color="primary" /> }
-          aria-controls="panel1a-content"
-          id="panel1a-header"
-        >
+        <AccordionSummary expandIcon={ <ExpandMoreIcon color="primary"/> }>
           <Typography variant="h4">
             { strings.applicationSettings.advancedSettings }
           </Typography>
@@ -616,19 +611,18 @@ class PageResourceSettingsView extends React.Component<Props, State> {
   }
 
   /**
-   * Handles resource text fields change events
-   * @param key
-   * @param event
+   * Event handler creator for resource text field change event
+   *
+   * @param key key
    */
-  private onHandleResourceTextChange = (key: keyof ResourceSettingsForm) => (event: React.ChangeEvent<HTMLInputElement>) => {
-    const { form } = this.state;
+  private onResourceTextChange = (key: keyof ResourceSettingsForm) => (event: React.ChangeEvent<HTMLInputElement>) => {
+    const form = { ...this.state.form };
+
+    form.values = { ...form.values, [key]: event.target.value };
 
     this.setState({
       dataChanged: true,
-      form: validateForm({
-        ...form,
-        values: { ...form.values, [key]: event.target.value }
-      }, { usePreprocessor: false })
+      form: validateForm(form, { usePreprocessor: false })
     });
 
     this.props.confirmationRequired(true);
@@ -644,24 +638,34 @@ class PageResourceSettingsView extends React.Component<Props, State> {
   }
 
   /**
-   * Handles child resource file change
+   * Event handler for child resource file change
    *
    * @param newUri new URI
    * @param resourceId resource id
+   * @param fileType file type
    */
-  private onChildResourceFileChange = (newUri: string, resourceId: string) => {
+  private onChildResourceFileChange = (newUri: string, resourceId: string, fileType: string) => {
     const { childResources } = this.state;
 
     if (!childResources) {
       return;
     }
 
-    const resourceIndex: number = childResources.findIndex(resource => resource.id === resourceId);
-    if (resourceIndex === -1) {
+    const childResource = childResources.find(resource => resource.id === resourceId);
+
+    if (!childResource) {
       return;
     }
 
-    this.updateChildResource({ ...childResources[resourceIndex], data: newUri });
+    const resourceType = ResourceUtils.getResourceTypeFromFileType(fileType);
+
+    this.updateChildResource({
+      ...childResource,
+      data: newUri,
+      type: resourceType && resourceType !== childResource.type ?
+        resourceType :
+        childResource.type
+    });
   };
 
   /**
@@ -672,16 +676,18 @@ class PageResourceSettingsView extends React.Component<Props, State> {
    */
   private onChildResourceSetFileUrl = async (url: string, resourceId: string) => {
     const { childResources } = this.state;
+
     if (!childResources) {
       return 500;
     }
 
-    const resourceIndex: number = childResources.findIndex(resource => resource.id === resourceId);
-    if (resourceIndex === -1) {
+    const childResource = childResources.find(resource => resource.id === resourceId);
+
+    if (!childResource) {
       return 500;
     }
 
-    this.updateChildResource({ ...childResources[resourceIndex], data: url });
+    this.updateChildResource({ ...childResource, data: url });
 
     return 200;
   };
@@ -693,16 +699,18 @@ class PageResourceSettingsView extends React.Component<Props, State> {
    */
   private onChildResourceFileDelete = (resourceId: string) => {
     const { childResources } = this.state;
+
     if (!childResources) {
       return;
     }
 
-    const resourceIndex: number = childResources.findIndex(resource => resource.id === resourceId);
-    if (resourceIndex === -1) {
+    const childResource = childResources.find(resource => resource.id === resourceId);
+
+    if (!childResource) {
       return;
     }
 
-    this.updateChildResource({ ...childResources[resourceIndex], data: undefined });
+    this.updateChildResource({ ...childResource, data: undefined });
   }
 
   /**
@@ -711,21 +719,18 @@ class PageResourceSettingsView extends React.Component<Props, State> {
    * @param key key
    */
   private onHandleBlur = (key: keyof ResourceSettingsForm) => () => {
-    const { form } = this.state;
+    const form = { ...this.state.form };
+
+    form.filled = { ...form.filled, [key]: true };
 
     this.setState({
       dataChanged: true,
-      form: validateForm({
-        ...this.state.form,
-        filled: {
-          ...form.filled,
-          [key]: true
-        }
-      })
+      form: validateForm(form)
     });
 
     this.props.confirmationRequired(true);
   };
+
 }
 
 export default withStyles(styles)(PageResourceSettingsView);

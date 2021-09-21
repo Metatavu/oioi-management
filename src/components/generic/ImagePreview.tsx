@@ -2,7 +2,6 @@ import * as React from "react";
 import { Dialog, AppBar, Toolbar, IconButton, withStyles, WithStyles, Box, Typography } from "@material-ui/core";
 import styles from "../../styles/editor-view";
 import { Resource, ResourceType } from "../../generated/client";
-
 import CloseIcon from "@material-ui/icons/Close";
 import DeleteIcon from "@material-ui/icons/DeleteForever";
 import FileUploader from "../generic/FileUploader";
@@ -13,7 +12,7 @@ import strings from "../../localization/strings";
 import classNames from "classnames";
 
 /**
- * Component props
+ * Component properties
  */
 interface Props extends WithStyles<typeof styles> {
   imagePath: string;
@@ -21,23 +20,24 @@ interface Props extends WithStyles<typeof styles> {
   uploadKey: string;
   uploadButtonText: string;
   allowSetUrl: boolean;
-  onUpload(newUri: string, key?: string): void;
+  onUpload(newUri: string, key: string, type: string): void;
   onSetUrl(url: string, key?: string): void;
   onDelete(key?: string): void;
   uploadDialogTitle?: string;
 }
 
 /**
- * Component states
+ * Component state
  */
 interface State {
-  dialogOpen: boolean;
+  open: boolean;
 }
 
 /**
- * Generic file uploader UI component
+ * Image preview
  */
 class ImagePreview extends React.Component<Props, State> {
+
   /**
    * Constructor
    *
@@ -46,7 +46,7 @@ class ImagePreview extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = {
-      dialogOpen: false,
+      open: false
     };
   }
 
@@ -54,76 +54,67 @@ class ImagePreview extends React.Component<Props, State> {
    * Component render method
    */
   public render = () => {
-    const {
-      imagePath,
-      resource,
-      onUpload,
-      uploadKey,
-      classes,
-      onSetUrl,
-      allowSetUrl,
-      uploadButtonText,
-      uploadDialogTitle
-    } = this.props;
+    const { imagePath, resource, classes } = this.props;
 
-    const allowedFileTypes = getAllowedFileTypes(resource.type);
-    const video = resource.type === ResourceType.VIDEO;
-    let previewContent = (
-      <Box className={ classes.noMediaContainer }>
-        <Typography variant="h5" color="primary">
-          { strings.noMediaPlaceholder }
-        </Typography>
-      </Box>
+    return (
+      <div
+        className={
+          classNames(classes.imagePreviewElement, {
+            video: resource.type === ResourceType.VIDEO
+          })
+        }
+      >
+        <div style={{ marginBottom: theme.spacing(1) }}>
+          <div key={ imagePath } onClick={ this.toggleDialog }>
+            { this.renderPreviewContent() }
+          </div>
+          { imagePath && this.renderDeleteImage() }
+        </div>
+        { this.renderFileUploader() }
+        { this.renderDialog() }
+      </div>
     );
+  }
 
-    if (imagePath) {
-      previewContent = video ?
-        <ReactPlayer 
+  /**
+   * Renders preview content
+   */
+  private renderPreviewContent = () => {
+    const { classes, resource, imagePath } = this.props;
+
+    if (!imagePath) {
+      return (
+        <Box className={ classes.noMediaContainer }>
+          <Typography
+            variant="h5"
+            color="primary"
+          >
+            { strings.noMediaPlaceholder }
+          </Typography>
+        </Box>
+      );
+    }
+
+    if (resource.type === ResourceType.VIDEO) {
+      return (
+        <ReactPlayer
+          controls
           url={ imagePath }
-          controls={ true }
-          style={{ backgroundColor: "#000", padding: theme.spacing(2) }}
-        /> :
-        <img
-          src={ imagePath }
-          alt="File"
-          height="200"
-          className={ classes.imagePreview }
-        />;
+          style={{
+            backgroundColor: "#000",
+            padding: theme.spacing(2)
+          }}
+        />
+      );
     }
 
     return (
-      <div className={ classNames(classes.imagePreviewElement, video && "video" ) }>
-        <div style={{ marginBottom: theme.spacing(1) }}>
-          <div key={ imagePath } onClick={ this.toggleDialog }>
-            { previewContent }
-          </div>
-          { imagePath &&
-            <div className={ classes.deleteImage }>
-              <IconButton
-                size="small"
-                className={ classes.iconButton }
-                title={ strings.delete }
-                color="secondary"
-                onClick={ () => this.props.onDelete(uploadKey) }>
-                <DeleteIcon />
-              </IconButton>
-            </div>
-          }
-        </div>
-        <FileUploader
-          title={ uploadDialogTitle }
-          uploadButtonText={ uploadButtonText }
-          allowSetUrl={ allowSetUrl }
-          allowedFileTypes={ allowedFileTypes }
-          onUpload={ onUpload }
-          onSetUrl={ onSetUrl }
-          uploadKey={ uploadKey }
-        />
-
-        { this.state.dialogOpen &&
-          this.renderDialog()
-        }
-      </div>
+      <img
+        src={ imagePath }
+        alt="File"
+        height="200"
+        className={ classes.imagePreview }
+      />
     );
   }
 
@@ -132,16 +123,20 @@ class ImagePreview extends React.Component<Props, State> {
    */
   private renderDialog = () => {
     const { imagePath, classes } = this.props;
-    const { dialogOpen } = this.state;
+    const { open } = this.state;
 
     return (
       <Dialog
         fullScreen
-        open={ dialogOpen }
-        onClose={ this.closeDialog }
+        open={ open }
+        onClose={ this.toggleDialog }
       >
         <AppBar elevation={ 0 }>
-          <Box display="flex" flexDirection="row" justifyContent="space-between">
+          <Box
+            display="flex"
+            flexDirection="row"
+            justifyContent="space-between"
+          >
           <Toolbar>
             <Typography variant="h4">
               { strings.fileUpload.preview }
@@ -150,7 +145,7 @@ class ImagePreview extends React.Component<Props, State> {
           <Box display="flex" alignItems="center">
             <IconButton
               color="inherit"
-              onClick={ this.closeDialog }
+              onClick={ this.toggleDialog }
               aria-label="close"
             >
               <CloseIcon/>
@@ -159,9 +154,57 @@ class ImagePreview extends React.Component<Props, State> {
           </Box>
         </AppBar>
         <Box className={ classes.imagePreviewFullscreenContainer }>
-          <img src={ imagePath } alt="File" />
+          <img src={ imagePath } alt="File"/>
         </Box>
       </Dialog>
+    );
+  }
+
+  /**
+   * Renders delete image
+   */
+  private renderDeleteImage = () => {
+    const { classes, onDelete, uploadKey } = this.props;
+
+    return (
+      <div className={ classes.deleteImage }>
+        <IconButton
+          size="small"
+          color="secondary"
+          className={ classes.iconButton }
+          title={ strings.delete }
+          onClick={ () => onDelete(uploadKey) }
+        >
+          <DeleteIcon />
+        </IconButton>
+      </div>
+    );
+  }
+
+  /**
+   * Renders file uploader
+   */
+  private renderFileUploader = () => {
+    const {
+      resource,
+      onUpload,
+      onSetUrl,
+      allowSetUrl,
+      uploadButtonText,
+      uploadDialogTitle,
+      uploadKey
+    } = this.props;
+
+    return (
+      <FileUploader
+        title={ uploadDialogTitle }
+        uploadButtonText={ uploadButtonText }
+        allowSetUrl={ allowSetUrl }
+        allowedFileTypes={ getAllowedFileTypes(resource.type) }
+        onUpload={ onUpload }
+        onSetUrl={ onSetUrl }
+        uploadKey={ uploadKey }
+      />
     );
   }
 
@@ -170,38 +213,11 @@ class ImagePreview extends React.Component<Props, State> {
    */
   private toggleDialog = () => {
     const { imagePath } = this.props;
-    if (!imagePath) {
-      return;
-    }
+    const { open } = this.state;
 
-    const open = !this.state.dialogOpen;
-    this.setState({ dialogOpen: open });
+    imagePath && this.setState({ open: !open });
   }
 
-  /**
-   * Close upload image dialog
-   */
-  private closeDialog = () => {
-    this.setState({
-      dialogOpen: false
-    });
-  }
-
-  /**
-   * Check if preview item is application icon
-   */
-  private isIcon = (key: string) => {
-    return key.includes("_");
-  }
-
-  /**
-   * If preview item is application icon (contains prefix icon_)
-   * split the property name and return the trimmed name
-   */
-  private trimKeyPrefix = (key: string): string => {
-    const splitKey = key.split("_");
-    return splitKey[splitKey.length - 1];
-  }
 }
 
 export default withStyles(styles)(ImagePreview);

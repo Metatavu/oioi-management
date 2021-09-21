@@ -171,7 +171,6 @@ class ResourceTree extends React.Component<Props, State> {
       <>
         { this.renderAdd() }
         <SortableTree
-          key={ "SortableTree" }
           className={ classes.treeWrapper }
           innerStyle={{ padding: theme.spacing(2) }}
           rowHeight={ 36 }
@@ -187,7 +186,6 @@ class ResourceTree extends React.Component<Props, State> {
         />
         { selectedResource?.id &&
           <AddResourceDialog
-            key={ "AddResourceDialog" }
             open={ addResourceDialogOpen }
             onClose={ () => this.setState({ addResourceDialogOpen: false }) }
           />
