@@ -237,7 +237,8 @@
       "update": "Virhe päivittäessä resurssin tietoja",
       "updateChild": "Virhe päivittäessä alaresurssin tietoja",
       "delete": "Virhe poistettaessa resurssia {0}",
-      "newLock": "Virhe resurssin lukituksessa"
+      "newLock": "Virhe resurssin lukituksessa",
+      "otherUserEditing": "Toinen henkilö on jo muokkaamassa resurssia"
     },
     "file": {
       "upload": "Virhe lähetettäessä tiedostoa: {0}"
