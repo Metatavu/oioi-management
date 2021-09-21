@@ -264,6 +264,7 @@ export interface IStrings extends LocalizedStringsMethods {
       updateChild: string;
       delete: string;
       newLock: string;
+      otherUserEditing: string;
     };
     file: {
       upload: string;

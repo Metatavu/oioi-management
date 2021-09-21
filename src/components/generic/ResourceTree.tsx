@@ -125,8 +125,12 @@ class ResourceTree extends React.Component<Props, State> {
   /**
    * Component clean up for unmount and beforeunload page event
    */
-  private componentCleanup = async () => {
+  private componentCleanup = () => {
+    const { selectedResource } = this.props;
+
+    selectedResource && this.releaseLock(selectedResource);
     this.resourceLocksInterval && clearInterval(this.resourceLocksInterval);
+    this.resourceLockInterval && clearInterval(this.resourceLockInterval);
     this.releaseLockWithServiceWorker();
   }
 
@@ -296,7 +300,7 @@ class ResourceTree extends React.Component<Props, State> {
    * @param newResource new resource
    */
   private releaseAndAcquireLock = async (newResource?: Resource, previousResource?: Resource) => {
-    const { keycloak, customer, device, application } = this.props;
+    const { keycloak, customer, device, application, selectResource } = this.props;
     let tempLockedResourceIds = [ ...this.state.lockedResourceIds ];
 
     if (!keycloak?.token || !customer?.id || !device?.id || !application?.id || !newResource?.id) {
@@ -327,7 +331,12 @@ class ResourceTree extends React.Component<Props, State> {
       this.setState({ lockedResourceIds: tempLockedResourceIds });
 
     } catch (error) {
-      this.context.setError(strings.errorManagement.resource.newLock, error);
+      if (error instanceof Response && error.status === 409) {
+        selectResource(undefined);
+        this.context.setError(strings.errorManagement.resource.otherUserEditing, error);
+      } else {
+        this.context.setError(strings.errorManagement.resource.newLock, error);
+      }
     }
 
     this.setState({ loading: false });
