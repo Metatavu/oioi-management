@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Typography, Divider, List, ListItem, AppBar, WithStyles, withStyles, Drawer, Button, CircularProgress, ListItemText, ListItemSecondaryAction, Fade, Box, ListItemAvatar, Avatar, LinearProgress } from "@material-ui/core";
+import { Typography, Divider, List, ListItem, AppBar, WithStyles, withStyles, Drawer, CircularProgress, ListItemText, ListItemSecondaryAction, Fade, Box, ListItemAvatar, Avatar, LinearProgress } from "@material-ui/core";
 import { History } from "history";
 import AppSettingsView from "../views/AppSettingsView";
 import strings from "../../localization/strings";
@@ -161,16 +161,6 @@ class ApplicationEditor extends React.Component<Props, State> {
               { !selectedResource &&
                 <ContentVersionControls/>
               }
-              <Button
-                disableElevation
-                className={ classes.deleteButton }
-                color="primary"
-                variant="contained"
-                disabled={ !selectedResource }
-                onClick={ this.onResourceDelete }
-              >
-                { strings.delete }
-              </Button>
             </div>
           </AppBar>
           { this.renderResponsiveDrawer() }
@@ -369,6 +359,7 @@ class ApplicationEditor extends React.Component<Props, State> {
             rootResource={ rootResource }
             customerId={ customerId }
             deviceId={ deviceId }
+            onDeleteClick={ this.onDeleteApplication }
           />
         </main>
       );
@@ -402,6 +393,7 @@ class ApplicationEditor extends React.Component<Props, State> {
           keycloak={ keycloak }
           deviceId={ deviceId }
           applicationId={ applicationId }
+          onDeleteMenuClick={ this.onResourceDelete }
         />;
       case ResourceType.PAGE:
         return <PageResourceSettingsView
@@ -475,6 +467,40 @@ class ApplicationEditor extends React.Component<Props, State> {
       }
     }
   };
+
+  /**
+   * Event handler for delete application click
+   *
+   * @param applicationToDelete application to delete
+   */
+  private onDeleteApplication = async (applicationToDelete: Application) => {
+    const { keycloak, customerId, deviceId } = this.props;
+
+    if (!keycloak?.token || !applicationToDelete.id) {
+      return;
+    }
+
+    try {
+      await Api.getApplicationsApi(keycloak.token).deleteApplication({
+        customerId: customerId,
+        deviceId: deviceId,
+        applicationId: applicationToDelete.id
+      });
+
+      toast.success(strings.deleteSuccessMessage);
+    } catch (error) {
+      this.context.setError(strings.errorManagement.application.delete, error);
+    }
+
+    this.reset();
+  };
+
+  /**
+   * Resets state values
+   */
+  private reset = () => {
+    // navigate back to list
+  }
 
   /**
    * Returns whole branch of resource tree structure starting from given parent resource

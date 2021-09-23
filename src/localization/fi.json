@@ -113,7 +113,11 @@
 
   "applicationEditor": {
     "dragSidebar": "Raahaa leveämmäksi / kapeammaksi",
-    "loadingContentTree": "Ladataan sovelluspuuta..."
+    "loadingContentTree": "Ladataan sovelluspuuta...",
+    "deleteApplication": "Poista sovellus",
+    "deleteVersion": "Poista versio",
+    "deletePage": "Poista sivu",
+    "deleteSlideshow": "Poista slideshow"
   },
 
   "fileUpload": {

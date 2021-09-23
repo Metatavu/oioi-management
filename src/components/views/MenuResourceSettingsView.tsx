@@ -42,6 +42,7 @@ interface Props extends WithStyles<typeof styles> {
   confirmationRequired: (value: boolean) => void;
   onUpdate: (resource: Resource) => void;
   onDelete: (resource: Resource) => void;
+  onDeleteMenuClick: () => void;
 }
 
 /**
@@ -286,6 +287,8 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
    * Renders advanced settings
    */
   private renderAdvancedSettings = () => {
+    const { classes, onDeleteMenuClick } = this.props;
+
     return (
       <>
         <Accordion>
@@ -311,8 +314,16 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
               <Box mb={ 1 }>
                 { this.renderFormField("slug", strings.slug, "text") }
               </Box>
-              <Box mt={ 3 } mb={ 3 }>
-                <Divider/>
+              <Box>
+                <Button
+                  disableElevation
+                  className={ classes.deleteButton }
+                  color="primary"
+                  variant="contained"
+                  onClick={ onDeleteMenuClick }
+                >
+                  { strings.delete }
+                </Button>
               </Box>
             </Box>
             <Box mb={ 3 }>
@@ -603,18 +614,6 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
           <TableCell align="center">
             { resource.orderNumber }
           </TableCell>
-          <TableCell align="right">
-            <IconButton
-              size="small"
-              color="primary"
-              edge="end"
-              aria-label="delete"
-              onClick={ () => this.props.onDelete(resource) }
-              title={ strings.delete }
-            >
-              <DeleteIcon />
-            </IconButton>
-          </TableCell>
         </TableRow>
       );
     });
@@ -637,7 +636,6 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
               <TableCell align="center">
                 { strings.orderFromLeftToRight }
               </TableCell>
-              <TableCell align="right"/>
             </TableRow>
           </TableHead>
           <TableBody>

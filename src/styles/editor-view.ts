@@ -283,7 +283,7 @@ export default createStyles({
   saveButton: {
     position: "absolute",
     top: 9,
-    right: 150,
+    right: theme.spacing(2),
     zIndex: 1200
   },
 

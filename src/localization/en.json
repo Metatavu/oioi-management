@@ -113,7 +113,11 @@
 
   "applicationEditor": {
     "dragSidebar": "Click and drag to narrow or widen",
-    "loadingContentTree": "Loading content tree..."
+    "loadingContentTree": "Loading content tree...",
+    "deleteApplication": "Delete application",
+    "deleteVersion": "Delete version",
+    "deletePage": "Poista sivu",
+    "deleteSlideshow": "Poista slideshow"
   },
 
   "fileUpload": {

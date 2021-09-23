@@ -17,6 +17,7 @@ import { ErrorContext } from "../containers/ErrorHandler";
 import { toast } from "react-toastify";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import { KeycloakInstance } from "keycloak-js";
+import GenericDialog from "components/generic/GenericDialog";
 
 /**
  * Component Props
@@ -30,6 +31,7 @@ interface Props extends WithStyles<typeof styles> {
   onUpdateApplication: (application: Application) => void;
   onUpdateRootResource: (rootResource: Resource) => void;
   confirmationRequired: (value: boolean) => void;
+  onDeleteClick: (application: Application) => void;
 }
 
 /**
@@ -43,6 +45,7 @@ interface State {
   importingContent: boolean;
   importDone: boolean;
   dataChanged: boolean;
+  deleteDialogOpen: boolean;
 }
 
 /**
@@ -71,7 +74,8 @@ class AppSettingsView extends React.Component<Props, State> {
       iconDialogOpen: false,
       importingContent: false,
       importDone: false,
-      dataChanged: false
+      dataChanged: false,
+      deleteDialogOpen: false
     };
   }
 
@@ -197,6 +201,8 @@ class AppSettingsView extends React.Component<Props, State> {
    * Renders advanced settings
    */
   private renderAdvancedSettings = () => {
+    const { classes } = this.props;
+
     return (
       <>
         <Box mt={ 3 } mb={ 3 }>
@@ -217,15 +223,28 @@ class AppSettingsView extends React.Component<Props, State> {
               mt={ 3 }
               mb={ 3 }
               display="flex"
+              justifyContent="space-between"
+              alignItems="center"
             >
-              <Typography variant="h5">
-                { strings.applicationId }
-              </Typography>
-              <Box ml={ 1 }>
-                <Typography variant="body1">
-                  { this.props.application.id }
+              <Box display="flex">
+                <Typography variant="h5">
+                  { strings.applicationId }
                 </Typography>
+                <Box ml={ 1 }>
+                  <Typography variant="body1">
+                    { this.props.application.id }
+                  </Typography>
+                </Box>
               </Box>
+              <Button
+                disableElevation
+                className={ classes.deleteButton }
+                color="primary"
+                variant="contained"
+                onClick={ this.toggleDeleteDialog }
+              >
+                { strings.applicationEditor.deleteApplication }
+              </Button>
             </Box>
             <Box display="flex" mb={ 3 }>
               <Box mr={ 1 }>
@@ -246,9 +265,42 @@ class AppSettingsView extends React.Component<Props, State> {
             </VisibleWithRole>
           </AccordionDetails>
         </Accordion>
+        { this.renderDeleteDialog }
       </>
     );
   }
+
+  /**
+   * Render delete application confirmation dialog
+   */
+  private renderDeleteDialog = () => {
+    const { onDeleteClick, application  } = this.props;
+    const { deleteDialogOpen } = this.state;
+
+    return (
+      <GenericDialog
+        title="Delete application"
+        onCancel={ this.toggleDeleteDialog }
+        onClose={ this.toggleDeleteDialog }
+        onConfirm={ () => onDeleteClick(application) }
+        open={ deleteDialogOpen }
+        cancelButtonText={ strings.cancel }
+        positiveButtonText={ strings.delete }
+        error={ false }
+      >
+        <Typography>Do you want to delete application and all it's versions?</Typography>
+        <Typography>This action cannot be reverted.</Typography>
+      </GenericDialog>
+    );
+  }
+
+  /**
+   * Toggle delete dialog
+   */
+    private toggleDeleteDialog = () => {
+      const open = !this.state.deleteDialogOpen;
+      this.setState({ deleteDialogOpen: open });
+    }
 
   /**
    * Handles importing data from wall json file

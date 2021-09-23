@@ -127,6 +127,11 @@ export interface IStrings extends LocalizedStringsMethods {
   applicationEditor: {
     dragSidebar: string;
     loadingContentTree: string;
+    deleteApplication: string;
+    deleteVersion: string;
+    deleteLanguage: string;
+    deletePage: string;
+    deleteSlideshow: string;
   };
 
   /**
