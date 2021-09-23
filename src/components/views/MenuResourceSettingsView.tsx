@@ -114,7 +114,7 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
    * Component render method
    */
   public render = () => {
-    const { classes, keycloak } = this.props;
+    const { classes, keycloak, resource } = this.props;
     const { dataChanged, form } = this.state;
     const { isFormValid } = form;
 
@@ -129,19 +129,35 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
         >
           { strings.save }
         </Button>
-        { this.renderFields() }
         <Box mb={ 3 }>
+          { this.renderFormField("name", strings.menuSettingsView.name, "text") }
+        </Box>
+        <Box mb={ 3 }>
+          { this.renderPropertiesField("nameText", strings.menuSettingsView.menuTeaserText, "textarea") }
+        </Box>
+        <Box maxWidth={ 300 }>
+          { this.renderUploaderAndPreview(strings.menuSettingsView.menuMedia, "menuImg") }
+        </Box>
+        <Box mt={ 3 } mb={ 3 }>
           <Divider/>
         </Box>
+        <Box mb={ 3 }>
+          { this.renderPropertiesField("title", strings.menuSettingsView.pageTitle, "text") }
+        </Box>
+        <Box mb={ 3 }>
+          { this.renderPropertiesField("content", strings.menuSettingsView.pageContentText, "textarea") }
+        </Box>
+        { resource.type === ResourceType.SLIDESHOW &&
+          <Box mb={ 3 }>
+            { this.renderSlideShowFields() }
+          </Box>
+        }
         <Box className={ classes.gridRow }>
           <Box className={ classes.gridItem }>
-            { this.renderUploaderAndPreview(strings.backgroundMedia, "background") }
+            { this.renderUploaderAndPreview(strings.menuSettingsView.backgroundMedia, "background") }
           </Box>
           <Box className={ classes.gridItem }>
-            { this.renderUploaderAndPreview(strings.menuImage, "menuImg") }
-          </Box>
-          <Box className={ classes.gridItem }>
-            { this.renderUploaderAndPreview(strings.foregroundImage, "foreground") }
+            { this.renderUploaderAndPreview(strings.menuSettingsView.foregroundMedia, "foreground") }
           </Box>
         </Box>
         <Box mt={ 3 } mb={ 3 }>
@@ -168,35 +184,6 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
           { this.renderAdvancedSettings() }
         </VisibleWithRole>
       </div>
-    );
-  }
-
-  /**
-   * Render text fields
-   */
-  private renderFields = () => {
-    const { resource } = this.props;
-
-    return (
-      <>
-        <Box mb={ 3 }>
-          { this.renderFormField("name", strings.name, "text") }
-        </Box>
-        <Box mb={ 3 }>
-          { this.renderPropertiesField("nameText", strings.nameText, "textarea") }
-        </Box>
-        <Box mb={ 3 }>
-          { this.renderPropertiesField("title", strings.title, "text") }
-        </Box>
-        <Box mb={ 3 }>
-          { this.renderPropertiesField("content", strings.content, "textarea") }
-        </Box>
-        { resource.type === ResourceType.SLIDESHOW &&
-        <Box mb={ 3 }>
-          { this.renderSlideShowFields() }
-        </Box>
-        }
-      </>
     );
   }
 
