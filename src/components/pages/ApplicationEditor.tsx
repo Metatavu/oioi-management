@@ -30,6 +30,7 @@ import { deleteResources, selectResource, setResources, updateResources } from "
 import { ReduxDispatch, ReduxState } from "app/store";
 import ResourceTree from "components/generic/ResourceTree";
 import ContentVersionControls from "components/generic/ContentVersionControls";
+import SlideshowResourceSettingsView from "components/views/SlideshowResourceSettingsView";
 
 /**
  * Component properties
@@ -375,16 +376,31 @@ class ApplicationEditor extends React.Component<Props, State> {
    * @param customerId customer ID
    */
   private renderResourceSettingsView = (resource: Resource, customerId: string) => {
-    const { keycloak, deviceId, applicationId } = this.props;
+    const {
+      keycloak,
+      deviceId,
+      applicationId
+    } = this.props;
 
     switch (resource.type) {
       case ResourceType.MENU:
       case ResourceType.LANGUAGE:
       case ResourceType.LANGUAGEMENU:
-      case ResourceType.SLIDESHOW:
       case ResourceType.APPLICATION:
       case ResourceType.INTRO:
         return <MenuResourceSettingsView
+          resource={ resource }
+          customerId={ customerId }
+          confirmationRequired={ this.confirmationRequired }
+          onUpdate={ this.onUpdateResource }
+          onDelete={ this.onDeleteResource }
+          keycloak={ keycloak }
+          deviceId={ deviceId }
+          applicationId={ applicationId }
+          onDeleteMenuClick={ this.onResourceDelete }
+        />;
+      case ResourceType.SLIDESHOW:
+        return <SlideshowResourceSettingsView
           resource={ resource }
           customerId={ customerId }
           confirmationRequired={ this.confirmationRequired }

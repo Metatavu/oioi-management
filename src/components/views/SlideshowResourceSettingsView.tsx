@@ -60,9 +60,9 @@ interface State {
 }
 
 /**
- * Component for menu resource settings view
+ * Component for slideshow resource settings view
  */
-class MenuResourceSettingsView extends React.Component<Props, State> {
+class SlideshowResourceSettingsView extends React.Component<Props, State> {
 
   static contextType: React.Context<ErrorContextType> = ErrorContext;
 
@@ -146,6 +146,9 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
         </Box>
         <Box mb={ 3 }>
           { this.renderPropertiesField("content", strings.menuSettingsView.pageContentText, "textarea") }
+        </Box>
+        <Box mb={ 3 }>
+          { this.renderSlideShowFields() }
         </Box>
         <Box className={ classes.gridRow }>
           <Box className={ classes.gridItem }>
@@ -239,6 +242,31 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
       />
     );
   };
+
+  /**
+   * Render slideshow specific fields
+   */
+  private renderSlideShowFields = () => {
+    return (
+      <Box display="flex" mt={ 3 }>
+        <Box mr={ 2 } mb={ 4 }>
+          <Box>
+            <Typography variant="h4">
+              { strings.playback }
+            </Typography>
+          </Box>
+          <Box ml={ 2 } mt={ 2 }>
+            { this.renderCheckbox("autoplay", strings.autoplay) }
+            { this.renderCheckbox("loop", strings.loop) }
+          </Box>
+        </Box>
+        <Divider orientation="vertical" flexItem />
+        <Box ml={ 4 } display="flex" alignItems="center">
+          { this.renderPropertiesField("slideTimeOnScreen", strings.slideTimeOnScreen, "text") }
+        </Box>
+      </Box>
+    );
+  }
 
   /**
    * Renders advanced settings
@@ -1032,4 +1060,4 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
   }
 }
 
-export default withStyles(styles)(MenuResourceSettingsView);
+export default withStyles(styles)(SlideshowResourceSettingsView);
