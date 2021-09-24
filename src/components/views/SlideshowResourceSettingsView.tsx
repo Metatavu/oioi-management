@@ -805,14 +805,16 @@ class SlideshowResourceSettingsView extends React.Component<Props, State> {
    * @param event change event
    */
   private onHandleCheckBoxChange = (key: keyof ResourceSettingsForm, value: boolean) => {
-    // const copy = this.state.resourceMap;
-    // const stringValue = String(value);
-    // copy.set(key, stringValue);
-    // this.setState({
-    //   resourceMap: copy,
-    //   dataChanged: true
-    // });
-    // this.props.confirmationRequired(true);
+    const updatedResourceData = ResourceUtils.updatePropertyList(this.state.resourceData, key, String(value));
+
+    if(!updatedResourceData) {
+      return;
+    }
+
+    this.setState({
+      resourceData: updatedResourceData,
+      dataChanged: true
+    }, () => this.props.confirmationRequired(true));
   };
 
   /**
