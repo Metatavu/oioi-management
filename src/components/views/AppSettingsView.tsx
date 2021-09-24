@@ -103,11 +103,10 @@ class AppSettingsView extends React.Component<Props, State> {
    */
   public componentDidUpdate = (prevProps: Props) => {
     const { rootResource } = this.props;
-    let { applicationForm } = this.state;
+    const { applicationForm } = this.state;
 
     if (prevProps.rootResource !== this.props.rootResource) {
-      applicationForm = validateForm(applicationForm);
-      this.updateMaps(rootResource, applicationForm);
+      this.updateMaps(rootResource, validateForm(applicationForm));
     }
   }
 
@@ -265,7 +264,7 @@ class AppSettingsView extends React.Component<Props, State> {
             </VisibleWithRole>
           </AccordionDetails>
         </Accordion>
-        { this.renderDeleteDialog }
+        { this.renderDeleteDialog() }
       </>
     );
   }
@@ -298,12 +297,13 @@ class AppSettingsView extends React.Component<Props, State> {
    * Toggle delete dialog
    */
     private toggleDeleteDialog = () => {
-      const open = !this.state.deleteDialogOpen;
-      this.setState({ deleteDialogOpen: open });
+      this.setState({ deleteDialogOpen: !this.state.deleteDialogOpen });
     }
 
   /**
    * Handles importing data from wall json file
+   *
+   * @param files list of files or null
    */
   private handleWallJsonImport = async (files: FileList | null) => {
     if (!files) {
@@ -317,10 +317,12 @@ class AppSettingsView extends React.Component<Props, State> {
 
     const { rootResource } = this.props;
     const reader = new FileReader();
+
     reader.onload = async e => {
       if (!e.target) {
         return;
       }
+
       const data = JSON.parse(e.target.result as string)
       const topLevel = data.root.children;
 
@@ -337,6 +339,7 @@ class AppSettingsView extends React.Component<Props, State> {
 
       setTimeout(() => window.location.reload(), 3000);
     }
+
     reader.readAsText(file);
   }
 
@@ -357,7 +360,7 @@ class AppSettingsView extends React.Component<Props, State> {
     const resourcesApi = Api.getResourcesApi(keycloak.token);
 
     try {
-      for(let i = 0; i < items.length; i++) {
+      for (let i = 0; i < items.length; i++) {
         const item = items[i];
         const createdResource = await resourcesApi.createResource({
           applicationId: application.id!,
@@ -543,8 +546,8 @@ class AppSettingsView extends React.Component<Props, State> {
         uploadButtonText={ previewItem ? strings.fileUpload.changeImage : strings.fileUpload.addImage }
         allowSetUrl={ true }
         imagePath={ previewItem }
-        onUpload={ this.onPropertyFileChange }
-        onSetUrl={ this.onPropertyFileUrlSet }
+        onUpload={ this.onPropertyFileOrUrlChange }
+        onSetUrl={ this.onPropertyFileOrUrlChange }
         resource={ this.props.rootResource }
         uploadKey={ key }
         onDelete={ this.onPropertyFileDelete }
@@ -635,8 +638,7 @@ class AppSettingsView extends React.Component<Props, State> {
    * Toggle dialog
    */
   private toggleDialog = () => {
-    const open = !this.state.iconDialogOpen;
-    this.setState({ iconDialogOpen: open });
+    this.setState({ iconDialogOpen: !this.state.iconDialogOpen });
   }
 
   /**
@@ -665,15 +667,15 @@ class AppSettingsView extends React.Component<Props, State> {
       properties: properties.filter(p => !!p.value)
     } as Resource;
     onUpdateRootResource(resource);
-    this.setState({
-      dataChanged: false
-    });
+
+    this.setState({ dataChanged: false });
   };
 
   /**
-   * Handles textfields change events
-   * @param key
-   * @param event
+   * Handles text fields change events
+   *
+   * @param key key
+   * @param event event
    */
   private onHandleChange = (key: keyof ApplicationForm) => (event: React.ChangeEvent<HTMLInputElement>) => {
     const values = {
@@ -695,13 +697,15 @@ class AppSettingsView extends React.Component<Props, State> {
       applicationForm,
       dataChanged: true,
     });
+
     this.props.confirmationRequired(true);
   };
 
   /**
-   * Handles textfields change events
-   * @param key
-   * @param event
+   * Handles text fields change events
+   *
+   * @param key key
+   * @param event React change event
    */
   private onHandleResourceChange = (key: keyof ResourceSettingsForm) => (event: React.ChangeEvent<HTMLInputElement>) => {
     const copy = this.state.resourceMap;
@@ -711,11 +715,13 @@ class AppSettingsView extends React.Component<Props, State> {
       resourceMap: copy,
       dataChanged: true
     });
+
     this.props.confirmationRequired(true);
   };
 
   /**
    * Handles fields blur event
+   *
    * @param key
    */
   private onHandleBlur = (key: keyof ApplicationForm) => () => {
@@ -734,6 +740,7 @@ class AppSettingsView extends React.Component<Props, State> {
       applicationForm,
       dataChanged: true
     });
+
     this.props.confirmationRequired(true);
   };
 
@@ -743,25 +750,7 @@ class AppSettingsView extends React.Component<Props, State> {
    * @param newUri new URI
    * @param key key
    */
-  private onPropertyFileChange = (newUri: string, key: string) => {
-    const tempMap = this.state.resourceMap;
-    tempMap.set(key, newUri);
-
-    this.setState({
-      resourceMap: tempMap,
-      dataChanged: true
-    });
-
-    this.onUpdateResource();
-  };
-
-  /**
-   * Handles image change
-   *
-   * @param newUri new URI
-   * @param key key
-   */
-  private onPropertyFileUrlSet = (newUri: string, key: string) => {
+  private onPropertyFileOrUrlChange = (newUri: string, key: string) => {
     const tempMap = this.state.resourceMap;
     tempMap.set(key, newUri);
 

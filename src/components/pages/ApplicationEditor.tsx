@@ -499,7 +499,13 @@ class ApplicationEditor extends React.Component<Props, State> {
    * Resets state values
    */
   private reset = () => {
-    // navigate back to list
+    const { customer, device, history } = this.props;
+
+    if (!customer?.id || !device?.id) {
+      return;
+    }
+
+    history.push(`/${customer.id}/devices/${device.id}/applications`);
   }
 
   /**
