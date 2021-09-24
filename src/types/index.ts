@@ -1,4 +1,4 @@
-import { Resource } from "../generated/client";
+import { KeyValueProperty, Resource, ResourceType } from "../generated/client";
 
 /**
  * Dialog type
@@ -77,4 +77,12 @@ export interface ApiRequestMetadata {
   customerId: string;
   deviceId: string;
   applicationId: string;
+}
+
+/**
+ * Interface that extends API spec KeyValueProperty.
+ * This is needed for material table in order to get typing to work
+ */
+export interface TablePropertyData extends KeyValueProperty {
+  tableData?: any;
 }

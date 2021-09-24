@@ -162,7 +162,6 @@ export const resolveUploadLocalizationString = (type: ResourceType): ResourceTyp
  */
 export const getAllowedFileTypes = (type: ResourceType): string[] => {
   switch (type) {
-    case ResourceType.ROOT:
     case ResourceType.PDF:
       return [ "application/pdf" ];
     case ResourceType.IMAGE:

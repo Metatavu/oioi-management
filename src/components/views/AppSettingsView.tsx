@@ -18,6 +18,7 @@ import { toast } from "react-toastify";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import { KeycloakInstance } from "keycloak-js";
 import GenericDialog from "components/generic/GenericDialog";
+import { ResourceUtils } from "utils/resource";
 
 /**
  * Component Props
@@ -86,9 +87,7 @@ class AppSettingsView extends React.Component<Props, State> {
     const { application, rootResource } = this.props;
 
     let applicationForm = initForm<ApplicationForm>(
-      {
-        name: application.name
-      },
+      { name: application.name },
       applicationRules
     );
 
@@ -301,7 +300,154 @@ class AppSettingsView extends React.Component<Props, State> {
     }
 
   /**
+   * Renders text fields
+   */
+  private renderFields = () => {
+    return (
+      <>
+        <Box mb={ 3 }>
+          { this.renderTextField(strings.applicationName, 1, "text", "name") }
+        </Box>
+        <Box mb={ 3 }>
+          { this.renderTextField(strings.applicationSettings.teaserText, 8, "text", undefined, "teaserText") }
+        </Box>
+      </>
+    );
+  }
+
+  /**
+   * Render text fields with given form keys
+   *
+   * @param label text field label
+   * @param rows rows
+   * @param type text field type
+   * @param appKey key of ApplicationForm
+   * @param resourceKey key of ResourceSettingsForm
+   */
+  private renderTextField = (
+    label: string,
+    rows: number,
+    type: string,
+    appKey?: keyof ApplicationForm,
+    resourceKey?: keyof ResourceSettingsForm
+  ) => {
+    if (appKey) {
+      const values = this.state.applicationForm.values;
+      const { messages: { [appKey]: message } } = this.state.applicationForm;
+
+      return (
+        <TextField
+          fullWidth
+          multiline
+          rows={ rows }
+          type={ type }
+          error={ message && message.type === MessageType.ERROR }
+          helperText={ message && message.message }
+          value={ values[appKey] || "" }
+          onChange={ this.onHandleChange(appKey) }
+          onBlur={ this.onHandleBlur(appKey) }
+          name={ appKey }
+          variant="outlined"
+          label={ label }
+        />
+      );
+    } else if (resourceKey) {
+      return (
+        <TextField
+          fullWidth
+          multiline
+          rows={ rows }
+          type={ type }
+          value={ this.state.resourceMap.get(resourceKey) || "" }
+          onChange={ this.onHandleResourceChange(resourceKey) }
+          name={ resourceKey }
+          variant="outlined"
+          label={ label }
+        />
+      );
+    }
+  }
+
+  /**
+   * Render media elements
+   *
+   * @param key key
+   */
+  private renderMedia = (key: string) => {
+
+    const previewItem = this.state.resourceMap.get(key) || "";
+    return (
+      <ImagePreview
+        uploadDialogTitle={ strings.fileUpload.addImage }
+        uploadButtonText={ previewItem ? strings.fileUpload.changeImage : strings.fileUpload.addImage }
+        allowSetUrl={ true }
+        imagePath={ previewItem }
+        onUpload={ this.onPropertyFileOrUrlChange }
+        onSetUrl={ this.onPropertyFileOrUrlChange }
+        resource={ this.props.rootResource }
+        uploadKey={ key }
+        onDelete={ this.onPropertyFileDelete }
+      />
+    );
+  }
+
+  /**
+   * Render media elements
+   */
+  private renderIconList = () => {
+    const { iconsMap } = this.state;
+    const { classes, rootResource } = this.props;
+
+    const icons: JSX.Element[] = [];
+    const allKeys = Object.values(IconKeys);
+
+    iconsMap.forEach((value: string, key: string) => {
+      const iconTypeKey = allKeys.find(k => key === k.toString());
+      const preview = (
+        <Box key={ key } className={ classes.gridItem }>
+          <Typography variant="h5" color="textSecondary">{ iconTypeKey ? getLocalizedIconTypeString(iconTypeKey) : key }</Typography>
+          <ImagePreview
+            uploadDialogTitle={ strings.fileUpload.addImage }
+            uploadButtonText={ rootResource ? strings.fileUpload.changeImage : strings.fileUpload.addImage }
+            key={ key }
+            imagePath={ value }
+            allowSetUrl={ false }
+            onSetUrl={ () => {} }
+            onUpload={ this.onIconFileChange }
+            resource={ rootResource }
+            uploadKey={ key }
+            onDelete={ this.onIconFileDelete }
+          />
+        </Box>
+      );
+
+      icons.push(preview);
+    });
+
+    return (
+      <>
+        { icons }
+        <VisibleWithRole role="admin">
+          <Box className={ classes.gridItem }>
+            <Box className={ classes.newItem }>
+              <IconButton
+                title={ strings.addNewIcon }
+                className={ classes.iconButton }
+                onClick={ this.toggleDialog }
+              >
+                <AddIcon fontSize="large" />
+              </IconButton>
+            </Box>
+          </Box>
+        </VisibleWithRole>
+      </>
+    );
+  }
+
+  /**
    * Handles importing data from wall json file
+   *
+   * TODO: Is JSON import needed when it is possible to copy resources?
    *
    * @param files list of files or null
    */
@@ -323,21 +469,25 @@ class AppSettingsView extends React.Component<Props, State> {
         return;
       }
 
-      const data = JSON.parse(e.target.result as string)
-      const topLevel = data.root.children;
-
-      this.setState({ importingContent: true });
-
-      const imported = await this.importWallJsonItems(rootResource.id!, topLevel);
-      if (imported) {
-        await this.importRootProperties(data);
+      try {
+        const data = JSON.parse(e.target.result as string);
+        const topLevel = data.root.children;
+  
+        this.setState({ importingContent: true });
+  
+        const imported = await this.importWallJsonItems(rootResource.id!, topLevel);
+        if (imported) {
+          await this.importRootProperties(data);
+        }
+  
+        this.setState({ importDone: imported });
+  
+        toast.success(strings.importDone);
+  
+        setTimeout(() => window.location.reload(), 3000);
+      } catch (error) {
+        this.context.setError(strings.errorManagement.resource.create, error);
       }
-
-      this.setState({ importDone: imported });
-
-      toast.success(strings.importDone);
-
-      setTimeout(() => window.location.reload(), 3000);
     }
 
     reader.readAsText(file);
@@ -465,149 +615,8 @@ class AppSettingsView extends React.Component<Props, State> {
   }
 
   /**
-   * Renders text fields
-   */
-  private renderFields = () => {
-    return (
-      <>
-        <Box mb={ 3 }>
-          { this.renderTextField(strings.applicationName, 1, "text", "name") }
-        </Box>
-        <Box mb={ 3 }>
-          { this.renderTextField(strings.applicationSettings.teaserText, 8, "text", undefined, "teaserText") }
-        </Box>
-      </>
-    );
-  }
-
-  /**
-   * Render text fields with given form keys
-   *
-   * @param label text field label
-   * @param rows rows
-   * @param type text field type
-   * @param appKey key of ApplicationForm
-   * @param resourceKey key of ResourceSettingsForm
-   */
-  private renderTextField = (
-    label: string,
-    rows: number,
-    type: string,
-    appKey?: keyof ApplicationForm,
-    resourceKey?: keyof ResourceSettingsForm
-  ) => {
-    if (appKey) {
-      const values = this.state.applicationForm.values;
-      const { messages: { [appKey]: message } } = this.state.applicationForm;
-      return (
-        <TextField
-          fullWidth
-          multiline
-          rows={ rows }
-          type={ type }
-          error={ message && message.type === MessageType.ERROR }
-          helperText={ message && message.message }
-          value={ values[appKey] || "" }
-          onChange={ this.onHandleChange(appKey) }
-          onBlur={ this.onHandleBlur(appKey) }
-          name={ appKey }
-          variant="outlined"
-          label={ label }
-        />
-      );
-    } else if (resourceKey) {
-      return (
-        <TextField
-          fullWidth
-          multiline
-          rows={ rows }
-          type={ type }
-          value={ this.state.resourceMap.get(resourceKey) || "" }
-          onChange={ this.onHandleResourceChange(resourceKey) }
-          name={ resourceKey }
-          variant="outlined"
-          label={ label }
-        />
-      );
-    }
-  }
-
-  /**
-   * Render media elements
-   *
-   * @param key key
-   */
-  private renderMedia = (key: string) => {
-
-    const previewItem = this.state.resourceMap.get(key) || "";
-    return (
-      <ImagePreview
-        uploadDialogTitle={ strings.fileUpload.addImage }
-        uploadButtonText={ previewItem ? strings.fileUpload.changeImage : strings.fileUpload.addImage }
-        allowSetUrl={ true }
-        imagePath={ previewItem }
-        onUpload={ this.onPropertyFileOrUrlChange }
-        onSetUrl={ this.onPropertyFileOrUrlChange }
-        resource={ this.props.rootResource }
-        uploadKey={ key }
-        onDelete={ this.onPropertyFileDelete }
-      />
-    );
-  }
-
-  /**
-   * Render media elements
-   */
-  private renderIconList = () => {
-    const { iconsMap } = this.state;
-    const { classes, rootResource } = this.props;
-
-    const icons: JSX.Element[] = [];
-    const allKeys = Object.values(IconKeys);
-    iconsMap.forEach((value: string, key: string) => {
-      const iconTypeKey = allKeys.find(k => key === k.toString());
-      const preview = (
-        <Box key={ key } className={ classes.gridItem }>
-          <Typography variant="h5" color="textSecondary">{ iconTypeKey ? getLocalizedIconTypeString(iconTypeKey) : key }</Typography>
-          <ImagePreview
-            uploadDialogTitle={ strings.fileUpload.addImage }
-            uploadButtonText={ rootResource ? strings.fileUpload.changeImage : strings.fileUpload.addImage }
-            key={ key }
-            imagePath={ value }
-            allowSetUrl={ false }
-            onSetUrl={ () => {} }
-            onUpload={ this.onIconFileChange }
-            resource={ rootResource }
-            uploadKey={ key }
-            onDelete={ this.onIconFileDelete }
-          />
-        </Box>
-      );
-      icons.push(preview);
-    });
-
-    return (
-      <>
-        { icons }
-        <VisibleWithRole role="admin">
-          <Box className={ classes.gridItem }>
-            <Box className={ classes.newItem }>
-              <IconButton
-                title={ strings.addNewIcon }
-                className={ classes.iconButton }
-                onClick={ this.toggleDialog }
-              >
-                <AddIcon fontSize="large" />
-              </IconButton>
-            </Box>
-          </Box>
-        </VisibleWithRole>
-      </>
-    );
-  }
-
-  /**
    * Update resource and icon map data
+   *
    * @param rootResource root resource
    * @param applicationForm application form
    */
@@ -659,8 +668,9 @@ class AppSettingsView extends React.Component<Props, State> {
    */
   private onUpdateResource = () => {
     const { onUpdateRootResource } = this.props;
-    const properties: KeyValueProperty[] = [];
-    this.getPropertiesToUpdate(properties);
+    const { resourceMap, iconsMap } = this.state;
+
+    const properties = ResourceUtils.getPropertiesToUpdate(resourceMap, iconsMap);
 
     const resource = {
       ...this.props.rootResource,
@@ -684,13 +694,8 @@ class AppSettingsView extends React.Component<Props, State> {
     };
 
     const applicationForm = validateForm(
-      {
-        ...this.state.applicationForm,
-        values
-      },
-      {
-        usePreprocessor: false
-      }
+      { ...this.state.applicationForm, values },
+      { usePreprocessor: false }
     );
 
     this.setState({
@@ -708,15 +713,10 @@ class AppSettingsView extends React.Component<Props, State> {
    * @param event React change event
    */
   private onHandleResourceChange = (key: keyof ResourceSettingsForm) => (event: React.ChangeEvent<HTMLInputElement>) => {
-    const copy = this.state.resourceMap;
-    copy.set(key, event.target.value);
-
     this.setState({
-      resourceMap: copy,
+      resourceMap: new Map(this.state.resourceMap).set(key, event.target.value),
       dataChanged: true
-    });
-
-    this.props.confirmationRequired(true);
+    }, () => this.props.confirmationRequired(true));
   };
 
   /**
@@ -751,15 +751,10 @@ class AppSettingsView extends React.Component<Props, State> {
    * @param key key
    */
   private onPropertyFileOrUrlChange = (newUri: string, key: string) => {
-    const tempMap = this.state.resourceMap;
-    tempMap.set(key, newUri);
-
     this.setState({
-      resourceMap: tempMap,
+      resourceMap: new Map(this.state.resourceMap).set(key, newUri),
       dataChanged: true
-    });
-
-    this.onUpdateResource();
+    }, () => this.onUpdateResource());
   };
 
   /**
@@ -769,72 +764,38 @@ class AppSettingsView extends React.Component<Props, State> {
    * @param key key
    */
   private onIconFileChange = (newUri: string, key: string) => {
-    const tempMap = this.state.iconsMap;
-    tempMap.set(key, newUri);
-
     this.setState({
-      iconsMap: tempMap,
+      iconsMap: new Map(this.state.iconsMap).set(key, newUri),
       dataChanged: true
-    });
-
-    this.onUpdateResource();
+    }, () => this.onUpdateResource());
   };
 
   /**
    * Delete property file with key
    */
   private onPropertyFileDelete = (key: string) => {
-    const tempMap = this.state.resourceMap;
+    const tempMap = new Map(this.state.resourceMap);
 
     tempMap.delete(key);
     this.setState({
       resourceMap: tempMap,
       dataChanged: true
-    });
-
-    this.onUpdateResource();
+    }, () => this.onUpdateResource());
   };
 
   /**
    * Delete icon file with key
    */
   private onIconFileDelete = (key: string) => {
-    const tempMap = this.state.iconsMap;
+    const tempMap = new Map(this.state.iconsMap);
 
     tempMap.delete(key);
     this.setState({
       iconsMap: tempMap,
       dataChanged: true
-    });
-
-    this.onUpdateResource();
+    }, () => this.onUpdateResource());
   };
 
-  /**
-   * Push all property key value pairs from state maps to properties array
-   * @param properties
-   */
-  private getPropertiesToUpdate(properties: KeyValueProperty[]) {
-    const { resourceMap, iconsMap } = this.state;
-
-    resourceMap.forEach((value: string, key: string) => {
-      const index = properties.findIndex((p: KeyValueProperty) => p.key === key);
-      if (index > -1) {
-        properties[index] = { key: key, value: value || "" };
-      } else {
-        properties.push({ key: key, value: value || "" });
-      }
-    });
-
-    iconsMap.forEach((value: string, key: string) => {
-      const index = properties.findIndex((p: KeyValueProperty) => p.key === key);
-      if (index > -1) {
-        properties[index] = { key: key, value: value || "" };
-      } else {
-        properties.push({ key: key, value: value || "" });
-      }
-    });
-  }
 }
 
 export default withStyles(styles)(AppSettingsView);

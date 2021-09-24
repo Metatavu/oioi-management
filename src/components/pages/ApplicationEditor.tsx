@@ -457,7 +457,8 @@ class ApplicationEditor extends React.Component<Props, State> {
       deleteResources,
       customerId,
       deviceId,
-      applicationId
+      applicationId,
+      selectResource
     } = this.props;
 
     if (!keycloak?.token) {
@@ -474,6 +475,7 @@ class ApplicationEditor extends React.Component<Props, State> {
         });
 
         deleteResources([ selectedResource, ...this.getResourceBranch(selectedResource) ]);
+        selectResource(undefined);
         toast.success(strings.deleteSuccessMessage);
       } catch (error) {
         this.context.setError(

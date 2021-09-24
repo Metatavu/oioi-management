@@ -98,7 +98,7 @@ class ResourceTree extends React.Component<Props, State> {
     const { resources, contentVersion, selectedResource } = this.props;
 
     if (prevProps.selectedResource?.id !== selectedResource?.id) {
-      this.setState({ loading: true }, () => this.setState({ treeData: this.buildTree(resources) }));
+      this.setState({ loading: true }, () => this.setState({ treeData: this.buildTree(resources), loading: false }));
       await this.releaseAndAcquireLock(selectedResource, prevProps.selectedResource);
       this.resourceLockInterval = setInterval(this.renewLock, 10000);
     }
