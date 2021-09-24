@@ -128,7 +128,7 @@ class PageResourceSettingsView extends React.Component<Props, State> {
         >
           { strings.save }
         </Button>
-        { this.renderField("name", strings.name, "text") }
+        { this.renderField("name", strings.pageSettingsView.name, "text") }
         <Box mb={ 3 }>
           { this.renderChildResources() }
           { this.renderAddChild() }

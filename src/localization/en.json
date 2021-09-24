@@ -120,6 +120,20 @@
     "deleteSlideshow": "Poista slideshow"
   },
 
+  "menuSettingsView": {
+    "name": "Name",
+    "menuTeaserText": "Menu teaser text",
+    "pageTitle": "Page title",
+    "pageContentText": "Page content text",
+    "backgroundMedia": "Background media",
+    "menuMedia": "Menu media",
+    "foregroundMedia": "Foreground media"
+  },
+
+  "pageSettingsView": {
+    "name": "Name"
+  },
+
   "fileUpload": {
     "addMedia": "Add media",
     "changeMedia": "Change media",

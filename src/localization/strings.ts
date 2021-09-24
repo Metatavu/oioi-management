@@ -135,6 +135,26 @@ export interface IStrings extends LocalizedStringsMethods {
   };
 
   /**
+   * Translations related to menu settings 
+   */
+  menuSettingsView: {
+    name: string;
+    menuTeaserText: string;
+    pageTitle: string;
+    pageContentText: string;
+    backgroundMedia: string;
+    menuMedia: string;
+    foregroundMedia: string;
+  },
+
+  /**
+   * Translations related to page settings 
+   */
+  pageSettingsView: {
+    name: string;
+  },
+
+  /**
    * Translations related to file upload
    */
   fileUpload: {
