@@ -2,7 +2,6 @@ import * as React from "react";
 import { withStyles, WithStyles, TextField, Button, Divider, Typography, CircularProgress, IconButton, Box, Accordion, AccordionSummary, AccordionDetails } from "@material-ui/core";
 import styles from "../../styles/editor-view";
 import strings from "../../localization/strings";
-import theme from "../../styles/theme";
 import { Application, Resource, KeyValueProperty } from "../../generated/client";
 import { Form, initForm, validateForm, MessageType } from "ts-form-validation";
 import { ApplicationForm, applicationRules, ResourceSettingsForm } from "../../commons/formRules";
@@ -32,7 +31,7 @@ interface Props extends WithStyles<typeof styles> {
   onUpdateApplication: (application: Application) => void;
   onUpdateRootResource: (rootResource: Resource) => void;
   confirmationRequired: (value: boolean) => void;
-  onDeleteClick: (application: Application) => void;
+  onDeleteApplicationClick: (application: Application) => void;
 }
 
 /**
@@ -46,7 +45,7 @@ interface State {
   importingContent: boolean;
   importDone: boolean;
   dataChanged: boolean;
-  deleteDialogOpen: boolean;
+  deleteApplicationDialogOpen: boolean;
 }
 
 /**
@@ -76,7 +75,7 @@ class AppSettingsView extends React.Component<Props, State> {
       importingContent: false,
       importDone: false,
       dataChanged: false,
-      deleteDialogOpen: false
+      deleteApplicationDialogOpen: false
     };
   }
 
@@ -114,7 +113,12 @@ class AppSettingsView extends React.Component<Props, State> {
    */
   public render = () => {
     const { classes, keycloak } = this.props;
-    const { importDone, importingContent, dataChanged, applicationForm } = this.state;
+    const {
+      importDone,
+      importingContent,
+      dataChanged,
+      applicationForm
+    } = this.state;
 
     if (importDone || importingContent) {
       return (
@@ -145,9 +149,11 @@ class AppSettingsView extends React.Component<Props, State> {
         >
           { strings.save }
         </Button>
-        <Typography style={{ marginBottom: theme.spacing(3) }} variant="h3">
-          { strings.applicationBasicInformation }
-        </Typography>
+        <Box mb={ 3 }>
+          <Typography variant="h3">
+            { strings.applicationBasicInformation }
+          </Typography>
+        </Box>
         { this.renderFields() }
         <Box mb={ 3 } mt={ 3 }>
           <Divider/>
@@ -190,7 +196,9 @@ class AppSettingsView extends React.Component<Props, State> {
           onToggle={ this.toggleDialog }
           open={ this.state.iconDialogOpen }
         />
-        { this.renderAdvancedSettings() }
+        <VisibleWithRole role="admin">
+          { this.renderAdvancedSettings() }
+        </VisibleWithRole>
       </>
     );
   }
@@ -239,7 +247,7 @@ class AppSettingsView extends React.Component<Props, State> {
                 className={ classes.deleteButton }
                 color="primary"
                 variant="contained"
-                onClick={ this.toggleDeleteDialog }
+                onClick={ this.toggleDeleteApplicationDialog }
               >
                 { strings.applicationEditor.deleteApplication }
               </Button>
@@ -263,7 +271,7 @@ class AppSettingsView extends React.Component<Props, State> {
             </VisibleWithRole>
           </AccordionDetails>
         </Accordion>
-        { this.renderDeleteDialog() }
+        { this.renderDeleteApplicationDialog() }
       </>
     );
   }
@@ -271,23 +279,22 @@ class AppSettingsView extends React.Component<Props, State> {
   /**
    * Render delete application confirmation dialog
    */
-  private renderDeleteDialog = () => {
-    const { onDeleteClick, application  } = this.props;
-    const { deleteDialogOpen } = this.state;
+  private renderDeleteApplicationDialog = () => {
+    const { onDeleteApplicationClick, application  } = this.props;
+    const { deleteApplicationDialogOpen } = this.state;
 
     return (
       <GenericDialog
-        title="Delete application"
-        onCancel={ this.toggleDeleteDialog }
-        onClose={ this.toggleDeleteDialog }
-        onConfirm={ () => onDeleteClick(application) }
-        open={ deleteDialogOpen }
+        title={ strings.applicationSettings.deleteApplication }
+        onCancel={ this.toggleDeleteApplicationDialog }
+        onClose={ this.toggleDeleteApplicationDialog }
+        onConfirm={ () => onDeleteApplicationClick(application) }
+        open={ deleteApplicationDialogOpen }
         cancelButtonText={ strings.cancel }
         positiveButtonText={ strings.delete }
         error={ false }
       >
-        <Typography>Do you want to delete application and all it's versions?</Typography>
-        <Typography>This action cannot be reverted.</Typography>
+        <Typography>{ strings.applicationSettings.deleteApplicationConfirmationText }</Typography>
       </GenericDialog>
     );
   }
@@ -295,8 +302,8 @@ class AppSettingsView extends React.Component<Props, State> {
   /**
    * Toggle delete dialog
    */
-    private toggleDeleteDialog = () => {
-      this.setState({ deleteDialogOpen: !this.state.deleteDialogOpen });
+    private toggleDeleteApplicationDialog = () => {
+      this.setState({ deleteApplicationDialogOpen: !this.state.deleteApplicationDialogOpen });
     }
 
   /**

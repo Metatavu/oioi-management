@@ -16,6 +16,8 @@ import { toast } from "react-toastify";
 import { ErrorContext } from "components/containers/ErrorHandler";
 import AddContentVersionDialog from "./AddContentVersionDialog";
 import moment from "moment";
+import GenericDialog from "./GenericDialog";
+import VisibleWithRole from "./VisibleWithRole";
 
 /**
  * Component properties
@@ -28,6 +30,7 @@ interface Props extends ExternalProps { }
 interface State {
   popOverAnchor: HTMLElement | null;
   addContentVersionDialogOpen: boolean;
+  deleteVersionDialogOpen: boolean;
 }
 
 /**
@@ -46,7 +49,8 @@ class ContentVersionControls extends React.Component<Props, State> {
     super(props);
     this.state = {
       popOverAnchor: null,
-      addContentVersionDialogOpen: false
+      addContentVersionDialogOpen: false,
+      deleteVersionDialogOpen: false
     }
   }
 
@@ -62,13 +66,21 @@ class ContentVersionControls extends React.Component<Props, State> {
 
     return (
       <Box className={ classes.root }>
-        <Typography variant="h5">
-          { `${strings.contentVersionControls.contentVersion}:` }
-        </Typography>
-        { this.renderContentVersionSelect() }
-        { this.renderSetAsActiveVersion() }
-        { this.renderActiveContentVersion() }
+        <Box display="flex" alignItems="center">
+          <Typography variant="h5">
+            { `${strings.contentVersionControls.contentVersion}:` }
+          </Typography>
+          { this.renderContentVersionSelect() }
+          { this.renderSetAsActiveVersion() }
+          { this.renderActiveContentVersion() }
+        </Box>
+        <VisibleWithRole role="admin">
+          <Box>
+            { this.renderDeleteVersionButton() }
+          </Box>
+        </VisibleWithRole>
         { this.renderAddNewDialog() }
+        { this.renderDeleteVersionDialog() }
       </Box>
     );
   }
@@ -214,7 +226,7 @@ class ContentVersionControls extends React.Component<Props, State> {
       <ListItemIcon>
         <AddIcon/>
       </ListItemIcon>
-     <ListItemText primary={ strings.contentVersionControls.addNewVersion }/>
+      <ListItemText primary={ strings.contentVersionControls.addNewVersion }/>
     </ListItem>
   );
 
@@ -230,6 +242,49 @@ class ContentVersionControls extends React.Component<Props, State> {
         onSave={ this.onAddNewContentVersion }
         onClose={ () => this.setState({ addContentVersionDialogOpen: false }) }
       />
+    );
+  }
+
+  /**
+   * Renders delete version button
+   */
+  private renderDeleteVersionButton = () => {
+    const { classes } = this.props;
+
+    return (
+      <Tooltip title={ strings.contentVersionControls.deleteSelectedVersion }>
+        <Button
+          disableElevation
+          className={ classes.deleteButton }
+          color="primary"
+          variant="contained"
+          onClick={ () => this.setState({ deleteVersionDialogOpen: true }) }
+        >
+          { strings.contentVersionControls.deleteVersion }
+        </Button>
+      </Tooltip>
+    );
+  }
+
+  /**
+   * Render delete version confirmation dialog
+   */
+  private renderDeleteVersionDialog = () => {
+    const { deleteVersionDialogOpen } = this.state;
+
+    return (
+      <GenericDialog
+        title={ strings.contentVersionControls.deleteVersion }
+        onCancel={ () => this.setState({ deleteVersionDialogOpen: false }) }
+        onClose={ () => this.setState({ deleteVersionDialogOpen: false }) }
+        onConfirm={ () => this.onDeleteVersionClick() }
+        open={ deleteVersionDialogOpen }
+        cancelButtonText={ strings.cancel }
+        positiveButtonText={ strings.delete }
+        error={ false }
+      >
+        <Typography>{ strings.contentVersionControls.deleteVersionConfirmationText }</Typography>
+      </GenericDialog>
     );
   }
 
@@ -410,6 +465,15 @@ class ContentVersionControls extends React.Component<Props, State> {
     if (dateA && !dateB) return -1;
 
     return moment(dateB).diff(dateA);
+  }
+
+  /**
+   * Delete content version
+   * 
+   * TODO: Make delete work
+   */
+  private onDeleteVersionClick = () => {
+    return console.log("Delete selected content version");
   }
 
 }

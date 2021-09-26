@@ -6,6 +6,9 @@ export default createStyles({
   root: {
     display: "flex",
     alignItems: "center",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: "100%",
     "& :not(:first-child)": {
       marginLeft: theme.spacing(2)
     }
@@ -26,6 +29,11 @@ export default createStyles({
     "& :not(:first-child)": {
       marginLeft: theme.spacing(1)
     }
+  },
+
+  deleteButton: {
+    backgroundColor: "#e85874",
+    marginRight: 150
   }
 
 });

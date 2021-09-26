@@ -212,6 +212,8 @@ export interface IStrings extends LocalizedStringsMethods {
     id: string;
     addIcon: string;
     advancedSettings: string;
+    deleteApplication: string;
+    deleteApplicationConfirmationText: string;
   };
 
   /**
@@ -225,11 +227,13 @@ export interface IStrings extends LocalizedStringsMethods {
     alreadyActive: string;
     versionNotSelected: string;
     activeVersion: string;
-    deleteVersion: string;
     alreadyExists: string;
     content: string;
     empty: string;
     activeVersionUpdateSuccess: string;
+    deleteVersion: string;
+    deleteSelectedVersion: string;
+    deleteVersionConfirmationText: string;
   };
 
   /**

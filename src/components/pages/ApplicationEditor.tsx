@@ -360,7 +360,7 @@ class ApplicationEditor extends React.Component<Props, State> {
             rootResource={ rootResource }
             customerId={ customerId }
             deviceId={ deviceId }
-            onDeleteClick={ this.onDeleteApplication }
+            onDeleteApplicationClick={ this.onDeleteApplication }
           />
         </main>
       );
