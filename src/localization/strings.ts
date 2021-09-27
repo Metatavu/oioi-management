@@ -130,8 +130,6 @@ export interface IStrings extends LocalizedStringsMethods {
     deleteApplication: string;
     deleteVersion: string;
     deleteLanguage: string;
-    deletePage: string;
-    deleteSlideshow: string;
   };
 
   /**
@@ -145,6 +143,7 @@ export interface IStrings extends LocalizedStringsMethods {
     backgroundMedia: string;
     menuMedia: string;
     foregroundMedia: string;
+    delete: string;
   },
 
   /**
@@ -152,6 +151,14 @@ export interface IStrings extends LocalizedStringsMethods {
    */
   pageSettingsView: {
     name: string;
+    delete: string;
+  },
+
+  /**
+   * Translations related to slideshow settings 
+   */
+  slideshowSettingsView: {
+    delete: string;
   },
 
   /**

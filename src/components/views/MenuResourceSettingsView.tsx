@@ -259,14 +259,18 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
           <Box
             mt={ 3 }
             mb={ 3 }
-            display="flex"
-            flexDirection="row"
+            className={ classes.advancedSettingRow }
           >
-            <Box mb={ 1 } mr={ 2 }>
-              { this.renderFormField("orderNumber", strings.orderNumber, "number") }
-            </Box>
-            <Box mb={ 1 }>
-              { this.renderFormField("slug", strings.slug, "text") }
+            <Box
+              display="flex"
+              flexDirection="row"
+            >
+              <Box mb={ 1 } mr={ 2 }>
+                { this.renderFormField("orderNumber", strings.orderNumber, "number") }
+              </Box>
+              <Box mb={ 1 }>
+                { this.renderFormField("slug", strings.slug, "text") }
+              </Box>
             </Box>
             <Box>
               <Button
@@ -276,7 +280,7 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
                 variant="contained"
                 onClick={ onDeleteMenuClick }
               >
-                { strings.delete }
+                { strings.menuSettingsView.delete }
               </Button>
             </Box>
           </Box>

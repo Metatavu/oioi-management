@@ -303,5 +303,13 @@ export default createStyles({
     zIndex: 2000,
     alignItems: "center",
     justifyContent: "center"
+  },
+
+  advancedSettingRow: {
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center"
   }
+
 });

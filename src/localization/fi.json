@@ -115,9 +115,7 @@
     "dragSidebar": "Raahaa leveämmäksi / kapeammaksi",
     "loadingContentTree": "Ladataan sovelluspuuta...",
     "deleteApplication": "Poista sovellus",
-    "deleteVersion": "Poista versio",
-    "deletePage": "Poista sivu",
-    "deleteSlideshow": "Poista slideshow"
+    "deleteVersion": "Poista versio"
   },
 
   "menuSettingsView": {
@@ -127,11 +125,17 @@
     "pageContentText": "Sivun kuvausteksti",
     "backgroundMedia": "Taustamedia",
     "menuMedia": "Valikon media / Menu media",
-    "foregroundMedia": "Etualan media"
+    "foregroundMedia": "Etualan media",
+    "delete": "Poista valikko"
   },
 
   "pageSettingsView": {
-    "name": "Nimi"
+    "name": "Nimi",
+    "delete": "Poista sivu"
+  },
+
+  "slideshowSettingsView": {
+    "delete": "Poista slideshow"
   },
 
   "fileUpload": {

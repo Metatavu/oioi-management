@@ -409,7 +409,7 @@ class ApplicationEditor extends React.Component<Props, State> {
           keycloak={ keycloak }
           deviceId={ deviceId }
           applicationId={ applicationId }
-          onDeleteMenuClick={ this.onResourceDelete }
+          onDeleteSlideshowClick={ this.onResourceDelete }
         />;
       case ResourceType.PAGE:
         return <PageResourceSettingsView
@@ -424,6 +424,7 @@ class ApplicationEditor extends React.Component<Props, State> {
           keycloak={ keycloak }
           deviceId={ deviceId }
           applicationId={ applicationId }
+          onDeletePageClick={ this.onResourceDelete }
         />;
       case ResourceType.SLIDESHOWPDF:
         return <PDFResourceSettingsView

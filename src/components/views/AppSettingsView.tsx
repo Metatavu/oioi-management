@@ -228,9 +228,7 @@ class AppSettingsView extends React.Component<Props, State> {
             <Box
               mt={ 3 }
               mb={ 3 }
-              display="flex"
-              justifyContent="space-between"
-              alignItems="center"
+              className={ classes.advancedSettingRow }
             >
               <Box display="flex">
                 <Typography variant="h5">

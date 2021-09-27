@@ -11,7 +11,7 @@ import EditIcon from "@material-ui/icons/Edit";
 import styles from "../../styles/editor-view";
 import strings from "../../localization/strings";
 import theme from "../../styles/theme";
-import { Resource, KeyValueProperty, ResourceType, ResourceToJSON } from "../../generated/client";
+import { Resource } from "../../generated/client";
 import { forwardRef } from "react";
 import { MessageType, initForm, Form, validateForm } from "ts-form-validation";
 import { ErrorContextType } from "../../types";
@@ -43,7 +43,7 @@ interface Props extends WithStyles<typeof styles> {
   confirmationRequired: (value: boolean) => void;
   onUpdate: (resource: Resource) => void;
   onDelete: (resource: Resource) => void;
-  onDeleteMenuClick: () => void;
+  onDeleteSlideshowClick: () => void;
 }
 
 /**
@@ -270,7 +270,7 @@ class SlideshowResourceSettingsView extends React.Component<Props, State> {
    * Renders advanced settings
    */
   private renderAdvancedSettings = () => {
-    const { classes, onDeleteMenuClick } = this.props;
+    const { classes, onDeleteSlideshowClick } = this.props;
 
     return (
       <>
@@ -288,14 +288,18 @@ class SlideshowResourceSettingsView extends React.Component<Props, State> {
             <Box
               mt={ 3 }
               mb={ 3 }
-              display="flex"
-              flexDirection="row"
+              className={ classes.advancedSettingRow }
             >
-              <Box mb={ 1 } mr={ 2 }>
-                { this.renderFormField("orderNumber", strings.orderNumber, "number") }
-              </Box>
-              <Box mb={ 1 }>
-                { this.renderFormField("slug", strings.slug, "text") }
+              <Box
+                display="flex"
+                flexDirection="row"
+              >
+                <Box mb={ 1 } mr={ 2 }>
+                  { this.renderFormField("orderNumber", strings.orderNumber, "number") }
+                </Box>
+                <Box mb={ 1 }>
+                  { this.renderFormField("slug", strings.slug, "text") }
+                </Box>
               </Box>
               <Box>
                 <Button
@@ -303,9 +307,9 @@ class SlideshowResourceSettingsView extends React.Component<Props, State> {
                   className={ classes.deleteButton }
                   color="primary"
                   variant="contained"
-                  onClick={ onDeleteMenuClick }
+                  onClick={ onDeleteSlideshowClick }
                 >
-                  { strings.delete }
+                  { strings.slideshowSettingsView.delete }
                 </Button>
               </Box>
             </Box>

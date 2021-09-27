@@ -11,7 +11,7 @@ import DeleteForeverIcon from "@material-ui/icons/DeleteForever";
 import styles from "../../styles/editor-view";
 import strings from "../../localization/strings";
 import theme from "../../styles/theme";
-import { Resource, ResourceToJSON, ResourceType } from "../../generated/client";
+import { Resource, ResourceType } from "../../generated/client";
 import { forwardRef } from "react";
 import { MessageType, initForm, Form, validateForm } from "ts-form-validation";
 import { ErrorContextType } from "../../types";
@@ -41,6 +41,7 @@ interface Props extends WithStyles<typeof styles> {
   onDelete: (resource: Resource) => void;
   onDeleteChild: (resource: Resource, nextOpenResource?: Resource) => void;
   confirmationRequired: (value: boolean) => void;
+  onDeletePageClick: () => void;
 }
 
 /**
@@ -510,26 +511,42 @@ class PageResourceSettingsView extends React.Component<Props, State> {
   /**
    * Renders advanced settings
    */
-  private renderAdvancedSettings = () => (
-    <Accordion>
-      <AccordionSummary expandIcon={ <ExpandMoreIcon color="primary"/> }>
-        <Typography variant="h4">
-          { strings.applicationSettings.advancedSettings }
-        </Typography>
-      </AccordionSummary>
-      <AccordionDetails>
-        <Box mt={ 3 }>
-          { this.renderResourceFields() }
-        </Box>
-        <Box mt={ 3 } mb={ 3 }>
-          { this.renderPropertiesTable() }
-        </Box>
-        <Box>
-          { this.renderStyleTable() }
-        </Box>
-      </AccordionDetails>
-    </Accordion>
-  )
+  private renderAdvancedSettings = () => {
+    const { classes, onDeletePageClick } = this.props;
+
+    return (
+      <Accordion>
+        <AccordionSummary expandIcon={ <ExpandMoreIcon color="primary"/> }>
+          <Typography variant="h4">
+            { strings.applicationSettings.advancedSettings }
+          </Typography>
+        </AccordionSummary>
+        <AccordionDetails>
+          <Box
+            mt={ 3 }
+            className={ classes.advancedSettingRow }
+          >
+            { this.renderResourceFields() }
+            <Button
+              disableElevation
+              className={ classes.deleteButton }
+              color="primary"
+              variant="contained"
+              onClick={ onDeletePageClick }
+            >
+              { strings.pageSettingsView.delete }
+            </Button>
+          </Box>
+          <Box mt={ 3 } mb={ 3 }>
+            { this.renderPropertiesTable() }
+          </Box>
+          <Box>
+            { this.renderStyleTable() }
+          </Box>
+        </AccordionDetails>
+      </Accordion> 
+    );
+  }
 
   /**
    * Updates component data

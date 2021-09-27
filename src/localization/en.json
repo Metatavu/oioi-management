@@ -115,9 +115,7 @@
     "dragSidebar": "Click and drag to narrow or widen",
     "loadingContentTree": "Loading content tree...",
     "deleteApplication": "Delete application",
-    "deleteVersion": "Delete version",
-    "deletePage": "Poista sivu",
-    "deleteSlideshow": "Poista slideshow"
+    "deleteVersion": "Delete version"
   },
 
   "menuSettingsView": {
@@ -127,11 +125,17 @@
     "pageContentText": "Page content text",
     "backgroundMedia": "Background media",
     "menuMedia": "Menu media",
-    "foregroundMedia": "Foreground media"
+    "foregroundMedia": "Foreground media",
+    "delete": "Delete menu"
   },
 
   "pageSettingsView": {
-    "name": "Name"
+    "name": "Name",
+    "delete": "Delete page"
+  },
+
+  "slideshowSettingsView": {
+    "delete": "Delete slideshow"
   },
 
   "fileUpload": {
