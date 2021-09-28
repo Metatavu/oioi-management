@@ -282,7 +282,7 @@ class PDFResourceSettingsView extends React.Component<Props, State> {
   private renderStyleTable = () => {
     const { resourceData } = this.state;
 
-    if (resourceData.styles === undefined) {
+    if (!resourceData.styles) {
       return null;
     }
 
