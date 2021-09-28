@@ -194,7 +194,7 @@ class PageResourceSettingsView extends React.Component<Props, State> {
   private renderPropertiesTable = () => {
     const { resourceData } = this.state;
 
-    if (resourceData.properties === undefined) {
+    if (!resourceData?.properties) {
       return null;
     }
 
@@ -292,7 +292,7 @@ class PageResourceSettingsView extends React.Component<Props, State> {
   private renderStyleTable = () => {
     const { resourceData } = this.state;
 
-    if (resourceData.styles === undefined) {
+    if (!resourceData?.styles) {
       return null;
     }
 

@@ -277,7 +277,7 @@ class ContentVersionControls extends React.Component<Props, State> {
         title={ strings.contentVersionControls.deleteVersion }
         onCancel={ () => this.setState({ deleteVersionDialogOpen: false }) }
         onClose={ () => this.setState({ deleteVersionDialogOpen: false }) }
-        onConfirm={ () => this.onDeleteVersionClick() }
+        onConfirm={ this.onDeleteVersionClick }
         open={ deleteVersionDialogOpen }
         cancelButtonText={ strings.cancel }
         positiveButtonText={ strings.delete }

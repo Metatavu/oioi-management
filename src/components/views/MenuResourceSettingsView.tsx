@@ -301,7 +301,7 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
   private renderPropertiesTable = () => {
     const { resourceData } = this.state;
 
-    if (resourceData.properties === undefined) {
+    if (!resourceData?.properties) {
       return null;
     }
 
