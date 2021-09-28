@@ -1,6 +1,6 @@
 import * as React from "react";
 
-import { Dialog, DialogTitle, DialogContent, DialogActions, Button, IconButton, Box, Typography } from "@material-ui/core";
+import { Dialog, DialogTitle, DialogContent, DialogActions, Button, IconButton, Box, Typography, CircularProgress } from "@material-ui/core";
 import CloseIcon from "@material-ui/icons/Close";
 
 /**
@@ -13,6 +13,7 @@ interface Props {
   onClose: () => void;
   onCancel: () => void;
   onConfirm: () => void | Promise<void>;
+  showLoader?: boolean;
   open: boolean;
   error: boolean;
   fullScreen?: boolean;
@@ -32,6 +33,7 @@ const GenericDialog: React.FC<Props> = ({
   onClose,
   onCancel,
   title,
+  showLoader,
   onConfirm,
   error,
   fullScreen,
@@ -41,6 +43,7 @@ const GenericDialog: React.FC<Props> = ({
   ignoreOutsideClicks,
   children
 }) => {
+  const [ loading, setLoading ] = React.useState(false);
 
   /**
    * Event handler for on close click
@@ -55,20 +58,47 @@ const GenericDialog: React.FC<Props> = ({
     onClose();
   }
 
+  /**
+   * Event handler for confirm click
+   */
+  const onConfirmClick = async () => {
+    setLoading(true);
+    await onConfirm();
+    setTimeout(() => setLoading(false), 500);
+  }
+
+  /**
+   * Renders dialog content
+   */
+  const renderContent = () => {
+    if (showLoader && loading) {
+      return (
+        <Box
+          width={ 400 }
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+        >
+          <CircularProgress/>
+        </Box>
+      );
+    }
+
+    return children;
+  }
+
+  /**
+   * Component render
+   */
   return (
     <Dialog
-      disableEnforceFocus={ disableEnforceFocus }
       open={ open }
-      onClose={ (event, reason) => onCloseClick(reason) }
-      aria-labelledby="alert-dialog-title"
-      aria-describedby="alert-dialog-description"
       fullScreen={ fullScreen }
       fullWidth={ fullWidth }
+      disableEnforceFocus={ disableEnforceFocus }
+      onClose={ (event, reason) => onCloseClick(reason) }
     >
-      <DialogTitle
-        id="alert-dialog-title"
-        disableTypography
-      >
+      <DialogTitle disableTypography>
         <Box display="flex" justifyContent="space-between" alignItems="center">
           <Typography variant="h4">
             { title }
@@ -82,7 +112,7 @@ const GenericDialog: React.FC<Props> = ({
         </Box>
       </DialogTitle>
       <DialogContent>
-        { children }
+        { renderContent() }
       </DialogContent>
       <DialogActions>
         { cancelButtonText &&
@@ -96,7 +126,7 @@ const GenericDialog: React.FC<Props> = ({
         { positiveButtonText &&
         <Button
           disabled={ error || disabled }
-          onClick={ onConfirm }
+          onClick={ onConfirmClick }
           color="primary"
           autoFocus
         >

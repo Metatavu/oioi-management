@@ -249,19 +249,28 @@ class ContentVersionControls extends React.Component<Props, State> {
    * Renders delete version button
    */
   private renderDeleteVersionButton = () => {
-    const { classes } = this.props;
+    const { classes, application, selectedContentVersion } = this.props;
+
+    const isActive = application?.activeContentVersionResourceId === selectedContentVersion?.id;
+
+    const tooltipTitle = isActive ?
+      strings.contentVersionControls.cannotDeleteActiveVersion :
+      strings.contentVersionControls.deleteSelectedVersion;
 
     return (
-      <Tooltip title={ strings.contentVersionControls.deleteSelectedVersion }>
-        <Button
-          disableElevation
-          className={ classes.deleteButton }
-          color="primary"
-          variant="contained"
-          onClick={ () => this.setState({ deleteVersionDialogOpen: true }) }
-        >
-          { strings.contentVersionControls.deleteVersion }
-        </Button>
+      <Tooltip title={ tooltipTitle }>
+        <div>
+          <Button
+            disableElevation
+            className={ classes.deleteButton }
+            color="primary"
+            variant="contained"
+            disabled={ isActive }
+            onClick={ () => this.setState({ deleteVersionDialogOpen: true }) }
+          >
+            { strings.contentVersionControls.deleteVersion }
+          </Button>
+        </div>
       </Tooltip>
     );
   }
@@ -274,16 +283,19 @@ class ContentVersionControls extends React.Component<Props, State> {
 
     return (
       <GenericDialog
+        showLoader
         title={ strings.contentVersionControls.deleteVersion }
         onCancel={ () => this.setState({ deleteVersionDialogOpen: false }) }
         onClose={ () => this.setState({ deleteVersionDialogOpen: false }) }
-        onConfirm={ this.onDeleteVersionClick }
+        onConfirm={ this.onDeleteVersion }
         open={ deleteVersionDialogOpen }
         cancelButtonText={ strings.cancel }
         positiveButtonText={ strings.delete }
         error={ false }
       >
-        <Typography>{ strings.contentVersionControls.deleteVersionConfirmationText }</Typography>
+        <Typography>
+          { strings.contentVersionControls.deleteVersionConfirmationText }
+        </Typography>
       </GenericDialog>
     );
   }
@@ -434,6 +446,39 @@ class ContentVersionControls extends React.Component<Props, State> {
   }
 
   /**
+   * Event handler for delete content version
+   */
+  private onDeleteVersion = async () => {
+    const { keycloak, application, selectedContentVersion, deleteContentVersion } = this.props;
+
+    const metadata = this.getRequestMetaData();
+
+    if (
+      !keycloak?.token ||
+      !application ||
+      !metadata ||
+      !selectedContentVersion?.id ||
+      selectedContentVersion.id === application.activeContentVersionResourceId
+    ) {
+      return;
+    }
+
+    try {
+      await Api.getResourcesApi(keycloak.token).deleteResource({
+        ...metadata,
+        resourceId: selectedContentVersion.id
+      });
+
+      deleteContentVersion(selectedContentVersion);
+      toast.success(strings.contentVersionControls.deleteVersionSuccess);
+    } catch (error) {
+      this.context.setError(strings.errorManagement.contentVersion.delete, error);
+    }
+
+    this.setState({ deleteVersionDialogOpen: false });
+  }
+
+  /**
    * Returns request metadata or undefined if something is missing
    */
   private getRequestMetaData = (): ApiRequestMetadata | undefined => {
@@ -465,15 +510,6 @@ class ContentVersionControls extends React.Component<Props, State> {
     if (dateA && !dateB) return -1;
 
     return moment(dateB).diff(dateA);
-  }
-
-  /**
-   * Delete content version
-   * 
-   * TODO: Make delete work
-   */
-  private onDeleteVersionClick = () => {
-    return console.log("Delete selected content version");
   }
 
 }

@@ -205,8 +205,10 @@
     "empty": "Tyhjä",
     "activeVersionUpdateSuccess": "Aktiivinen versio päivitetty",
     "deleteVersion": "Poista versio",
+    "cannotDeleteActiveVersion": "Aktiivista versiota ei voida poistaa",
     "deleteSelectedVersion": "Poista valittu versio",
-    "deleteVersionConfirmationText": "Haluatko varmasti poistaa tämän sisältöversion? Toimintoa ei voi peruuttaa."
+    "deleteVersionConfirmationText": "Haluatko varmasti poistaa tämän sisältöversion? Toimintoa ei voi peruuttaa.",
+    "deleteVersionSuccess": "Sisältöversio poistettu"
   },
 
   "iconKeys": {

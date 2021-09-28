@@ -239,8 +239,10 @@ export interface IStrings extends LocalizedStringsMethods {
     empty: string;
     activeVersionUpdateSuccess: string;
     deleteVersion: string;
+    cannotDeleteActiveVersion: string;
     deleteSelectedVersion: string;
     deleteVersionConfirmationText: string;
+    deleteVersionSuccess: string;
   };
 
   /**
