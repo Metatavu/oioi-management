@@ -113,7 +113,29 @@
 
   "applicationEditor": {
     "dragSidebar": "Raahaa leveämmäksi / kapeammaksi",
-    "loadingContentTree": "Ladataan sovelluspuuta..."
+    "loadingContentTree": "Ladataan sovelluspuuta...",
+    "deleteApplication": "Poista sovellus",
+    "deleteVersion": "Poista versio"
+  },
+
+  "menuSettingsView": {
+    "name": "Nimi",
+    "menuTeaserText": "Valikon ingressiteksti",
+    "pageTitle": "Sivun otsikko",
+    "pageContentText": "Sivun kuvausteksti",
+    "backgroundMedia": "Taustamedia",
+    "menuMedia": "Valikon media / Menu media",
+    "foregroundMedia": "Etualan media",
+    "delete": "Poista valikko"
+  },
+
+  "pageSettingsView": {
+    "name": "Nimi",
+    "delete": "Poista sivu"
+  },
+
+  "slideshowSettingsView": {
+    "delete": "Poista slideshow"
   },
 
   "fileUpload": {
@@ -164,7 +186,9 @@
     "bundleId": "Bundle Id",
     "id": "Sovelluksen id",
     "addIcon": "Lisää ikoni",
-    "advancedSettings": "Edistyneet asetukset"
+    "advancedSettings": "Edistyneet asetukset",
+    "deleteApplication": "Poista sovellus",
+    "deleteApplicationConfirmationText": "Haluatko varmasti poistaa koko sovelluksen ja kaikki sen versiot?"
   },
 
   "contentVersionControls": {
@@ -175,12 +199,16 @@
     "alreadyActive": "Versio on jo aktiivinen",
     "versionNotSelected": "Ei valittua versiota",
     "activeVersion": "Aktiivinen versio",
-    "deleteVersion": "Poista versio",
     "createNew": "Luo uusi",
     "alreadyExists": "Nimi on jo varattu",
     "content": "Sisältö",
     "empty": "Tyhjä",
-    "activeVersionUpdateSuccess": "Aktiivinen versio päivitetty"
+    "activeVersionUpdateSuccess": "Aktiivinen versio päivitetty",
+    "deleteVersion": "Poista versio",
+    "cannotDeleteActiveVersion": "Aktiivista versiota ei voida poistaa",
+    "deleteSelectedVersion": "Poista valittu versio",
+    "deleteVersionConfirmationText": "Haluatko varmasti poistaa tämän sisältöversion? Toimintoa ei voi peruuttaa.",
+    "deleteVersionSuccess": "Sisältöversio poistettu"
   },
 
   "iconKeys": {

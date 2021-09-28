@@ -127,7 +127,39 @@ export interface IStrings extends LocalizedStringsMethods {
   applicationEditor: {
     dragSidebar: string;
     loadingContentTree: string;
+    deleteApplication: string;
+    deleteVersion: string;
+    deleteLanguage: string;
   };
+
+  /**
+   * Translations related to menu settings 
+   */
+  menuSettingsView: {
+    name: string;
+    menuTeaserText: string;
+    pageTitle: string;
+    pageContentText: string;
+    backgroundMedia: string;
+    menuMedia: string;
+    foregroundMedia: string;
+    delete: string;
+  },
+
+  /**
+   * Translations related to page settings 
+   */
+  pageSettingsView: {
+    name: string;
+    delete: string;
+  },
+
+  /**
+   * Translations related to slideshow settings 
+   */
+  slideshowSettingsView: {
+    delete: string;
+  },
 
   /**
    * Translations related to file upload
@@ -187,6 +219,8 @@ export interface IStrings extends LocalizedStringsMethods {
     id: string;
     addIcon: string;
     advancedSettings: string;
+    deleteApplication: string;
+    deleteApplicationConfirmationText: string;
   };
 
   /**
@@ -200,11 +234,15 @@ export interface IStrings extends LocalizedStringsMethods {
     alreadyActive: string;
     versionNotSelected: string;
     activeVersion: string;
-    deleteVersion: string;
     alreadyExists: string;
     content: string;
     empty: string;
     activeVersionUpdateSuccess: string;
+    deleteVersion: string;
+    cannotDeleteActiveVersion: string;
+    deleteSelectedVersion: string;
+    deleteVersionConfirmationText: string;
+    deleteVersionSuccess: string;
   };
 
   /**

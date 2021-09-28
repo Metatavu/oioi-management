@@ -21,6 +21,7 @@ import StyledMTableToolbar from "../../styles/generic/styled-mtable-toolbar";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import { KeycloakInstance } from "keycloak-js";
 import { nanoid } from "@reduxjs/toolkit";
+import { ResourceUtils } from "utils/resource";
 
 /**
  * Component props
@@ -42,7 +43,7 @@ interface Props extends WithStyles<typeof styles> {
 interface State {
   form: Form<ResourceSettingsForm>;
   resourceId: string;
-  resourceData: any;
+  resourceData: Resource;
   loading: boolean;
   dataChanged: boolean;
 }
@@ -72,7 +73,7 @@ class PDFResourceSettingsView extends React.Component<Props, State> {
       ),
 
       resourceId: "",
-      resourceData: {},
+      resourceData: ResourceUtils.getMaterialTableResourceData(props.resource),
       loading: false,
       dataChanged: false
     };
@@ -179,96 +180,14 @@ class PDFResourceSettingsView extends React.Component<Props, State> {
   };
 
   /**
-   * Renders table that contains style data
-   */
-  private renderStyleTable = () => {
-    const { resourceData } = this.state;
-
-    return (
-      <MaterialTable
-        key={ nanoid() }
-        icons={{
-          Add: forwardRef((props, ref) => <AddCircleIcon color="secondary" { ...props } ref={ ref }/>),
-          Delete: forwardRef((props, ref) => <DeleteIcon { ...props } ref={ ref }/>),
-          Check: forwardRef((props, ref) => <CheckIcon { ...props } ref={ ref }/>),
-          Clear: forwardRef((props, ref) => <ClearIcon { ...props } ref={ ref }/>),
-          Edit: forwardRef((props, ref) => <EditIcon { ...props } ref={ ref }/>)
-        }}
-        columns={[
-          { title: strings.key, field: "key" },
-          { title: strings.value, field: "value" }
-        ]}
-        data={ resourceData.styles }
-        editable={{
-          onRowAdd: async newData => {
-            const updatedData = { ...resourceData };
-            updatedData.styles.push(newData);
-            this.props.confirmationRequired(true);
-
-            this.setState({
-              dataChanged: true,
-              resourceData: updatedData
-            });
-          },
-          onRowUpdate: async (newData, oldData) => {
-            const updatedData = { ...resourceData };
-            updatedData.styles.splice(updatedData.styles.indexOf(oldData), 1, newData);
-            this.props.confirmationRequired(true);
-
-            this.setState({
-              dataChanged: true,
-              resourceData: updatedData
-            });
-          },
-          onRowDelete: async oldData => {
-            const updatedData = { ...resourceData };
-            updatedData.styles.splice(updatedData.styles.indexOf(oldData), 1);
-            this.props.confirmationRequired(true);
-
-            this.setState({
-              dataChanged: true,
-              resourceData: updatedData
-            });
-          }
-        }}
-        title={ strings.styles }
-        components={{
-          Toolbar: props => <StyledMTableToolbar { ...props } />,
-          Container: props => <Paper { ...props } elevation={ 0 } />
-        }}
-        localization={{
-          body: {
-            editTooltip: strings.edit,
-            deleteTooltip: strings.delete,
-            addTooltip: strings.addNew
-          },
-          header: {
-            actions: strings.actions
-          }
-        }}
-        options={{
-          grouping: false,
-          search: false,
-          selection: false,
-          sorting: false,
-          draggable: false,
-          exportButton: false,
-          filtering: false,
-          paging: false,
-          showTextRowsSelected: false,
-          showFirstLastPageButtons: false,
-          showSelectAllCheckbox: false,
-          actionsColumnIndex: 3
-        }}
-      />
-    );
-  };
-
-  /**
    * Renders table that contains properties data
    */
   private renderPropertiesTable = () => {
     const { resourceData } = this.state;
+
+    if (!resourceData?.properties) {
+      return null;
+    }
 
     return (
       <MaterialTable
@@ -286,35 +205,42 @@ class PDFResourceSettingsView extends React.Component<Props, State> {
         ]}
         data={ resourceData.properties }
         editable={{
-          onRowAdd: async newData => {
-            const updatedData = { ...resourceData };
-            updatedData.properties.push(newData);
-            this.props.confirmationRequired(true);
+          onRowAdd: async currentData => {
+            const updatedData = ResourceUtils.updateMaterialTableProperty(resourceData, currentData);
+            if (!updatedData) {
+              return;
+            }
 
             this.setState({
               dataChanged: true,
-              resourceData: updatedData
-            });
+              resourceData: updatedData,
+            }, () => this.props.confirmationRequired(true));
           },
-          onRowUpdate: async (newData, oldData) => {
-            const updatedData = { ...resourceData };
-            updatedData.properties.splice(updatedData.properties.indexOf(oldData), 1, newData);
-            this.props.confirmationRequired(true);
+          onRowUpdate: async (updatedData, currentData) => {
+            if (!currentData) {
+              return;
+            }
+
+            const updatedResourceData = ResourceUtils.updateMaterialTableProperty(resourceData, currentData, updatedData);
+            if (!updatedResourceData) {
+              return;
+            }
 
             this.setState({
               dataChanged: true,
-              resourceData: updatedData
+              resourceData: updatedResourceData
             });
           },
-          onRowDelete: async oldData => {
-            const updatedData = { ...resourceData };
-            updatedData.properties.splice(updatedData.properties.indexOf(oldData), 1);
-            this.props.confirmationRequired(true);
+          onRowDelete: async updatedData => {
+            const updatedResourceData = ResourceUtils.deleteFromPropertyList(resourceData, updatedData.key);
+            if (!updatedResourceData) {
+              return;
+            }
 
             this.setState({
-              resourceData: resourceData,
+              resourceData: updatedResourceData,
               dataChanged: true
-            });
+            }, () => this.props.confirmationRequired(true));
           }
         }}
         title={ strings.properties }
@@ -348,6 +274,103 @@ class PDFResourceSettingsView extends React.Component<Props, State> {
         }}
       />
     )
+  };
+
+  /**
+   * Renders table that contains style data
+   */
+  private renderStyleTable = () => {
+    const { resourceData } = this.state;
+
+    if (!resourceData.styles) {
+      return null;
+    }
+
+    return (
+      <MaterialTable
+        key={ nanoid() }
+        icons={{
+          Add: forwardRef((props, ref) => <AddCircleIcon color="secondary" { ...props } ref={ ref }/>),
+          Delete: forwardRef((props, ref) => <DeleteIcon { ...props } ref={ ref }/>),
+          Check: forwardRef((props, ref) => <CheckIcon { ...props } ref={ ref }/>),
+          Clear: forwardRef((props, ref) => <ClearIcon { ...props } ref={ ref }/>),
+          Edit: forwardRef((props, ref) => <EditIcon { ...props } ref={ ref }/>)
+        }}
+        columns={[
+          { title: strings.key, field: "key" },
+          { title: strings.value, field: "value" }
+        ]}
+        data={ resourceData.styles }
+        editable={{
+          onRowAdd: async updatedData => {
+            const updatedResourceData = ResourceUtils.updateMaterialTableStyle(resourceData, updatedData);
+            if (!updatedResourceData) {
+              return;
+            }
+
+            this.setState({
+              dataChanged: true,
+              resourceData: updatedResourceData,
+            }, () => this.props.confirmationRequired(true));
+          },
+          onRowUpdate: async (updatedData, currentData) => {
+            if (!currentData) {
+              return;
+            }
+
+            const updatedResourceData = ResourceUtils.updateMaterialTableStyle(resourceData, currentData, updatedData);
+            if (!updatedResourceData) {
+              return;
+            }
+
+            this.setState({
+              dataChanged: true,
+              resourceData: updatedResourceData
+            });
+          },
+          onRowDelete: async updatedData => {
+            const updatedResourceData = ResourceUtils.deleteFromStyleList(resourceData, updatedData.key);
+            if (!updatedResourceData) {
+              return;
+            }
+
+            this.setState({
+              resourceData: updatedResourceData,
+              dataChanged: true
+            }, () => this.props.confirmationRequired(true));
+          }
+        }}
+        title={ strings.styles }
+        components={{
+          Toolbar: props => <StyledMTableToolbar { ...props } />,
+          Container: props => <Paper { ...props } elevation={ 0 } />
+        }}
+        localization={{
+          body: {
+            editTooltip: strings.edit,
+            deleteTooltip: strings.delete,
+            addTooltip: strings.addNew
+          },
+          header: {
+            actions: strings.actions
+          }
+        }}
+        options={{
+          grouping: false,
+          search: false,
+          selection: false,
+          sorting: false,
+          draggable: false,
+          exportButton: false,
+          filtering: false,
+          paging: false,
+          showTextRowsSelected: false,
+          showFirstLastPageButtons: false,
+          showSelectAllCheckbox: false,
+          actionsColumnIndex: 3
+        }}
+      />
+    );
   };
 
   /**
@@ -420,11 +443,12 @@ class PDFResourceSettingsView extends React.Component<Props, State> {
 
     const resourceData = ResourceToJSON(resource);
     const form = validateForm(initForm<ResourceSettingsForm>(resource, resourceRules));
+    const tableResource = ResourceUtils.getMaterialTableResourceData(resource);
 
     this.setState({
-      form,
-      resourceId,
-      resourceData
+      form: form,
+      resourceId: resourceId,
+      resourceData: resourceData
     });
   }
 

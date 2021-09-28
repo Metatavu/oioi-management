@@ -283,7 +283,7 @@ export default createStyles({
   saveButton: {
     position: "absolute",
     top: 9,
-    right: 150,
+    right: theme.spacing(2),
     zIndex: 1200
   },
 
@@ -303,5 +303,13 @@ export default createStyles({
     zIndex: 2000,
     alignItems: "center",
     justifyContent: "center"
+  },
+
+  advancedSettingRow: {
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center"
   }
+
 });

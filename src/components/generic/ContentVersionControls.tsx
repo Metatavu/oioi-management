@@ -16,6 +16,8 @@ import { toast } from "react-toastify";
 import { ErrorContext } from "components/containers/ErrorHandler";
 import AddContentVersionDialog from "./AddContentVersionDialog";
 import moment from "moment";
+import GenericDialog from "./GenericDialog";
+import VisibleWithRole from "./VisibleWithRole";
 
 /**
  * Component properties
@@ -28,6 +30,7 @@ interface Props extends ExternalProps { }
 interface State {
   popOverAnchor: HTMLElement | null;
   addContentVersionDialogOpen: boolean;
+  deleteVersionDialogOpen: boolean;
 }
 
 /**
@@ -46,7 +49,8 @@ class ContentVersionControls extends React.Component<Props, State> {
     super(props);
     this.state = {
       popOverAnchor: null,
-      addContentVersionDialogOpen: false
+      addContentVersionDialogOpen: false,
+      deleteVersionDialogOpen: false
     }
   }
 
@@ -62,13 +66,21 @@ class ContentVersionControls extends React.Component<Props, State> {
 
     return (
       <Box className={ classes.root }>
-        <Typography variant="h5">
-          { `${strings.contentVersionControls.contentVersion}:` }
-        </Typography>
-        { this.renderContentVersionSelect() }
-        { this.renderSetAsActiveVersion() }
-        { this.renderActiveContentVersion() }
+        <Box display="flex" alignItems="center">
+          <Typography variant="h5">
+            { `${strings.contentVersionControls.contentVersion}:` }
+          </Typography>
+          { this.renderContentVersionSelect() }
+          { this.renderSetAsActiveVersion() }
+          { this.renderActiveContentVersion() }
+        </Box>
+        <VisibleWithRole role="admin">
+          <Box>
+            { this.renderDeleteVersionButton() }
+          </Box>
+        </VisibleWithRole>
         { this.renderAddNewDialog() }
+        { this.renderDeleteVersionDialog() }
       </Box>
     );
   }
@@ -214,7 +226,7 @@ class ContentVersionControls extends React.Component<Props, State> {
       <ListItemIcon>
         <AddIcon/>
       </ListItemIcon>
-     <ListItemText primary={ strings.contentVersionControls.addNewVersion }/>
+      <ListItemText primary={ strings.contentVersionControls.addNewVersion }/>
     </ListItem>
   );
 
@@ -230,6 +242,61 @@ class ContentVersionControls extends React.Component<Props, State> {
         onSave={ this.onAddNewContentVersion }
         onClose={ () => this.setState({ addContentVersionDialogOpen: false }) }
       />
+    );
+  }
+
+  /**
+   * Renders delete version button
+   */
+  private renderDeleteVersionButton = () => {
+    const { classes, application, selectedContentVersion } = this.props;
+
+    const isActive = application?.activeContentVersionResourceId === selectedContentVersion?.id;
+
+    const tooltipTitle = isActive ?
+      strings.contentVersionControls.cannotDeleteActiveVersion :
+      strings.contentVersionControls.deleteSelectedVersion;
+
+    return (
+      <Tooltip title={ tooltipTitle }>
+        <div>
+          <Button
+            disableElevation
+            className={ classes.deleteButton }
+            color="primary"
+            variant="contained"
+            disabled={ isActive }
+            onClick={ () => this.setState({ deleteVersionDialogOpen: true }) }
+          >
+            { strings.contentVersionControls.deleteVersion }
+          </Button>
+        </div>
+      </Tooltip>
+    );
+  }
+
+  /**
+   * Render delete version confirmation dialog
+   */
+  private renderDeleteVersionDialog = () => {
+    const { deleteVersionDialogOpen } = this.state;
+
+    return (
+      <GenericDialog
+        showLoader
+        title={ strings.contentVersionControls.deleteVersion }
+        onCancel={ () => this.setState({ deleteVersionDialogOpen: false }) }
+        onClose={ () => this.setState({ deleteVersionDialogOpen: false }) }
+        onConfirm={ this.onDeleteVersion }
+        open={ deleteVersionDialogOpen }
+        cancelButtonText={ strings.cancel }
+        positiveButtonText={ strings.delete }
+        error={ false }
+      >
+        <Typography>
+          { strings.contentVersionControls.deleteVersionConfirmationText }
+        </Typography>
+      </GenericDialog>
     );
   }
 
@@ -376,6 +443,39 @@ class ContentVersionControls extends React.Component<Props, State> {
     } catch (error) {
       return Promise.reject(error);
     }
+  }
+
+  /**
+   * Event handler for delete content version
+   */
+  private onDeleteVersion = async () => {
+    const { keycloak, application, selectedContentVersion, deleteContentVersion } = this.props;
+
+    const metadata = this.getRequestMetaData();
+
+    if (
+      !keycloak?.token ||
+      !application ||
+      !metadata ||
+      !selectedContentVersion?.id ||
+      selectedContentVersion.id === application.activeContentVersionResourceId
+    ) {
+      return;
+    }
+
+    try {
+      await Api.getResourcesApi(keycloak.token).deleteResource({
+        ...metadata,
+        resourceId: selectedContentVersion.id
+      });
+
+      deleteContentVersion(selectedContentVersion);
+      toast.success(strings.contentVersionControls.deleteVersionSuccess);
+    } catch (error) {
+      this.context.setError(strings.errorManagement.contentVersion.delete, error);
+    }
+
+    this.setState({ deleteVersionDialogOpen: false });
   }
 
   /**

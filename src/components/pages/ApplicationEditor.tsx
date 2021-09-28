@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Typography, Divider, List, ListItem, AppBar, WithStyles, withStyles, Drawer, Button, CircularProgress, ListItemText, ListItemSecondaryAction, Fade, Box, ListItemAvatar, Avatar, LinearProgress } from "@material-ui/core";
+import { Typography, Divider, List, ListItem, AppBar, WithStyles, withStyles, Drawer, CircularProgress, ListItemText, ListItemSecondaryAction, Fade, Box, ListItemAvatar, Avatar, LinearProgress } from "@material-ui/core";
 import { History } from "history";
 import AppSettingsView from "../views/AppSettingsView";
 import strings from "../../localization/strings";
@@ -30,6 +30,7 @@ import { deleteResources, selectResource, setResources, updateResources } from "
 import { ReduxDispatch, ReduxState } from "app/store";
 import ResourceTree from "components/generic/ResourceTree";
 import ContentVersionControls from "components/generic/ContentVersionControls";
+import SlideshowResourceSettingsView from "components/views/SlideshowResourceSettingsView";
 
 /**
  * Component properties
@@ -161,16 +162,6 @@ class ApplicationEditor extends React.Component<Props, State> {
               { !selectedResource &&
                 <ContentVersionControls/>
               }
-              <Button
-                disableElevation
-                className={ classes.deleteButton }
-                color="primary"
-                variant="contained"
-                disabled={ !selectedResource }
-                onClick={ this.onResourceDelete }
-              >
-                { strings.delete }
-              </Button>
             </div>
           </AppBar>
           { this.renderResponsiveDrawer() }
@@ -369,6 +360,7 @@ class ApplicationEditor extends React.Component<Props, State> {
             rootResource={ rootResource }
             customerId={ customerId }
             deviceId={ deviceId }
+            onDeleteApplicationClick={ this.onDeleteApplication }
           />
         </main>
       );
@@ -384,13 +376,16 @@ class ApplicationEditor extends React.Component<Props, State> {
    * @param customerId customer ID
    */
   private renderResourceSettingsView = (resource: Resource, customerId: string) => {
-    const { keycloak, deviceId, applicationId } = this.props;
+    const {
+      keycloak,
+      deviceId,
+      applicationId
+    } = this.props;
 
     switch (resource.type) {
       case ResourceType.MENU:
       case ResourceType.LANGUAGE:
       case ResourceType.LANGUAGEMENU:
-      case ResourceType.SLIDESHOW:
       case ResourceType.APPLICATION:
       case ResourceType.INTRO:
         return <MenuResourceSettingsView
@@ -402,6 +397,19 @@ class ApplicationEditor extends React.Component<Props, State> {
           keycloak={ keycloak }
           deviceId={ deviceId }
           applicationId={ applicationId }
+          onDeleteMenuClick={ this.onResourceDelete }
+        />;
+      case ResourceType.SLIDESHOW:
+        return <SlideshowResourceSettingsView
+          resource={ resource }
+          customerId={ customerId }
+          confirmationRequired={ this.confirmationRequired }
+          onUpdate={ this.onUpdateResource }
+          onDelete={ this.onDeleteResource }
+          keycloak={ keycloak }
+          deviceId={ deviceId }
+          applicationId={ applicationId }
+          onDeleteSlideshowClick={ this.onResourceDelete }
         />;
       case ResourceType.PAGE:
         return <PageResourceSettingsView
@@ -416,6 +424,7 @@ class ApplicationEditor extends React.Component<Props, State> {
           keycloak={ keycloak }
           deviceId={ deviceId }
           applicationId={ applicationId }
+          onDeletePageClick={ this.onResourceDelete }
         />;
       case ResourceType.SLIDESHOWPDF:
         return <PDFResourceSettingsView
@@ -449,7 +458,8 @@ class ApplicationEditor extends React.Component<Props, State> {
       deleteResources,
       customerId,
       deviceId,
-      applicationId
+      applicationId,
+      selectResource
     } = this.props;
 
     if (!keycloak?.token) {
@@ -466,6 +476,7 @@ class ApplicationEditor extends React.Component<Props, State> {
         });
 
         deleteResources([ selectedResource, ...this.getResourceBranch(selectedResource) ]);
+        selectResource(undefined);
         toast.success(strings.deleteSuccessMessage);
       } catch (error) {
         this.context.setError(
@@ -475,6 +486,46 @@ class ApplicationEditor extends React.Component<Props, State> {
       }
     }
   };
+
+  /**
+   * Event handler for delete application click
+   *
+   * @param applicationToDelete application to delete
+   */
+  private onDeleteApplication = async (applicationToDelete: Application) => {
+    const { keycloak, customerId, deviceId } = this.props;
+
+    if (!keycloak?.token || !applicationToDelete.id) {
+      return;
+    }
+
+    try {
+      await Api.getApplicationsApi(keycloak.token).deleteApplication({
+        customerId: customerId,
+        deviceId: deviceId,
+        applicationId: applicationToDelete.id
+      });
+
+      toast.success(strings.deleteSuccessMessage);
+    } catch (error) {
+      this.context.setError(strings.errorManagement.application.delete, error);
+    }
+
+    this.reset();
+  };
+
+  /**
+   * Resets state values
+   */
+  private reset = () => {
+    const { customer, device, history } = this.props;
+
+    if (!customer?.id || !device?.id) {
+      return;
+    }
+
+    history.push(`/${customer.id}/devices/${device.id}/applications`);
+  }
 
   /**
    * Returns whole branch of resource tree structure starting from given parent resource

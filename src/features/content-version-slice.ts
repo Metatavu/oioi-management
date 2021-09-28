@@ -40,7 +40,9 @@ export const contentVersionSlice = createSlice({
       state.contentVersions = state.contentVersions.filter(contentVersion => contentVersion.id !== payload.id);
 
       if (state.selectedContentVersion?.id === payload.id) {
-        state.selectedContentVersion = undefined;
+        state.selectedContentVersion = state.contentVersions.length ?
+          state.contentVersions[0] :
+          undefined;
       }
     },
     selectContentVersion: (state: ContentVersionState, { payload }: PayloadAction<ContentVersion | undefined>) => {

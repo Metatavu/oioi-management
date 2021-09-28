@@ -2,7 +2,6 @@ import * as React from "react";
 import { withStyles, WithStyles, TextField, Button, Divider, Typography, CircularProgress, IconButton, Box, Accordion, AccordionSummary, AccordionDetails } from "@material-ui/core";
 import styles from "../../styles/editor-view";
 import strings from "../../localization/strings";
-import theme from "../../styles/theme";
 import { Application, Resource, KeyValueProperty } from "../../generated/client";
 import { Form, initForm, validateForm, MessageType } from "ts-form-validation";
 import { ApplicationForm, applicationRules, ResourceSettingsForm } from "../../commons/formRules";
@@ -17,6 +16,8 @@ import { ErrorContext } from "../containers/ErrorHandler";
 import { toast } from "react-toastify";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import { KeycloakInstance } from "keycloak-js";
+import GenericDialog from "components/generic/GenericDialog";
+import { ResourceUtils } from "utils/resource";
 
 /**
  * Component Props
@@ -30,6 +31,7 @@ interface Props extends WithStyles<typeof styles> {
   onUpdateApplication: (application: Application) => void;
   onUpdateRootResource: (rootResource: Resource) => void;
   confirmationRequired: (value: boolean) => void;
+  onDeleteApplicationClick: (application: Application) => void;
 }
 
 /**
@@ -43,6 +45,7 @@ interface State {
   importingContent: boolean;
   importDone: boolean;
   dataChanged: boolean;
+  deleteApplicationDialogOpen: boolean;
 }
 
 /**
@@ -71,7 +74,8 @@ class AppSettingsView extends React.Component<Props, State> {
       iconDialogOpen: false,
       importingContent: false,
       importDone: false,
-      dataChanged: false
+      dataChanged: false,
+      deleteApplicationDialogOpen: false
     };
   }
 
@@ -82,9 +86,7 @@ class AppSettingsView extends React.Component<Props, State> {
     const { application, rootResource } = this.props;
 
     let applicationForm = initForm<ApplicationForm>(
-      {
-        name: application.name
-      },
+      { name: application.name },
       applicationRules
     );
 
@@ -99,11 +101,10 @@ class AppSettingsView extends React.Component<Props, State> {
    */
   public componentDidUpdate = (prevProps: Props) => {
     const { rootResource } = this.props;
-    let { applicationForm } = this.state;
+    const { applicationForm } = this.state;
 
     if (prevProps.rootResource !== this.props.rootResource) {
-      applicationForm = validateForm(applicationForm);
-      this.updateMaps(rootResource, applicationForm);
+      this.updateMaps(rootResource, validateForm(applicationForm));
     }
   }
 
@@ -112,7 +113,12 @@ class AppSettingsView extends React.Component<Props, State> {
    */
   public render = () => {
     const { classes, keycloak } = this.props;
-    const { importDone, importingContent, dataChanged, applicationForm } = this.state;
+    const {
+      importDone,
+      importingContent,
+      dataChanged,
+      applicationForm
+    } = this.state;
 
     if (importDone || importingContent) {
       return (
@@ -143,9 +149,11 @@ class AppSettingsView extends React.Component<Props, State> {
         >
           { strings.save }
         </Button>
-        <Typography style={{ marginBottom: theme.spacing(3) }} variant="h3">
-          { strings.applicationBasicInformation }
-        </Typography>
+        <Box mb={ 3 }>
+          <Typography variant="h3">
+            { strings.applicationBasicInformation }
+          </Typography>
+        </Box>
         { this.renderFields() }
         <Box mb={ 3 } mt={ 3 }>
           <Divider/>
@@ -188,7 +196,9 @@ class AppSettingsView extends React.Component<Props, State> {
           onToggle={ this.toggleDialog }
           open={ this.state.iconDialogOpen }
         />
-        { this.renderAdvancedSettings() }
+        <VisibleWithRole role="admin">
+          { this.renderAdvancedSettings() }
+        </VisibleWithRole>
       </>
     );
   }
@@ -197,6 +207,8 @@ class AppSettingsView extends React.Component<Props, State> {
    * Renders advanced settings
    */
   private renderAdvancedSettings = () => {
+    const { classes } = this.props;
+
     return (
       <>
         <Box mt={ 3 } mb={ 3 }>
@@ -216,16 +228,27 @@ class AppSettingsView extends React.Component<Props, State> {
             <Box
               mt={ 3 }
               mb={ 3 }
-              display="flex"
+              className={ classes.advancedSettingRow }
             >
-              <Typography variant="h5">
-                { strings.applicationId }
-              </Typography>
-              <Box ml={ 1 }>
-                <Typography variant="body1">
-                  { this.props.application.id }
+              <Box display="flex">
+                <Typography variant="h5">
+                  { strings.applicationId }
                 </Typography>
+                <Box ml={ 1 }>
+                  <Typography variant="body1">
+                    { this.props.application.id }
+                  </Typography>
+                </Box>
               </Box>
+              <Button
+                disableElevation
+                className={ classes.deleteButton }
+                color="primary"
+                variant="contained"
+                onClick={ this.toggleDeleteApplicationDialog }
+              >
+                { strings.applicationEditor.deleteApplication }
+              </Button>
             </Box>
             <Box display="flex" mb={ 3 }>
               <Box mr={ 1 }>
@@ -246,12 +269,192 @@ class AppSettingsView extends React.Component<Props, State> {
             </VisibleWithRole>
           </AccordionDetails>
         </Accordion>
+        { this.renderDeleteApplicationDialog() }
+      </>
+    );
+  }
+
+  /**
+   * Render delete application confirmation dialog
+   */
+  private renderDeleteApplicationDialog = () => {
+    const { onDeleteApplicationClick, application  } = this.props;
+    const { deleteApplicationDialogOpen } = this.state;
+
+    return (
+      <GenericDialog
+        title={ strings.applicationSettings.deleteApplication }
+        onCancel={ this.toggleDeleteApplicationDialog }
+        onClose={ this.toggleDeleteApplicationDialog }
+        onConfirm={ () => onDeleteApplicationClick(application) }
+        open={ deleteApplicationDialogOpen }
+        cancelButtonText={ strings.cancel }
+        positiveButtonText={ strings.delete }
+        error={ false }
+      >
+        <Typography>{ strings.applicationSettings.deleteApplicationConfirmationText }</Typography>
+      </GenericDialog>
+    );
+  }
+
+  /**
+   * Toggle delete dialog
+   */
+    private toggleDeleteApplicationDialog = () => {
+      this.setState({ deleteApplicationDialogOpen: !this.state.deleteApplicationDialogOpen });
+    }
+
+  /**
+   * Renders text fields
+   */
+  private renderFields = () => {
+    return (
+      <>
+        <Box mb={ 3 }>
+          { this.renderTextField(strings.applicationName, 1, "text", "name") }
+        </Box>
+        <Box mb={ 3 }>
+          { this.renderTextField(strings.applicationSettings.teaserText, 8, "text", undefined, "teaserText") }
+        </Box>
+      </>
+    );
+  }
+
+  /**
+   * Render text fields with given form keys
+   *
+   * @param label text field label
+   * @param rows rows
+   * @param type text field type
+   * @param appKey key of ApplicationForm
+   * @param resourceKey key of ResourceSettingsForm
+   */
+  private renderTextField = (
+    label: string,
+    rows: number,
+    type: string,
+    appKey?: keyof ApplicationForm,
+    resourceKey?: keyof ResourceSettingsForm
+  ) => {
+    if (appKey) {
+      const values = this.state.applicationForm.values;
+      const { messages: { [appKey]: message } } = this.state.applicationForm;
+
+      return (
+        <TextField
+          fullWidth
+          multiline
+          rows={ rows }
+          type={ type }
+          error={ message && message.type === MessageType.ERROR }
+          helperText={ message && message.message }
+          value={ values[appKey] || "" }
+          onChange={ this.onHandleChange(appKey) }
+          onBlur={ this.onHandleBlur(appKey) }
+          name={ appKey }
+          variant="outlined"
+          label={ label }
+        />
+      );
+    } else if (resourceKey) {
+      return (
+        <TextField
+          fullWidth
+          multiline
+          rows={ rows }
+          type={ type }
+          value={ this.state.resourceMap.get(resourceKey) || "" }
+          onChange={ this.onHandleResourceChange(resourceKey) }
+          name={ resourceKey }
+          variant="outlined"
+          label={ label }
+        />
+      );
+    }
+  }
+
+  /**
+   * Render media elements
+   *
+   * @param key key
+   */
+  private renderMedia = (key: string) => {
+
+    const previewItem = this.state.resourceMap.get(key) || "";
+    return (
+      <ImagePreview
+        uploadDialogTitle={ strings.fileUpload.addImage }
+        uploadButtonText={ previewItem ? strings.fileUpload.changeImage : strings.fileUpload.addImage }
+        allowSetUrl={ true }
+        imagePath={ previewItem }
+        onUpload={ this.onPropertyFileOrUrlChange }
+        onSetUrl={ this.onPropertyFileOrUrlChange }
+        resource={ this.props.rootResource }
+        uploadKey={ key }
+        onDelete={ this.onPropertyFileDelete }
+      />
+    );
+  }
+
+  /**
+   * Render media elements
+   */
+  private renderIconList = () => {
+    const { iconsMap } = this.state;
+    const { classes, rootResource } = this.props;
+
+    const icons: JSX.Element[] = [];
+    const allKeys = Object.values(IconKeys);
+
+    iconsMap.forEach((value: string, key: string) => {
+      const iconTypeKey = allKeys.find(k => key === k.toString());
+      const preview = (
+        <Box key={ key } className={ classes.gridItem }>
+          <Typography variant="h5" color="textSecondary">{ iconTypeKey ? getLocalizedIconTypeString(iconTypeKey) : key }</Typography>
+          <ImagePreview
+            uploadDialogTitle={ strings.fileUpload.addImage }
+            uploadButtonText={ rootResource ? strings.fileUpload.changeImage : strings.fileUpload.addImage }
+            key={ key }
+            imagePath={ value }
+            allowSetUrl={ false }
+            onSetUrl={ () => {} }
+            onUpload={ this.onIconFileChange }
+            resource={ rootResource }
+            uploadKey={ key }
+            onDelete={ this.onIconFileDelete }
+          />
+        </Box>
+      );
+
+      icons.push(preview);
+    });
+
+    return (
+      <>
+        { icons }
+        <VisibleWithRole role="admin">
+          <Box className={ classes.gridItem }>
+            <Box className={ classes.newItem }>
+              <IconButton
+                title={ strings.addNewIcon }
+                className={ classes.iconButton }
+                onClick={ this.toggleDialog }
+              >
+                <AddIcon fontSize="large" />
+              </IconButton>
+            </Box>
+          </Box>
+        </VisibleWithRole>
       </>
     );
   }
 
   /**
    * Handles importing data from wall json file
+   *
+   * TODO: Is JSON import needed when it is possible to copy resources?
+   *
+   * @param files list of files or null
    */
   private handleWallJsonImport = async (files: FileList | null) => {
     if (!files) {
@@ -265,26 +468,33 @@ class AppSettingsView extends React.Component<Props, State> {
 
     const { rootResource } = this.props;
     const reader = new FileReader();
+
     reader.onload = async e => {
       if (!e.target) {
         return;
       }
-      const data = JSON.parse(e.target.result as string)
-      const topLevel = data.root.children;
 
-      this.setState({ importingContent: true });
-
-      const imported = await this.importWallJsonItems(rootResource.id!, topLevel);
-      if (imported) {
-        await this.importRootProperties(data);
+      try {
+        const data = JSON.parse(e.target.result as string);
+        const topLevel = data.root.children;
+  
+        this.setState({ importingContent: true });
+  
+        const imported = await this.importWallJsonItems(rootResource.id!, topLevel);
+        if (imported) {
+          await this.importRootProperties(data);
+        }
+  
+        this.setState({ importDone: imported });
+  
+        toast.success(strings.importDone);
+  
+        setTimeout(() => window.location.reload(), 3000);
+      } catch (error) {
+        this.context.setError(strings.errorManagement.resource.create, error);
       }
-
-      this.setState({ importDone: imported });
-
-      toast.success(strings.importDone);
-
-      setTimeout(() => window.location.reload(), 3000);
     }
+
     reader.readAsText(file);
   }
 
@@ -305,7 +515,7 @@ class AppSettingsView extends React.Component<Props, State> {
     const resourcesApi = Api.getResourcesApi(keycloak.token);
 
     try {
-      for(let i = 0; i < items.length; i++) {
+      for (let i = 0; i < items.length; i++) {
         const item = items[i];
         const createdResource = await resourcesApi.createResource({
           applicationId: application.id!,
@@ -410,149 +620,8 @@ class AppSettingsView extends React.Component<Props, State> {
   }
 
   /**
-   * Renders text fields
-   */
-  private renderFields = () => {
-    return (
-      <>
-        <Box mb={ 3 }>
-          { this.renderTextField(strings.applicationName, 1, "text", "name") }
-        </Box>
-        <Box mb={ 3 }>
-          { this.renderTextField(strings.applicationSettings.teaserText, 8, "text", undefined, "teaserText") }
-        </Box>
-      </>
-    );
-  }
-
-  /**
-   * Render text fields with given form keys
-   *
-   * @param label text field label
-   * @param rows rows
-   * @param type text field type
-   * @param appKey key of ApplicationForm
-   * @param resourceKey key of ResourceSettingsForm
-   */
-  private renderTextField = (
-    label: string,
-    rows: number,
-    type: string,
-    appKey?: keyof ApplicationForm,
-    resourceKey?: keyof ResourceSettingsForm
-  ) => {
-    if (appKey) {
-      const values = this.state.applicationForm.values;
-      const { messages: { [appKey]: message } } = this.state.applicationForm;
-      return (
-        <TextField
-          fullWidth
-          multiline
-          rows={ rows }
-          type={ type }
-          error={ message && message.type === MessageType.ERROR }
-          helperText={ message && message.message }
-          value={ values[appKey] || "" }
-          onChange={ this.onHandleChange(appKey) }
-          onBlur={ this.onHandleBlur(appKey) }
-          name={ appKey }
-          variant="outlined"
-          label={ label }
-        />
-      );
-    } else if (resourceKey) {
-      return (
-        <TextField
-          fullWidth
-          multiline
-          rows={ rows }
-          type={ type }
-          value={ this.state.resourceMap.get(resourceKey) || "" }
-          onChange={ this.onHandleResourceChange(resourceKey) }
-          name={ resourceKey }
-          variant="outlined"
-          label={ label }
-        />
-      );
-    }
-  }
-
-  /**
-   * Render media elements
-   *
-   * @param key key
-   */
-  private renderMedia = (key: string) => {
-
-    const previewItem = this.state.resourceMap.get(key) || "";
-    return (
-      <ImagePreview
-        uploadDialogTitle={ strings.fileUpload.addImage }
-        uploadButtonText={ previewItem ? strings.fileUpload.changeImage : strings.fileUpload.addImage }
-        allowSetUrl={ true }
-        imagePath={ previewItem }
-        onUpload={ this.onPropertyFileChange }
-        onSetUrl={ this.onPropertyFileUrlSet }
-        resource={ this.props.rootResource }
-        uploadKey={ key }
-        onDelete={ this.onPropertyFileDelete }
-      />
-    );
-  }
-
-  /**
-   * Render media elements
-   */
-  private renderIconList = () => {
-    const { iconsMap } = this.state;
-    const { classes, rootResource } = this.props;
-
-    const icons: JSX.Element[] = [];
-    const allKeys = Object.values(IconKeys);
-    iconsMap.forEach((value: string, key: string) => {
-      const iconTypeKey = allKeys.find(k => key === k.toString());
-      const preview = (
-        <Box key={ key } className={ classes.gridItem }>
-          <Typography variant="h5" color="textSecondary">{ iconTypeKey ? getLocalizedIconTypeString(iconTypeKey) : key }</Typography>
-          <ImagePreview
-            uploadDialogTitle={ strings.fileUpload.addImage }
-            uploadButtonText={ rootResource ? strings.fileUpload.changeImage : strings.fileUpload.addImage }
-            key={ key }
-            imagePath={ value }
-            allowSetUrl={ false }
-            onSetUrl={ () => {} }
-            onUpload={ this.onIconFileChange }
-            resource={ rootResource }
-            uploadKey={ key }
-            onDelete={ this.onIconFileDelete }
-          />
-        </Box>
-      );
-      icons.push(preview);
-    });
-
-    return (
-      <>
-        { icons }
-        <VisibleWithRole role="admin">
-          <Box className={ classes.gridItem }>
-            <Box className={ classes.newItem }>
-              <IconButton
-                title={ strings.addNewIcon }
-                className={ classes.iconButton }
-                onClick={ this.toggleDialog }
-              >
-                <AddIcon fontSize="large" />
-              </IconButton>
-            </Box>
-          </Box>
-        </VisibleWithRole>
-      </>
-    );
-  }
-
-  /**
    * Update resource and icon map data
+   *
    * @param rootResource root resource
    * @param applicationForm application form
    */
@@ -583,8 +652,7 @@ class AppSettingsView extends React.Component<Props, State> {
    * Toggle dialog
    */
   private toggleDialog = () => {
-    const open = !this.state.iconDialogOpen;
-    this.setState({ iconDialogOpen: open });
+    this.setState({ iconDialogOpen: !this.state.iconDialogOpen });
   }
 
   /**
@@ -605,23 +673,24 @@ class AppSettingsView extends React.Component<Props, State> {
    */
   private onUpdateResource = () => {
     const { onUpdateRootResource } = this.props;
-    const properties: KeyValueProperty[] = [];
-    this.getPropertiesToUpdate(properties);
+    const { resourceMap, iconsMap } = this.state;
+
+    const properties = ResourceUtils.getPropertiesToUpdate(resourceMap, iconsMap);
 
     const resource = {
       ...this.props.rootResource,
       properties: properties.filter(p => !!p.value)
     } as Resource;
     onUpdateRootResource(resource);
-    this.setState({
-      dataChanged: false
-    });
+
+    this.setState({ dataChanged: false });
   };
 
   /**
-   * Handles textfields change events
-   * @param key
-   * @param event
+   * Handles text fields change events
+   *
+   * @param key key
+   * @param event event
    */
   private onHandleChange = (key: keyof ApplicationForm) => (event: React.ChangeEvent<HTMLInputElement>) => {
     const values = {
@@ -630,40 +699,34 @@ class AppSettingsView extends React.Component<Props, State> {
     };
 
     const applicationForm = validateForm(
-      {
-        ...this.state.applicationForm,
-        values
-      },
-      {
-        usePreprocessor: false
-      }
+      { ...this.state.applicationForm, values },
+      { usePreprocessor: false }
     );
 
     this.setState({
       applicationForm,
       dataChanged: true,
     });
+
     this.props.confirmationRequired(true);
   };
 
   /**
-   * Handles textfields change events
-   * @param key
-   * @param event
+   * Handles text fields change events
+   *
+   * @param key key
+   * @param event React change event
    */
   private onHandleResourceChange = (key: keyof ResourceSettingsForm) => (event: React.ChangeEvent<HTMLInputElement>) => {
-    const copy = this.state.resourceMap;
-    copy.set(key, event.target.value);
-
     this.setState({
-      resourceMap: copy,
+      resourceMap: new Map(this.state.resourceMap).set(key, event.target.value),
       dataChanged: true
-    });
-    this.props.confirmationRequired(true);
+    }, () => this.props.confirmationRequired(true));
   };
 
   /**
    * Handles fields blur event
+   *
    * @param key
    */
   private onHandleBlur = (key: keyof ApplicationForm) => () => {
@@ -682,6 +745,7 @@ class AppSettingsView extends React.Component<Props, State> {
       applicationForm,
       dataChanged: true
     });
+
     this.props.confirmationRequired(true);
   };
 
@@ -691,34 +755,11 @@ class AppSettingsView extends React.Component<Props, State> {
    * @param newUri new URI
    * @param key key
    */
-  private onPropertyFileChange = (newUri: string, key: string) => {
-    const tempMap = this.state.resourceMap;
-    tempMap.set(key, newUri);
-
+  private onPropertyFileOrUrlChange = (newUri: string, key: string) => {
     this.setState({
-      resourceMap: tempMap,
+      resourceMap: new Map(this.state.resourceMap).set(key, newUri),
       dataChanged: true
-    });
-
-    this.onUpdateResource();
-  };
-
-  /**
-   * Handles image change
-   *
-   * @param newUri new URI
-   * @param key key
-   */
-  private onPropertyFileUrlSet = (newUri: string, key: string) => {
-    const tempMap = this.state.resourceMap;
-    tempMap.set(key, newUri);
-
-    this.setState({
-      resourceMap: tempMap,
-      dataChanged: true
-    });
-
-    this.onUpdateResource();
+    }, () => this.onUpdateResource());
   };
 
   /**
@@ -728,72 +769,38 @@ class AppSettingsView extends React.Component<Props, State> {
    * @param key key
    */
   private onIconFileChange = (newUri: string, key: string) => {
-    const tempMap = this.state.iconsMap;
-    tempMap.set(key, newUri);
-
     this.setState({
-      iconsMap: tempMap,
+      iconsMap: new Map(this.state.iconsMap).set(key, newUri),
       dataChanged: true
-    });
-
-    this.onUpdateResource();
+    }, () => this.onUpdateResource());
   };
 
   /**
    * Delete property file with key
    */
   private onPropertyFileDelete = (key: string) => {
-    const tempMap = this.state.resourceMap;
+    const tempMap = new Map(this.state.resourceMap);
 
     tempMap.delete(key);
     this.setState({
       resourceMap: tempMap,
       dataChanged: true
-    });
-
-    this.onUpdateResource();
+    }, () => this.onUpdateResource());
   };
 
   /**
    * Delete icon file with key
    */
   private onIconFileDelete = (key: string) => {
-    const tempMap = this.state.iconsMap;
+    const tempMap = new Map(this.state.iconsMap);
 
     tempMap.delete(key);
     this.setState({
       iconsMap: tempMap,
       dataChanged: true
-    });
-
-    this.onUpdateResource();
+    }, () => this.onUpdateResource());
   };
 
-  /**
-   * Push all property key value pairs from state maps to properties array
-   * @param properties
-   */
-  private getPropertiesToUpdate(properties: KeyValueProperty[]) {
-    const { resourceMap, iconsMap } = this.state;
-
-    resourceMap.forEach((value: string, key: string) => {
-      const index = properties.findIndex((p: KeyValueProperty) => p.key === key);
-      if (index > -1) {
-        properties[index] = { key: key, value: value || "" };
-      } else {
-        properties.push({ key: key, value: value || "" });
-      }
-    });
-
-    iconsMap.forEach((value: string, key: string) => {
-      const index = properties.findIndex((p: KeyValueProperty) => p.key === key);
-      if (index > -1) {
-        properties[index] = { key: key, value: value || "" };
-      } else {
-        properties.push({ key: key, value: value || "" });
-      }
-    });
-  }
 }
 
 export default withStyles(styles)(AppSettingsView);
