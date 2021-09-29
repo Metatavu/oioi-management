@@ -715,6 +715,13 @@ class ApplicationEditor extends React.Component<Props, State> {
     }
 
     try {
+
+      console.log({
+        application: application,
+        customerId: customerId,
+        deviceId: deviceId,
+        applicationId: applicationId
+      });
       const updatedApplication = await Api.getApplicationsApi(keycloak.token).updateApplication({
         application: application,
         customerId: customerId,
