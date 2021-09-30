@@ -105,7 +105,7 @@ class ResourceTree extends React.Component<Props, State> {
         lockedResourceIds: [ ...lockedResourceIds ].filter(id => id !== prevProps.selectedResource!.id)
       }, () => this.setState({ treeData: this.buildTree(resources) }));
 
-      this.resourceLockInterval = undefined;
+      this.resourceLockInterval && clearInterval(this.resourceLockInterval);
       return;
     }
 
