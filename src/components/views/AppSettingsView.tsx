@@ -660,10 +660,17 @@ class AppSettingsView extends React.Component<Props, State> {
    */
   private onUpdateApplication = () => {
     const { onUpdateApplication } = this.props;
+    const { name } = this.state.applicationForm.values;
+
+    if (!name) {
+      return;
+    }
 
     const application = {
-      ...this.state.applicationForm.values
-    } as Application;
+      ...this.props.application,
+      name: name
+    };
+
     this.onUpdateResource();
     onUpdateApplication(application);
   };
