@@ -99,7 +99,6 @@ class ResourceTree extends React.Component<Props, State> {
     const { lockedResourceIds } = this.state;
 
     if (prevProps.selectedResource && !selectedResource) {
-
       await this.releaseLock(prevProps.selectedResource);
 
       this.setState({
