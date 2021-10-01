@@ -388,17 +388,19 @@ class ApplicationEditor extends React.Component<Props, State> {
 
     switch (resource.type) {
       case ResourceType.MENU:
-        return <MenuResourceSettingsView
-          resource={ resource }
-          customerId={ customerId }
-          confirmationRequired={ this.confirmationRequired }
-          onUpdate={ this.onUpdateResource }
-          onDelete={ this.onDeleteResource }
-          keycloak={ keycloak }
-          deviceId={ deviceId }
-          applicationId={ applicationId }
-          onDeleteMenuClick={ this.onResourceDelete }
-        />;
+        return (
+          <MenuResourceSettingsView
+            resource={ resource }
+            customerId={ customerId }
+            confirmationRequired={ this.confirmationRequired }
+            onUpdate={ this.onUpdateResource }
+            onDelete={ this.onDeleteResource }
+            keycloak={ keycloak }
+            deviceId={ deviceId }
+            applicationId={ applicationId }
+            onDeleteMenuClick={ this.onResourceDelete }
+          />
+        );
       case ResourceType.LANGUAGE:
         return <LanguageResourceSettingsView
           resource={ resource }
