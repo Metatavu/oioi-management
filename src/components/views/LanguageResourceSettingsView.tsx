@@ -724,7 +724,7 @@ class LanguageResourceSettingsView extends React.Component<Props, State> {
    * Handle resource update
    */
   private onUpdateResource = () => {
-    const { onUpdate } = this.props;
+    const { onUpdate, resource } = this.props;
     const { form, resourceData } = this.state;
     const { id, name, slug, orderNumber, type, parentId } = form.values;
 
