@@ -395,7 +395,11 @@ class PageResourceSettingsView extends React.Component<Props, State> {
 
     const listItems = childResources.map(child =>
       <React.Fragment key={ child.id }>
-        <Box display="flex" mt={ 3 }>
+        <Box
+          display="flex"
+          alignItems="center"
+          mt={ 3 }
+        >
           { this.renderChildResourceContentField(child) }
           { this.renderDeleteChild(child) }
         </Box>
@@ -495,16 +499,23 @@ class PageResourceSettingsView extends React.Component<Props, State> {
     const previewItem = resource.data || "";
 
     return (
-      <ImagePreview
-        uploadButtonText={ previewItem ? strings.fileUpload.changeFile : strings.fileUpload.addFile }
-        imagePath={ previewItem }
-        resource={ resource }
-        allowSetUrl={ true }
-        onDelete={ this.onChildResourceFileDelete }
-        onUpload={ this.onChildResourceFileChange }
-        onSetUrl={ this.onChildResourceSetFileUrl }
-        uploadKey={ resource.id }
-      />
+      <Box>
+        <Box mb={ 1 }>
+          <Typography variant="h4">
+            { resource.name }
+          </Typography>
+        </Box>
+        <ImagePreview
+          uploadButtonText={ previewItem ? strings.fileUpload.changeFile : strings.fileUpload.addFile }
+          imagePath={ previewItem }
+          resource={ resource }
+          allowSetUrl={ true }
+          onDelete={ this.onChildResourceFileDelete }
+          onUpload={ this.onChildResourceFileChange }
+          onSetUrl={ this.onChildResourceSetFileUrl }
+          uploadKey={ resource.id }
+        />
+      </Box>
     );
   }
 

@@ -130,19 +130,19 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
           { this.renderFormField("name", strings.menuSettingsView.name, "text") }
         </Box>
         <Box mb={ 3 }>
-          { this.renderPropertiesField("nameText", strings.menuSettingsView.menuTeaserText, "textarea") }
+          { this.renderPropertiesField("nameText", strings.menuSettingsView.teaserText, "textarea") }
         </Box>
         <Box maxWidth={ 300 }>
-          { this.renderUploaderAndPreview(strings.menuSettingsView.menuMedia, "menuImg") }
+          { this.renderUploaderAndPreview(strings.menuSettingsView.media, "menuImg") }
         </Box>
         <Box mt={ 3 } mb={ 3 }>
           <Divider/>
         </Box>
         <Box mb={ 3 }>
-          { this.renderPropertiesField("title", strings.menuSettingsView.pageTitle, "text") }
+          { this.renderPropertiesField("title", strings.menuSettingsView.title, "text") }
         </Box>
         <Box mb={ 3 }>
-          { this.renderPropertiesField("content", strings.menuSettingsView.pageContentText, "textarea") }
+          { this.renderPropertiesField("content", strings.menuSettingsView.contentText, "textarea") }
         </Box>
         <Box className={ classes.gridRow }>
           <Box className={ classes.gridItem }>

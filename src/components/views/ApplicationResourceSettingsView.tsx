@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import * as React from "react";
-import { withStyles, WithStyles, FormControlLabel, Checkbox, TextField, Divider, Typography, Button, TableContainer, Paper, Table, TableHead, TableRow, TableCell, TableBody, Box, Accordion, AccordionSummary, AccordionDetails } from "@material-ui/core";
+import { withStyles, WithStyles, TextField, Divider, Typography, Button, TableContainer, Paper, Table, TableHead, TableRow, TableCell, TableBody, Box, Accordion, AccordionSummary, AccordionDetails } from "@material-ui/core";
 import MaterialTable from "material-table";
 import AddIcon from "@material-ui/icons/Add";
 import AddCircleIcon from "@material-ui/icons/AddCircle";
@@ -43,7 +43,7 @@ interface Props extends WithStyles<typeof styles> {
   confirmationRequired: (value: boolean) => void;
   onUpdate: (resource: Resource) => void;
   onDelete: (resource: Resource) => void;
-  onDeleteSlideshowClick: () => void;
+  onDeleteApplicationClick: () => void;
 }
 
 /**
@@ -59,9 +59,9 @@ interface State {
 }
 
 /**
- * Component for slideshow resource settings view
+ * Component for application resource settings view
  */
-class SlideshowResourceSettingsView extends React.Component<Props, State> {
+class ApplicationResourceSettingsView extends React.Component<Props, State> {
 
   static contextType: React.Context<ErrorContextType> = ErrorContext;
 
@@ -111,7 +111,7 @@ class SlideshowResourceSettingsView extends React.Component<Props, State> {
    * Component render method
    */
   public render = () => {
-    const { classes, keycloak, resource } = this.props;
+    const { classes, keycloak } = this.props;
     const { dataChanged, form } = this.state;
     const { isFormValid } = form;
 
@@ -127,32 +127,29 @@ class SlideshowResourceSettingsView extends React.Component<Props, State> {
           { strings.save }
         </Button>
         <Box mb={ 3 }>
-          { this.renderFormField("name", strings.slideshowSettingsView.name, "text") }
+          { this.renderFormField("name", strings.applicationSettingsView.name, "text") }
         </Box>
         <Box mb={ 3 }>
-          { this.renderPropertiesField("nameText", strings.slideshowSettingsView.teaserText, "textarea") }
+          { this.renderPropertiesField("nameText", strings.applicationSettingsView.teaserText, "textarea") }
         </Box>
         <Box maxWidth={ 300 }>
-          { this.renderUploaderAndPreview(strings.slideshowSettingsView.media, "menuImg") }
+          { this.renderUploaderAndPreview(strings.applicationSettingsView.media, "menuImg") }
         </Box>
         <Box mt={ 3 } mb={ 3 }>
           <Divider/>
         </Box>
         <Box mb={ 3 }>
-          { this.renderPropertiesField("title", strings.slideshowSettingsView.title, "text") }
+          { this.renderPropertiesField("title", strings.applicationSettingsView.title, "text") }
         </Box>
         <Box mb={ 3 }>
-          { this.renderPropertiesField("content", strings.slideshowSettingsView.contentText, "textarea") }
-        </Box>
-        <Box mb={ 3 }>
-          { this.renderSlideShowFields() }
+          { this.renderPropertiesField("content", strings.applicationSettingsView.contentText, "textarea") }
         </Box>
         <Box className={ classes.gridRow }>
           <Box className={ classes.gridItem }>
-            { this.renderUploaderAndPreview(strings.slideshowSettingsView.backgroundMedia, "background") }
+            { this.renderUploaderAndPreview(strings.applicationSettingsView.backgroundMedia, "background") }
           </Box>
           <Box className={ classes.gridItem }>
-            { this.renderUploaderAndPreview(strings.slideshowSettingsView.foregroundMedia, "foreground") }
+            { this.renderUploaderAndPreview(strings.applicationSettingsView.foregroundMedia, "foreground") }
           </Box>
         </Box>
         <Box mt={ 3 } mb={ 3 }>
@@ -242,111 +239,59 @@ class SlideshowResourceSettingsView extends React.Component<Props, State> {
   };
 
   /**
-   * Render slideshow specific fields
-   */
-  private renderSlideShowFields = () => {
-    return (
-      <Box display="flex" mt={ 3 }>
-        <Box mr={ 2 } mb={ 4 }>
-          <Box>
-            <Typography variant="h4">
-              { strings.playback }
-            </Typography>
-          </Box>
-          <Box ml={ 2 } mt={ 2 }>
-            { this.renderCheckbox("autoplay", strings.autoplay) }
-            { this.renderCheckbox("loop", strings.loop) }
-          </Box>
-        </Box>
-        <Divider orientation="vertical" flexItem />
-        <Box ml={ 4 } display="flex" alignItems="center">
-          { this.renderPropertiesField("slideTimeOnScreen", strings.slideTimeOnScreen, "text") }
-        </Box>
-      </Box>
-    );
-  }
-
-  /**
    * Renders advanced settings
    */
   private renderAdvancedSettings = () => {
-    const { classes, onDeleteSlideshowClick } = this.props;
+    const { classes, onDeleteApplicationClick } = this.props;
 
     return (
-      <>
-        <Accordion>
-          <AccordionSummary
-            expandIcon={ <ExpandMoreIcon color="primary" /> }
-            aria-controls="panel1a-content"
-            id="panel1a-header"
+      <Accordion>
+        <AccordionSummary
+          expandIcon={ <ExpandMoreIcon color="primary" /> }
+          aria-controls="panel1a-content"
+          id="panel1a-header"
+        >
+          <Typography variant="h4">
+            { strings.applicationSettings.advancedSettings }
+          </Typography>
+        </AccordionSummary>
+        <AccordionDetails>
+          <Box
+            mt={ 3 }
+            mb={ 3 }
+            className={ classes.advancedSettingRow }
           >
-            <Typography variant="h4">
-              { strings.applicationSettings.advancedSettings }
-            </Typography>
-          </AccordionSummary>
-          <AccordionDetails>
             <Box
-              mt={ 3 }
-              mb={ 3 }
-              className={ classes.advancedSettingRow }
+              display="flex"
+              flexDirection="row"
             >
-              <Box
-                display="flex"
-                flexDirection="row"
-              >
-                <Box mb={ 1 } mr={ 2 }>
-                  { this.renderFormField("orderNumber", strings.orderNumber, "number") }
-                </Box>
-                <Box mb={ 1 }>
-                  { this.renderFormField("slug", strings.slug, "text") }
-                </Box>
+              <Box mb={ 1 } mr={ 2 }>
+                { this.renderFormField("orderNumber", strings.orderNumber, "number") }
               </Box>
-              <Box>
-                <Button
-                  disableElevation
-                  className={ classes.deleteButton }
-                  color="primary"
-                  variant="contained"
-                  onClick={ onDeleteSlideshowClick }
-                >
-                  { strings.slideshowSettingsView.delete }
-                </Button>
+              <Box mb={ 1 }>
+                { this.renderFormField("slug", strings.slug, "text") }
               </Box>
-            </Box>
-            <Box mb={ 3 }>
-              { this.renderPropertiesTable() }
             </Box>
             <Box>
-              { this.renderStyleTable() }
+              <Button
+                disableElevation
+                className={ classes.deleteButton }
+                color="primary"
+                variant="contained"
+                onClick={ onDeleteApplicationClick }
+              >
+                { strings.applicationSettingsView.delete }
+              </Button>
             </Box>
-          </AccordionDetails>
-        </Accordion>
-      </>
-    );
-  }
-
-  /**
-   * Render checkbox
-   *
-   * @param key data key
-   * @param label label
-   */
-  private renderCheckbox = (key: keyof ResourceSettingsForm, label: string) => {
-    const { resourceData } = this.state;
-    const property = resourceData.properties?.find(p => p.key === key);
-
-    const value = property?.value === "true";
-
-    return (
-      <FormControlLabel
-        label={ label }
-        control={
-          <Checkbox
-            checked={ value }
-            onChange={ e => this.onHandleCheckBoxChange(key, e.target.checked) }
-          />
-        }
-      />
+          </Box>
+          <Box mb={ 3 }>
+            { this.renderPropertiesTable() }
+          </Box>
+          <Box>
+            { this.renderStyleTable() }
+          </Box>
+        </AccordionDetails>
+      </Accordion>
     );
   }
 
@@ -356,7 +301,7 @@ class SlideshowResourceSettingsView extends React.Component<Props, State> {
   private renderPropertiesTable = () => {
     const { resourceData } = this.state;
 
-    if (resourceData.properties === undefined) {
+    if (!resourceData?.properties) {
       return null;
     }
 
@@ -453,7 +398,7 @@ class SlideshowResourceSettingsView extends React.Component<Props, State> {
   private renderStyleTable = () => {
     const { resourceData } = this.state;
 
-    if (!resourceData?.styles) {
+    if (resourceData.styles === undefined) {
       return null;
     }
 
@@ -567,7 +512,7 @@ class SlideshowResourceSettingsView extends React.Component<Props, State> {
   }
 
   /**
-   * Render child resources list
+   * Renders child resource list
    */
   private renderChildResourcesList = () => {
     const { classes } = this.props;
@@ -593,7 +538,7 @@ class SlideshowResourceSettingsView extends React.Component<Props, State> {
       );
     });
 
-    return(
+    return (
       <TableContainer component={ Paper }>
         <Table
           size="small"
@@ -709,6 +654,7 @@ class SlideshowResourceSettingsView extends React.Component<Props, State> {
     );
   }
 
+
   /**
    * Handles resource text fields change events
    *
@@ -753,7 +699,7 @@ class SlideshowResourceSettingsView extends React.Component<Props, State> {
    * Toggle dialog
    */
   private toggleDialog = () => {
-    this.setState({iconDialogOpen: !this.state.iconDialogOpen});
+    this.setState({ iconDialogOpen: !this.state.iconDialogOpen });
   }
 
   /**
@@ -778,7 +724,7 @@ class SlideshowResourceSettingsView extends React.Component<Props, State> {
    * Handle resource update
    */
   private onUpdateResource = () => {
-    const { onUpdate } = this.props;
+    const { onUpdate, resource } = this.props;
     const { form, resourceData } = this.state;
     const { id, name, slug, orderNumber, type, parentId } = form.values;
 
@@ -787,7 +733,7 @@ class SlideshowResourceSettingsView extends React.Component<Props, State> {
     }
 
     onUpdate({
-      ...this.props.resource,
+      ...resource,
       name: name,
       orderNumber: orderNumber,
       slug: slug,
@@ -803,45 +749,17 @@ class SlideshowResourceSettingsView extends React.Component<Props, State> {
   };
 
   /**
-   * Event handler for checkbox change
-   *
-   * @param key key
-   * @param event change event
-   */
-  private onHandleCheckBoxChange = (key: keyof ResourceSettingsForm, value: boolean) => {
-    const updatedResourceData = ResourceUtils.updatePropertyList(this.state.resourceData, key, String(value));
-
-    if(!updatedResourceData) {
-      return;
-    }
-
-    this.setState({
-      resourceData: updatedResourceData,
-      dataChanged: true
-    }, () => this.props.confirmationRequired(true));
-  };
-
-  /**
    * Event handler for blur
    *
    * @param key key
    */
   private onHandleBlur = (key: keyof ResourceSettingsForm) => () => {
     let form = { ...this.state.form };
-    const filled = {
-      ...form.filled,
-      [key]: true
-    };
 
-    form = validateForm({
-      ...this.state.form,
-      filled
-    });
+    const filled = { ...form.filled, [key]: true };
+    form = validateForm({ ...this.state.form, filled });
 
-    this.setState({
-      form,
-      dataChanged: true
-    });
+    this.setState({ form: form, dataChanged: true });
     this.props.confirmationRequired(true);
   };
 
@@ -879,4 +797,4 @@ class SlideshowResourceSettingsView extends React.Component<Props, State> {
   }
 }
 
-export default withStyles(styles)(SlideshowResourceSettingsView);
+export default withStyles(styles)(ApplicationResourceSettingsView);

@@ -31,6 +31,10 @@ import { ReduxDispatch, ReduxState } from "app/store";
 import ResourceTree from "components/generic/ResourceTree";
 import ContentVersionControls from "components/generic/ContentVersionControls";
 import SlideshowResourceSettingsView from "components/views/SlideshowResourceSettingsView";
+import IntroResourceSettingsView from "components/views/IntroResourceSettingsView";
+import LanguageResourceSettingsView from "components/views/LanguageResourceSettingsView";
+import LanguageMenuResourceSettingsView from "components/views/LanguageMenuResourceSettingsView";
+import ApplicationResourceSettingsView from "components/views/ApplicationResourceSettingsView";
 
 /**
  * Component properties
@@ -384,67 +388,129 @@ class ApplicationEditor extends React.Component<Props, State> {
 
     switch (resource.type) {
       case ResourceType.MENU:
+        return (
+          <MenuResourceSettingsView
+            resource={ resource }
+            customerId={ customerId }
+            confirmationRequired={ this.confirmationRequired }
+            onUpdate={ this.onUpdateResource }
+            onDelete={ this.onDeleteResource }
+            keycloak={ keycloak }
+            deviceId={ deviceId }
+            applicationId={ applicationId }
+            onDeleteMenuClick={ this.onResourceDelete }
+          />
+        );
       case ResourceType.LANGUAGE:
+        return (
+          <LanguageResourceSettingsView
+            resource={ resource }
+            customerId={ customerId }
+            confirmationRequired={ this.confirmationRequired }
+            onUpdate={ this.onUpdateResource }
+            onDelete={ this.onDeleteResource }
+            keycloak={ keycloak }
+            deviceId={ deviceId }
+            applicationId={ applicationId }
+            onDeleteLanguageClick={ this.onResourceDelete }
+          />
+        );
       case ResourceType.LANGUAGEMENU:
+        return (
+          <LanguageMenuResourceSettingsView
+            resource={ resource }
+            customerId={ customerId }
+            confirmationRequired={ this.confirmationRequired }
+            onUpdate={ this.onUpdateResource }
+            onDelete={ this.onDeleteResource }
+            keycloak={ keycloak }
+            deviceId={ deviceId }
+            applicationId={ applicationId }
+            onDeleteMenuClick={ this.onResourceDelete }
+          />
+        );
       case ResourceType.APPLICATION:
+        return (
+          <ApplicationResourceSettingsView
+            resource={ resource }
+            customerId={ customerId }
+            confirmationRequired={ this.confirmationRequired }
+            onUpdate={ this.onUpdateResource }
+            onDelete={ this.onDeleteResource }
+            keycloak={ keycloak }
+            deviceId={ deviceId }
+            applicationId={ applicationId }
+            onDeleteApplicationClick={ this.onResourceDelete }
+          />
+        );
       case ResourceType.INTRO:
-        return <MenuResourceSettingsView
-          resource={ resource }
-          customerId={ customerId }
-          confirmationRequired={ this.confirmationRequired }
-          onUpdate={ this.onUpdateResource }
-          onDelete={ this.onDeleteResource }
-          keycloak={ keycloak }
-          deviceId={ deviceId }
-          applicationId={ applicationId }
-          onDeleteMenuClick={ this.onResourceDelete }
-        />;
+        return (
+          <IntroResourceSettingsView
+            resource={ resource }
+            customerId={ customerId }
+            confirmationRequired={ this.confirmationRequired }
+            onUpdate={ this.onUpdateResource }
+            onDelete={ this.onDeleteResource }
+            keycloak={ keycloak }
+            deviceId={ deviceId }
+            applicationId={ applicationId }
+            onDeleteIntroClick={ this.onResourceDelete }
+          />
+        );
       case ResourceType.SLIDESHOW:
-        return <SlideshowResourceSettingsView
-          resource={ resource }
-          customerId={ customerId }
-          confirmationRequired={ this.confirmationRequired }
-          onUpdate={ this.onUpdateResource }
-          onDelete={ this.onDeleteResource }
-          keycloak={ keycloak }
-          deviceId={ deviceId }
-          applicationId={ applicationId }
-          onDeleteSlideshowClick={ this.onResourceDelete }
-        />;
+        return (
+          <SlideshowResourceSettingsView
+            resource={ resource }
+            customerId={ customerId }
+            confirmationRequired={ this.confirmationRequired }
+            onUpdate={ this.onUpdateResource }
+            onDelete={ this.onDeleteResource }
+            keycloak={ keycloak }
+            deviceId={ deviceId }
+            applicationId={ applicationId }
+            onDeleteSlideshowClick={ this.onResourceDelete }
+          />
+        );
       case ResourceType.PAGE:
-        return <PageResourceSettingsView
-          resource={ resource }
-          customerId={ customerId }
-          confirmationRequired={ this.confirmationRequired }
-          onAddChild={ this.onAddNewResourceClick }
-          onSave={ this.onUpdateResource }
-          onSaveChildren={ this.onUpdateChildResources }
-          onDelete={ this.onDeleteResource }
-          onDeleteChild={ this.onDeleteResource }
-          keycloak={ keycloak }
-          deviceId={ deviceId }
-          applicationId={ applicationId }
-          onDeletePageClick={ this.onResourceDelete }
-        />;
+        return (
+          <PageResourceSettingsView
+            resource={ resource }
+            customerId={ customerId }
+            confirmationRequired={ this.confirmationRequired }
+            onAddChild={ this.onAddNewResourceClick }
+            onSave={ this.onUpdateResource }
+            onSaveChildren={ this.onUpdateChildResources }
+            onDelete={ this.onDeleteResource }
+            onDeleteChild={ this.onDeleteResource }
+            keycloak={ keycloak }
+            deviceId={ deviceId }
+            applicationId={ applicationId }
+            onDeletePageClick={ this.onResourceDelete }
+          />
+        );
       case ResourceType.SLIDESHOWPDF:
-        return <PDFResourceSettingsView
-          resource={ resource }
-          customerId={ customerId }
-          confirmationRequired={ this.confirmationRequired }
-          onSave={ this.onUpdateResource }
-          onDelete={ this.onDeleteResource }
-          keycloak={ keycloak }
-          deviceId={ deviceId }
-          applicationId={ applicationId }
-        />;
+        return (
+          <PDFResourceSettingsView
+            resource={ resource }
+            customerId={ customerId }
+            confirmationRequired={ this.confirmationRequired }
+            onSave={ this.onUpdateResource }
+            onDelete={ this.onDeleteResource }
+            keycloak={ keycloak }
+            deviceId={ deviceId }
+            applicationId={ applicationId }
+          />
+        );
       default:
-        return <ResourceSettingsView
-          resource={ resource }
-          customerId={ customerId }
-          onUpdate={ this.onUpdateResource }
-          onDelete={ this.onDeleteResource }
-          confirmationRequired={ this.confirmationRequired }
-        />;
+        return (
+          <ResourceSettingsView
+            resource={ resource }
+            customerId={ customerId }
+            onUpdate={ this.onUpdateResource }
+            onDelete={ this.onDeleteResource }
+            confirmationRequired={ this.confirmationRequired }
+          />
+        );
     }
   }
 

@@ -133,15 +133,71 @@ export interface IStrings extends LocalizedStringsMethods {
   };
 
   /**
+   * Translations related to intro settings 
+   */
+  introSettingsView: {
+    name: string;
+    teaserText: string;
+    title: string;
+    contentText: string;
+    backgroundMedia: string;
+    media: string;
+    foregroundMedia: string;
+    delete: string;
+  };
+
+  /**
+   * Translations related to language settings 
+   */
+  languageSettingsView: {
+    name: string;
+    teaserText: string;
+    title: string;
+    contentText: string;
+    backgroundMedia: string;
+    media: string;
+    foregroundMedia: string;
+    delete: string;
+  };
+
+  /**
+   * Translations related to language menu settings 
+   */
+  languageMenuSettingsView: {
+    name: string;
+    teaserText: string;
+    title: string;
+    contentText: string;
+    backgroundMedia: string;
+    media: string;
+    foregroundMedia: string;
+    delete: string;
+  },
+
+  /**
    * Translations related to menu settings 
    */
   menuSettingsView: {
     name: string;
-    menuTeaserText: string;
-    pageTitle: string;
-    pageContentText: string;
+    teaserText: string;
+    title: string;
+    contentText: string;
     backgroundMedia: string;
-    menuMedia: string;
+    media: string;
+    foregroundMedia: string;
+    delete: string;
+  },
+
+  /**
+   * Translations related to application settings 
+   */
+  applicationSettingsView: {
+    name: string;
+    teaserText: string;
+    title: string;
+    contentText: string;
+    backgroundMedia: string;
+    media: string;
     foregroundMedia: string;
     delete: string;
   },
@@ -158,6 +214,13 @@ export interface IStrings extends LocalizedStringsMethods {
    * Translations related to slideshow settings 
    */
   slideshowSettingsView: {
+    name: string;
+    teaserText: string;
+    title: string;
+    contentText: string;
+    backgroundMedia: string;
+    media: string;
+    foregroundMedia: string;
     delete: string;
   },
 
