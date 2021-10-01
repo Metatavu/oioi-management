@@ -733,7 +733,7 @@ class LanguageResourceSettingsView extends React.Component<Props, State> {
     }
 
     onUpdate({
-      ...this.props.resource,
+      ...resource,
       name: name,
       orderNumber: orderNumber,
       slug: slug,
