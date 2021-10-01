@@ -31,6 +31,10 @@ import { ReduxDispatch, ReduxState } from "app/store";
 import ResourceTree from "components/generic/ResourceTree";
 import ContentVersionControls from "components/generic/ContentVersionControls";
 import SlideshowResourceSettingsView from "components/views/SlideshowResourceSettingsView";
+import IntroResourceSettingsView from "components/views/IntroResourceSettingsView";
+import LanguageResourceSettingsView from "components/views/LanguageResourceSettingsView";
+import LanguageMenuResourceSettingsView from "components/views/LanguageMenuResourceSettingsView";
+import ApplicationResourceSettingsView from "components/views/ApplicationResourceSettingsView";
 
 /**
  * Component properties
@@ -384,10 +388,6 @@ class ApplicationEditor extends React.Component<Props, State> {
 
     switch (resource.type) {
       case ResourceType.MENU:
-      case ResourceType.LANGUAGE:
-      case ResourceType.LANGUAGEMENU:
-      case ResourceType.APPLICATION:
-      case ResourceType.INTRO:
         return <MenuResourceSettingsView
           resource={ resource }
           customerId={ customerId }
@@ -398,6 +398,54 @@ class ApplicationEditor extends React.Component<Props, State> {
           deviceId={ deviceId }
           applicationId={ applicationId }
           onDeleteMenuClick={ this.onResourceDelete }
+        />;
+      case ResourceType.LANGUAGE:
+        return <LanguageResourceSettingsView
+          resource={ resource }
+          customerId={ customerId }
+          confirmationRequired={ this.confirmationRequired }
+          onUpdate={ this.onUpdateResource }
+          onDelete={ this.onDeleteResource }
+          keycloak={ keycloak }
+          deviceId={ deviceId }
+          applicationId={ applicationId }
+          onDeleteLanguageClick={ this.onResourceDelete }
+        />;
+      case ResourceType.LANGUAGEMENU:
+        return <LanguageMenuResourceSettingsView
+          resource={ resource }
+          customerId={ customerId }
+          confirmationRequired={ this.confirmationRequired }
+          onUpdate={ this.onUpdateResource }
+          onDelete={ this.onDeleteResource }
+          keycloak={ keycloak }
+          deviceId={ deviceId }
+          applicationId={ applicationId }
+          onDeleteMenuClick={ this.onResourceDelete }
+        />;
+      case ResourceType.APPLICATION:
+        return <ApplicationResourceSettingsView
+          resource={ resource }
+          customerId={ customerId }
+          confirmationRequired={ this.confirmationRequired }
+          onUpdate={ this.onUpdateResource }
+          onDelete={ this.onDeleteResource }
+          keycloak={ keycloak }
+          deviceId={ deviceId }
+          applicationId={ applicationId }
+          onDeleteApplicationClick={ this.onResourceDelete }
+        />;
+      case ResourceType.INTRO:
+        return <IntroResourceSettingsView
+          resource={ resource }
+          customerId={ customerId }
+          confirmationRequired={ this.confirmationRequired }
+          onUpdate={ this.onUpdateResource }
+          onDelete={ this.onDeleteResource }
+          keycloak={ keycloak }
+          deviceId={ deviceId }
+          applicationId={ applicationId }
+          onDeleteIntroClick={ this.onResourceDelete }
         />;
       case ResourceType.SLIDESHOW:
         return <SlideshowResourceSettingsView

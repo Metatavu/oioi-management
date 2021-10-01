@@ -118,15 +118,59 @@
     "deleteVersion": "Delete version"
   },
 
+  "languageSettingsView": {
+    "name": "Name",
+    "teaserText": "Language teaser text",
+    "title": "Language title",
+    "contentText": "Language content text",
+    "backgroundMedia": "Background media",
+    "media": "Media",
+    "foregroundMedia": "Foreground media",
+    "delete": "Delete language"
+  },
+
+  "introSettingsView": {
+    "name": "Name",
+    "teaserText": "Intro teaser text",
+    "title": "Intro title",
+    "contentText": "Intro content text",
+    "backgroundMedia": "Background media",
+    "media": "Intro media",
+    "foregroundMedia": "Foreground media",
+    "delete": "Delete intro"
+  },
+
+  "languageMenuSettingsView": {
+    "name": "Name",
+    "teaserText": "Teaser text",
+    "title": "Language menu title",
+    "contentText": "Language menu content text",
+    "backgroundMedia": "Background media",
+    "media": "Language menu media",
+    "foregroundMedia": "Foreground media",
+    "delete": "Delete language menu"
+  },
+
   "menuSettingsView": {
     "name": "Name",
-    "menuTeaserText": "Menu teaser text",
-    "pageTitle": "Page title",
-    "pageContentText": "Page content text",
+    "teaserText": "Menu teaser text",
+    "title": "Page title",
+    "contentText": "Page content text",
     "backgroundMedia": "Background media",
-    "menuMedia": "Menu media",
+    "media": "Menu media",
     "foregroundMedia": "Foreground media",
     "delete": "Delete menu"
+  },
+
+  "applicationSettingsView": {
+    "name": "Name",
+    "teaserText": "Application teaser text",
+    "title": "Application title",
+    "contentText": "Application content text",
+    "backgroundMedia": "Background media",
+    "media": "Application media",
+    "foregroundMedia": "Foreground media",
+    "delete": "Delete Application"
   },
 
   "pageSettingsView": {

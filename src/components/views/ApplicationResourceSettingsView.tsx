@@ -43,7 +43,7 @@ interface Props extends WithStyles<typeof styles> {
   confirmationRequired: (value: boolean) => void;
   onUpdate: (resource: Resource) => void;
   onDelete: (resource: Resource) => void;
-  onDeleteMenuClick: () => void;
+  onDeleteApplicationClick: () => void;
 }
 
 /**
@@ -59,9 +59,9 @@ interface State {
 }
 
 /**
- * Component for menu resource settings view
+ * Component for application resource settings view
  */
-class MenuResourceSettingsView extends React.Component<Props, State> {
+class ApplicationResourceSettingsView extends React.Component<Props, State> {
 
   static contextType: React.Context<ErrorContextType> = ErrorContext;
 
@@ -127,29 +127,29 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
           { strings.save }
         </Button>
         <Box mb={ 3 }>
-          { this.renderFormField("name", strings.menuSettingsView.name, "text") }
+          { this.renderFormField("name", strings.applicationSettingsView.name, "text") }
         </Box>
         <Box mb={ 3 }>
-          { this.renderPropertiesField("nameText", strings.menuSettingsView.teaserText, "textarea") }
+          { this.renderPropertiesField("nameText", strings.applicationSettingsView.teaserText, "textarea") }
         </Box>
         <Box maxWidth={ 300 }>
-          { this.renderUploaderAndPreview(strings.menuSettingsView.media, "menuImg") }
+          { this.renderUploaderAndPreview(strings.applicationSettingsView.media, "menuImg") }
         </Box>
         <Box mt={ 3 } mb={ 3 }>
           <Divider/>
         </Box>
         <Box mb={ 3 }>
-          { this.renderPropertiesField("title", strings.menuSettingsView.title, "text") }
+          { this.renderPropertiesField("title", strings.applicationSettingsView.title, "text") }
         </Box>
         <Box mb={ 3 }>
-          { this.renderPropertiesField("content", strings.menuSettingsView.contentText, "textarea") }
+          { this.renderPropertiesField("content", strings.applicationSettingsView.contentText, "textarea") }
         </Box>
         <Box className={ classes.gridRow }>
           <Box className={ classes.gridItem }>
-            { this.renderUploaderAndPreview(strings.menuSettingsView.backgroundMedia, "background") }
+            { this.renderUploaderAndPreview(strings.applicationSettingsView.backgroundMedia, "background") }
           </Box>
           <Box className={ classes.gridItem }>
-            { this.renderUploaderAndPreview(strings.menuSettingsView.foregroundMedia, "foreground") }
+            { this.renderUploaderAndPreview(strings.applicationSettingsView.foregroundMedia, "foreground") }
           </Box>
         </Box>
         <Box mt={ 3 } mb={ 3 }>
@@ -242,7 +242,7 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
    * Renders advanced settings
    */
   private renderAdvancedSettings = () => {
-    const { classes, onDeleteMenuClick } = this.props;
+    const { classes, onDeleteApplicationClick } = this.props;
 
     return (
       <Accordion>
@@ -278,9 +278,9 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
                 className={ classes.deleteButton }
                 color="primary"
                 variant="contained"
-                onClick={ onDeleteMenuClick }
+                onClick={ onDeleteApplicationClick }
               >
-                { strings.menuSettingsView.delete }
+                { strings.applicationSettingsView.delete }
               </Button>
             </Box>
           </Box>
@@ -797,4 +797,4 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
   }
 }
 
-export default withStyles(styles)(MenuResourceSettingsView);
+export default withStyles(styles)(ApplicationResourceSettingsView);

@@ -59,9 +59,9 @@ interface State {
 }
 
 /**
- * Component for menu resource settings view
+ * Component for language menu resource settings view
  */
-class MenuResourceSettingsView extends React.Component<Props, State> {
+class LanguageMenuResourceSettingsView extends React.Component<Props, State> {
 
   static contextType: React.Context<ErrorContextType> = ErrorContext;
 
@@ -127,29 +127,29 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
           { strings.save }
         </Button>
         <Box mb={ 3 }>
-          { this.renderFormField("name", strings.menuSettingsView.name, "text") }
+          { this.renderFormField("name", strings.languageMenuSettingsView.name, "text") }
         </Box>
         <Box mb={ 3 }>
-          { this.renderPropertiesField("nameText", strings.menuSettingsView.teaserText, "textarea") }
+          { this.renderPropertiesField("nameText", strings.languageMenuSettingsView.teaserText, "textarea") }
         </Box>
         <Box maxWidth={ 300 }>
-          { this.renderUploaderAndPreview(strings.menuSettingsView.media, "menuImg") }
+          { this.renderUploaderAndPreview(strings.languageMenuSettingsView.media, "menuImg") }
         </Box>
         <Box mt={ 3 } mb={ 3 }>
           <Divider/>
         </Box>
         <Box mb={ 3 }>
-          { this.renderPropertiesField("title", strings.menuSettingsView.title, "text") }
+          { this.renderPropertiesField("title", strings.languageMenuSettingsView.title, "text") }
         </Box>
         <Box mb={ 3 }>
-          { this.renderPropertiesField("content", strings.menuSettingsView.contentText, "textarea") }
+          { this.renderPropertiesField("content", strings.languageMenuSettingsView.contentText, "textarea") }
         </Box>
         <Box className={ classes.gridRow }>
           <Box className={ classes.gridItem }>
-            { this.renderUploaderAndPreview(strings.menuSettingsView.backgroundMedia, "background") }
+            { this.renderUploaderAndPreview(strings.languageMenuSettingsView.backgroundMedia, "background") }
           </Box>
           <Box className={ classes.gridItem }>
-            { this.renderUploaderAndPreview(strings.menuSettingsView.foregroundMedia, "foreground") }
+            { this.renderUploaderAndPreview(strings.languageMenuSettingsView.foregroundMedia, "foreground") }
           </Box>
         </Box>
         <Box mt={ 3 } mb={ 3 }>
@@ -280,7 +280,7 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
                 variant="contained"
                 onClick={ onDeleteMenuClick }
               >
-                { strings.menuSettingsView.delete }
+                { strings.languageMenuSettingsView.delete }
               </Button>
             </Box>
           </Box>
@@ -797,4 +797,4 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
   }
 }
 
-export default withStyles(styles)(MenuResourceSettingsView);
+export default withStyles(styles)(LanguageMenuResourceSettingsView);
