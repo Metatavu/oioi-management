@@ -127,32 +127,32 @@ class SlideshowResourceSettingsView extends React.Component<Props, State> {
           { strings.save }
         </Button>
         <Box mb={ 3 }>
-          { this.renderFormField("name", strings.menuSettingsView.name, "text") }
+          { this.renderFormField("name", strings.slideshowSettingsView.name, "text") }
         </Box>
         <Box mb={ 3 }>
-          { this.renderPropertiesField("nameText", strings.menuSettingsView.teaserText, "textarea") }
+          { this.renderPropertiesField("nameText", strings.slideshowSettingsView.teaserText, "textarea") }
         </Box>
         <Box maxWidth={ 300 }>
-          { this.renderUploaderAndPreview(strings.menuSettingsView.media, "menuImg") }
+          { this.renderUploaderAndPreview(strings.slideshowSettingsView.media, "menuImg") }
         </Box>
         <Box mt={ 3 } mb={ 3 }>
           <Divider/>
         </Box>
         <Box mb={ 3 }>
-          { this.renderPropertiesField("title", strings.menuSettingsView.title, "text") }
+          { this.renderPropertiesField("title", strings.slideshowSettingsView.title, "text") }
         </Box>
         <Box mb={ 3 }>
-          { this.renderPropertiesField("content", strings.menuSettingsView.contentText, "textarea") }
+          { this.renderPropertiesField("content", strings.slideshowSettingsView.contentText, "textarea") }
         </Box>
         <Box mb={ 3 }>
           { this.renderSlideShowFields() }
         </Box>
         <Box className={ classes.gridRow }>
           <Box className={ classes.gridItem }>
-            { this.renderUploaderAndPreview(strings.menuSettingsView.backgroundMedia, "background") }
+            { this.renderUploaderAndPreview(strings.slideshowSettingsView.backgroundMedia, "background") }
           </Box>
           <Box className={ classes.gridItem }>
-            { this.renderUploaderAndPreview(strings.menuSettingsView.foregroundMedia, "foreground") }
+            { this.renderUploaderAndPreview(strings.slideshowSettingsView.foregroundMedia, "foreground") }
           </Box>
         </Box>
         <Box mt={ 3 } mb={ 3 }>

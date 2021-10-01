@@ -165,8 +165,8 @@
   "applicationSettingsView": {
     "name": "Nimi",
     "teaserText": "Sovelluksen ingressiteksti",
-    "pageTitle": "Otsikko",
-    "pageContentText": "Sovelluksen kuvausteksti",
+    "title": "Otsikko",
+    "contentText": "Sovelluksen kuvausteksti",
     "backgroundMedia": "Taustamedia",
     "media": "Sovelluksen media",
     "foregroundMedia": "Etualan media",
@@ -179,6 +179,13 @@
   },
 
   "slideshowSettingsView": {
+    "name": "Nimi",
+    "teaserText": "Slideshown ingressiteksti",
+    "title": "Otsikko",
+    "contentText": "Slideshown kuvausteksti",
+    "backgroundMedia": "Taustamedia",
+    "media": "Slideshown media",
+    "foregroundMedia": "Etualan media",
     "delete": "Poista slideshow"
   },
 

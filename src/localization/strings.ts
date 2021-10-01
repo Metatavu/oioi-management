@@ -214,6 +214,13 @@ export interface IStrings extends LocalizedStringsMethods {
    * Translations related to slideshow settings 
    */
   slideshowSettingsView: {
+    name: string;
+    teaserText: string;
+    title: string;
+    contentText: string;
+    backgroundMedia: string;
+    media: string;
+    foregroundMedia: string;
     delete: string;
   },
 
