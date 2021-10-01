@@ -699,7 +699,7 @@ class ApplicationResourceSettingsView extends React.Component<Props, State> {
    * Toggle dialog
    */
   private toggleDialog = () => {
-    this.setState({iconDialogOpen: !this.state.iconDialogOpen});
+    this.setState({ iconDialogOpen: !this.state.iconDialogOpen });
   }
 
   /**
