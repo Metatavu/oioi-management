@@ -123,7 +123,7 @@ class PDFResourceSettingsView extends React.Component<Props, State> {
         >
           { strings.save }
         </Button>
-        { this.renderField("name", strings.name, "text") }
+        { this.renderField("name", strings.commonSettingsTexts.name, "text") }
         { this.renderUploaderAndPreview() }
         <Box mt={ 3 } mb={ 3 }>
           <Divider/>

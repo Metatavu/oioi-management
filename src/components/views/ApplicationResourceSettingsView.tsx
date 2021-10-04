@@ -126,13 +126,13 @@ class ApplicationResourceSettingsView extends React.Component<Props, State> {
           { strings.save }
         </Button>
         <Box mb={ 3 }>
-          { this.renderFormField("name", strings.applicationSettingsView.name, "text") }
+          { this.renderFormField("name", strings.commonSettingsTexts.name, "text") }
         </Box>
         <Box mb={ 3 }>
-          { this.renderPropertiesField("nameText", strings.applicationSettingsView.teaserText, "textarea") }
+          { this.renderPropertiesField("nameText", strings.commonSettingsTexts.teaserText, "textarea") }
         </Box>
         <Box maxWidth={ 300 }>
-          { this.renderUploaderAndPreview(strings.applicationSettingsView.media, "menuImg") }
+          { this.renderUploaderAndPreview(strings.commonSettingsTexts.media, "menuImg") }
         </Box>
         <Box mt={ 3 } mb={ 3 }>
           <Divider/>

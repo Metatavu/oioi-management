@@ -143,7 +143,7 @@ class ResourceSettingsView extends React.Component<Props, State> {
   private renderFields = () => {
     return (
       <Box>
-        { this.renderField("name", strings.name, "text") }
+        { this.renderField("name", strings.commonSettingsTexts.name, "text") }
       </Box>
     );
   }

@@ -119,63 +119,53 @@
     "deleteLanguage": "Delete language"
   },
 
-  "languageSettingsView": {
-    "name": "Name",
-    "teaserText": "Language teaser text",
-    "title": "Language title",
-    "contentText": "Language content text",
+  "commonSettingsTexts": {
+    "name": "Menu name",
+    "teaserText": "Menu teaser text",
+    "media": "Menu media"
+  },
+
+  "languageMenuSettingsView": {
+    "title": "Title",
+    "contentText": "Content text",
     "backgroundMedia": "Background media",
-    "media": "Media",
+    "foregroundMedia": "Foreground media",
+    "delete": "Delete language menu"
+  },
+
+  "languageSettingsView": {
+    "title": "Title",
+    "contentText": "Content text",
+    "backgroundMedia": "Background media",
     "foregroundMedia": "Foreground media",
     "delete": "Delete language"
   },
 
   "introSettingsView": {
-    "name": "Name",
-    "teaserText": "Intro teaser text",
-    "title": "Intro title",
-    "contentText": "Intro content text",
+    "title": "Title",
+    "contentText": "Content text",
     "backgroundMedia": "Background media",
-    "media": "Intro media",
     "foregroundMedia": "Foreground media",
     "delete": "Delete intro"
   },
 
-  "languageMenuSettingsView": {
-    "name": "Name",
-    "teaserText": "Teaser text",
-    "title": "Language menu title",
-    "contentText": "Language menu content text",
-    "backgroundMedia": "Background media",
-    "media": "Language menu media",
-    "foregroundMedia": "Foreground media",
-    "delete": "Delete language menu"
-  },
-
   "menuSettingsView": {
-    "name": "Name",
-    "teaserText": "Menu teaser text",
-    "title": "Page title",
-    "contentText": "Page content text",
+    "title": "Title",
+    "contentText": "Content text",
     "backgroundMedia": "Background media",
-    "media": "Menu media",
     "foregroundMedia": "Foreground media",
     "delete": "Delete menu"
   },
 
   "applicationSettingsView": {
-    "name": "Name",
-    "teaserText": "Application teaser text",
-    "title": "Application title",
-    "contentText": "Application content text",
+    "title": "Title",
+    "contentText": "Content text",
     "backgroundMedia": "Background media",
-    "media": "Application media",
     "foregroundMedia": "Foreground media",
     "delete": "Delete Application"
   },
 
   "pageSettingsView": {
-    "name": "Name",
     "delete": "Delete page"
   },
 
