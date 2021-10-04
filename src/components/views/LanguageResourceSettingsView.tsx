@@ -42,8 +42,7 @@ interface Props extends WithStyles<typeof styles> {
   customerId: string;
   confirmationRequired: (value: boolean) => void;
   onUpdate: (resource: Resource) => void;
-  onDelete: (resource: Resource) => void;
-  onDeleteLanguageClick: () => void;
+  onDelete: () => void;
 }
 
 /**
@@ -242,7 +241,7 @@ class LanguageResourceSettingsView extends React.Component<Props, State> {
    * Renders advanced settings
    */
   private renderAdvancedSettings = () => {
-    const { classes, onDeleteLanguageClick } = this.props;
+    const { classes, onDelete } = this.props;
 
     return (
       <Accordion>
@@ -278,7 +277,7 @@ class LanguageResourceSettingsView extends React.Component<Props, State> {
                 className={ classes.deleteButton }
                 color="primary"
                 variant="contained"
-                onClick={ onDeleteLanguageClick }
+                onClick={ onDelete }
               >
                 { strings.languageSettingsView.delete }
               </Button>

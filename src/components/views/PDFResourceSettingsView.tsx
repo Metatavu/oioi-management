@@ -33,7 +33,6 @@ interface Props extends WithStyles<typeof styles> {
   resource: Resource;
   customerId: string;
   onSave: (resource: Resource) => void;
-  onDelete: (resource: Resource) => void;
   confirmationRequired: (value: boolean) => void;
 }
 

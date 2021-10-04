@@ -15,7 +15,7 @@ interface Props {
   onConfirm: () => void | Promise<void>;
   showLoader?: boolean;
   open: boolean;
-  error: boolean;
+  error?: boolean;
   fullScreen?: boolean;
   fullWidth?: boolean;
   disableEnforceFocus?: boolean;

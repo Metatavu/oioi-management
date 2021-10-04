@@ -1,4 +1,6 @@
 import LocalizedStrings, { LocalizedStringsMethods } from "localized-strings";
+import en from "./en.json";
+import fi from "./fi.json";
 
 export interface IStrings extends LocalizedStringsMethods {
   active: string;
@@ -379,11 +381,26 @@ export interface IStrings extends LocalizedStringsMethods {
       refresh: string;
     };
   };
-}
 
-const strings: IStrings = new LocalizedStrings({
-  en: require("./en.json"),
-  fi: require("./fi.json")
-});
+  /**
+   * Localized delete confirmations by resource type
+   */
+  deleteConfirmationsByType: {
+    "INTRO": string;
+    "LANGUAGE_MENU": string;
+    "LANGUAGE": string;
+    "SLIDESHOW": string;
+    "SLIDESHOW_PDF": string;
+    "MENU": string;
+    "PAGE": string;
+    "PDF": string;
+    "IMAGE": string;
+    "VIDEO": string;
+    "TEXT": string;
+    "APPLICATION": string;
+  };
+};
+
+const strings: IStrings = new LocalizedStrings({ en, fi });
 
 export default strings;

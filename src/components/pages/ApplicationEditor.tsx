@@ -35,6 +35,7 @@ import IntroResourceSettingsView from "components/views/IntroResourceSettingsVie
 import LanguageResourceSettingsView from "components/views/LanguageResourceSettingsView";
 import LanguageMenuResourceSettingsView from "components/views/LanguageMenuResourceSettingsView";
 import ApplicationResourceSettingsView from "components/views/ApplicationResourceSettingsView";
+import GenericDialog from "components/generic/GenericDialog";
 
 /**
  * Component properties
@@ -51,6 +52,9 @@ interface Props extends ExternalProps {
  */
 interface State {
   addResourceDialogOpen: boolean;
+  deleteResourceDialogOpen: boolean;
+  deleteApplicationDialogOpen: boolean;
+  childToDelete?: Resource;
   parentResourceId?: string;
   rootResource?: Resource;
   treeData?: ResourceTreeItem[];
@@ -86,6 +90,8 @@ class ApplicationEditor extends React.Component<Props, State> {
     this.state = {
       isSaving: false,
       addResourceDialogOpen: false,
+      deleteResourceDialogOpen: false,
+      deleteApplicationDialogOpen: false,
       confirmationRequired: false,
       treeResizing: false,
       treeWidth: 400,
@@ -171,6 +177,8 @@ class ApplicationEditor extends React.Component<Props, State> {
           { this.renderResponsiveDrawer() }
           { this.renderEditor() }
           { this.renderSavingOverlay() }
+          { this.renderDeleteResourceDialog() }
+          { this.renderDeleteApplicationDialog() }
         </div>
       </AppLayout>
     );
@@ -269,6 +277,7 @@ class ApplicationEditor extends React.Component<Props, State> {
    */
   private renderDrawer = () => {
     const { selectedResource, selectResource } = this.props;
+    const { addResourceDialogOpen } = this.state;
 
     return (
       <>
@@ -293,7 +302,7 @@ class ApplicationEditor extends React.Component<Props, State> {
         <Divider/>
         { this.renderResourceTree() }
         <AddResourceDialog
-          open={ this.state.addResourceDialogOpen }
+          open={ addResourceDialogOpen }
           onClose={ this.onDialogCloseClick }
         />
       </>
@@ -386,182 +395,104 @@ class ApplicationEditor extends React.Component<Props, State> {
       applicationId
     } = this.props;
 
+    const genericProps = {
+      keycloak: keycloak,
+      resource: resource,
+      customerId: customerId,
+      deviceId: deviceId,
+      applicationId: applicationId,
+      confirmationRequired: this.confirmationRequired,
+      onUpdate: this.onUpdateResource,
+      onDelete: () => this.setState({ deleteResourceDialogOpen: true })
+    };
+
     switch (resource.type) {
       case ResourceType.MENU:
-        return (
-          <MenuResourceSettingsView
-            resource={ resource }
-            customerId={ customerId }
-            confirmationRequired={ this.confirmationRequired }
-            onUpdate={ this.onUpdateResource }
-            onDelete={ this.onDeleteResource }
-            keycloak={ keycloak }
-            deviceId={ deviceId }
-            applicationId={ applicationId }
-            onDeleteMenuClick={ this.onResourceDelete }
-          />
-        );
+        return <MenuResourceSettingsView { ...genericProps }/>;
       case ResourceType.LANGUAGE:
-        return (
-          <LanguageResourceSettingsView
-            resource={ resource }
-            customerId={ customerId }
-            confirmationRequired={ this.confirmationRequired }
-            onUpdate={ this.onUpdateResource }
-            onDelete={ this.onDeleteResource }
-            keycloak={ keycloak }
-            deviceId={ deviceId }
-            applicationId={ applicationId }
-            onDeleteLanguageClick={ this.onResourceDelete }
-          />
-        );
+        return <LanguageResourceSettingsView { ...genericProps }/>;
       case ResourceType.LANGUAGEMENU:
-        return (
-          <LanguageMenuResourceSettingsView
-            resource={ resource }
-            customerId={ customerId }
-            confirmationRequired={ this.confirmationRequired }
-            onUpdate={ this.onUpdateResource }
-            onDelete={ this.onDeleteResource }
-            keycloak={ keycloak }
-            deviceId={ deviceId }
-            applicationId={ applicationId }
-            onDeleteMenuClick={ this.onResourceDelete }
-          />
-        );
+        return <LanguageMenuResourceSettingsView { ...genericProps }/>;
       case ResourceType.APPLICATION:
-        return (
-          <ApplicationResourceSettingsView
-            resource={ resource }
-            customerId={ customerId }
-            confirmationRequired={ this.confirmationRequired }
-            onUpdate={ this.onUpdateResource }
-            onDelete={ this.onDeleteResource }
-            keycloak={ keycloak }
-            deviceId={ deviceId }
-            applicationId={ applicationId }
-            onDeleteApplicationClick={ this.onResourceDelete }
-          />
-        );
+        return <ApplicationResourceSettingsView { ...genericProps }/>;
       case ResourceType.INTRO:
-        return (
-          <IntroResourceSettingsView
-            resource={ resource }
-            customerId={ customerId }
-            confirmationRequired={ this.confirmationRequired }
-            onUpdate={ this.onUpdateResource }
-            onDelete={ this.onDeleteResource }
-            keycloak={ keycloak }
-            deviceId={ deviceId }
-            applicationId={ applicationId }
-            onDeleteIntroClick={ this.onResourceDelete }
-          />
-        );
+        return <IntroResourceSettingsView { ...genericProps }/>;
       case ResourceType.SLIDESHOW:
+        return <SlideshowResourceSettingsView { ...genericProps }/>;
+      case ResourceType.SLIDESHOWPDF:
         return (
-          <SlideshowResourceSettingsView
-            resource={ resource }
-            customerId={ customerId }
-            confirmationRequired={ this.confirmationRequired }
-            onUpdate={ this.onUpdateResource }
-            onDelete={ this.onDeleteResource }
-            keycloak={ keycloak }
-            deviceId={ deviceId }
-            applicationId={ applicationId }
-            onDeleteSlideshowClick={ this.onResourceDelete }
+          <PDFResourceSettingsView
+            { ...genericProps }
+            onSave={ this.onUpdateResource }
           />
         );
       case ResourceType.PAGE:
         return (
           <PageResourceSettingsView
-            resource={ resource }
-            customerId={ customerId }
-            confirmationRequired={ this.confirmationRequired }
+            { ...genericProps }
             onAddChild={ this.onAddNewResourceClick }
             onSave={ this.onUpdateResource }
             onSaveChildren={ this.onUpdateChildResources }
-            onDelete={ this.onDeleteResource }
-            onDeleteChild={ this.onDeleteResource }
-            keycloak={ keycloak }
-            deviceId={ deviceId }
-            applicationId={ applicationId }
-            onDeletePageClick={ this.onResourceDelete }
-          />
-        );
-      case ResourceType.SLIDESHOWPDF:
-        return (
-          <PDFResourceSettingsView
-            resource={ resource }
-            customerId={ customerId }
-            confirmationRequired={ this.confirmationRequired }
-            onSave={ this.onUpdateResource }
-            onDelete={ this.onDeleteResource }
-            keycloak={ keycloak }
-            deviceId={ deviceId }
-            applicationId={ applicationId }
+            onDeleteChild={ child => this.setState({ deleteResourceDialogOpen: true, childToDelete: child }) }
           />
         );
       default:
-        return (
-          <ResourceSettingsView
-            resource={ resource }
-            customerId={ customerId }
-            onUpdate={ this.onUpdateResource }
-            onDelete={ this.onDeleteResource }
-            confirmationRequired={ this.confirmationRequired }
-          />
-        );
+        return <ResourceSettingsView { ...genericProps }/>;
     }
   }
 
   /**
-   * Event handler for resource delete
+   * Renders delete resource dialog
    */
-  private onResourceDelete = async () => {
-    const {
-      keycloak,
-      selectedResource,
-      deleteResources,
-      customerId,
-      deviceId,
-      applicationId,
-      selectResource
-    } = this.props;
+  private renderDeleteResourceDialog = () => {
+    const { selectedResource } = this.props;
+    const { deleteResourceDialogOpen, childToDelete } = this.state;
 
-    if (!keycloak?.token) {
-      return;
+    if (!childToDelete && !selectedResource) {
+      return null;
     }
 
-    if (selectedResource?.id && window.confirm(`${strings.deleteResourceDialogDescription} ${selectedResource.name} ${ strings.andAllChildren}?`)) {
-      try {
-        await Api.getResourcesApi(keycloak.token).deleteResource({
-          customerId: customerId,
-          deviceId: deviceId,
-          applicationId: applicationId,
-          resourceId: selectedResource.id || ""
-        });
+    return (
+      <GenericDialog
+        open={ deleteResourceDialogOpen }
+        onClose={ () => this.setState({ deleteResourceDialogOpen: false, childToDelete: undefined }) }
+        onCancel={ () => this.setState({ deleteResourceDialogOpen: false, childToDelete: undefined }) }
+        onConfirm={ () => this.onDeleteResource((childToDelete || selectedResource)!) }
+        title={ this.getDeleteTitle((childToDelete || selectedResource)!.type) }
+        positiveButtonText={ strings.delete }
+        cancelButtonText={ strings.cancel }
+      >
+        <Typography>
+          { strings.actionCannotBeReverted }
+        </Typography>
+      </GenericDialog>
+    );
+  }
 
-        deleteResources([ selectedResource, ...this.getResourceBranch(selectedResource) ]);
-        selectResource(undefined);
-        toast.success(strings.deleteSuccessMessage);
-      } catch (error) {
-        this.context.setError(
-          strings.formatString(strings.errorManagement.resource.delete, selectedResource.name),
-          error
-        );
-      }
-    }
-  };
+  /**
+   * Renders delete application dialog
+   */
+  private renderDeleteApplicationDialog = () => {
+    const { deleteApplicationDialogOpen } = this.state;
+
+    return (
+      <GenericDialog
+        open={ deleteApplicationDialogOpen }
+        onClose={ () => this.setState({ deleteApplicationDialogOpen: false }) }
+        onCancel={ () => this.setState({ deleteApplicationDialogOpen: false }) }
+        onConfirm={ this.onDeleteApplication }
+        title={ this.getDeleteTitle(ResourceType.APPLICATION) }
+      />
+    )
+  }
 
   /**
    * Event handler for delete application click
-   *
-   * @param applicationToDelete application to delete
    */
-  private onDeleteApplication = async (applicationToDelete: Application) => {
-    const { keycloak, customerId, deviceId } = this.props;
+  private onDeleteApplication = async () => {
+    const { history, keycloak, customerId, deviceId, applicationId } = this.props;
 
-    if (!keycloak?.token || !applicationToDelete.id) {
+    if (!keycloak?.token) {
       return;
     }
 
@@ -569,29 +500,15 @@ class ApplicationEditor extends React.Component<Props, State> {
       await Api.getApplicationsApi(keycloak.token).deleteApplication({
         customerId: customerId,
         deviceId: deviceId,
-        applicationId: applicationToDelete.id
+        applicationId: applicationId
       });
 
       toast.success(strings.deleteSuccessMessage);
+      history.push(`/${customerId}/devices/${deviceId}/applications`);
     } catch (error) {
       this.context.setError(strings.errorManagement.application.delete, error);
     }
-
-    this.reset();
   };
-
-  /**
-   * Resets state values
-   */
-  private reset = () => {
-    const { customer, device, history } = this.props;
-
-    if (!customer?.id || !device?.id) {
-      return;
-    }
-
-    history.push(`/${customer.id}/devices/${device.id}/applications`);
-  }
 
   /**
    * Returns whole branch of resource tree structure starting from given parent resource
@@ -703,59 +620,45 @@ class ApplicationEditor extends React.Component<Props, State> {
     } catch (error) {
       this.context.setError(strings.errorManagement.resource.updateChild);
     }
+  }
 
+  /**
+   * Returns delete title
+   *
+   * @param resourceType resource type
+   */
+  private getDeleteTitle = (resourceType: ResourceType) => {
+    return strings.deleteConfirmationsByType[resourceType as keyof typeof strings.deleteConfirmationsByType];
   }
 
   /**
    * Delete resource method
    *
    * @param resource resource
-   * @param nextSelectResource next open resource
    */
-  private onDeleteResource = async (resource: Resource, nextSelectResource?: Resource) => {
-    const { keycloak, customerId, deviceId, applicationId, selectResource } = this.props;
+  private onDeleteResource = async (resource: Resource) => {
+    const { keycloak, customerId, deviceId, applicationId, deleteResources } = this.props;
 
-    if (!keycloak || !keycloak.token || !resource.id) {
+    if (!keycloak || !keycloak.token || !resource?.id) {
       return;
     }
 
     const resourcesApi = Api.getResourcesApi(keycloak.token);
-    const { setError } = this.context;
 
-    let childResources: Resource[] = [];
     try {
-      childResources = await resourcesApi.listResources({
+      await resourcesApi.deleteResource({
         customerId: customerId,
         deviceId: deviceId,
         applicationId: applicationId,
-        parentId: resource.id
+        resourceId: resource.id
       });
+
+      deleteResources([ resource ]);
+
+      toast.success(strings.deleteSuccessMessage);
+      this.setState({ deleteResourceDialogOpen: false, childToDelete: undefined });
     } catch (error) {
-      setError(strings.errorManagement.resource.listChild, error);
-      return;
-    }
-
-
-    /**
-     * TODO: prettier delete confirmation
-     */
-    const hasChildren = childResources.length > 0;
-    const subjectToDelete = hasChildren ? `${resource.name} ${strings.andAllChildren}` : resource.name;
-    if (window.confirm(`${strings.deleteResourceDialogDescription} ${subjectToDelete}?`)) {
-
-      try {
-        await resourcesApi.deleteResource({
-          customerId: customerId,
-          deviceId: deviceId,
-          applicationId: applicationId,
-          resourceId: resource.id
-        });
-
-        selectResource(nextSelectResource);
-        toast.success(strings.deleteSuccessMessage);
-      } catch (error) {
-        setError(strings.errorManagement.resource.delete, error);
-      }
+      this.context.setError(strings.errorManagement.resource.delete, error);
     }
   };
 

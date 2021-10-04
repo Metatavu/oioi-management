@@ -115,7 +115,8 @@
     "dragSidebar": "Raahaa leveämmäksi / kapeammaksi",
     "loadingContentTree": "Ladataan sovelluspuuta...",
     "deleteApplication": "Poista sovellus",
-    "deleteVersion": "Poista versio"
+    "deleteVersion": "Poista versio",
+    "deleteLanguage": "Poista kieli"
   },
 
   "introSettingsView": {
@@ -326,5 +327,19 @@
       "init": "Kirjautumisessa tapahtui virhe",
       "refresh": "Autentikoinnin päivityksessä tapahtui virhe"
     }
+  },
+  "deleteConfirmationsByType": {
+    "INTRO": "Poista intro",
+    "LANGUAGE_MENU": "Poista kielivalikko",
+    "LANGUAGE": "Poista kieli",
+    "SLIDESHOW": "Poista slideshow",
+    "SLIDESHOW_PDF": "Poista PDF-slideshow",
+    "MENU": "Poista valikko",
+    "PAGE": "Poista sivu",
+    "PDF": "Poista PDF",
+    "IMAGE": "Poista kuva",
+    "VIDEO": "Poista video",
+    "TEXT": "Poista teksti",
+    "APPLICATION": "Poista sovellus"
   }
 }

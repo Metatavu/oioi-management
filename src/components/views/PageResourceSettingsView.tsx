@@ -15,7 +15,6 @@ import { Resource, ResourceType } from "../../generated/client";
 import { forwardRef } from "react";
 import { MessageType, initForm, Form, validateForm } from "ts-form-validation";
 import { ErrorContextType } from "../../types";
-import Api from "../../api";
 import { resourceRules, ResourceSettingsForm } from "../../commons/formRules";
 import ImagePreview from "../generic/ImagePreview";
 import VisibleWithRole from "../generic/VisibleWithRole";
@@ -25,11 +24,13 @@ import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import { KeycloakInstance } from "keycloak-js";
 import { nanoid } from "@reduxjs/toolkit";
 import { ResourceUtils } from "utils/resource";
+import { ReduxState } from "app/store";
+import { connect, ConnectedProps } from "react-redux";
 
 /**
  * Component props
  */
-interface Props extends WithStyles<typeof styles> {
+interface Props extends ExternalProps {
   keycloak?: KeycloakInstance;
   deviceId: string;
   applicationId: string;
@@ -38,10 +39,9 @@ interface Props extends WithStyles<typeof styles> {
   onAddChild: (parentId: string) => void;
   onSave: (resource: Resource) => void;
   onSaveChildren: (childResources: Resource[]) => void;
-  onDelete: (resource: Resource) => void;
-  onDeleteChild: (resource: Resource, nextOpenResource?: Resource) => void;
+  onDeleteChild: (resource: Resource) => void;
   confirmationRequired: (value: boolean) => void;
-  onDeletePageClick: () => void;
+  onDelete: () => void;
 }
 
 /**
@@ -52,8 +52,8 @@ interface State {
   resourceId: string;
   resourceData: Resource;
   loading: boolean;
-  childResources?: Resource[];
   dataChanged: boolean;
+  childResources: Resource[];
 }
 
 /**
@@ -79,7 +79,8 @@ class PageResourceSettingsView extends React.Component<Props, State> {
       resourceId: "",
       resourceData: ResourceUtils.getMaterialTableResourceData(props.resource),
       loading: false,
-      dataChanged: false
+      dataChanged: false,
+      childResources: []
     };
   }
 
@@ -387,13 +388,7 @@ class PageResourceSettingsView extends React.Component<Props, State> {
    * Renders child resources
    */
   private renderChildResources = () => {
-    const { childResources } = this.state;
-
-    if (!childResources) {
-      return;
-    }
-
-    const listItems = childResources.map(child =>
+    const listItems = this.getChildResources().map(child =>
       <React.Fragment key={ child.id }>
         <Box
           display="flex"
@@ -443,17 +438,16 @@ class PageResourceSettingsView extends React.Component<Props, State> {
    * @param resource resource
    */
   private renderDeleteChild = (resource: Resource) => {
-    const { classes } = this.props;
+    const { classes, onDeleteChild } = this.props;
 
     return (
       <IconButton
         className={ classes.iconButton }
         style={{ width: 50, height: 50, marginLeft: theme.spacing(3) }}
         title={ strings.deleteResource }
-        key={ `delete.${resource.id}` }
         name={ resource.id }
         color="primary"
-        onClick={ () => this.props.onDeleteChild(resource, this.props.resource) }
+        onClick={ () => onDeleteChild(resource) }
       >
         <DeleteForeverIcon />
       </IconButton>
@@ -523,7 +517,7 @@ class PageResourceSettingsView extends React.Component<Props, State> {
    * Renders advanced settings
    */
   private renderAdvancedSettings = () => {
-    const { classes, onDeletePageClick } = this.props;
+    const { classes, onDelete } = this.props;
 
     return (
       <Accordion>
@@ -543,7 +537,7 @@ class PageResourceSettingsView extends React.Component<Props, State> {
               className={ classes.deleteButton }
               color="primary"
               variant="contained"
-              onClick={ onDeletePageClick }
+              onClick={ onDelete }
             >
               { strings.pageSettingsView.delete }
             </Button>
@@ -570,7 +564,7 @@ class PageResourceSettingsView extends React.Component<Props, State> {
       return;
     }
 
-    const childResources = await this.getChildResources();
+    const childResources = this.getChildResources();
     const tableResource = ResourceUtils.getMaterialTableResourceData(resource);
     const form = validateForm(initForm<ResourceSettingsForm>(resource, resourceRules));
 
@@ -585,24 +579,10 @@ class PageResourceSettingsView extends React.Component<Props, State> {
   /**
    * Gets child resources
    */
-  private getChildResources = async () => {
-    const { keycloak, customerId, deviceId, applicationId, resource } = this.props;
-    const resourceId = resource.id;
+  private getChildResources = () => {
+    const { resource, resources } = this.props;
 
-    if (!keycloak?.token || !resourceId) {
-      return;
-    }
-
-    try {
-      return await Api.getResourcesApi(keycloak.token).listResources({
-        customerId: customerId,
-        deviceId: deviceId,
-        applicationId: applicationId,
-        parentId: resourceId
-      });
-    } catch (error) {
-      this.context.setError(strings.errorManagement.resource.listChild, error);
-    }
+    return resources.filter(r => r.parentId === resource.id);
   }
 
   /**
@@ -610,7 +590,7 @@ class PageResourceSettingsView extends React.Component<Props, State> {
    */
   private onSaveChanges = async () => {
     const { onSave, onSaveChildren } = this.props;
-    const { resourceData, childResources, form } = this.state;
+    const { resourceData, form } = this.state;
     const { id, name, slug, orderNumber, type, parentId } = form.values;
 
     if (!id || !name || !slug || !orderNumber || !type || !parentId) {
@@ -629,8 +609,6 @@ class PageResourceSettingsView extends React.Component<Props, State> {
       properties: resourceData.properties
     });
 
-    childResources && onSaveChildren(childResources);
-
     this.setState({
       dataChanged: false,
       resourceData
@@ -643,20 +621,11 @@ class PageResourceSettingsView extends React.Component<Props, State> {
    * @param childResource child resource
    */
   private updateChildResource = (childResource: Resource) => {
-    const { childResources } = this.state;
+    const { onSaveChildren, confirmationRequired } = this.props;
 
-    if (!childResources) {
-      return;
-    }
-
-    this.setState({
-      dataChanged: true,
-      childResources: childResources.map(resource =>
-        resource.id === childResource.id ? childResource : resource
-      )
-    });
-
-    this.props.confirmationRequired(true);
+    onSaveChildren([ childResource ]);
+    this.setState({ dataChanged: true });
+    confirmationRequired(true);
   }
 
   /**
@@ -694,13 +663,7 @@ class PageResourceSettingsView extends React.Component<Props, State> {
    * @param fileType file type
    */
   private onChildResourceFileChange = (newUri: string, resourceId: string, fileType: string) => {
-    const { childResources } = this.state;
-
-    if (!childResources) {
-      return;
-    }
-
-    const childResource = childResources.find(resource => resource.id === resourceId);
+    const childResource = this.getChildResources().find(resource => resource.id === resourceId);
 
     if (!childResource) {
       return;
@@ -724,13 +687,7 @@ class PageResourceSettingsView extends React.Component<Props, State> {
    * @param key resource id
    */
   private onChildResourceSetFileUrl = async (url: string, resourceId: string) => {
-    const { childResources } = this.state;
-
-    if (!childResources) {
-      return 500;
-    }
-
-    const childResource = childResources.find(resource => resource.id === resourceId);
+    const childResource = this.getChildResources().find(resource => resource.id === resourceId);
 
     if (!childResource) {
       return 500;
@@ -747,13 +704,7 @@ class PageResourceSettingsView extends React.Component<Props, State> {
    * @param resourceId resource ID
    */
   private onChildResourceFileDelete = (resourceId: string) => {
-    const { childResources } = this.state;
-
-    if (!childResources) {
-      return;
-    }
-
-    const childResource = childResources.find(resource => resource.id === resourceId);
+    const childResource = this.getChildResources().find(resource => resource.id === resourceId);
 
     if (!childResource) {
       return;
@@ -782,4 +733,17 @@ class PageResourceSettingsView extends React.Component<Props, State> {
 
 }
 
-export default withStyles(styles)(PageResourceSettingsView);
+/**
+ * Maps redux state to props
+ *
+ * @param state redux state
+ */
+const mapStateToProps = (state: ReduxState) => ({
+  resources: state.resource.resources
+});
+
+const connector = connect(mapStateToProps);
+
+type ExternalProps = ConnectedProps<typeof connector> & WithStyles<typeof styles>;
+
+export default connector(withStyles(styles)(PageResourceSettingsView));
