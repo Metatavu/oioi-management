@@ -32,9 +32,9 @@ interface Props extends WithStyles<typeof styles> {
   applicationId: string;
   resource: Resource;
   customerId: string;
-  onSave: (resource: Resource) => void;
-  onDelete: (resource: Resource) => void;
   confirmationRequired: (value: boolean) => void;
+  onUpdate: (resource: Resource) => void;
+  onDelete: () => void;
 }
 
 /**
@@ -124,7 +124,7 @@ class PDFResourceSettingsView extends React.Component<Props, State> {
         >
           { strings.save }
         </Button>
-        { this.renderField("name", strings.name, "text") }
+        { this.renderField("name", strings.commonSettingsTexts.name, "text") }
         { this.renderUploaderAndPreview() }
         <Box mt={ 3 } mb={ 3 }>
           <Divider/>
@@ -135,20 +135,6 @@ class PDFResourceSettingsView extends React.Component<Props, State> {
       </Box>
     );
   }
-
-  /**
-   * Renders resource text fields
-   */
-  private renderResourceFields = () => (
-    <Box mb={ 3 } display="flex" flexDirection="row">
-      <Box mb={ 1 } mr={ 2 }>
-        { this.renderField("orderNumber", strings.orderNumber, "number") }
-      </Box>
-      <Box mb={ 1 }>
-        { this.renderField("slug", strings.slug, "text") }
-      </Box>
-    </Box>
-  );
 
   /**
    * Renders text field
@@ -402,6 +388,8 @@ class PDFResourceSettingsView extends React.Component<Props, State> {
    * Renders advanced settings
    */
   private renderAdvancedSettings = () => {
+    const { classes, onDelete } = this.props;
+
     return (
       <Box mt={ 3 }>
         <Accordion>
@@ -415,8 +403,33 @@ class PDFResourceSettingsView extends React.Component<Props, State> {
             </Typography>
           </AccordionSummary>
           <AccordionDetails>
-            <Box mt={ 3 }>
-              { this.renderResourceFields() }
+            <Box
+              mt={ 3 }
+              mb={ 3 }
+              className={ classes.advancedSettingRow }
+            >
+              <Box
+                display="flex"
+                flexDirection="row"
+              >
+                <Box mb={ 1 } mr={ 2 }>
+                  { this.renderField("orderNumber", strings.orderNumber, "number") }
+                </Box>
+                <Box mb={ 1 }>
+                  { this.renderField("slug", strings.slug, "text") }
+                </Box>
+              </Box>
+              <Box>
+                <Button
+                  disableElevation
+                  className={ classes.deleteButton }
+                  color="primary"
+                  variant="contained"
+                  onClick={ onDelete }
+                >
+                  { strings.pdfSettingsView.delete }
+                </Button>
+              </Box>
             </Box>
             <Box mb={ 3 }>
               { this.renderPropertiesTable() }
@@ -456,7 +469,7 @@ class PDFResourceSettingsView extends React.Component<Props, State> {
    * Handles save changes to resource and child resources
    */
   private onSaveChanges = async () => {
-    const { onSave } = this.props;
+    const { onUpdate } = this.props;
     const { resourceData, form } = this.state;
     const { id, name, slug, orderNumber, type, parentId } = form.values;
 
@@ -464,7 +477,7 @@ class PDFResourceSettingsView extends React.Component<Props, State> {
       return;
     }
 
-    onSave({
+    onUpdate({
       id: id,
       name: name,
       slug: slug,

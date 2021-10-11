@@ -42,8 +42,7 @@ interface Props extends WithStyles<typeof styles> {
   customerId: string;
   confirmationRequired: (value: boolean) => void;
   onUpdate: (resource: Resource) => void;
-  onDelete: (resource: Resource) => void;
-  onDeleteMenuClick: () => void;
+  onDelete: () => void;
 }
 
 /**
@@ -127,13 +126,13 @@ class LanguageMenuResourceSettingsView extends React.Component<Props, State> {
           { strings.save }
         </Button>
         <Box mb={ 3 }>
-          { this.renderFormField("name", strings.languageMenuSettingsView.name, "text") }
+          { this.renderFormField("name", strings.commonSettingsTexts.name, "text") }
         </Box>
         <Box mb={ 3 }>
-          { this.renderPropertiesField("nameText", strings.languageMenuSettingsView.teaserText, "textarea") }
+          { this.renderPropertiesField("nameText", strings.commonSettingsTexts.teaserText, "textarea") }
         </Box>
         <Box maxWidth={ 300 }>
-          { this.renderUploaderAndPreview(strings.languageMenuSettingsView.media, "menuImg") }
+          { this.renderUploaderAndPreview(strings.commonSettingsTexts.media, "menuImg") }
         </Box>
         <Box mt={ 3 } mb={ 3 }>
           <Divider/>
@@ -242,7 +241,7 @@ class LanguageMenuResourceSettingsView extends React.Component<Props, State> {
    * Renders advanced settings
    */
   private renderAdvancedSettings = () => {
-    const { classes, onDeleteMenuClick } = this.props;
+    const { classes, onDelete } = this.props;
 
     return (
       <Accordion>
@@ -278,7 +277,7 @@ class LanguageMenuResourceSettingsView extends React.Component<Props, State> {
                 className={ classes.deleteButton }
                 color="primary"
                 variant="contained"
-                onClick={ onDeleteMenuClick }
+                onClick={ onDelete }
               >
                 { strings.languageMenuSettingsView.delete }
               </Button>

@@ -42,8 +42,7 @@ interface Props extends WithStyles<typeof styles> {
   customerId: string;
   confirmationRequired: (value: boolean) => void;
   onUpdate: (resource: Resource) => void;
-  onDelete: (resource: Resource) => void;
-  onDeleteSlideshowClick: () => void;
+  onDelete: () => void;
 }
 
 /**
@@ -127,13 +126,13 @@ class SlideshowResourceSettingsView extends React.Component<Props, State> {
           { strings.save }
         </Button>
         <Box mb={ 3 }>
-          { this.renderFormField("name", strings.slideshowSettingsView.name, "text") }
+          { this.renderFormField("name", strings.commonSettingsTexts.name, "text") }
         </Box>
         <Box mb={ 3 }>
-          { this.renderPropertiesField("nameText", strings.slideshowSettingsView.teaserText, "textarea") }
+          { this.renderPropertiesField("nameText", strings.commonSettingsTexts.teaserText, "textarea") }
         </Box>
         <Box maxWidth={ 300 }>
-          { this.renderUploaderAndPreview(strings.slideshowSettingsView.media, "menuImg") }
+          { this.renderUploaderAndPreview(strings.commonSettingsTexts.media, "menuImg") }
         </Box>
         <Box mt={ 3 } mb={ 3 }>
           <Divider/>
@@ -270,7 +269,7 @@ class SlideshowResourceSettingsView extends React.Component<Props, State> {
    * Renders advanced settings
    */
   private renderAdvancedSettings = () => {
-    const { classes, onDeleteSlideshowClick } = this.props;
+    const { classes, onDelete } = this.props;
 
     return (
       <>
@@ -307,7 +306,7 @@ class SlideshowResourceSettingsView extends React.Component<Props, State> {
                   className={ classes.deleteButton }
                   color="primary"
                   variant="contained"
-                  onClick={ onDeleteSlideshowClick }
+                  onClick={ onDelete }
                 >
                   { strings.slideshowSettingsView.delete }
                 </Button>

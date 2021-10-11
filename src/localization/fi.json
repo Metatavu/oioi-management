@@ -115,78 +115,70 @@
     "dragSidebar": "Raahaa leveämmäksi / kapeammaksi",
     "loadingContentTree": "Ladataan sovelluspuuta...",
     "deleteApplication": "Poista sovellus",
-    "deleteVersion": "Poista versio"
+    "deleteVersion": "Poista versio",
+    "deleteLanguage": "Poista kieli"
+  },
+
+  "commonSettingsTexts": {
+    "name": "Valikkonimi",
+    "teaserText": "Ingressiteksti valikossa",
+    "media": "Taustamedia valikossa"
   },
 
   "introSettingsView": {
-    "name": "Nimi",
-    "teaserText": "Intron ingressiteksti",
     "title": "Intron otsikko",
     "contentText": "Kuvausteksti",
     "backgroundMedia": "Taustamedia",
-    "media": "Intron media",
     "foregroundMedia": "Etualan media",
     "delete": "Poista intro"
   },
 
-  "languageSettingsView": {
-    "name": "Nimi",
-    "teaserText": "Kielen ingressiteksti",
-    "title": "Kielen otsikko",
-    "contentText": "Kuvausteksti",
-    "backgroundMedia": "Taustamedia",
-    "media": "Kielen media",
-    "foregroundMedia": "Etualan media",
-    "delete": "Poista kieli"
-  },
-
   "languageMenuSettingsView": {
-    "name": "Nimi",
-    "teaserText": "Kielivalikon ingressiteksti",
-    "title": "Kielivalikon otsikko",
+    "title": "Otsikko",
     "contentText": "Kuvausteksti",
     "backgroundMedia": "Taustamedia",
-    "media": "Kielivalikon media",
     "foregroundMedia": "Etualan media",
     "delete": "Poista kielivalikko"
   },
 
-  "menuSettingsView": {
-    "name": "Nimi",
-    "teaserText": "Valikon ingressiteksti",
-    "title": "Valikon otsikko",
-    "contentText": "Valikon kuvausteksti",
+  "languageSettingsView": {
+    "title": "Otsikko",
+    "contentText": "Kuvausteksti",
     "backgroundMedia": "Taustamedia",
-    "media": "Valikon media",
+    "foregroundMedia": "Etualan media",
+    "delete": "Poista kieli"
+  },
+
+  "menuSettingsView": {
+    "title": "Otsikko",
+    "contentText": "Kuvausteksti",
+    "backgroundMedia": "Taustamedia",
     "foregroundMedia": "Etualan media",
     "delete": "Poista valikko"
   },
 
   "applicationSettingsView": {
-    "name": "Nimi",
-    "teaserText": "Sovelluksen ingressiteksti",
     "title": "Otsikko",
-    "contentText": "Sovelluksen kuvausteksti",
+    "contentText": "Kuvausteksti",
     "backgroundMedia": "Taustamedia",
-    "media": "Sovelluksen media",
     "foregroundMedia": "Etualan media",
     "delete": "Poista sovellus"
   },
 
   "pageSettingsView": {
-    "name": "Nimi",
     "delete": "Poista sivu"
   },
 
   "slideshowSettingsView": {
-    "name": "Nimi",
-    "teaserText": "Slideshown ingressiteksti",
     "title": "Otsikko",
     "contentText": "Slideshown kuvausteksti",
     "backgroundMedia": "Taustamedia",
-    "media": "Slideshown media",
     "foregroundMedia": "Etualan media",
     "delete": "Poista slideshow"
+  },
+
+  "pdfSettingsView": {
+    "delete": "Poista PDF"
   },
 
   "fileUpload": {
@@ -326,5 +318,20 @@
       "init": "Kirjautumisessa tapahtui virhe",
       "refresh": "Autentikoinnin päivityksessä tapahtui virhe"
     }
+  },
+
+  "deleteConfirmationsByType": {
+    "INTRO": "Poista intro {0} ja kaikki sen alla olevat resurssit?",
+    "LANGUAGE_MENU": "Poista kielivalikko {} ja kaikki sen alla olevat resurssit?",
+    "LANGUAGE": "Poista kieli {0} ja kaikki sen alla olevat resurssit?",
+    "SLIDESHOW": "Poista slideshow {0} ja kaikki sen alla olevat resurssit?",
+    "SLIDESHOW_PDF": "Poista PDF-slideshow {0}?",
+    "MENU": "Poista valikko {0} ja kaikki sen alla olevat resurssit?",
+    "PAGE": "Poista sivu {0} ja kaikki sen alla olevat resurssit?",
+    "PDF": "Poista PDF {0}?",
+    "IMAGE": "Poista kuva {0}?",
+    "VIDEO": "Poista video {0}?",
+    "TEXT": "Poista teksti {0}?",
+    "APPLICATION": "Poista sovellus {0}?"
   }
 }

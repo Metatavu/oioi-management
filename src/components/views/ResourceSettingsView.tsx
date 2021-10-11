@@ -21,6 +21,7 @@ import StyledMTableToolbar from "../../styles/generic/styled-mtable-toolbar";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import { nanoid } from "@reduxjs/toolkit";
 import { ResourceUtils } from "utils/resource";
+import WithDebounce from "components/generic/with-debounce";
 
 /**
  * Component props
@@ -29,7 +30,6 @@ interface Props extends WithStyles<typeof styles> {
   resource: Resource;
   customerId: string;
   onUpdate: (resource: Resource) => void;
-  onDelete: (resource: Resource) => void;
   confirmationRequired: (value: boolean) => void;
 }
 
@@ -143,7 +143,7 @@ class ResourceSettingsView extends React.Component<Props, State> {
   private renderFields = () => {
     return (
       <Box>
-        { this.renderField("name", strings.name, "text") }
+        { this.renderField("name", strings.commonSettingsTexts.name, "text") }
       </Box>
     );
   }
@@ -160,19 +160,25 @@ class ResourceSettingsView extends React.Component<Props, State> {
     const { values, messages: { [key]: message } } = form;
 
     return (
-      <TextField
-        fullWidth
-        multiline={ type === "textarea" }
-        rows={ type === "textarea" ? 8 : undefined }
-        type={ type }
-        error={ message && message.type === MessageType.ERROR }
-        helperText={ message && message.message }
-        value={ values[key] || "" }
-        onChange={ this.onHandleChange(key) }
-        onBlur={ this.onHandleBlur(key) }
+      <WithDebounce
         name={ key }
-        variant="outlined"
         label={ placeholder }
+        component={ props => (
+          <TextField
+            { ...props }
+            fullWidth
+            type={ type }
+            variant="outlined"
+            multiline={ type === "textarea" }
+            rows={ type === "textarea" ? 8 : undefined }
+            error={ message && message.type === MessageType.ERROR }
+            helperText={ message && message.message }
+            onBlur={ this.onHandleBlur(key) }
+          />
+        )}
+        onChange={ this.onHandleChange(key) }
+        debounceTimeout={ 300 }
+        value={ values[key]?.toString() || "" }
       />
     );
   };

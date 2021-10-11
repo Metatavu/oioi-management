@@ -1,4 +1,6 @@
 import LocalizedStrings, { LocalizedStringsMethods } from "localized-strings";
+import en from "./en.json";
+import fi from "./fi.json";
 
 export interface IStrings extends LocalizedStringsMethods {
   active: string;
@@ -133,94 +135,91 @@ export interface IStrings extends LocalizedStringsMethods {
   };
 
   /**
-   * Translations related to intro settings 
+   * Translations common to each settings view
+   */
+  commonSettingsTexts: {
+    name: string;
+    teaserText: string;
+    media: string;
+  }
+
+  /**
+   * Translations related to intro settings
    */
   introSettingsView: {
-    name: string;
-    teaserText: string;
     title: string;
     contentText: string;
     backgroundMedia: string;
-    media: string;
     foregroundMedia: string;
     delete: string;
   };
 
   /**
-   * Translations related to language settings 
+   * Translations related to language settings
    */
   languageSettingsView: {
-    name: string;
-    teaserText: string;
     title: string;
     contentText: string;
     backgroundMedia: string;
-    media: string;
     foregroundMedia: string;
     delete: string;
   };
 
   /**
-   * Translations related to language menu settings 
+   * Translations related to language menu settings
    */
   languageMenuSettingsView: {
-    name: string;
-    teaserText: string;
     title: string;
     contentText: string;
     backgroundMedia: string;
-    media: string;
     foregroundMedia: string;
     delete: string;
   },
 
   /**
-   * Translations related to menu settings 
+   * Translations related to menu settings
    */
   menuSettingsView: {
-    name: string;
-    teaserText: string;
     title: string;
     contentText: string;
     backgroundMedia: string;
-    media: string;
     foregroundMedia: string;
     delete: string;
   },
 
   /**
-   * Translations related to application settings 
+   * Translations related to application settings
    */
   applicationSettingsView: {
-    name: string;
-    teaserText: string;
     title: string;
     contentText: string;
     backgroundMedia: string;
-    media: string;
     foregroundMedia: string;
     delete: string;
   },
 
   /**
-   * Translations related to page settings 
+   * Translations related to page settings
    */
   pageSettingsView: {
-    name: string;
     delete: string;
   },
 
   /**
-   * Translations related to slideshow settings 
+   * Translations related to slideshow settings
    */
   slideshowSettingsView: {
-    name: string;
-    teaserText: string;
     title: string;
     contentText: string;
     backgroundMedia: string;
-    media: string;
     foregroundMedia: string;
+    delete: string;
+  },
+
+  /**
+   * Translations related to PDF settings
+   */
+  pdfSettingsView: {
     delete: string;
   },
 
@@ -379,11 +378,28 @@ export interface IStrings extends LocalizedStringsMethods {
       refresh: string;
     };
   };
-}
 
-const strings: IStrings = new LocalizedStrings({
-  en: require("./en.json"),
-  fi: require("./fi.json")
-});
+  /**
+   * Localized delete confirmations by resource type
+   *
+   * - properties are named as the resource type enum for ease of use
+   */
+  deleteConfirmationsByType: {
+    "INTRO": string;
+    "LANGUAGE_MENU": string;
+    "LANGUAGE": string;
+    "SLIDESHOW": string;
+    "SLIDESHOW_PDF": string;
+    "MENU": string;
+    "PAGE": string;
+    "PDF": string;
+    "IMAGE": string;
+    "VIDEO": string;
+    "TEXT": string;
+    "APPLICATION": string;
+  };
+};
+
+const strings: IStrings = new LocalizedStrings({ en, fi });
 
 export default strings;
