@@ -2,6 +2,7 @@ import * as React from "react";
 
 import { Dialog, DialogTitle, DialogContent, DialogActions, Button, IconButton, Box, Typography, CircularProgress } from "@material-ui/core";
 import CloseIcon from "@material-ui/icons/Close";
+import { CSSProperties } from "@material-ui/styles";
 
 /**
  * Interface representing component properties
@@ -21,6 +22,7 @@ interface Props {
   disableEnforceFocus?: boolean;
   disabled?: boolean;
   ignoreOutsideClicks?: boolean;
+  style?: CSSProperties;
 }
 
 /**
@@ -41,6 +43,7 @@ const GenericDialog: React.FC<Props> = ({
   disableEnforceFocus,
   disabled,
   ignoreOutsideClicks,
+  style,
   children
 }) => {
   const [ loading, setLoading ] = React.useState(false);
@@ -97,6 +100,7 @@ const GenericDialog: React.FC<Props> = ({
       fullWidth={ fullWidth }
       disableEnforceFocus={ disableEnforceFocus }
       onClose={ (event, reason) => onCloseClick(reason) }
+      PaperProps={{ style: style }}
     >
       <DialogTitle disableTypography>
         <Box display="flex" justifyContent="space-between" alignItems="center">

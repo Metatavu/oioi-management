@@ -177,6 +177,10 @@
     "delete": "Poista slideshow"
   },
 
+  "pdfSettingsView": {
+    "delete": "Poista PDF"
+  },
+
   "fileUpload": {
     "addMedia": "Lisää media",
     "changeMedia": "Vaihda media",
@@ -315,18 +319,19 @@
       "refresh": "Autentikoinnin päivityksessä tapahtui virhe"
     }
   },
+
   "deleteConfirmationsByType": {
-    "INTRO": "Poista intro",
-    "LANGUAGE_MENU": "Poista kielivalikko",
-    "LANGUAGE": "Poista kieli",
-    "SLIDESHOW": "Poista slideshow",
-    "SLIDESHOW_PDF": "Poista PDF-slideshow",
-    "MENU": "Poista valikko",
-    "PAGE": "Poista sivu",
-    "PDF": "Poista PDF",
-    "IMAGE": "Poista kuva",
-    "VIDEO": "Poista video",
-    "TEXT": "Poista teksti",
-    "APPLICATION": "Poista sovellus"
+    "INTRO": "Poista intro {0} ja kaikki sen alla olevat resurssit?",
+    "LANGUAGE_MENU": "Poista kielivalikko {} ja kaikki sen alla olevat resurssit?",
+    "LANGUAGE": "Poista kieli {0} ja kaikki sen alla olevat resurssit?",
+    "SLIDESHOW": "Poista slideshow {0} ja kaikki sen alla olevat resurssit?",
+    "SLIDESHOW_PDF": "Poista PDF-slideshow {0}?",
+    "MENU": "Poista valikko {0} ja kaikki sen alla olevat resurssit?",
+    "PAGE": "Poista sivu {0} ja kaikki sen alla olevat resurssit?",
+    "PDF": "Poista PDF {0}?",
+    "IMAGE": "Poista kuva {0}?",
+    "VIDEO": "Poista video {0}?",
+    "TEXT": "Poista teksti {0}?",
+    "APPLICATION": "Poista sovellus {0}?"
   }
 }

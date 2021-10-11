@@ -144,7 +144,7 @@ export interface IStrings extends LocalizedStringsMethods {
   }
 
   /**
-   * Translations related to intro settings 
+   * Translations related to intro settings
    */
   introSettingsView: {
     title: string;
@@ -155,7 +155,7 @@ export interface IStrings extends LocalizedStringsMethods {
   };
 
   /**
-   * Translations related to language settings 
+   * Translations related to language settings
    */
   languageSettingsView: {
     title: string;
@@ -166,7 +166,7 @@ export interface IStrings extends LocalizedStringsMethods {
   };
 
   /**
-   * Translations related to language menu settings 
+   * Translations related to language menu settings
    */
   languageMenuSettingsView: {
     title: string;
@@ -177,7 +177,7 @@ export interface IStrings extends LocalizedStringsMethods {
   },
 
   /**
-   * Translations related to menu settings 
+   * Translations related to menu settings
    */
   menuSettingsView: {
     title: string;
@@ -188,7 +188,7 @@ export interface IStrings extends LocalizedStringsMethods {
   },
 
   /**
-   * Translations related to application settings 
+   * Translations related to application settings
    */
   applicationSettingsView: {
     title: string;
@@ -199,20 +199,27 @@ export interface IStrings extends LocalizedStringsMethods {
   },
 
   /**
-   * Translations related to page settings 
+   * Translations related to page settings
    */
   pageSettingsView: {
     delete: string;
   },
 
   /**
-   * Translations related to slideshow settings 
+   * Translations related to slideshow settings
    */
   slideshowSettingsView: {
     title: string;
     contentText: string;
     backgroundMedia: string;
     foregroundMedia: string;
+    delete: string;
+  },
+
+  /**
+   * Translations related to PDF settings
+   */
+  pdfSettingsView: {
     delete: string;
   },
 
@@ -374,6 +381,8 @@ export interface IStrings extends LocalizedStringsMethods {
 
   /**
    * Localized delete confirmations by resource type
+   *
+   * - properties are named as the resource type enum for ease of use
    */
   deleteConfirmationsByType: {
     "INTRO": string;

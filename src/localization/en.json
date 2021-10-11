@@ -180,6 +180,10 @@
     "delete": "Delete slideshow"
   },
 
+  "pdfSettingsView": {
+    "delete": "Delete PDF"
+  },
+
   "fileUpload": {
     "addMedia": "Add media",
     "changeMedia": "Change media",
@@ -318,18 +322,19 @@
       "refresh": "Error while refreshing authentication"
     }
   },
+
   "deleteConfirmationsByType": {
-    "INTRO": "Delete intro",
-    "LANGUAGE_MENU": "Delete language menu",
-    "LANGUAGE": "Delete language",
-    "SLIDESHOW": "Delete slideshow",
-    "SLIDESHOW_PDF": "Delete PDF slideshow",
-    "MENU": "Delete menu",
-    "PAGE": "Delete page",
-    "PDF": "Delete PDF",
-    "IMAGE": "Delete image",
-    "VIDEO": "Delete video",
-    "TEXT": "Delete text",
-    "APPLICATION": "Delete application"
+    "INTRO": "Delete intro {0} and all resources below it?",
+    "LANGUAGE_MENU": "Delete language menu {0} and all resources below it?",
+    "LANGUAGE": "Delete language {0} and all resources below it?",
+    "SLIDESHOW": "Delete slideshow {0} and all resources below it?",
+    "SLIDESHOW_PDF": "Delete PDF slideshow {0}?",
+    "MENU": "Delete menu {0} and all resources below it?",
+    "PAGE": "Delete page {0} and all resources below it?",
+    "PDF": "Delete PDF {0}?",
+    "IMAGE": "Delete image {0}?",
+    "VIDEO": "Delete video {0}?",
+    "TEXT": "Delete text {0}?",
+    "APPLICATION": "Delete application {0}?"
   }
 }

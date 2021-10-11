@@ -88,21 +88,43 @@ class PageResourceSettingsView extends React.Component<Props, State> {
    * Component did mount life cycle handler
    */
   public componentDidMount = async () => {
-    const { keycloak } = this.props;
+    const { keycloak, resource } = this.props;
 
-    keycloak?.token && this.updateComponentData();
+    if (keycloak?.token && resource?.id) {
+      this.setState({
+        resourceId: resource.id,
+        resourceData: ResourceUtils.getMaterialTableResourceData(resource),
+        form: validateForm(initForm<ResourceSettingsForm>(resource, resourceRules)),
+        childResources: this.getChildResources()
+      });
+    }
   }
 
   /**
-   * Component did update  life cycle handler
+   * Component did update life cycle handler
    *
    * @param prevProps previous props
    */
   public componentDidUpdate = async (prevProps: Props) => {
     const { resource, keycloak } = this.props;
 
-    if (prevProps.resource !== resource) {
-      keycloak?.token && this.updateComponentData();
+    if (!keycloak?.token) {
+      return;
+    }
+
+    if (prevProps.resource !== resource && resource?.id) {
+      this.setState({
+        resourceId: resource.id,
+        resourceData: ResourceUtils.getMaterialTableResourceData(resource),
+        form: validateForm(initForm<ResourceSettingsForm>(resource, resourceRules)),
+        childResources: this.getChildResources()
+      });
+
+      return;
+    }
+
+    if (prevProps.resources.length !== this.props.resources.length) {
+      this.setState({ childResources: this.getSyncedChildResources() });
     }
   }
 
@@ -110,14 +132,12 @@ class PageResourceSettingsView extends React.Component<Props, State> {
    * Component render method
    */
   public render = () => {
-    const { loading, dataChanged } = this.state;
+    const { loading, dataChanged, form } = this.state;
     const { classes } = this.props;
 
     if (loading) {
       return;
     }
-
-    const { isFormValid } = this.state.form;
 
     return (
       <Box>
@@ -125,7 +145,7 @@ class PageResourceSettingsView extends React.Component<Props, State> {
           className={ classes.saveButton }
           color="primary"
           variant="outlined"
-          disabled={ !isFormValid || !dataChanged }
+          disabled={ !form.isFormValid || !dataChanged }
           onClick={ this.onSaveChanges }
         >
           { strings.save }
@@ -549,40 +569,31 @@ class PageResourceSettingsView extends React.Component<Props, State> {
             { this.renderStyleTable() }
           </Box>
         </AccordionDetails>
-      </Accordion> 
+      </Accordion>
     );
   }
 
   /**
-   * Updates component data
+   * Returns child resources from resource list in Redux store
    */
-  private updateComponentData = async () => {
-    const { resource } = this.props;
-    const resourceId = resource.id;
+  private getChildResources = (): Resource[] => {
+    const { resource, resources } = this.props;
 
-    if (!resourceId) {
-      return;
-    }
-
-    const childResources = this.getChildResources();
-    const tableResource = ResourceUtils.getMaterialTableResourceData(resource);
-    const form = validateForm(initForm<ResourceSettingsForm>(resource, resourceRules));
-
-    this.setState({
-      form: form,
-      resourceId: resourceId,
-      resourceData: tableResource,
-      childResources: childResources
-    });
+    return resources.filter(item => item.parentId === resource.id);
   }
 
   /**
-   * Gets child resources
+   * Synchronizes child resources from Redux to state
    */
-  private getChildResources = () => {
-    const { resource, resources } = this.props;
+  private getSyncedChildResources = (): Resource[] => {
+    const { resources, resource } = this.props;
+    const { childResources } = this.state;
+    const sourceChildResources = [ ...resources ].filter(item => item.parentId === resource.id);
 
-    return resources.filter(r => r.parentId === resource.id);
+    return [
+      ...childResources.filter(child => sourceChildResources.some(item => item.id === child.id)),
+      ...sourceChildResources.filter(item => childResources.every(child => child.id !== item.id))
+    ];
   }
 
   /**
@@ -590,7 +601,7 @@ class PageResourceSettingsView extends React.Component<Props, State> {
    */
   private onSaveChanges = async () => {
     const { onSave, onSaveChildren } = this.props;
-    const { resourceData, form } = this.state;
+    const { resourceData, form, childResources } = this.state;
     const { id, name, slug, orderNumber, type, parentId } = form.values;
 
     if (!id || !name || !slug || !orderNumber || !type || !parentId) {
@@ -609,9 +620,12 @@ class PageResourceSettingsView extends React.Component<Props, State> {
       properties: resourceData.properties
     });
 
+    onSaveChildren(childResources);
+
     this.setState({
       dataChanged: false,
-      resourceData
+      resourceData,
+      childResources: this.getChildResources()
     });
   };
 
@@ -621,10 +635,14 @@ class PageResourceSettingsView extends React.Component<Props, State> {
    * @param childResource child resource
    */
   private updateChildResource = (childResource: Resource) => {
-    const { onSaveChildren, confirmationRequired } = this.props;
+    const { confirmationRequired } = this.props;
+    const { childResources } = this.state;
 
-    onSaveChildren([ childResource ]);
-    this.setState({ dataChanged: true });
+    this.setState({
+      dataChanged: true,
+      childResources: childResources.map(resource => resource.id === childResource.id ? childResource : resource)
+    });
+
     confirmationRequired(true);
   }
 

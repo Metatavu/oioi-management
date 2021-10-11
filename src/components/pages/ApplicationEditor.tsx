@@ -389,55 +389,44 @@ class ApplicationEditor extends React.Component<Props, State> {
    * @param customerId customer ID
    */
   private renderResourceSettingsView = (resource: Resource, customerId: string) => {
-    const {
-      keycloak,
-      deviceId,
-      applicationId
-    } = this.props;
+    const { keycloak, deviceId, applicationId } = this.props;
 
-    const genericProps = {
-      keycloak: keycloak,
-      resource: resource,
-      customerId: customerId,
-      deviceId: deviceId,
-      applicationId: applicationId,
-      confirmationRequired: this.confirmationRequired,
-      onUpdate: this.onUpdateResource,
-      onDelete: () => this.setState({ deleteResourceDialogOpen: true })
-    };
+    const SettingsViewComponent = this.getResourceSettingsViewComponent(resource.type);
 
-    switch (resource.type) {
-      case ResourceType.MENU:
-        return <MenuResourceSettingsView { ...genericProps }/>;
-      case ResourceType.LANGUAGE:
-        return <LanguageResourceSettingsView { ...genericProps }/>;
-      case ResourceType.LANGUAGEMENU:
-        return <LanguageMenuResourceSettingsView { ...genericProps }/>;
-      case ResourceType.APPLICATION:
-        return <ApplicationResourceSettingsView { ...genericProps }/>;
-      case ResourceType.INTRO:
-        return <IntroResourceSettingsView { ...genericProps }/>;
-      case ResourceType.SLIDESHOW:
-        return <SlideshowResourceSettingsView { ...genericProps }/>;
-      case ResourceType.SLIDESHOWPDF:
-        return (
-          <PDFResourceSettingsView
-            { ...genericProps }
-            onSave={ this.onUpdateResource }
-          />
-        );
-      case ResourceType.PAGE:
-        return (
-          <PageResourceSettingsView
-            { ...genericProps }
-            onAddChild={ this.onAddNewResourceClick }
-            onSave={ this.onUpdateResource }
-            onSaveChildren={ this.onUpdateChildResources }
-            onDeleteChild={ child => this.setState({ deleteResourceDialogOpen: true, childToDelete: child }) }
-          />
-        );
-      default:
-        return <ResourceSettingsView { ...genericProps }/>;
+    return (
+      <SettingsViewComponent
+        keycloak={ keycloak }
+        resource={ resource }
+        customerId={ customerId }
+        deviceId={ deviceId }
+        applicationId={ applicationId }
+        confirmationRequired={ this.confirmationRequired }
+        onUpdate={ this.onUpdateResource }
+        onDelete={ () => this.setState({ deleteResourceDialogOpen: true }) }
+        onAddChild={ this.onAddNewResourceClick }
+        onSave={ this.onUpdateResource }
+        onSaveChildren={ this.onUpdateChildResources }
+        onDeleteChild={ child => this.setState({ deleteResourceDialogOpen: true, childToDelete: child }) }
+      />
+    );
+  }
+
+  /**
+   * Returns resource settings view component
+   *
+   * @param type resource type
+   */
+  private getResourceSettingsViewComponent = (type: ResourceType) => {
+    switch (type) {
+      case ResourceType.MENU: return MenuResourceSettingsView;
+      case ResourceType.LANGUAGE: return LanguageResourceSettingsView;
+      case ResourceType.LANGUAGEMENU: return LanguageMenuResourceSettingsView;
+      case ResourceType.APPLICATION: return ApplicationResourceSettingsView;
+      case ResourceType.INTRO: return IntroResourceSettingsView;
+      case ResourceType.SLIDESHOW: return SlideshowResourceSettingsView;
+      case ResourceType.SLIDESHOWPDF: return PDFResourceSettingsView;
+      case ResourceType.PAGE: return PageResourceSettingsView;
+      default: return ResourceSettingsView;
     }
   }
 
@@ -458,9 +447,10 @@ class ApplicationEditor extends React.Component<Props, State> {
         onClose={ () => this.setState({ deleteResourceDialogOpen: false, childToDelete: undefined }) }
         onCancel={ () => this.setState({ deleteResourceDialogOpen: false, childToDelete: undefined }) }
         onConfirm={ () => this.onDeleteResource((childToDelete || selectedResource)!) }
-        title={ this.getDeleteTitle((childToDelete || selectedResource)!.type) }
+        title={ this.getDeleteResourceTitle(childToDelete || selectedResource!) }
         positiveButtonText={ strings.delete }
         cancelButtonText={ strings.cancel }
+        style={{ minWidth: 500 }}
       >
         <Typography>
           { strings.actionCannotBeReverted }
@@ -481,7 +471,7 @@ class ApplicationEditor extends React.Component<Props, State> {
         onClose={ () => this.setState({ deleteApplicationDialogOpen: false }) }
         onCancel={ () => this.setState({ deleteApplicationDialogOpen: false }) }
         onConfirm={ this.onDeleteApplication }
-        title={ this.getDeleteTitle(ResourceType.APPLICATION) }
+        title={ strings.applicationSettings.deleteApplication }
       />
     )
   }
@@ -623,13 +613,14 @@ class ApplicationEditor extends React.Component<Props, State> {
   }
 
   /**
-   * Returns delete title
+   * Returns delete resource title
    *
    * @param resourceType resource type
    */
-  private getDeleteTitle = (resourceType: ResourceType) => {
-    return strings.deleteConfirmationsByType[resourceType as keyof typeof strings.deleteConfirmationsByType];
-  }
+  private getDeleteResourceTitle = (resource: Resource) => strings.formatString(
+    strings.deleteConfirmationsByType[resource.type as keyof typeof strings.deleteConfirmationsByType],
+    resource.name
+  ) as string;
 
   /**
    * Delete resource method
