@@ -177,7 +177,7 @@ class ResourceSettingsView extends React.Component<Props, State> {
           />
         )}
         onChange={ this.onHandleChange(key) }
-        debounceTimeout={ 1000 }
+        debounceTimeout={ 300 }
         value={ values[key]?.toString() || "" }
       />
     );
