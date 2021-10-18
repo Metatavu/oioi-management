@@ -12,7 +12,7 @@ import { DialogType, ErrorContextType } from "../../types";
 import { ReduxState, ReduxDispatch } from "app/store";
 import { connect, ConnectedProps } from "react-redux";
 import DeleteDialog from "../generic/DeleteDialog";
-import VisibleWithRole from "../generic/VisibleWithRole";
+import VisibleWithRole from "../containers/VisibleWithRole";
 import AppLayout from "../layouts/app-layout";
 import { ErrorContext } from "../containers/ErrorHandler";
 import { toast } from "react-toastify";

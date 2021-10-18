@@ -3,7 +3,7 @@ import { Typography, Card, CardMedia, withStyles, WithStyles, CardActions, CardA
 import styles from "../../styles/card-item";
 import strings from "../../localization/strings";
 import placeholderImg from "../../resources/images/no-image-available-icon.jpg";
-import VisibleWithRole from "./VisibleWithRole";
+import VisibleWithRole from "../containers/VisibleWithRole";
 
 interface Props extends WithStyles<typeof styles> {
   /**

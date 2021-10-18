@@ -4,7 +4,7 @@ import styles from "styles/dialog";
 import { DropzoneArea } from "material-ui-dropzone";
 import strings from "localization/strings";
 import { ChangeEvent } from "react";
-import VisibleWithRole from "./VisibleWithRole";
+import VisibleWithRole from "../containers/VisibleWithRole";
 import GenericDialog from "./GenericDialog";
 import FileUpload from "utils/file-upload";
 import { ReduxState } from "app/store";

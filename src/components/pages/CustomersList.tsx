@@ -14,7 +14,7 @@ import Api from "../../api";
 import strings from "../../localization/strings";
 import DeleteDialog from "../generic/DeleteDialog";
 import { DialogType } from "../../types/index";
-import VisibleWithRole from "../generic/VisibleWithRole";
+import VisibleWithRole from "../containers/VisibleWithRole";
 import AppLayout from "../layouts/app-layout";
 import { ErrorContext } from "../containers/ErrorHandler";
 import { toast } from "react-toastify";

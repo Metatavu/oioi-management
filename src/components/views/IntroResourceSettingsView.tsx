@@ -21,7 +21,7 @@ import { resourceRules, ResourceSettingsForm } from "../../commons/formRules";
 import ImagePreview from "../generic/ImagePreview";
 import AddIconDialog from "../generic/AddIconDialog";
 import { IconKeys, getLocalizedIconTypeString } from "../../commons/iconTypeHelper";
-import VisibleWithRole from "../generic/VisibleWithRole";
+import AdminOnly from "components/containers/AdminOnly";
 import { getLocalizedTypeString } from "../../commons/resourceTypeHelper";
 import { ErrorContext } from "../containers/ErrorHandler";
 import { resolveChildResourceTypes } from "../../commons/resourceTypeHelper";
@@ -171,9 +171,9 @@ class IntroResourceSettingsView extends React.Component<Props, State> {
           <Divider/>
         </Box>
         { this.renderChildResources() }
-        <VisibleWithRole role="admin">
+        <AdminOnly>
           { this.renderAdvancedSettings() }
-        </VisibleWithRole>
+        </AdminOnly>
       </div>
     );
   }

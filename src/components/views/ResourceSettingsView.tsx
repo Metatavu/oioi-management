@@ -14,7 +14,7 @@ import { forwardRef } from "react";
 import { MessageType, initForm, Form, validateForm } from "ts-form-validation";
 import { ResourceSettingsForm, resourceRules } from "commons/formRules";
 import ImagePreview from "../generic/ImagePreview";
-import VisibleWithRole from "../generic/VisibleWithRole";
+import AdminOnly from "components/containers/AdminOnly";
 import { ErrorContextType } from "types";
 import { ErrorContext } from "../containers/ErrorHandler";
 import StyledMTableToolbar from "../../styles/generic/styled-mtable-toolbar";
@@ -130,9 +130,9 @@ class ResourceSettingsView extends React.Component<Props, State> {
         <Box>
           { this.renderDataField(this.getLocalizedDataString()) }
         </Box>
-        <VisibleWithRole role="admin">
+        <AdminOnly>
           { this.renderAdvancedSettings() }
-        </VisibleWithRole>
+        </AdminOnly>
       </Box>
     );
   }

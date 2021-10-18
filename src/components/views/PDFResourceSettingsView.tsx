@@ -14,7 +14,7 @@ import { forwardRef } from "react";
 import { MessageType, initForm, Form, validateForm } from "ts-form-validation";
 import { ErrorContextType } from "../../types";
 import { resourceRules, ResourceSettingsForm } from "../../commons/formRules";
-import VisibleWithRole from "../generic/VisibleWithRole";
+import AdminOnly from "components/containers/AdminOnly";
 import { ErrorContext } from "../containers/ErrorHandler";
 import PDFPreview from "../generic/PDFPreview";
 import StyledMTableToolbar from "../../styles/generic/styled-mtable-toolbar";
@@ -129,9 +129,9 @@ class PDFResourceSettingsView extends React.Component<Props, State> {
         <Box mt={ 3 } mb={ 3 }>
           <Divider/>
         </Box>
-        <VisibleWithRole role="admin">
+        <AdminOnly>
           { this.renderAdvancedSettings() }
-        </VisibleWithRole>
+        </AdminOnly>
       </Box>
     );
   }
