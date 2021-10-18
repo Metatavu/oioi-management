@@ -162,7 +162,9 @@
     "contentText": "Kuvausteksti",
     "backgroundMedia": "Taustamedia",
     "foregroundMedia": "Etualan media",
-    "delete": "Poista sovellus"
+    "delete": "Poista sovellus",
+    "activeJsonUrl": "Aktiivinen seinä-JSON:",
+    "versionJsonUrl": "Version seinä-JSON:"
   },
 
   "pageSettingsView": {

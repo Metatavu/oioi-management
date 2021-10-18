@@ -162,7 +162,9 @@
     "contentText": "Content text",
     "backgroundMedia": "Background media",
     "foregroundMedia": "Foreground media",
-    "delete": "Delete Application"
+    "delete": "Delete Application",
+    "activeJsonUrl": "Active wall-JSON:",
+    "versionJsonUrl": "Version wall-JSON:"
   },
 
   "pageSettingsView": {
