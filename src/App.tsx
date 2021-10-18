@@ -78,7 +78,7 @@ class App extends React.Component<Props, State> {
                       path="/"
                       exact
                       render={({ history }) => (
-                        <CustomersList history={ history } />
+                        <CustomersList history={ history }/>
                       )}
                     />
                     <Route

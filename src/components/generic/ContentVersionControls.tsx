@@ -17,7 +17,7 @@ import { ErrorContext } from "components/containers/ErrorHandler";
 import AddContentVersionDialog from "./AddContentVersionDialog";
 import moment from "moment";
 import GenericDialog from "./GenericDialog";
-import VisibleWithRole from "./VisibleWithRole";
+import VisibleWithRole from "../containers/VisibleWithRole";
 
 /**
  * Component properties

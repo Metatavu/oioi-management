@@ -1,4 +1,27 @@
-import { KeyValueProperty, Resource, ResourceType } from "../generated/client";
+import { KeyValueProperty, Resource } from "../generated/client";
+
+declare global {
+  namespace Keycloak {
+    interface KeycloakTokenParsed {
+      acr?: string;
+      "allowed-origins"?: string[];
+      aud?: string;
+      auth_time?: number;
+      azp?: string;
+      email?: string;
+      email_verified?: boolean;
+      family_name?: string;
+      given_name?: string;
+      groups?: string[];
+      iss?: string;
+      jti?: string;
+      name?: string;
+      preferred_username?: string;
+      scope?: string;
+      typ?: string;
+    }
+  }
+}
 
 /**
  * Dialog type

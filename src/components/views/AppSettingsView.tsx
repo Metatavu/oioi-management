@@ -10,7 +10,7 @@ import ImagePreview from "../generic/ImagePreview";
 import { ErrorContextType } from "../../types";
 import Api from "../../api";
 import { IconKeys, getLocalizedIconTypeString, getDefaultIconURL } from "../../commons/iconTypeHelper";
-import VisibleWithRole from "../generic/VisibleWithRole";
+import VisibleWithRole from "../containers/VisibleWithRole";
 import AddIcon from "@material-ui/icons/Add";
 import { ErrorContext } from "../containers/ErrorHandler";
 import { toast } from "react-toastify";
@@ -18,6 +18,7 @@ import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import { KeycloakInstance } from "keycloak-js";
 import GenericDialog from "components/generic/GenericDialog";
 import { ResourceUtils } from "utils/resource";
+import AdminOnly from "components/containers/AdminOnly";
 
 /**
  * Component Props
@@ -196,9 +197,9 @@ class AppSettingsView extends React.Component<Props, State> {
           onToggle={ this.toggleDialog }
           open={ this.state.iconDialogOpen }
         />
-        <VisibleWithRole role="admin">
+        <AdminOnly>
           { this.renderAdvancedSettings() }
-        </VisibleWithRole>
+        </AdminOnly>
       </>
     );
   }

@@ -17,7 +17,7 @@ import { MessageType, initForm, Form, validateForm } from "ts-form-validation";
 import { ErrorContextType } from "../../types";
 import { resourceRules, ResourceSettingsForm } from "../../commons/formRules";
 import ImagePreview from "../generic/ImagePreview";
-import VisibleWithRole from "../generic/VisibleWithRole";
+import AdminOnly from "components/containers/AdminOnly";
 import { ErrorContext } from "../containers/ErrorHandler";
 import StyledMTableToolbar from "../../styles/generic/styled-mtable-toolbar";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
@@ -158,9 +158,9 @@ class PageResourceSettingsView extends React.Component<Props, State> {
         <Box mb={ 3 }>
           <Divider/>
         </Box>
-        <VisibleWithRole role="admin">
+        <AdminOnly>
           { this.renderAdvancedSettings() }
-        </VisibleWithRole>
+        </AdminOnly>
       </Box>
     );
   }
