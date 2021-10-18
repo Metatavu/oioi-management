@@ -338,7 +338,15 @@ class ApplicationEditor extends React.Component<Props, State> {
    * Render editor method
    */
   private renderEditor = () => {
-    const { classes, customerId, deviceId, selectedResource, application, keycloak } = this.props;
+    const { 
+      classes,
+      customerId,
+      deviceId,
+      selectedResource,
+      application,
+      keycloak,
+      selectedContentVersion
+    } = this.props;
     const { loading, rootResource } = this.state;
 
     if (loading || !rootResource) {
@@ -373,6 +381,7 @@ class ApplicationEditor extends React.Component<Props, State> {
             rootResource={ rootResource }
             customerId={ customerId }
             deviceId={ deviceId }
+            selectedContentVersion={ selectedContentVersion }
             onDeleteApplicationClick={ this.onDeleteApplication }
           />
         </main>

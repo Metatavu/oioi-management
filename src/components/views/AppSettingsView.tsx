@@ -18,19 +18,18 @@ import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import { KeycloakInstance } from "keycloak-js";
 import GenericDialog from "components/generic/GenericDialog";
 import { ResourceUtils } from "utils/resource";
-import { ReduxState } from "app/store";
-import { connect, ConnectedProps } from "react-redux";
 import { Config } from "app/config";
 
 /**
  * Component Props
  */
-interface Props extends ExternalProps{
+interface Props extends WithStyles<typeof styles> {
   application: Application;
   customerId: string;
   deviceId: string;
   rootResource: Resource;
   keycloak?: KeycloakInstance;
+  selectedContentVersion?: Resource;
   onUpdateApplication: (application: Application) => void;
   onUpdateRootResource: (rootResource: Resource) => void;
   confirmationRequired: (value: boolean) => void;
@@ -843,17 +842,4 @@ class AppSettingsView extends React.Component<Props, State> {
 
 }
 
-/**
- * Maps redux state to props
- *
- * @param state redux state
- */
-const mapStateToProps = (state: ReduxState) => ({
-  selectedContentVersion: state.contentVersion.selectedContentVersion
-});
-
-const connector = connect(mapStateToProps);
-
-type ExternalProps = ConnectedProps<typeof connector> & WithStyles<typeof styles>;
-
-export default connector(withStyles(styles)(AppSettingsView));
+export default withStyles(styles)(AppSettingsView);
