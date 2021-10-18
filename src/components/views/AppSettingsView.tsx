@@ -19,6 +19,7 @@ import { KeycloakInstance } from "keycloak-js";
 import GenericDialog from "components/generic/GenericDialog";
 import { ResourceUtils } from "utils/resource";
 import AdminOnly from "components/containers/AdminOnly";
+import { Config } from "app/config";
 
 /**
  * Component Props
@@ -29,6 +30,7 @@ interface Props extends WithStyles<typeof styles> {
   deviceId: string;
   rootResource: Resource;
   keycloak?: KeycloakInstance;
+  selectedContentVersion?: Resource;
   onUpdateApplication: (application: Application) => void;
   onUpdateRootResource: (rootResource: Resource) => void;
   confirmationRequired: (value: boolean) => void;
@@ -251,6 +253,7 @@ class AppSettingsView extends React.Component<Props, State> {
                 { strings.applicationEditor.deleteApplication }
               </Button>
             </Box>
+            { this.renderWallJsonUrls() }
             <Box display="flex" mb={ 3 }>
               <Box mr={ 1 }>
                 { this.renderTextField(strings.applicationSettings.returnDelay, 1, "text", undefined, "returnDelay") }
@@ -272,6 +275,35 @@ class AppSettingsView extends React.Component<Props, State> {
         </Accordion>
         { this.renderDeleteApplicationDialog() }
       </>
+    );
+  }
+
+  /**
+   * Renders active wall json and current version json url
+   */
+  private renderWallJsonUrls = () => {
+    const { application, selectedContentVersion } = this.props;
+
+    const activeUrl = `${ Config.get().api.baseUrl }/v1/application/${ application.id }`;
+    const versionUrl = `${ Config.get().api.baseUrl }/v1/application/${ application.id }/version/${ selectedContentVersion?.slug }`;
+
+    return (
+      <Box mb={ 3 }>
+        <Typography variant="h5">
+          { strings.applicationSettingsView.activeJsonUrl }
+        </Typography>
+        <Typography>
+          { activeUrl }
+        </Typography>
+        <Box mt={ 2 }>
+          <Typography variant="h5">
+            { strings.applicationSettingsView.versionJsonUrl }
+          </Typography>
+          <Typography>
+            { versionUrl }
+          </Typography>
+        </Box>
+      </Box>
     );
   }
 

@@ -196,6 +196,8 @@ export interface IStrings extends LocalizedStringsMethods {
     backgroundMedia: string;
     foregroundMedia: string;
     delete: string;
+    activeJsonUrl: string;
+    versionJsonUrl: string;
   },
 
   /**
