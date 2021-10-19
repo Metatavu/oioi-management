@@ -338,13 +338,12 @@ class ApplicationEditor extends React.Component<Props, State> {
    * Render editor method
    */
   private renderEditor = () => {
-    const { 
+    const {
       classes,
       customerId,
       deviceId,
       selectedResource,
       application,
-      keycloak,
       selectedContentVersion
     } = this.props;
     const { loading, rootResource } = this.state;
@@ -373,8 +372,6 @@ class ApplicationEditor extends React.Component<Props, State> {
       return (
         <main className={ classes.content }>
           <AppSettingsView
-            keycloak={ keycloak }
-            application={ application }
             confirmationRequired={ this.confirmationRequired }
             onUpdateApplication={ this.onUpdateApplication }
             onUpdateRootResource={ this.onUpdateResource }

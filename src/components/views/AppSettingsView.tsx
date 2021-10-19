@@ -1,35 +1,36 @@
 import * as React from "react";
+import { ReduxDispatch, ReduxState } from "app/store";
+import { connect, ConnectedProps } from "react-redux";
+import { addResources } from "features/resource-slice";
+import { addContentVersion, selectContentVersion } from "features/content-version-slice";
 import { withStyles, WithStyles, TextField, Button, Divider, Typography, CircularProgress, IconButton, Box, Accordion, AccordionSummary, AccordionDetails } from "@material-ui/core";
 import styles from "../../styles/editor-view";
 import strings from "../../localization/strings";
-import { Application, Resource, KeyValueProperty } from "../../generated/client";
+import { Application, Resource } from "../../generated/client";
 import { Form, initForm, validateForm, MessageType } from "ts-form-validation";
 import { ApplicationForm, applicationRules, ResourceSettingsForm } from "../../commons/formRules";
 import AddIconDialog from "../generic/AddIconDialog";
 import ImagePreview from "../generic/ImagePreview";
 import { ErrorContextType } from "../../types";
-import Api from "../../api";
 import { IconKeys, getLocalizedIconTypeString, getDefaultIconURL } from "../../commons/iconTypeHelper";
 import VisibleWithRole from "../containers/VisibleWithRole";
 import AddIcon from "@material-ui/icons/Add";
 import { ErrorContext } from "../containers/ErrorHandler";
 import { toast } from "react-toastify";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
-import { KeycloakInstance } from "keycloak-js";
 import GenericDialog from "components/generic/GenericDialog";
 import { ResourceUtils } from "utils/resource";
 import AdminOnly from "components/containers/AdminOnly";
 import { Config } from "app/config";
+import WallJSONImporter from "utils/wall-json-importer";
 
 /**
  * Component Props
  */
-interface Props extends WithStyles<typeof styles> {
-  application: Application;
+interface Props extends ExternalProps {
   customerId: string;
   deviceId: string;
   rootResource: Resource;
-  keycloak?: KeycloakInstance;
   selectedContentVersion?: Resource;
   onUpdateApplication: (application: Application) => void;
   onUpdateRootResource: (rootResource: Resource) => void;
@@ -46,7 +47,6 @@ interface State {
   iconsMap: Map<string, string>;
   iconDialogOpen: boolean;
   importingContent: boolean;
-  importDone: boolean;
   dataChanged: boolean;
   deleteApplicationDialogOpen: boolean;
 }
@@ -76,7 +76,6 @@ class AppSettingsView extends React.Component<Props, State> {
       iconsMap: new Map<string, string>(),
       iconDialogOpen: false,
       importingContent: false,
-      importDone: false,
       dataChanged: false,
       deleteApplicationDialogOpen: false
     };
@@ -88,8 +87,12 @@ class AppSettingsView extends React.Component<Props, State> {
   public componentDidMount = () => {
     const { application, rootResource } = this.props;
 
+    if (!application) {
+      return;
+    }
+
     let applicationForm = initForm<ApplicationForm>(
-      { name: application.name },
+      { name: application?.name },
       applicationRules
     );
 
@@ -116,27 +119,23 @@ class AppSettingsView extends React.Component<Props, State> {
    */
   public render = () => {
     const { classes, keycloak } = this.props;
-    const {
-      importDone,
-      importingContent,
-      dataChanged,
-      applicationForm
-    } = this.state;
+    const { importingContent, dataChanged, applicationForm } = this.state;
 
-    if (importDone || importingContent) {
+    if (importingContent) {
       return (
-        <Box>
-          <Typography>
-            { importDone ?
-              strings.importDone :
-              strings.importInProgress
-            }
-          </Typography>
-          { importingContent &&
-            <Box mt={ 2 }>
+        <Box className={ classes.loaderContainer }>
+          <Box
+            display="flex"
+            flexDirection="column"
+            alignItems="center"
+          >
+            <Box mb={ 2 }>
               <CircularProgress/>
             </Box>
-          }
+            <Typography>
+              { strings.importInProgress }
+            </Typography>
+          </Box>
         </Box>
       );
     }
@@ -210,7 +209,7 @@ class AppSettingsView extends React.Component<Props, State> {
    * Renders advanced settings
    */
   private renderAdvancedSettings = () => {
-    const { classes } = this.props;
+    const { classes, application } = this.props;
 
     return (
       <>
@@ -239,7 +238,7 @@ class AppSettingsView extends React.Component<Props, State> {
                 </Typography>
                 <Box ml={ 1 }>
                   <Typography variant="body1">
-                    { this.props.application.id }
+                    { application?.id }
                   </Typography>
                 </Box>
               </Box>
@@ -264,11 +263,18 @@ class AppSettingsView extends React.Component<Props, State> {
             </Box>
             <VisibleWithRole role="admin">
               <Divider/>
-              <Box mb={ 3 } mt={ 3 }>
-                <Typography variant="h5">
+              <Box mt={ 3 } mb={ 1 }>
+                <Button
+                  variant="outlined"
+                  component="label"
+                >
                   { strings.importLabel }
-                </Typography>
-                <input onChange={ e => this.handleWallJsonImport(e.target.files)} type="file"/>
+                  <input
+                    hidden
+                    type="file"
+                    onChange={ this.onImportWallJson }
+                  />
+                </Button>
               </Box>
             </VisibleWithRole>
           </AccordionDetails>
@@ -283,6 +289,10 @@ class AppSettingsView extends React.Component<Props, State> {
    */
   private renderWallJsonUrls = () => {
     const { application, selectedContentVersion } = this.props;
+
+    if (!application) {
+      return null;
+    }
 
     const activeUrl = `${ Config.get().api.baseUrl }/v1/application/${ application.id }`;
     const versionUrl = `${ Config.get().api.baseUrl }/v1/application/${ application.id }/version/${ selectedContentVersion?.slug }`;
@@ -311,8 +321,12 @@ class AppSettingsView extends React.Component<Props, State> {
    * Render delete application confirmation dialog
    */
   private renderDeleteApplicationDialog = () => {
-    const { onDeleteApplicationClick, application  } = this.props;
+    const { onDeleteApplicationClick, application } = this.props;
     const { deleteApplicationDialogOpen } = this.state;
+
+    if (!application) {
+      return null;
+    }
 
     return (
       <GenericDialog
@@ -323,7 +337,6 @@ class AppSettingsView extends React.Component<Props, State> {
         open={ deleteApplicationDialogOpen }
         cancelButtonText={ strings.cancel }
         positiveButtonText={ strings.delete }
-        error={ false }
       >
         <Typography>{ strings.applicationSettings.deleteApplicationConfirmationText }</Typography>
       </GenericDialog>
@@ -483,173 +496,58 @@ class AppSettingsView extends React.Component<Props, State> {
   }
 
   /**
-   * Handles importing data from wall json file
+   * Event handler for import wall JSON from file
    *
-   * TODO: Is JSON import needed when it is possible to copy resources?
-   *
-   * @param files list of files or null
+   * @param event React change event
    */
-  private handleWallJsonImport = async (files: FileList | null) => {
-    if (!files) {
+  private onImportWallJson = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const {
+      keycloak,
+      customerId,
+      deviceId,
+      application,
+      rootResource,
+      addContentVersion,
+      selectContentVersion
+    } = this.props;
+
+    const file = event.target.files?.item(0);
+
+    if (!file || !keycloak?.token || !application?.id || !rootResource.id) {
       return;
     }
 
-    const file = files.item(0);
-    if (!file) {
-      return;
-    }
+    const importer = new WallJSONImporter({
+      accessToken: keycloak.token,
+      customerId: customerId,
+      deviceId: deviceId,
+      applicationId: application.id,
+      rootResourceId: rootResource.id
+    });
 
-    const { rootResource } = this.props;
     const reader = new FileReader();
 
-    reader.onload = async e => {
-      if (!e.target) {
+    reader.onload = async ({ target }) => {
+      if (!target?.result || target.result instanceof ArrayBuffer) {
         return;
       }
 
+      this.setState({ importingContent: true });
+
       try {
-        const data = JSON.parse(e.target.result as string);
-        const topLevel = data.root.children;
-  
-        this.setState({ importingContent: true });
-  
-        const imported = await this.importWallJsonItems(rootResource.id!, topLevel);
-        if (imported) {
-          await this.importRootProperties(data);
-        }
-  
-        this.setState({ importDone: imported });
-  
+        const contentVersion = await importer.import(JSON.parse(target.result));
+        addContentVersion(contentVersion);
+        selectContentVersion(contentVersion);
+
         toast.success(strings.importDone);
-  
-        setTimeout(() => window.location.reload(), 3000);
       } catch (error) {
         this.context.setError(strings.errorManagement.resource.create, error);
       }
+
+      this.setState({ importingContent: false });
     }
 
     reader.readAsText(file);
-  }
-
-  /**
-   * Imports wall json items
-   *
-   * @param parentId parent ID
-   * @param items list of items
-   * @returns boolean promise
-   */
-  private importWallJsonItems = async (parentId: string, items: any[]): Promise<boolean> => {
-    const { keycloak, application, customerId, deviceId } = this.props;
-
-    if (!keycloak?.token) {
-      return false;
-    }
-
-    const resourcesApi = Api.getResourcesApi(keycloak.token);
-
-    try {
-      for (let i = 0; i < items.length; i++) {
-        const item = items[i];
-        const createdResource = await resourcesApi.createResource({
-          applicationId: application.id!,
-          customerId: customerId,
-          deviceId: deviceId,
-          resource: this.translateWallItemToResource(parentId, i, item)
-        });
-
-        if (item.children.length > 0) {
-          await this.importWallJsonItems(createdResource.id!, item.children);
-        }
-      }
-    } catch (error) {
-      this.context.setError(strings.errorManagement.resource.create, error);
-      return false;
-    }
-
-    return true;
-  }
-
-  /**
-   * Imports root properties from the wall JSON data
-   *
-   * @param data wall JSON data
-   */
-  private importRootProperties = async (data: any) => {
-    const { keycloak, application, customerId, deviceId, rootResource } = this.props;
-
-    if (!keycloak?.token) {
-      return false;
-    }
-
-    const importProperties: { [ key: string ]: string } = data.root.properties || {};
-    const importPropertyKeys = Object.keys(importProperties);
-
-    const rootProperties = (rootResource.properties || [])
-      .filter(rootProperty => !importPropertyKeys.includes(rootProperty.key));
-
-    importPropertyKeys.forEach(importPropertyKey => {
-      const importPropertyValue = importProperties[importPropertyKey];
-      importPropertyValue && rootProperties.push({
-        key: importPropertyKey,
-        value: importPropertyValue
-      });
-    });
-
-    try {
-      await Api.getResourcesApi(keycloak.token).updateResource({
-        resource: { ...rootResource, properties: rootProperties },
-        applicationId: application.id!,
-        customerId: customerId,
-        deviceId: deviceId,
-        resourceId: rootResource.id!
-      });
-    } catch (error) {
-      this.context.setError(strings.errorManagement.resource.update, error);
-    }
-  }
-
-  /**
-   * Translates wall json item to resource
-   *
-   * @param parentId parent id
-   * @param index index
-   * @param item item
-   * @returns translated resource
-   */
-  private translateWallItemToResource = (parentId: string, index: number, item: any): Resource => {
-    return {
-      name: item.name,
-      slug: item.slug,
-      type: item.type,
-      data: item.data,
-      orderNumber: index,
-      parentId: parentId,
-      properties: this.translateWallItemProperties(item),
-      styles: this.translateWallItemStyles(item)
-    };
-  }
-
-  /**
-   * Translates wall json item properties to resource properties
-   *
-   * @param item item
-   * @returns list of key value properties
-   */
-  private translateWallItemProperties = (item: any): KeyValueProperty[] => {
-    return Object.keys(item.properties).map(key => ({
-      key: key,
-      value: item.properties[key]
-    }));
-  }
-
-  /**
-   * Translates wall json item styles to resource styles
-   */
-  private translateWallItemStyles = (item: any): KeyValueProperty[] => {
-    return Object.keys(item.styles).map(key => ({
-      key: key,
-      value: item.styles[key]
-    }));
   }
 
   /**
@@ -843,4 +741,29 @@ class AppSettingsView extends React.Component<Props, State> {
 
 }
 
-export default withStyles(styles)(AppSettingsView);
+/**
+ * Maps Redux state to props
+ *
+ * @param state redux state
+ */
+const mapStateToProps = (state: ReduxState) => ({
+  keycloak: state.auth.keycloak,
+  application: state.application.application
+});
+
+/**
+ * Function for declaring dispatch functions
+ *
+ * @param dispatch Redux dispatch
+ */
+const mapDispatchToProps = (dispatch: ReduxDispatch) => ({
+  addResources: (resources: Resource[]) => dispatch(addResources(resources)),
+  addContentVersion: (contentVersion: Resource) => dispatch(addContentVersion(contentVersion)),
+  selectContentVersion: (contentVersion: Resource) => dispatch(selectContentVersion(contentVersion))
+});
+
+const connector = connect(mapStateToProps, mapDispatchToProps);
+
+type ExternalProps = ConnectedProps<typeof connector> & WithStyles<typeof styles>;
+
+export default connector(withStyles(styles)(AppSettingsView));
