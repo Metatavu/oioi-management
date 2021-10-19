@@ -207,7 +207,7 @@ export class ResourceUtils {
 
   /**
    * Push all property key value pairs from state maps to properties array
-   * 
+   *
    * TODO: Remove maps once AppSettingsView is changed to use resource instead of maps
    *
    * @param resourceMap resource map
@@ -240,7 +240,7 @@ export class ResourceUtils {
 
   /**
    * Update map values based on new and old value.
-   * 
+   *
    * TODO: Remove maps once AppSettingsView is changed to use resource instead of maps
    *
    * @param oldData old data from table
@@ -284,7 +284,7 @@ export class ResourceUtils {
 
     /**
    * Adds resource to map
-   * 
+   *
    * TODO: Remove maps once AppSettingsView is changed to use resource instead of maps
    *
    * @param newData new data
@@ -306,7 +306,7 @@ export class ResourceUtils {
 
   /**
    * Deletes resource from map
-   * 
+   *
    * TODO: Remove maps once AppSettingsView is changed to use resource instead of maps
    *
    * @param oldData  old data
@@ -328,7 +328,7 @@ export class ResourceUtils {
 
   /**
    * Update resource and icons maps
-   * 
+   *
    * TODO: Remove maps once AppSettingsView is changed to use resource instead of maps
    *
    * @param resource resource

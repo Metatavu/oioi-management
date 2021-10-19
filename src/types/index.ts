@@ -1,4 +1,4 @@
-import { KeyValueProperty, Resource } from "../generated/client";
+import { KeyValueProperty, Resource, ResourceType } from "../generated/client";
 
 declare global {
   namespace Keycloak {
@@ -109,3 +109,24 @@ export interface ApiRequestMetadata {
 export interface TablePropertyData extends KeyValueProperty {
   tableData?: any;
 }
+
+/**
+ * Wall JSON structure
+ */
+export interface WallJSON {
+  root: ImportedResource;
+}
+
+/**
+ * Resource from imported wall JSON structure
+ */
+export interface ImportedResource {
+  slug: string;
+  type: ResourceType;
+  name: string;
+  data: string | null;
+  children: ImportedResource[];
+  styles: { [key: string]: string; };
+  properties: { [key: string]: string; };
+  modifiedAt: string;
+};

@@ -21,7 +21,7 @@ import LockIcon from "../../resources/svg/lock-icon";
 import Api from "api";
 
 /**
- * Component props
+ * Component properties
  */
 interface Props extends ExternalProps {
   resource: Resource;
@@ -59,7 +59,7 @@ class ResourceTreeItem extends React.Component<Props, State> {
    * Component did mount life cycle handler
    */
   public componentDidMount = async () => {
-    await this.fetchLockInfo();
+    this.props.locked && await this.fetchLockInfo();
   }
 
   /**
@@ -112,7 +112,7 @@ class ResourceTreeItem extends React.Component<Props, State> {
                 color="error"
               />
             </Box>
-          </Tooltip> 
+          </Tooltip>
         }
       </ListItem>
     );
@@ -180,14 +180,18 @@ class ResourceTreeItem extends React.Component<Props, State> {
       return;
     }
 
-    const lockInfo = await Api.getResourcesApi(keycloak.token).findResourceLock({
-      customerId: customer.id,
-      deviceId: device.id,
-      applicationId: application.id,
-      resourceId: resource.id,
-    });
+    try {
+      const lockInfo = await Api.getResourcesApi(keycloak.token).findResourceLock({
+        customerId: customer.id,
+        deviceId: device.id,
+        applicationId: application.id,
+        resourceId: resource.id
+      });
 
-    this.setState({ lockInfo: lockInfo });
+      this.setState({ lockInfo: lockInfo });
+    } catch {
+      this.setState({ lockInfo: undefined });
+    }
   }
 }
 

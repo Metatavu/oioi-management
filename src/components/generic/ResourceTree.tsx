@@ -353,7 +353,7 @@ class ResourceTree extends React.Component<Props, State> {
   }
 
   /**
-   * Renews single lock 
+   * Renews single lock
    */
   private renewLock = async () => {
     const {
@@ -459,6 +459,7 @@ class ResourceTree extends React.Component<Props, State> {
    */
   private translateToTreeItem = (resource: Resource, locked: boolean, parentLocked: boolean, loading: boolean): TreeItem => ({
     id: resource.id,
+    key: resource.id,
     parentId: resource.parentId,
     orderNumber: resource.orderNumber,
     title: (
