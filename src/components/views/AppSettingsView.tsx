@@ -31,7 +31,7 @@ interface Props extends ExternalProps {
   customerId: string;
   deviceId: string;
   rootResourceId: string;
-  selectedContentVersion?: Resource;
+  selectedContentVersion: Resource;
   onUpdateApplication: (application: Application) => void;
   onUpdateContentVersionResource: (contentVersion: Resource) => void;
   confirmationRequired: (value: boolean) => void;
@@ -190,15 +190,13 @@ class AppSettingsView extends React.Component<Props, State> {
         <Box className={ classes.gridRow }>
           { this.renderIconList() }
         </Box>
-        { selectedContentVersion && 
-          <AddIconDialog
-            keycloak={ keycloak }
-            resource={ selectedContentVersion }
-            onSave={ this.onIconFileChange }
-            onToggle={ this.toggleDialog }
-            open={ this.state.iconDialogOpen }
-          />
-        }
+        <AddIconDialog
+          keycloak={ keycloak }
+          resource={ selectedContentVersion }
+          onSave={ this.onIconFileChange }
+          onToggle={ this.toggleDialog }
+          open={ this.state.iconDialogOpen }
+        />
         <AdminOnly>
           { this.renderAdvancedSettings() }
         </AdminOnly>
@@ -427,9 +425,6 @@ class AppSettingsView extends React.Component<Props, State> {
    */
   private renderMedia = (key: string) => {
     const { selectedContentVersion } = this.props;
-    if (!selectedContentVersion) {
-      return null;
-    }
 
     const previewItem = this.state.resourceMap.get(key) || "";
     return (
@@ -453,10 +448,6 @@ class AppSettingsView extends React.Component<Props, State> {
   private renderIconList = () => {
     const { iconsMap } = this.state;
     const { classes, selectedContentVersion } = this.props;
-
-    if (!selectedContentVersion) {
-      return null;
-    }
 
     const icons: JSX.Element[] = [];
     const allKeys = Object.values(IconKeys);
@@ -566,11 +557,7 @@ class AppSettingsView extends React.Component<Props, State> {
    */
   private updateMaps(applicationForm: Form<ApplicationForm>) {
     const { selectedContentVersion } = this.props;
-
-    if (!selectedContentVersion) {
-      return;
-    }
-
+    
     const initResourceMap = new Map<string, string>();
     const initIconsMap = new Map<string, string>();
     const props = selectedContentVersion.properties;

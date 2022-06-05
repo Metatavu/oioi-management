@@ -368,7 +368,7 @@ class ApplicationEditor extends React.Component<Props, State> {
       );
     }
 
-    if (application) {
+    if (application && selectedContentVersion) {
       return (
         <main className={ classes.content }>
           <AppSettingsView
