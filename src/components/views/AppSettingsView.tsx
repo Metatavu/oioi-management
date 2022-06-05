@@ -30,10 +30,10 @@ import WallJSONImporter from "utils/wall-json-importer";
 interface Props extends ExternalProps {
   customerId: string;
   deviceId: string;
-  rootResource: Resource;
+  rootResourceId: string;
   selectedContentVersion?: Resource;
   onUpdateApplication: (application: Application) => void;
-  onUpdateRootResource: (rootResource: Resource) => void;
+  onUpdateContentVersionResource: (contentVersion: Resource) => void;
   confirmationRequired: (value: boolean) => void;
   onDeleteApplicationClick: (application: Application) => void;
 }
@@ -85,7 +85,7 @@ class AppSettingsView extends React.Component<Props, State> {
    * Component did mount life cycle handler
    */
   public componentDidMount = () => {
-    const { application, rootResource } = this.props;
+    const { application } = this.props;
 
     if (!application) {
       return;
@@ -97,7 +97,7 @@ class AppSettingsView extends React.Component<Props, State> {
     );
 
     applicationForm = validateForm(applicationForm);
-    this.updateMaps(rootResource, applicationForm);
+    this.updateMaps(applicationForm);
   }
 
   /**
@@ -106,11 +106,10 @@ class AppSettingsView extends React.Component<Props, State> {
    * @param prevProps previous props
    */
   public componentDidUpdate = (prevProps: Props) => {
-    const { rootResource } = this.props;
     const { applicationForm } = this.state;
 
-    if (prevProps.rootResource !== this.props.rootResource) {
-      this.updateMaps(rootResource, validateForm(applicationForm));
+    if (prevProps.selectedContentVersion !== this.props.selectedContentVersion) {
+      this.updateMaps(validateForm(applicationForm));
     }
   }
 
@@ -118,7 +117,7 @@ class AppSettingsView extends React.Component<Props, State> {
    * Component render method
    */
   public render = () => {
-    const { classes, keycloak } = this.props;
+    const { classes, keycloak, selectedContentVersion } = this.props;
     const { importingContent, dataChanged, applicationForm } = this.state;
 
     if (importingContent) {
@@ -191,13 +190,15 @@ class AppSettingsView extends React.Component<Props, State> {
         <Box className={ classes.gridRow }>
           { this.renderIconList() }
         </Box>
-        <AddIconDialog
-          keycloak={ keycloak }
-          resource={ this.props.rootResource }
-          onSave={ this.onIconFileChange }
-          onToggle={ this.toggleDialog }
-          open={ this.state.iconDialogOpen }
-        />
+        { selectedContentVersion && 
+          <AddIconDialog
+            keycloak={ keycloak }
+            resource={ selectedContentVersion }
+            onSave={ this.onIconFileChange }
+            onToggle={ this.toggleDialog }
+            open={ this.state.iconDialogOpen }
+          />
+        }
         <AdminOnly>
           { this.renderAdvancedSettings() }
         </AdminOnly>
@@ -425,6 +426,10 @@ class AppSettingsView extends React.Component<Props, State> {
    * @param key key
    */
   private renderMedia = (key: string) => {
+    const { selectedContentVersion } = this.props;
+    if (!selectedContentVersion) {
+      return null;
+    }
 
     const previewItem = this.state.resourceMap.get(key) || "";
     return (
@@ -435,7 +440,7 @@ class AppSettingsView extends React.Component<Props, State> {
         imagePath={ previewItem }
         onUpload={ this.onPropertyFileOrUrlChange }
         onSetUrl={ this.onPropertyFileOrUrlChange }
-        resource={ this.props.rootResource }
+        resource={ selectedContentVersion }
         uploadKey={ key }
         onDelete={ this.onPropertyFileDelete }
       />
@@ -447,7 +452,11 @@ class AppSettingsView extends React.Component<Props, State> {
    */
   private renderIconList = () => {
     const { iconsMap } = this.state;
-    const { classes, rootResource } = this.props;
+    const { classes, selectedContentVersion } = this.props;
+
+    if (!selectedContentVersion) {
+      return null;
+    }
 
     const icons: JSX.Element[] = [];
     const allKeys = Object.values(IconKeys);
@@ -459,13 +468,13 @@ class AppSettingsView extends React.Component<Props, State> {
           <Typography variant="h5" color="textSecondary">{ iconTypeKey ? getLocalizedIconTypeString(iconTypeKey) : key }</Typography>
           <ImagePreview
             uploadDialogTitle={ strings.fileUpload.addImage }
-            uploadButtonText={ rootResource ? strings.fileUpload.changeImage : strings.fileUpload.addImage }
+            uploadButtonText={ value ? strings.fileUpload.changeImage : strings.fileUpload.addImage }
             key={ key }
             imagePath={ value }
             allowSetUrl={ false }
             onSetUrl={ () => {} }
             onUpload={ this.onIconFileChange }
-            resource={ rootResource }
+            resource={ selectedContentVersion }
             uploadKey={ key }
             onDelete={ this.onIconFileDelete }
           />
@@ -506,14 +515,14 @@ class AppSettingsView extends React.Component<Props, State> {
       customerId,
       deviceId,
       application,
-      rootResource,
+      rootResourceId,
       addContentVersion,
       selectContentVersion
     } = this.props;
 
     const file = event.target.files?.item(0);
 
-    if (!file || !keycloak?.token || !application?.id || !rootResource.id) {
+    if (!file || !keycloak?.token || !application?.id) {
       return;
     }
 
@@ -522,7 +531,7 @@ class AppSettingsView extends React.Component<Props, State> {
       customerId: customerId,
       deviceId: deviceId,
       applicationId: application.id,
-      rootResourceId: rootResource.id
+      rootResourceId: rootResourceId
     });
 
     const reader = new FileReader();
@@ -551,15 +560,20 @@ class AppSettingsView extends React.Component<Props, State> {
   }
 
   /**
-   * Update resource and icon map data
+   * Update version resource maps and icon map data
    *
-   * @param rootResource root resource
    * @param applicationForm application form
    */
-  private updateMaps(rootResource: Resource, applicationForm: Form<ApplicationForm>) {
+  private updateMaps(applicationForm: Form<ApplicationForm>) {
+    const { selectedContentVersion } = this.props;
+
+    if (!selectedContentVersion) {
+      return;
+    }
+
     const initResourceMap = new Map<string, string>();
     const initIconsMap = new Map<string, string>();
-    const props = rootResource.properties;
+    const props = selectedContentVersion.properties;
 
     const iconKeys = Object.values(IconKeys);
     iconKeys.forEach(iconKey => !initIconsMap.has(iconKey) && initIconsMap.set(iconKey, getDefaultIconURL(iconKey)));
@@ -610,16 +624,17 @@ class AppSettingsView extends React.Component<Props, State> {
    * Handle resource update
    */
   private onUpdateResource = () => {
-    const { onUpdateRootResource } = this.props;
+    const { onUpdateContentVersionResource } = this.props;
     const { resourceMap, iconsMap } = this.state;
 
     const properties = ResourceUtils.getPropertiesToUpdate(resourceMap, iconsMap);
 
     const resource = {
-      ...this.props.rootResource,
+      ...this.props.selectedContentVersion,
       properties: properties.filter(p => !!p.value)
     } as Resource;
-    onUpdateRootResource(resource);
+
+    onUpdateContentVersionResource(resource);
 
     this.setState({ dataChanged: false });
   };

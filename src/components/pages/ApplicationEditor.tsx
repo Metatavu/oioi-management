@@ -374,8 +374,8 @@ class ApplicationEditor extends React.Component<Props, State> {
           <AppSettingsView
             confirmationRequired={ this.confirmationRequired }
             onUpdateApplication={ this.onUpdateApplication }
-            onUpdateRootResource={ this.onUpdateResource }
-            rootResource={ rootResource }
+            onUpdateContentVersionResource={ this.onUpdateResource }
+            rootResourceId={ rootResource.id!! }
             customerId={ customerId }
             deviceId={ deviceId }
             selectedContentVersion={ selectedContentVersion }
@@ -568,7 +568,7 @@ class ApplicationEditor extends React.Component<Props, State> {
 
       updateResources([ updatedResource ]);
 
-      if (updatedResource.type !== ResourceType.ROOT) {
+      if (updatedResource.type !== ResourceType.ROOT && updatedResource.type !== ResourceType.CONTENTVERSION) {
         selectResource(updatedResource);
       } else {
         this.setState({ rootResource: updatedResource });
