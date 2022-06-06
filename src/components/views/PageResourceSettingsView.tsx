@@ -26,6 +26,7 @@ import { nanoid } from "@reduxjs/toolkit";
 import { ResourceUtils } from "utils/resource";
 import { ReduxState } from "app/store";
 import { connect, ConnectedProps } from "react-redux";
+import WithDebounce from "components/generic/with-debounce";
 
 /**
  * Component props
@@ -408,7 +409,9 @@ class PageResourceSettingsView extends React.Component<Props, State> {
    * Renders child resources
    */
   private renderChildResources = () => {
-    const listItems = this.getChildResources().map(child =>
+    const { childResources } = this.state;
+
+    const listItems = childResources.map(child =>
       <React.Fragment key={ child.id }>
         <Box
           display="flex"
@@ -480,17 +483,24 @@ class PageResourceSettingsView extends React.Component<Props, State> {
   private renderChildResourceContentField = (resource: Resource) => {
     switch (resource.type) {
       case ResourceType.TEXT:
-        return <>
-          <TextField
-            fullWidth
-            multiline
+        return (
+          <WithDebounce
+            name={ resource.id  }
+            label={ resource.name }
+            component={ props => (
+              <TextField
+                { ...props }
+                fullWidth
+                multiline
+                variant="outlined"
+                label={ resource.name }
+              />
+            )}
             value={ resource.data || "" }
             onChange={ this.onHandleChildResourceTextChange(resource) }
-            name={ resource.id }
-            variant="outlined"
-            label={ resource.name }
+            debounceTimeout={ 300 }
           />
-        </>;
+        );
       case ResourceType.PDF:
       case ResourceType.IMAGE:
       case ResourceType.VIDEO:
