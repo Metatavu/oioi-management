@@ -233,6 +233,7 @@ export interface IStrings extends LocalizedStringsMethods {
     uploadAudioTitle: string;
     uploadAudioFile: string;
     changeAudioFile: string;
+    delete: string;
   },
 
   /**

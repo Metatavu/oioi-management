@@ -187,7 +187,8 @@
     "download": "Lataa äänitiedosto",
     "uploadAudioTitle": "Lataa äänitiedosto",
     "uploadAudioFile": "Lataa äänitiedosto",
-    "changeAudioFile": "Vaihda äänitiedosto"
+    "changeAudioFile": "Vaihda äänitiedosto",
+    "delete": "Poista äänitiedosto"
   },
 
   "fileUpload": {
