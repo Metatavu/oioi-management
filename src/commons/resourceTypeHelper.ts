@@ -87,9 +87,12 @@ export const resolveChildResourceTypes = (type: ResourceType): ResourceTypeObjec
     }, {
       value: ResourceType.TEXT,
       resourceLocal: strings.resourceTypes.text
-    },{
+    }, {
       value: ResourceType.IMAGE,
       resourceLocal: strings.resourceTypes.image
+    }, {
+      value: ResourceType.AUDIO,
+      resourceLocal: strings.resourceTypes.audio
     }, {
       value: ResourceType.PDF,
       resourceLocal: strings.resourceTypes.pdf
@@ -100,6 +103,7 @@ export const resolveChildResourceTypes = (type: ResourceType): ResourceTypeObjec
   [ResourceType.IMAGE]: [],
   [ResourceType.TEXT]: [],
   [ResourceType.VIDEO]: [],
+  [ResourceType.AUDIO]: [],
   [ResourceType.APPLICATION]: []
 })[type];
 
@@ -152,6 +156,12 @@ export const resolveUploadLocalizationString = (type: ResourceType): ResourceTyp
       strings.fileUpload.changeVideo
     ]
   },
+  [ResourceType.AUDIO]: {
+    fileUploadLocal: [
+      strings.fileUpload.addAudio,
+      strings.fileUpload.changeAudio
+    ]
+  },
   [ResourceType.APPLICATION]: {}
 })[type];
 
@@ -190,5 +200,6 @@ export const getLocalizedTypeString = (type: ResourceType): string => ({
   [ResourceType.IMAGE]: strings.resourceTypes.image,
   [ResourceType.TEXT]: strings.resourceTypes.text,
   [ResourceType.VIDEO]: strings.resourceTypes.video,
+  [ResourceType.AUDIO]: strings.resourceTypes.audio,
   [ResourceType.APPLICATION]: strings.resourceTypes.application
 })[type];
