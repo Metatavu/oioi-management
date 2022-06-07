@@ -58,9 +58,9 @@ class ImagePreview extends React.Component<Props, State> {
       return (
         <div className={ classes.videoPreviewElement }>
           <div style={{ marginBottom: theme.spacing(1) }}>
-              <div key={ imagePath }>
-                { this.renderPreviewContent() }
-              </div>
+            <div key={ imagePath }>
+              { this.renderPreviewContent() }
+            </div>
           </div>
           { this.renderFileUploader() }
         </div>
