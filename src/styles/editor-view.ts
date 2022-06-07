@@ -233,10 +233,7 @@ export default createStyles({
 
   imagePreviewElement: {
     cursor: "pointer",
-    position: "relative",
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "flex-start"
+    textAlign: "center"
   },
 
   videoPreviewElement: {

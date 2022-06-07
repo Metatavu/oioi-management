@@ -538,6 +538,7 @@ class PageResourceSettingsView extends React.Component<Props, State> {
           onUpload={ this.onChildResourceFileChange }
           onSetUrl={ this.onChildResourceSetFileUrl }
           uploadKey={ resource.id }
+          imgHeight="200px"
         />
       </Box>
     );

@@ -595,6 +595,7 @@ class LanguageMenuResourceSettingsView extends React.Component<Props, State> {
           resource={ resource }
           uploadKey={ uploadKey }
           onDelete={ this.onPropertyOrIconFileDelete }
+          imgHeight="200px"
         />
       </>
     );
@@ -631,6 +632,7 @@ class LanguageMenuResourceSettingsView extends React.Component<Props, State> {
             resource={ resource }
             uploadKey={ key }
             onDelete={ this.onPropertyOrIconFileDelete }
+            imgHeight="200px"
           />
         </Box>
       );
