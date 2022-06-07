@@ -232,12 +232,18 @@ export default createStyles({
   },
 
   imagePreviewElement: {
+    cursor: "pointer",
     position: "relative",
     display: "flex",
     flexDirection: "column",
-    "&.video": {
-      alignItems: "flex-start"
-    }
+    alignItems: "flex-start"
+  },
+
+  videoPreviewElement: {
+    position: "relative",
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "flex-start"
   },
 
   imagePreviewFullscreenContainer: {

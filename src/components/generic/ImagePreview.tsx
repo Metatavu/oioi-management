@@ -3,13 +3,11 @@ import { Dialog, AppBar, Toolbar, IconButton, withStyles, WithStyles, Box, Typog
 import styles from "../../styles/editor-view";
 import { Resource, ResourceType } from "../../generated/client";
 import CloseIcon from "@material-ui/icons/Close";
-import DeleteIcon from "@material-ui/icons/DeleteForever";
 import FileUploader from "../generic/FileUploader";
 import { getAllowedFileTypes } from "../../commons/resourceTypeHelper";
 import ReactPlayer from "react-player";
 import theme from "../../styles/theme";
 import strings from "../../localization/strings";
-import classNames from "classnames";
 
 /**
  * Component properties
@@ -56,19 +54,25 @@ class ImagePreview extends React.Component<Props, State> {
   public render = () => {
     const { imagePath, resource, classes } = this.props;
 
+    if ( resource.type === ResourceType.VIDEO ) {
+      return (
+        <div className={ classes.videoPreviewElement }>
+          <div style={{ marginBottom: theme.spacing(1) }}>
+              <div key={ imagePath }>
+                { this.renderPreviewContent() }
+              </div>
+          </div>
+          { this.renderFileUploader() }
+        </div>
+      );
+    }
+
     return (
-      <div
-        className={
-          classNames(classes.imagePreviewElement, {
-            video: resource.type === ResourceType.VIDEO
-          })
-        }
-      >
+      <div className={ classes.imagePreviewElement }> 
         <div style={{ marginBottom: theme.spacing(1) }}>
           <div key={ imagePath } onClick={ this.toggleDialog }>
             { this.renderPreviewContent() }
           </div>
-          { imagePath && this.renderDeleteImage() }
         </div>
         { this.renderFileUploader() }
         { this.renderDialog() }
@@ -157,27 +161,6 @@ class ImagePreview extends React.Component<Props, State> {
           <img src={ imagePath } alt="File"/>
         </Box>
       </Dialog>
-    );
-  }
-
-  /**
-   * Renders delete image
-   */
-  private renderDeleteImage = () => {
-    const { classes, onDelete, uploadKey } = this.props;
-
-    return (
-      <div className={ classes.deleteImage }>
-        <IconButton
-          size="small"
-          color="secondary"
-          className={ classes.iconButton }
-          title={ strings.delete }
-          onClick={ () => onDelete(uploadKey) }
-        >
-          <DeleteIcon />
-        </IconButton>
-      </div>
     );
   }
 
