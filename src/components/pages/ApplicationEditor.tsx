@@ -35,6 +35,7 @@ import IntroResourceSettingsView from "components/views/IntroResourceSettingsVie
 import LanguageResourceSettingsView from "components/views/LanguageResourceSettingsView";
 import LanguageMenuResourceSettingsView from "components/views/LanguageMenuResourceSettingsView";
 import ApplicationResourceSettingsView from "components/views/ApplicationResourceSettingsView";
+import AudioResourceSettingsView from "../views/AudioResourceSettingsView";
 import GenericDialog from "components/generic/GenericDialog";
 
 /**
@@ -431,6 +432,7 @@ class ApplicationEditor extends React.Component<Props, State> {
       case ResourceType.INTRO: return IntroResourceSettingsView;
       case ResourceType.SLIDESHOW: return SlideshowResourceSettingsView;
       case ResourceType.SLIDESHOWPDF: return PDFResourceSettingsView;
+      case ResourceType.AUDIO: return AudioResourceSettingsView;
       case ResourceType.PAGE: return PageResourceSettingsView;
       default: return ResourceSettingsView;
     }

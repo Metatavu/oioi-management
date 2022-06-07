@@ -16,7 +16,7 @@ import { UploadData } from "types";
  */
 interface Props extends ExternalProps {
   uploadKey?: string;
-  allowedFileTypes: string[];
+  allowedFileTypes?: string[];
   allowSetUrl?: boolean;
   uploadButtonText: string;
   onUpload: (uri: string, key: string, type: string) => void;

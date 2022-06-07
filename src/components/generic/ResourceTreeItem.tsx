@@ -16,6 +16,7 @@ import VideoIcon from "@material-ui/icons/PlayCircleOutlineOutlined";
 import TextIcon from "@material-ui/icons/TitleOutlined";
 import PDFIcon from "@material-ui/icons/PictureAsPdfOutlined";
 import ImageIcon from "@material-ui/icons/ImageOutlined";
+import AudioIcon from "@material-ui/icons/AudiotrackOutlined";
 import ApplicationIcon from "@material-ui/icons/LaptopMacOutlined";
 import LockIcon from "../../resources/svg/lock-icon";
 import Api from "api";
@@ -147,6 +148,7 @@ class ResourceTreeItem extends React.Component<Props, State> {
     [ResourceType.INTRO]: IntroIcon,
     [ResourceType.PAGE]: PageIcon,
     [ResourceType.IMAGE]: ImageIcon,
+    [ResourceType.AUDIO]: AudioIcon,
     [ResourceType.VIDEO]: VideoIcon,
     [ResourceType.TEXT]: TextIcon,
     [ResourceType.PDF]: PDFIcon,
