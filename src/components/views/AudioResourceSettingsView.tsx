@@ -114,7 +114,7 @@ class AudioResourceSettingsView extends React.Component<Props, State> {
     const { isFormValid } = form;
 
     if (loading) {
-      return;
+      return null;
     }
 
     return (
