@@ -226,6 +226,17 @@ export interface IStrings extends LocalizedStringsMethods {
   },
 
   /**
+   * Translations related to audio settings
+   */
+  audioSettingsView: {
+    download: string;
+    uploadAudioTitle: string;
+    uploadAudioFile: string;
+    changeAudioFile: string;
+    delete: string;
+  },
+
+  /**
    * Translations related to file upload
    */
   fileUpload: {
@@ -237,6 +248,8 @@ export interface IStrings extends LocalizedStringsMethods {
     changeImage: string;
     addVideo: string;
     changeVideo: string;
+    addAudio: string;
+    changeAudio: string;
     addPDF: string;
     changePDF: string;
     upload: string;
@@ -264,6 +277,7 @@ export interface IStrings extends LocalizedStringsMethods {
     pdf: string;
     text: string;
     image: string;
+    audio: string;
     application: string;
   };
 

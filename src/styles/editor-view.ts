@@ -232,12 +232,26 @@ export default createStyles({
   },
 
   imagePreviewElement: {
+    cursor: "pointer",
     position: "relative",
     display: "flex",
     flexDirection: "column",
-    "&.video": {
-      alignItems: "flex-start"
-    }
+    alignItems: "flex-start"
+  },
+
+  videoPreviewElement: {
+    position: "relative",
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "flex-start"
+  },
+
+  audioPreview: {
+    marginLeft: theme.spacing(1),
+    marginTop: theme.spacing(2),
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center"
   },
 
   imagePreviewFullscreenContainer: {

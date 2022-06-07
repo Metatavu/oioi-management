@@ -183,6 +183,14 @@
     "delete": "Poista PDF"
   },
 
+  "audioSettingsView": {
+    "download": "Lataa äänitiedosto",
+    "uploadAudioTitle": "Lataa äänitiedosto",
+    "uploadAudioFile": "Lataa äänitiedosto",
+    "changeAudioFile": "Vaihda äänitiedosto",
+    "delete": "Poista äänitiedosto"
+  },
+
   "fileUpload": {
     "addMedia": "Lisää media",
     "changeMedia": "Vaihda media",
@@ -192,6 +200,8 @@
     "changeFile": "Vaihda tiedosto",
     "addVideo": "Lisää video",
     "changeVideo": "Vaihda video",
+    "addAudio": "Lisää audio",
+    "changeAudio": "Vaihda audio",
     "addPDF": "Lisää PDF-tiedosto",
     "changePDF": "Vaihda PDF-tiedosto",
     "upload": "Lähetä",
@@ -216,6 +226,7 @@
     "text": "Teksti",
     "image": "Kuva",
     "video": "Video",
+    "audio": "Audio",
     "application": "Sovellus"
   },
 

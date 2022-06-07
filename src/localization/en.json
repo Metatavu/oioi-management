@@ -186,6 +186,14 @@
     "delete": "Delete PDF"
   },
 
+  "audioSettingsView": {
+    "download": "Download audio file",
+    "uploadAudioTitle": "Upload audio file",
+    "uploadAudioFile": "Upload audio file",
+    "changeAudioFile": "Change audio file",
+    "delete": "Delete audio file"
+  },
+
   "fileUpload": {
     "addMedia": "Add media",
     "changeMedia": "Change media",
@@ -195,6 +203,8 @@
     "changeFile": "Change file",
     "addVideo": "Add video",
     "changeVideo": "Change video",
+    "addAudio": "Add audio",
+    "changeAudio": "Change audio",
     "addPDF": "Add PDF file",
     "changePDF": "Change PDF file",
     "upload": "Upload",
@@ -219,6 +229,7 @@
     "text": "Text",
     "image": "Image",
     "video": "Video",
+    "audio": "Audio",
     "application": "Application"
   },
 

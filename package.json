@@ -20,6 +20,7 @@
     "keycloak-js": "^7.0.1",
     "localized-strings": "^0.2.4",
     "material-table": "^1.69.3",
+    "material-ui-audio-player": "^1.7.1",
     "material-ui-dropzone": "^3.5.0",
     "moment": "^2.29.1",
     "react": "^16.13.1",
