@@ -411,7 +411,6 @@ class ApplicationEditor extends React.Component<Props, State> {
         onDelete={ () => this.setState({ deleteResourceDialogOpen: true }) }
         onAddChild={ this.onAddNewResourceClick }
         onSave={ this.onUpdateResource }
-        onSaveChildren={ this.onUpdateChildResources }
         onDeleteChild={ child => this.setState({ deleteResourceDialogOpen: true, childToDelete: child }) }
       />
     );
@@ -543,13 +542,16 @@ class ApplicationEditor extends React.Component<Props, State> {
    * Update resource method
    *
    * @param resource resource
+   * @param childResources child resources to be updated (optional)
    */
-  private onUpdateResource = async (resource: Resource) => {
+  private onUpdateResource = async (resource: Resource, childResources?: Resource[]) => {
     const { keycloak, customerId, deviceId, applicationId, selectResource, updateResources } = this.props;
 
     if (!keycloak || !keycloak.token) {
       return;
     }
+
+    const { token } = keycloak
 
     this.setState({ isSaving: true });
 
@@ -558,17 +560,35 @@ class ApplicationEditor extends React.Component<Props, State> {
         throw new Error("No resource ID");
       }
 
-      const updatedResource = await Api.getResourcesApi(keycloak.token).updateResource({
+      const updateResourceCalls = [];
+
+      updateResourceCalls.push(Api.getResourcesApi(token).updateResource({
         resource: resource,
         customerId: customerId,
         deviceId: deviceId,
         applicationId: applicationId,
         resourceId: resource.id
-      });
+      }));
 
-      updateResources([ updatedResource ]);
+      if (childResources) {
+        childResources.forEach(childResource => 
+          updateResourceCalls.push(Api.getResourcesApi(token).updateResource({
+            resource: childResource,
+            customerId: customerId,
+            deviceId: deviceId,
+            applicationId: applicationId,
+            resourceId: childResource.id!
+          }))
+        );
+      };
 
-      if (updatedResource.type !== ResourceType.ROOT && updatedResource.type !== ResourceType.CONTENTVERSION) {
+      const updatedResources = await Promise.all(updateResourceCalls);
+      const updatedResource = updatedResources[0];
+
+      updateResources(updatedResources);
+      const resourceType = resource.type;
+
+      if (resourceType !== ResourceType.ROOT && resourceType !== ResourceType.CONTENTVERSION) {
         selectResource(updatedResource);
       } else {
         this.setState({ rootResource: updatedResource });

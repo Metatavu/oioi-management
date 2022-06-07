@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import * as React from "react";
+import deepEqual from "fast-deep-equal";
 import { withStyles, WithStyles, TextField, Divider, Button, IconButton, Box, Accordion, AccordionDetails, AccordionSummary, Typography, Paper } from "@material-ui/core";
 import MaterialTable from "material-table";
 import AddCircleIcon from "@material-ui/icons/AddCircle";
@@ -38,8 +39,7 @@ interface Props extends ExternalProps {
   resource: Resource;
   customerId: string;
   onAddChild: (parentId: string) => void;
-  onSave: (resource: Resource) => void;
-  onSaveChildren: (childResources: Resource[]) => void;
+  onSave: (resource: Resource, childResources?: Resource[]) => void;
   onDeleteChild: (resource: Resource) => void;
   confirmationRequired: (value: boolean) => void;
   onDelete: () => void;
@@ -124,8 +124,8 @@ class PageResourceSettingsView extends React.Component<Props, State> {
       return;
     }
 
-    if (prevProps.resources.length !== this.props.resources.length) {
-      this.setState({ childResources: this.getSyncedChildResources() });
+    if (!deepEqual(prevProps.resources, this.props.resources)) {
+      this.setState({ childResources: this.getChildResources() });
     }
   }
 
@@ -593,24 +593,10 @@ class PageResourceSettingsView extends React.Component<Props, State> {
   }
 
   /**
-   * Synchronizes child resources from Redux to state
-   */
-  private getSyncedChildResources = (): Resource[] => {
-    const { resources, resource } = this.props;
-    const { childResources } = this.state;
-    const sourceChildResources = [ ...resources ].filter(item => item.parentId === resource.id);
-
-    return [
-      ...childResources.filter(child => sourceChildResources.some(item => item.id === child.id)),
-      ...sourceChildResources.filter(item => childResources.every(child => child.id !== item.id))
-    ];
-  }
-
-  /**
    * Handles save changes to resource and child resources
    */
   private onSaveChanges = async () => {
-    const { onSave, onSaveChildren } = this.props;
+    const { onSave } = this.props;
     const { resourceData, form, childResources } = this.state;
     const { id, name, slug, orderNumber, type, parentId } = form.values;
 
@@ -618,7 +604,7 @@ class PageResourceSettingsView extends React.Component<Props, State> {
       return;
     }
 
-    onSave({
+    const updatedResource = {
       id: id,
       name: name,
       slug: slug,
@@ -628,14 +614,13 @@ class PageResourceSettingsView extends React.Component<Props, State> {
       data: resourceData.data,
       styles: resourceData.styles,
       properties: resourceData.properties
-    });
+    };
 
-    onSaveChildren(childResources);
+    onSave(updatedResource, childResources);
 
     this.setState({
       dataChanged: false,
-      resourceData,
-      childResources: this.getChildResources()
+      resourceData
     });
   };
 
