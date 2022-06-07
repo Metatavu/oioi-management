@@ -23,6 +23,7 @@ import { KeycloakInstance } from "keycloak-js";
 import { nanoid } from "@reduxjs/toolkit";
 import { ResourceUtils } from "utils/resource";
 import FileUploader from "components/generic/FileUploader";
+import theme from "styles/theme";
 
 /**
  * Component props
@@ -367,7 +368,7 @@ class AudioResourceSettingsView extends React.Component<Props, State> {
    * Renders file uploaders for background image and custom icons
    */
   private renderUploaderAndPreview = () => {
-    const { resource } = this.props;
+    const { resource, classes } = this.props;
     const { resourceData } = this.state;
 
     if (!resource.id) {
@@ -376,11 +377,11 @@ class AudioResourceSettingsView extends React.Component<Props, State> {
 
     const src = resourceData.data;
     return (
-      <>
+      <Box className={ classes.audioPreview }>
         { this.renderPlayer(src) }
         { this.renderDownloadLink(src) }
         { this.renderUpload(src) }
-      </>
+      </Box>
     );
   }
 
@@ -398,7 +399,7 @@ class AudioResourceSettingsView extends React.Component<Props, State> {
     return (
       <AudioPlayer
         elevation={ 1 }
-        width="500px"
+        width="100%"
         variation="primary"
         download={ false }
         loop={ false }
@@ -421,7 +422,11 @@ class AudioResourceSettingsView extends React.Component<Props, State> {
     }
 
     return (
-      <Link href={ src } download={ true }>{ strings.audioSettingsView.download }</Link>
+      <Box style={{ paddingLeft: theme.spacing(2), paddingRight: theme.spacing(2) }}>
+        <Link href={ src } download={ true }>
+          { strings.audioSettingsView.download }
+        </Link>
+      </Box>
     );
   }
 
@@ -436,12 +441,12 @@ class AudioResourceSettingsView extends React.Component<Props, State> {
 
     return (
       <FileUploader
-          title={ strings.audioSettingsView.uploadAudioTitle }
-          uploadButtonText={ src ? strings.audioSettingsView.changeAudioFile : strings.audioSettingsView.uploadAudioFile }
-          allowSetUrl={ false }
-          onUpload={ this.onAudioFileChange }
-          uploadKey={ resource.id }
-        />
+        title={ strings.audioSettingsView.uploadAudioTitle }
+        uploadButtonText={ src ? strings.audioSettingsView.changeAudioFile : strings.audioSettingsView.uploadAudioFile }
+        allowSetUrl={ false }
+        onUpload={ this.onAudioFileChange }
+        uploadKey={ resource.id }
+      />
     );
   }
 

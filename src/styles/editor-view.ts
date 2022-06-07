@@ -246,6 +246,14 @@ export default createStyles({
     alignItems: "flex-start"
   },
 
+  audioPreview: {
+    marginLeft: theme.spacing(1),
+    marginTop: theme.spacing(2),
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center"
+  },
+
   imagePreviewFullscreenContainer: {
     display: "flex",
     alignItems: "center",
