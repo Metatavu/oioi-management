@@ -595,6 +595,7 @@ class LanguageResourceSettingsView extends React.Component<Props, State> {
           resource={ resource }
           uploadKey={ uploadKey }
           onDelete={ this.onPropertyOrIconFileDelete }
+          imgHeight="200px"
         />
       </>
     );

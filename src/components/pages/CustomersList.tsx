@@ -1,6 +1,6 @@
 import * as React from "react";
 import { Container, Typography, Grid, Card, withStyles, WithStyles, CardActionArea, CircularProgress, Box, Fade } from "@material-ui/core";
-import img from "../../resources/images/geopark.png";
+import defaultImg from "../../resources/svg/oioi-placeholder.svg";
 import AddIcon from "@material-ui/icons/AddCircle";
 import styles from "../../styles/card-item";
 import { History } from "history";
@@ -149,7 +149,7 @@ class CustomersList extends React.Component<Props, State> {
       <Grid key={ key } item>
         <CardItem
           title={ customer.name }
-          img={ customer.imageUrl || img }
+          img={ customer.imageUrl || defaultImg }
           editConfiguration={ () => this.onEditCustomerConfigurationClick(customer) }
           editClick={ () => this.onEditCustomerClick(customer) }
           detailsClick={ () => this.onCustomerDetailsClick(customer) }

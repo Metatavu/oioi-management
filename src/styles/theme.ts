@@ -99,7 +99,6 @@ export default createTheme({
     },
     MuiButton: {
       root: {
-        minWidth: 200,
         borderRadius: 0,
         fontFamily: "TTNorms-Black",
         padding: "6px 30px",

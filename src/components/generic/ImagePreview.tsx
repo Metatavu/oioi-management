@@ -22,6 +22,7 @@ interface Props extends WithStyles<typeof styles> {
   onSetUrl(url: string, key?: string): void;
   onDelete(key?: string): void;
   uploadDialogTitle?: string;
+  imgHeight?: string;
 }
 
 /**
@@ -84,7 +85,7 @@ class ImagePreview extends React.Component<Props, State> {
    * Renders preview content
    */
   private renderPreviewContent = () => {
-    const { classes, resource, imagePath } = this.props;
+    const { classes, resource, imagePath, imgHeight } = this.props;
 
     if (!imagePath) {
       return (
@@ -116,7 +117,7 @@ class ImagePreview extends React.Component<Props, State> {
       <img
         src={ imagePath }
         alt="File"
-        height="200"
+        height={ imgHeight }
         className={ classes.imagePreview }
       />
     );

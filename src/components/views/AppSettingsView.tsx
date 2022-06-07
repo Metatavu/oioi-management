@@ -438,6 +438,7 @@ class AppSettingsView extends React.Component<Props, State> {
         resource={ selectedContentVersion }
         uploadKey={ key }
         onDelete={ this.onPropertyFileDelete }
+        imgHeight="200px"
       />
     );
   }
@@ -468,6 +469,7 @@ class AppSettingsView extends React.Component<Props, State> {
             resource={ selectedContentVersion }
             uploadKey={ key }
             onDelete={ this.onIconFileDelete }
+            imgHeight="200px"
           />
         </Box>
       );
