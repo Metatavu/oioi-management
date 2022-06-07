@@ -54,7 +54,7 @@ class ImagePreview extends React.Component<Props, State> {
   public render = () => {
     const { imagePath, resource, classes } = this.props;
 
-    if ( resource.type === ResourceType.VIDEO ) {
+    if (resource.type === ResourceType.VIDEO) {
       return (
         <div className={ classes.videoPreviewElement }>
           <div style={{ marginBottom: theme.spacing(1) }}>
