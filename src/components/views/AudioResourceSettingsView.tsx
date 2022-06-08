@@ -1,29 +1,29 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import * as React from "react";
-import { withStyles, WithStyles, TextField, Divider, Typography, Button, Box, Accordion, AccordionDetails, AccordionSummary, Paper, Link } from "@material-ui/core";
-import MaterialTable from "material-table";
+import { Accordion, AccordionDetails, AccordionSummary, Box, Button, Divider, Link, Paper, TextField, Typography, withStyles, WithStyles } from "@material-ui/core";
 import AddCircleIcon from "@material-ui/icons/AddCircle";
-import DeleteIcon from "@material-ui/icons/Delete";
 import CheckIcon from "@material-ui/icons/Check";
 import ClearIcon from "@material-ui/icons/Clear";
+import DeleteIcon from "@material-ui/icons/Delete";
 import EditIcon from "@material-ui/icons/Edit";
-import AudioPlayer from "material-ui-audio-player";
-import styles from "../../styles/editor-view";
-import strings from "../../localization/strings";
-import { Resource, ResourceToJSON } from "../../generated/client";
-import { forwardRef } from "react";
-import { MessageType, initForm, Form, validateForm } from "ts-form-validation";
-import { ErrorContextType } from "../../types";
-import { resourceRules, ResourceSettingsForm } from "../../commons/formRules";
-import AdminOnly from "components/containers/AdminOnly";
-import { ErrorContext } from "../containers/ErrorHandler";
-import StyledMTableToolbar from "../../styles/generic/styled-mtable-toolbar";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
-import { KeycloakInstance } from "keycloak-js";
 import { nanoid } from "@reduxjs/toolkit";
-import { ResourceUtils } from "utils/resource";
+import AdminOnly from "components/containers/AdminOnly";
 import FileUploader from "components/generic/FileUploader";
+import { KeycloakInstance } from "keycloak-js";
+import MaterialTable from "material-table";
+import AudioPlayer from "material-ui-audio-player";
+import * as React from "react";
+import { forwardRef } from "react";
 import theme from "styles/theme";
+import { Form, initForm, MessageType, validateForm } from "ts-form-validation";
+import { ResourceUtils } from "utils/resource";
+import { resourceRules, ResourceSettingsForm } from "../../commons/formRules";
+import { Resource, ResourceToJSON } from "../../generated/client";
+import strings from "../../localization/strings";
+import styles from "../../styles/editor-view";
+import StyledMTableToolbar from "../../styles/generic/styled-mtable-toolbar";
+import { ErrorContextType } from "../../types";
+import { ErrorContext } from "../containers/ErrorHandler";
 
 /**
  * Component props
@@ -423,7 +423,7 @@ class AudioResourceSettingsView extends React.Component<Props, State> {
 
     return (
       <Box style={{ paddingLeft: theme.spacing(2), paddingRight: theme.spacing(2) }}>
-        <Link href={ src } download={ true }>
+        <Link href={ src } download={ true } target={ "_blank" }>
           { strings.audioSettingsView.download }
         </Link>
       </Box>
