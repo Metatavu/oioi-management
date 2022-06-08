@@ -9,7 +9,8 @@ export default createStyles({
     position: "relative",
     display: "flex",
     flexDirection: "row",
-    alignItems: "center"
+    alignItems: "center",
+    justifyContent: "space-between"
   },
 
   noFileContainer: {

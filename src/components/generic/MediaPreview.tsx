@@ -1,14 +1,14 @@
-import * as React from "react";
-import { Dialog, AppBar, Toolbar, IconButton, withStyles, WithStyles, Box, Typography } from "@material-ui/core";
-import styles from "../../styles/editor-view";
-import { Resource, ResourceType } from "../../generated/client";
+import { AppBar, Box, Dialog, IconButton, Toolbar, Typography, withStyles, WithStyles } from "@material-ui/core";
 import CloseIcon from "@material-ui/icons/Close";
-import FileUploader from "./FileUploader";
-import { getAllowedFileTypes } from "../../commons/resourceTypeHelper";
-import ReactPlayer from "react-player";
-import theme from "../../styles/theme";
-import strings from "../../localization/strings";
 import AudioPlayer from "material-ui-audio-player";
+import * as React from "react";
+import ReactPlayer from "react-player";
+import { getAllowedFileTypes } from "../../commons/resourceTypeHelper";
+import { Resource, ResourceType } from "../../generated/client";
+import strings from "../../localization/strings";
+import styles from "../../styles/editor-view";
+import theme from "../../styles/theme";
+import FileUploader from "./FileUploader";
 
 /**
  * Component properties
@@ -72,8 +72,10 @@ class MediaPreview extends React.Component<Props, State> {
     if (resource.type === ResourceType.AUDIO) {
       return (
         <div key={ resourcePath } className={ classes.audioPreviewElement }>
-          { this.renderPreviewContent() }
-          <Box style={{ marginLeft: theme.spacing(2) }}>
+          <Box>
+            { this.renderPreviewContent() }
+          </Box>
+          <Box style={{ marginTop: theme.spacing(2) }}>
             { this.renderFileUploader() }
           </Box>
         </div>

@@ -243,11 +243,8 @@ export default createStyles({
   },
 
   audioPreviewElement: {
-    position: "relative",
     display: "flex",
-    flexDirection: "row",
-    alignItems: "center"
-
+    flexDirection: "column"
   },
 
   audioPreview: {
@@ -280,7 +277,8 @@ export default createStyles({
   noMediaContainer: {
     background: "#ddd",
     textAlign: "center",
-    padding: theme.spacing(8)
+    padding: theme.spacing(8),
+    width: 200
   },
 
   deleteImage: {
@@ -328,6 +326,26 @@ export default createStyles({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center"
+  },
+
+  resourceRow: {
+    position: "relative",
+    display: "flex",
+    alignItems: "flex-end",
+    paddingTop: theme.spacing(2),
+    paddingBottom: theme.spacing(2),
+    "&:after": {
+      content: "''",
+      display: "block",
+      border: "1px dashed rgba(0,0,0,0.2)",
+      width: "calc(100% - 355px)",
+      position: "absolute",
+      bottom: theme.spacing(2),
+      left: 220,
+    },
+    "& .MuiFormControl-root": {
+      zIndex: 1
+    }
   }
 
 });

@@ -57,36 +57,40 @@ class PDFPreview extends React.Component<Props, State> {
 
     return (
       <Box className={ classes.previewElement }>
-        { path &&
-          <Box className={ classes.fileContainer }>
-            <Box mr={ 1 }>
-              <PDFIcon/>
-            </Box>
-            <Link
-              variant="h4"
-              href={ path }
-              target="_blank"
-            >
-              { filename }
-            </Link>
-            <Box ml={ 2 } mr={ 2 }>
-              <Button
-                variant="contained"
-                color="secondary"
-                onClick={ () => this.props.onDelete(uploadKey) }>
-                { strings.delete }
-              </Button>
-            </Box>
+        <Box className={ classes.fileContainer }>
+          { path &&
+            <>
+              <Box mr={ 1 }>
+                <PDFIcon/>
+              </Box>
+              <Link
+                variant="h4"
+                href={ path }
+                target="_blank"
+              >
+                { filename }
+              </Link>
+            </>
+          }
+          <Box ml={ 2 } mr={ 2 }>
+            <FileUploader
+              title={ uploadDialogTitle }
+              uploadButtonText={ uploadButtonText }
+              allowSetUrl={ allowSetUrl }
+              allowedFileTypes={ ["application/pdf"] }
+              onUpload={ onUpload }
+              uploadKey={ uploadKey }
+            />
           </Box>
+        </Box>
+        { path && 
+          <Button
+            variant="contained"
+            color="secondary"
+            onClick={ () => this.props.onDelete(uploadKey) }>
+            { strings.delete }
+          </Button>
         }
-        <FileUploader
-          title={ uploadDialogTitle }
-          uploadButtonText={ uploadButtonText }
-          allowSetUrl={ allowSetUrl }
-          allowedFileTypes={ ["application/pdf"] }
-          onUpload={ onUpload }
-          uploadKey={ uploadKey }
-        />
       </Box>
     );
   }
