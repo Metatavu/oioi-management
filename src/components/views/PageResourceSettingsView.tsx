@@ -17,7 +17,7 @@ import { forwardRef } from "react";
 import { MessageType, initForm, Form, validateForm } from "ts-form-validation";
 import { ErrorContextType } from "../../types";
 import { resourceRules, ResourceSettingsForm } from "../../commons/formRules";
-import ImagePreview from "../generic/ImagePreview";
+import MediaPreview from "../generic/MediaPreview";
 import AdminOnly from "components/containers/AdminOnly";
 import { ErrorContext } from "../containers/ErrorHandler";
 import StyledMTableToolbar from "../../styles/generic/styled-mtable-toolbar";
@@ -28,6 +28,7 @@ import { ResourceUtils } from "utils/resource";
 import { ReduxState } from "app/store";
 import { connect, ConnectedProps } from "react-redux";
 import WithDebounce from "components/generic/with-debounce";
+import AudioPlayer from "material-ui-audio-player";
 
 /**
  * Component props
@@ -501,6 +502,7 @@ class PageResourceSettingsView extends React.Component<Props, State> {
             debounceTimeout={ 300 }
           />
         );
+      case ResourceType.AUDIO:
       case ResourceType.PDF:
       case ResourceType.IMAGE:
       case ResourceType.VIDEO:
@@ -529,9 +531,9 @@ class PageResourceSettingsView extends React.Component<Props, State> {
             { resource.name }
           </Typography>
         </Box>
-        <ImagePreview
+        <MediaPreview
           uploadButtonText={ previewItem ? strings.fileUpload.changeFile : strings.fileUpload.addFile }
-          imagePath={ previewItem }
+          resourcePath={ previewItem }
           resource={ resource }
           allowSetUrl={ true }
           onDelete={ this.onChildResourceFileDelete }

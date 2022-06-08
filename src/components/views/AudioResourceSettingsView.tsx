@@ -7,6 +7,7 @@ import DeleteIcon from "@material-ui/icons/Delete";
 import EditIcon from "@material-ui/icons/Edit";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import { nanoid } from "@reduxjs/toolkit";
+import { getAllowedFileTypes } from "commons/resourceTypeHelper";
 import AdminOnly from "components/containers/AdminOnly";
 import FileUploader from "components/generic/FileUploader";
 import { KeycloakInstance } from "keycloak-js";
@@ -446,6 +447,7 @@ class AudioResourceSettingsView extends React.Component<Props, State> {
         allowSetUrl={ false }
         onUpload={ this.onAudioFileChange }
         uploadKey={ resource.id }
+        allowedFileTypes={ getAllowedFileTypes(resource.type) }
       />
     );
   }

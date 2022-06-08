@@ -233,7 +233,6 @@ export default createStyles({
 
   imagePreviewElement: {
     cursor: "pointer",
-    textAlign: "center"
   },
 
   videoPreviewElement: {
@@ -241,6 +240,14 @@ export default createStyles({
     display: "flex",
     flexDirection: "column",
     alignItems: "flex-start"
+  },
+
+  audioPreviewElement: {
+    position: "relative",
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center"
+
   },
 
   audioPreview: {

@@ -18,7 +18,7 @@ import { ErrorContextType } from "../../types";
 import Api from "../../api";
 import IconButton from "@material-ui/core/IconButton";
 import { resourceRules, ResourceSettingsForm } from "../../commons/formRules";
-import ImagePreview from "../generic/ImagePreview";
+import MediaPreview from "../generic/MediaPreview";
 import AddIconDialog from "../generic/AddIconDialog";
 import { IconKeys, getLocalizedIconTypeString } from "../../commons/iconTypeHelper";
 import AdminOnly from "components/containers/AdminOnly";
@@ -586,9 +586,9 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
         <Typography variant="h4" style={{ marginBottom: theme.spacing(1), whiteSpace: "nowrap" }}>
           { title }
         </Typography>
-        <ImagePreview
+        <MediaPreview
           uploadButtonText={ previewItem ? strings.fileUpload.changeMedia : strings.fileUpload.addMedia }
-          imagePath={ previewItem }
+          resourcePath={ previewItem }
           allowSetUrl={ true }
           onUpload={ this.onPropertyOrIconChange }
           onSetUrl={ this.onPropertyOrIconChange }
@@ -622,10 +622,10 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
           <Typography variant="h5">
             { displayName }
           </Typography>
-          <ImagePreview
+          <MediaPreview
             uploadButtonText={ resource ? strings.fileUpload.changeImage : strings.fileUpload.addImage }
             key={ key }
-            imagePath={ value }
+            resourcePath={ value }
             allowSetUrl={ false }
             onUpload={ this.onPropertyOrIconChange }
             onSetUrl={ () => {} }

@@ -3,17 +3,18 @@ import { Dialog, AppBar, Toolbar, IconButton, withStyles, WithStyles, Box, Typog
 import styles from "../../styles/editor-view";
 import { Resource, ResourceType } from "../../generated/client";
 import CloseIcon from "@material-ui/icons/Close";
-import FileUploader from "../generic/FileUploader";
+import FileUploader from "./FileUploader";
 import { getAllowedFileTypes } from "../../commons/resourceTypeHelper";
 import ReactPlayer from "react-player";
 import theme from "../../styles/theme";
 import strings from "../../localization/strings";
+import AudioPlayer from "material-ui-audio-player";
 
 /**
  * Component properties
  */
 interface Props extends WithStyles<typeof styles> {
-  imagePath: string;
+  resourcePath: string;
   resource: Resource;
   uploadKey: string;
   uploadButtonText: string;
@@ -33,9 +34,9 @@ interface State {
 }
 
 /**
- * Image preview
+ * Media preview
  */
-class ImagePreview extends React.Component<Props, State> {
+class MediaPreview extends React.Component<Props, State> {
 
   /**
    * Constructor
@@ -53,13 +54,13 @@ class ImagePreview extends React.Component<Props, State> {
    * Component render method
    */
   public render = () => {
-    const { imagePath, resource, classes } = this.props;
+    const { resourcePath, resource, classes } = this.props;
 
     if (resource.type === ResourceType.VIDEO) {
       return (
         <div className={ classes.videoPreviewElement }>
           <div style={{ marginBottom: theme.spacing(1) }}>
-            <div key={ imagePath }>
+            <div key={ resourcePath }>
               { this.renderPreviewContent() }
             </div>
           </div>
@@ -68,10 +69,21 @@ class ImagePreview extends React.Component<Props, State> {
       );
     }
 
+    if (resource.type === ResourceType.AUDIO) {
+      return (
+        <div key={ resourcePath } className={ classes.audioPreviewElement }>
+          { this.renderPreviewContent() }
+          <Box style={{ marginLeft: theme.spacing(2) }}>
+            { this.renderFileUploader() }
+          </Box>
+        </div>
+      );
+    }
+
     return (
       <div className={ classes.imagePreviewElement }> 
         <div style={{ marginBottom: theme.spacing(1) }}>
-          <div key={ imagePath } onClick={ this.toggleDialog }>
+          <div key={ resourcePath } onClick={ this.toggleDialog }>
             { this.renderPreviewContent() }
           </div>
         </div>
@@ -85,9 +97,9 @@ class ImagePreview extends React.Component<Props, State> {
    * Renders preview content
    */
   private renderPreviewContent = () => {
-    const { classes, resource, imagePath, imgHeight } = this.props;
+    const { classes, resource, resourcePath, imgHeight } = this.props;
 
-    if (!imagePath) {
+    if (!resourcePath) {
       return (
         <Box className={ classes.noMediaContainer }>
           <Typography
@@ -104,7 +116,7 @@ class ImagePreview extends React.Component<Props, State> {
       return (
         <ReactPlayer
           controls
-          url={ imagePath }
+          url={ resourcePath }
           style={{
             backgroundColor: "#000",
             padding: theme.spacing(2)
@@ -113,9 +125,24 @@ class ImagePreview extends React.Component<Props, State> {
       );
     }
 
+    if (resource.type === ResourceType.AUDIO) {
+      return (
+        <AudioPlayer
+          elevation={ 1 }
+          width="100%"
+          variation="primary"
+          download={ false }
+          loop={ false }
+          spacing={ 1 }
+          debug={ false }
+          src={ [ resourcePath ] }
+        />
+      );
+    }
+
     return (
       <img
-        src={ imagePath }
+        src={ resourcePath }
         alt="File"
         height={ imgHeight }
         className={ classes.imagePreview }
@@ -127,7 +154,7 @@ class ImagePreview extends React.Component<Props, State> {
    * Render preview dialog
    */
   private renderDialog = () => {
-    const { imagePath, classes } = this.props;
+    const { resourcePath, classes } = this.props;
     const { open } = this.state;
 
     return (
@@ -159,7 +186,7 @@ class ImagePreview extends React.Component<Props, State> {
           </Box>
         </AppBar>
         <Box className={ classes.imagePreviewFullscreenContainer }>
-          <img src={ imagePath } alt="File"/>
+          <img src={ resourcePath } alt="File"/>
         </Box>
       </Dialog>
     );
@@ -196,12 +223,12 @@ class ImagePreview extends React.Component<Props, State> {
    * Toggle dialog
    */
   private toggleDialog = () => {
-    const { imagePath } = this.props;
+    const { resourcePath } = this.props;
     const { open } = this.state;
 
-    imagePath && this.setState({ open: !open });
+    resourcePath && this.setState({ open: !open });
   }
 
 }
 
-export default withStyles(styles)(ImagePreview);
+export default withStyles(styles)(MediaPreview);
