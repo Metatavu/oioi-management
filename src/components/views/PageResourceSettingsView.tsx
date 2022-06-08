@@ -1,33 +1,32 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import * as React from "react";
-import deepEqual from "fast-deep-equal";
-import { withStyles, WithStyles, TextField, Divider, Button, IconButton, Box, Accordion, AccordionDetails, AccordionSummary, Typography, Paper } from "@material-ui/core";
-import MaterialTable from "material-table";
+import { Accordion, AccordionDetails, AccordionSummary, Box, Button, Divider, Paper, TextField, Typography, withStyles, WithStyles } from "@material-ui/core";
 import AddCircleIcon from "@material-ui/icons/AddCircle";
-import DeleteIcon from "@material-ui/icons/Delete";
 import CheckIcon from "@material-ui/icons/Check";
 import ClearIcon from "@material-ui/icons/Clear";
+import DeleteIcon from "@material-ui/icons/Delete";
 import EditIcon from "@material-ui/icons/Edit";
-import DeleteForeverIcon from "@material-ui/icons/DeleteForever";
-import styles from "../../styles/editor-view";
-import strings from "../../localization/strings";
-import theme from "../../styles/theme";
-import { Resource, ResourceType } from "../../generated/client";
-import { forwardRef } from "react";
-import { MessageType, initForm, Form, validateForm } from "ts-form-validation";
-import { ErrorContextType } from "../../types";
-import { resourceRules, ResourceSettingsForm } from "../../commons/formRules";
-import ImagePreview from "../generic/ImagePreview";
-import AdminOnly from "components/containers/AdminOnly";
-import { ErrorContext } from "../containers/ErrorHandler";
-import StyledMTableToolbar from "../../styles/generic/styled-mtable-toolbar";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
-import { KeycloakInstance } from "keycloak-js";
 import { nanoid } from "@reduxjs/toolkit";
-import { ResourceUtils } from "utils/resource";
 import { ReduxState } from "app/store";
-import { connect, ConnectedProps } from "react-redux";
+import AdminOnly from "components/containers/AdminOnly";
 import WithDebounce from "components/generic/with-debounce";
+import deepEqual from "fast-deep-equal";
+import { KeycloakInstance } from "keycloak-js";
+import MaterialTable from "material-table";
+import * as React from "react";
+import { forwardRef } from "react";
+import { connect, ConnectedProps } from "react-redux";
+import { Form, initForm, MessageType, validateForm } from "ts-form-validation";
+import { ResourceUtils } from "utils/resource";
+import { resourceRules, ResourceSettingsForm } from "../../commons/formRules";
+import { Resource, ResourceType } from "../../generated/client";
+import strings from "../../localization/strings";
+import styles from "../../styles/editor-view";
+import StyledMTableToolbar from "../../styles/generic/styled-mtable-toolbar";
+import theme from "../../styles/theme";
+import { ErrorContextType } from "../../types";
+import { ErrorContext } from "../containers/ErrorHandler";
+import MediaPreview from "../generic/MediaPreview";
 
 /**
  * Component props
@@ -409,15 +408,12 @@ class PageResourceSettingsView extends React.Component<Props, State> {
    * Renders child resources
    */
   private renderChildResources = () => {
+    const { classes } = this.props;
     const { childResources } = this.state;
 
     const listItems = childResources.map(child =>
       <React.Fragment key={ child.id }>
-        <Box
-          display="flex"
-          alignItems="center"
-          mt={ 3 }
-        >
+        <Box className={ classes.resourceRow }>
           { this.renderChildResourceContentField(child) }
           { this.renderDeleteChild(child) }
         </Box>
@@ -464,16 +460,16 @@ class PageResourceSettingsView extends React.Component<Props, State> {
     const { classes, onDeleteChild } = this.props;
 
     return (
-      <IconButton
-        className={ classes.iconButton }
-        style={{ width: 50, height: 50, marginLeft: theme.spacing(3) }}
+      <Button
+        style={{ marginLeft: theme.spacing(3) }}
         title={ strings.deleteResource }
         name={ resource.id }
         color="primary"
+        variant="contained"
         onClick={ () => onDeleteChild(resource) }
       >
-        <DeleteForeverIcon />
-      </IconButton>
+        { strings.delete }
+      </Button>
     );
   }
 
@@ -501,6 +497,7 @@ class PageResourceSettingsView extends React.Component<Props, State> {
             debounceTimeout={ 300 }
           />
         );
+      case ResourceType.AUDIO:
       case ResourceType.PDF:
       case ResourceType.IMAGE:
       case ResourceType.VIDEO:
@@ -523,15 +520,15 @@ class PageResourceSettingsView extends React.Component<Props, State> {
     const previewItem = resource.data || "";
 
     return (
-      <Box>
+      <Box style={{ display: "flex", flexDirection: "column", flex: 1 }}>
         <Box mb={ 1 }>
           <Typography variant="h4">
             { resource.name }
           </Typography>
         </Box>
-        <ImagePreview
+        <MediaPreview
           uploadButtonText={ previewItem ? strings.fileUpload.changeFile : strings.fileUpload.addFile }
-          imagePath={ previewItem }
+          resourcePath={ previewItem }
           resource={ resource }
           allowSetUrl={ true }
           onDelete={ this.onChildResourceFileDelete }

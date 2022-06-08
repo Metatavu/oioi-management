@@ -33,7 +33,7 @@ export default createStyles({
 
   deleteButton: {
     backgroundColor: "#e85874",
-    marginRight: 208
+    marginRight: 150
   }
 
 });

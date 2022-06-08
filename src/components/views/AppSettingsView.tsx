@@ -10,7 +10,7 @@ import { Application, Resource } from "../../generated/client";
 import { Form, initForm, validateForm, MessageType } from "ts-form-validation";
 import { ApplicationForm, applicationRules, ResourceSettingsForm } from "../../commons/formRules";
 import AddIconDialog from "../generic/AddIconDialog";
-import ImagePreview from "../generic/ImagePreview";
+import MediaPreview from "../generic/MediaPreview";
 import { ErrorContextType } from "../../types";
 import { IconKeys, getLocalizedIconTypeString, getDefaultIconURL } from "../../commons/iconTypeHelper";
 import VisibleWithRole from "../containers/VisibleWithRole";
@@ -428,11 +428,11 @@ class AppSettingsView extends React.Component<Props, State> {
 
     const previewItem = this.state.resourceMap.get(key) || "";
     return (
-      <ImagePreview
+      <MediaPreview
         uploadDialogTitle={ strings.fileUpload.addImage }
         uploadButtonText={ previewItem ? strings.fileUpload.changeImage : strings.fileUpload.addImage }
         allowSetUrl={ true }
-        imagePath={ previewItem }
+        resourcePath={ previewItem }
         onUpload={ this.onPropertyFileOrUrlChange }
         onSetUrl={ this.onPropertyFileOrUrlChange }
         resource={ selectedContentVersion }
@@ -458,11 +458,11 @@ class AppSettingsView extends React.Component<Props, State> {
       const preview = (
         <Box key={ key } className={ classes.gridItem }>
           <Typography variant="h5" color="textSecondary">{ iconTypeKey ? getLocalizedIconTypeString(iconTypeKey) : key }</Typography>
-          <ImagePreview
+          <MediaPreview
             uploadDialogTitle={ strings.fileUpload.addImage }
             uploadButtonText={ value ? strings.fileUpload.changeImage : strings.fileUpload.addImage }
             key={ key }
-            imagePath={ value }
+            resourcePath={ value }
             allowSetUrl={ false }
             onSetUrl={ () => {} }
             onUpload={ this.onIconFileChange }

@@ -177,6 +177,8 @@ export const getAllowedFileTypes = (type: ResourceType): string[] => {
     case ResourceType.IMAGE:
     case ResourceType.VIDEO:
       return [ "video/*", "image/*" ];
+    case ResourceType.AUDIO:
+      return [ "audio/*" ];
     default:
       return [];
   }

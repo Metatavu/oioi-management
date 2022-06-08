@@ -13,7 +13,7 @@ import { Resource, ResourceToJSON, ResourceType } from "generated/client";
 import { forwardRef } from "react";
 import { MessageType, initForm, Form, validateForm } from "ts-form-validation";
 import { ResourceSettingsForm, resourceRules } from "commons/formRules";
-import ImagePreview from "../generic/ImagePreview";
+import MediaPreview from "../generic/MediaPreview";
 import AdminOnly from "components/containers/AdminOnly";
 import { ErrorContextType } from "types";
 import { ErrorContext } from "../containers/ErrorHandler";
@@ -382,9 +382,9 @@ class ResourceSettingsView extends React.Component<Props, State> {
     const fileData = form.values.data || "";
 
     return (
-      <ImagePreview
+      <MediaPreview
         uploadButtonText={ fileData ? strings.fileUpload.changeFile : strings.fileUpload.addFile }
-        imagePath={ fileData }
+        resourcePath={ fileData }
         allowSetUrl
         onUpload={ this.onFileOrUriChange }
         onSetUrl={ this.onFileOrUriChange }
