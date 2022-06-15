@@ -34,6 +34,7 @@ interface State {
   addResourceDialogOpen: boolean;
   lockedResourceIds: string[];
   loading: boolean;
+  updating: boolean;
 }
 
 /**
@@ -58,7 +59,8 @@ class ResourceTree extends React.Component<Props, State> {
       expandedKeys: [],
       addResourceDialogOpen: false,
       lockedResourceIds: [],
-      loading: false
+      loading: false,
+      updating: false
     };
   }
 
@@ -543,10 +545,19 @@ class ResourceTree extends React.Component<Props, State> {
         return list;
       }, []);
 
+      this.setState({
+        updating: true
+      });
+      
       await Promise.all(resourcesToUpdate.map(this.updateResource));
       updateResources(resourcesToUpdate);
 
+      this.setState({
+        updating: false
+      });
+
       toast.success(strings.updateSuccessMessage);
+      
     } catch (error) {
       this.context.setError(strings.errorManagement.resource.update, error);
     }
@@ -570,9 +581,16 @@ class ResourceTree extends React.Component<Props, State> {
    * @param data tree data object
    */
   private canDrag = (data: ExtendedNodeData) => {
-    const { lockedResourceIds } = this.state;
+    const { lockedResourceIds, updating } = this.state;
+    const { node } = data;
+    const resource = node.resource;
+    const resourceId = resource?.id;
 
-    return !!data.node.resource && !lockedResourceIds.includes(data.node.resource.id);
+    if (updating || !resourceId) {
+      return false;
+    }
+
+    return !lockedResourceIds.includes(resourceId);
   }
 
   /**
@@ -581,6 +599,12 @@ class ResourceTree extends React.Component<Props, State> {
    * @param data event data
    */
   private canDrop = (data: OnDragPreviousAndNextLocation & NodeData) => {
+    const { updating } = this.state;
+    
+    if (updating) {
+      return false;
+    }
+    
     if (data.nextParent && !this.canHaveChildren(data.nextParent)) {
       return false;
     }

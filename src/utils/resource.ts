@@ -373,7 +373,7 @@ const ALLOWED_CHILD_RESOURCE_TYPES: Map<ResourceType, ResourceType[]> = new Map(
   [ ResourceType.MENU, [ ResourceType.SLIDESHOW, ResourceType.MENU ] ],
   [ ResourceType.SLIDESHOW, [ ResourceType.PAGE ] ],
   [ ResourceType.SLIDESHOWPDF, [] ],
-  [ ResourceType.PAGE, [ ResourceType.VIDEO, ResourceType.TEXT, ResourceType.PDF, ResourceType.IMAGE ] ],
+  [ ResourceType.PAGE, [ ResourceType.VIDEO, ResourceType.TEXT, ResourceType.PDF, ResourceType.IMAGE, ResourceType.AUDIO ] ],
   [ ResourceType.TEXT, [] ],
   [ ResourceType.PDF, [] ],
   [ ResourceType.IMAGE, [] ],
