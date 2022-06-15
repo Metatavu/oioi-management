@@ -64,6 +64,7 @@ interface State {
   treeWidth: number;
   isSaving: boolean;
   loading: boolean;
+  deleting: boolean;
 }
 
 /**
@@ -96,7 +97,8 @@ class ApplicationEditor extends React.Component<Props, State> {
       confirmationRequired: false,
       treeResizing: false,
       treeWidth: 400,
-      loading: true
+      loading: true,
+      deleting: false
     };
   }
 
@@ -442,7 +444,7 @@ class ApplicationEditor extends React.Component<Props, State> {
    */
   private renderDeleteResourceDialog = () => {
     const { selectedResource } = this.props;
-    const { deleteResourceDialogOpen, childToDelete } = this.state;
+    const { deleteResourceDialogOpen, childToDelete, deleting } = this.state;
 
     if (!childToDelete && !selectedResource) {
       return null;
@@ -458,6 +460,7 @@ class ApplicationEditor extends React.Component<Props, State> {
         positiveButtonText={ strings.delete }
         cancelButtonText={ strings.cancel }
         style={{ minWidth: 500 }}
+        showLoader={ deleting }
       >
         <Typography>
           { strings.actionCannotBeReverted }
@@ -658,6 +661,10 @@ class ApplicationEditor extends React.Component<Props, State> {
   private onDeleteResource = async (resource: Resource) => {
     const { keycloak, customerId, deviceId, applicationId, deleteResources } = this.props;
 
+    this.setState({
+      deleting: true
+    })
+
     if (!keycloak || !keycloak.token || !resource?.id) {
       return;
     }
@@ -673,7 +680,9 @@ class ApplicationEditor extends React.Component<Props, State> {
       });
 
       deleteResources([ resource ]);
-
+      this.setState({
+        deleting: false
+      })
       toast.success(strings.deleteSuccessMessage);
       this.setState({ deleteResourceDialogOpen: false, childToDelete: undefined });
     } catch (error) {
