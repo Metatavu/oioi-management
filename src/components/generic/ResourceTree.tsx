@@ -560,7 +560,7 @@ class ResourceTree extends React.Component<Props, State> {
       
     } catch (error) {
       this.context.setError(strings.errorManagement.resource.update, error);
-    } 
+    }
   }
 
   /**
