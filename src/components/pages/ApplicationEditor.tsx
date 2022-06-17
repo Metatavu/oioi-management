@@ -663,7 +663,7 @@ class ApplicationEditor extends React.Component<Props, State> {
 
     this.setState({
       deleting: true
-    })
+    });
 
     if (!keycloak || !keycloak.token || !resource?.id) {
       return;
@@ -682,7 +682,7 @@ class ApplicationEditor extends React.Component<Props, State> {
       deleteResources([ resource ]);
       this.setState({
         deleting: false
-      })
+      });
       toast.success(strings.deleteSuccessMessage);
       this.setState({ deleteResourceDialogOpen: false, childToDelete: undefined });
     } catch (error) {

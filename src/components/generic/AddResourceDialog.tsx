@@ -522,7 +522,7 @@ class AddResourceDialog extends React.Component<Props, State> {
       });
 
       return (
-        Promise.reject(strings.errorManagement.resource.create)
+        Promise.reject(strings.errorManagement.resource.create);
       );
     }
   }
