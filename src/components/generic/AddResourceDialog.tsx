@@ -1,5 +1,5 @@
 import * as React from "react";
-import { withStyles, WithStyles, Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, Divider, Grid, Typography, Select, MenuItem, InputLabel, Box, IconButton } from "@material-ui/core";
+import { withStyles, WithStyles, Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, Divider, Grid, Typography, Select, MenuItem, InputLabel, Box, IconButton, LinearProgress } from "@material-ui/core";
 import styles from "../../styles/dialog";
 import strings from "../../localization/strings";
 import { Resource, ResourceType } from "../../generated/client";
@@ -70,6 +70,7 @@ interface State {
   parentResourceType?: ResourceType;
   addingLanguage: boolean;
   copyContentFromId?: string;
+  copying: boolean;
 }
 
 /**
@@ -98,7 +99,8 @@ class AddResourceDialog extends React.Component<Props, State> {
       ),
       resourceType: undefined,
       addingLanguage: false,
-      siblingResources: []
+      siblingResources: [],
+      copying: false
     };
   }
 
@@ -125,8 +127,38 @@ class AddResourceDialog extends React.Component<Props, State> {
    */
   public render = () => {
     const { classes, open, onClose } = this.props;
-    const { addingLanguage, form } = this.state;
+    const { addingLanguage, form, copying, parentResourceType } = this.state;
     const { isFormValid } = form;
+
+    if (copying) {
+      return (
+        <Dialog
+          maxWidth="sm"
+          fullWidth
+          open={ open }
+          onClose={ onClose }
+        >
+          <DialogTitle disableTypography>
+            <Box display="flex" alignItems="center">
+              <Typography variant="h4">
+                { strings.addLanguage }
+              </Typography>
+            </Box>
+          </DialogTitle>
+          <Divider />
+          <DialogContent>
+            <Box>
+              <LinearProgress color="secondary" style={{ flex: 1 }}/>
+              <Box mt={ 2 } display="flex" flex={ 1 } justifyContent="flex-end">
+                <Typography>
+                  { strings.copying }
+                </Typography>
+              </Box>
+            </Box>
+          </DialogContent>
+        </Dialog>
+      );
+    }
 
     return (
       <Dialog
@@ -138,7 +170,7 @@ class AddResourceDialog extends React.Component<Props, State> {
         <DialogTitle disableTypography>
           <Box display="flex" justifyContent="space-between" alignItems="center">
             <Typography variant="h4">
-              { strings.addNewResource }
+              { parentResourceType === ResourceType.LANGUAGEMENU ? strings.addLanguage : strings.addNewResource }
             </Typography>
             <IconButton
               size="small"
@@ -360,7 +392,13 @@ class AddResourceDialog extends React.Component<Props, State> {
       const createdResources: Resource[] = [];
 
       if (copyContentFromId && parentResource?.id) {
-        createdResources.push(...await this.copyResource(copyContentFromId, parentResource.id));
+        createdResources.push(...await this.copyResource(
+          copyContentFromId, 
+          parentResource.id,
+          name,
+          slug,
+          orderNumber
+        ));
       } else {
         const resource = await this.createResource({
           ...form.values,
@@ -430,17 +468,24 @@ class AddResourceDialog extends React.Component<Props, State> {
    *
    * @param copyResourceId copy resource ID
    * @param copyResourceParentId copy resource parent ID
+   * @param name name (optional)
+   * @param slug slug (optional)
+   * @param orderNumber order number (optional)
    * @returns all created resources
    */
-  private copyResource = async (copyResourceId: string, copyResourceParentId: string): Promise<Resource[]> => {
+  private copyResource = async (copyResourceId: string, copyResourceParentId: string, name?: string, slug?: string, orderNumber?: number): Promise<Resource[]> => {
     const { keycloak, customer, device, application } = this.props;
+
+    this.setState({
+      copying: true
+    });
 
     if (!keycloak?.token || !customer?.id || !device?.id || !application?.id) {
       return Promise.reject("Token, customer, device or application missing");
     }
 
     try {
-      const baseResource = await Api.getResourcesApi(keycloak.token).createResource({
+      let baseResource = await Api.getResourcesApi(keycloak.token).createResource({
         applicationId: application.id,
         customerId: customer.id,
         deviceId: device.id,
@@ -448,11 +493,37 @@ class AddResourceDialog extends React.Component<Props, State> {
         copyResourceParentId: copyResourceParentId
       });
 
+      if (name !== undefined || slug !== undefined || orderNumber !== undefined) {
+        baseResource = await Api.getResourcesApi(keycloak.token).updateResource({
+          applicationId: application.id,
+          customerId: customer.id,
+          deviceId: device.id,
+          resourceId: baseResource.id!,
+          resource: {
+            ...baseResource,
+            name: name || baseResource.name,
+            slug: slug || baseResource.slug,
+            orderNumber: orderNumber || baseResource.orderNumber
+          }
+        });
+      }
+
       const branchResources = await this.listBranchResources(baseResource);
+    
+      this.setState({
+        copying: false
+      });
 
       return [ baseResource, ...branchResources ];
     } catch (error) {
-      return Promise.reject(strings.errorManagement.resource.create);
+
+      this.setState({
+        copying: false
+      });
+
+      return (
+        Promise.reject(strings.errorManagement.resource.create);
+      );
     }
   }
 

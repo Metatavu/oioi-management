@@ -23,6 +23,7 @@ export interface IStrings extends LocalizedStringsMethods {
   customers: string;
   customerLogo: string;
   customerInformation: string;
+  copying: string;
   delete: string;
   details: string;
   devices: string;
