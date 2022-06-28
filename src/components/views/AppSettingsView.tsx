@@ -23,6 +23,7 @@ import { ResourceUtils } from "utils/resource";
 import AdminOnly from "components/containers/AdminOnly";
 import { Config } from "app/config";
 import WallJSONImporter from "utils/wall-json-importer";
+import IconPreview from "components/generic/IconPreview";
 
 /**
  * Component Props
@@ -458,18 +459,16 @@ class AppSettingsView extends React.Component<Props, State> {
       const preview = (
         <Box key={ key } className={ classes.gridItem }>
           <Typography variant="h5" color="textSecondary">{ iconTypeKey ? getLocalizedIconTypeString(iconTypeKey) : key }</Typography>
-          <MediaPreview
+          <IconPreview
             uploadDialogTitle={ strings.fileUpload.addImage }
             uploadButtonText={ value ? strings.fileUpload.changeImage : strings.fileUpload.addImage }
             key={ key }
-            resourcePath={ value }
+            imagePath={ value }
             allowSetUrl={ false }
             onSetUrl={ () => {} }
             onUpload={ this.onIconFileChange }
-            resource={ selectedContentVersion }
             uploadKey={ key }
             onDelete={ this.onIconFileDelete }
-            imgHeight="200px"
           />
         </Box>
       );
@@ -701,7 +700,7 @@ class AppSettingsView extends React.Component<Props, State> {
     this.setState({
       resourceMap: new Map(this.state.resourceMap).set(key, newUri),
       dataChanged: true
-    }, () => this.onUpdateResource());
+    });
   };
 
   /**
@@ -714,7 +713,7 @@ class AppSettingsView extends React.Component<Props, State> {
     this.setState({
       iconsMap: new Map(this.state.iconsMap).set(key, newUri),
       dataChanged: true
-    }, () => this.onUpdateResource());
+    });
   };
 
   /**
@@ -727,7 +726,7 @@ class AppSettingsView extends React.Component<Props, State> {
     this.setState({
       resourceMap: tempMap,
       dataChanged: true
-    }, () => this.onUpdateResource());
+    });
   };
 
   /**
@@ -740,7 +739,7 @@ class AppSettingsView extends React.Component<Props, State> {
     this.setState({
       iconsMap: tempMap,
       dataChanged: true
-    }, () => this.onUpdateResource());
+    });
   };
 
 }

@@ -233,6 +233,7 @@ export default createStyles({
 
   imagePreviewElement: {
     cursor: "pointer",
+    position: "relative"
   },
 
   videoPreviewElement: {
