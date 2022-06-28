@@ -194,7 +194,7 @@ class AppSettingsView extends React.Component<Props, State> {
         <AddIconDialog
           keycloak={ keycloak }
           resource={ selectedContentVersion }
-          onSave={ this.onIconFileChange }
+          onSave={ this.onIconChange }
           onToggle={ this.toggleDialog }
           open={ this.state.iconDialogOpen }
         />
@@ -449,13 +449,15 @@ class AppSettingsView extends React.Component<Props, State> {
    */
   private renderIconList = () => {
     const { iconsMap } = this.state;
-    const { classes, selectedContentVersion } = this.props;
+    const { classes } = this.props;
 
     const icons: JSX.Element[] = [];
     const allKeys = Object.values(IconKeys);
 
     iconsMap.forEach((value: string, key: string) => {
       const iconTypeKey = allKeys.find(k => key === k.toString());
+      const defaultValue = iconTypeKey ? getDefaultIconURL(iconTypeKey) : undefined;
+
       const preview = (
         <Box key={ key } className={ classes.iconGridItem }>
           <Typography className={ classes.iconTypeText }>
@@ -465,12 +467,11 @@ class AppSettingsView extends React.Component<Props, State> {
             uploadDialogTitle={ strings.fileUpload.addImage }
             uploadButtonText={ strings.fileUpload.changeIcon }
             key={ key }
-            imagePath={ value }
-            allowSetUrl={ false }
-            onSetUrl={ () => {} }
-            onUpload={ this.onIconFileChange }
+            defaultValue={ defaultValue }
+            value={ value }
+            onChange={ this.onIconChange }
+            onRemove={ this.onIconRemove }
             uploadKey={ key }
-            onDelete={ this.onIconFileDelete }
           />
         </Box>
       );
@@ -711,9 +712,24 @@ class AppSettingsView extends React.Component<Props, State> {
    * @param newUri new URI
    * @param key key
    */
-  private onIconFileChange = (newUri: string, key: string) => {
+  private onIconChange = (newUri: string, key: string) => {
     this.setState({
       iconsMap: new Map(this.state.iconsMap).set(key, newUri),
+      dataChanged: true
+    });
+  };
+
+  /**
+   * Handles icon removal
+   *
+   * @param key key
+   */
+  private onIconRemove = (key: string) => {
+    const iconsMap = new Map(this.state.iconsMap);
+    iconsMap.delete(key);
+
+    this.setState({
+      iconsMap: iconsMap,
       dataChanged: true
     });
   };
@@ -727,19 +743,6 @@ class AppSettingsView extends React.Component<Props, State> {
     tempMap.delete(key);
     this.setState({
       resourceMap: tempMap,
-      dataChanged: true
-    });
-  };
-
-  /**
-   * Delete icon file with key
-   */
-  private onIconFileDelete = (key: string) => {
-    const tempMap = new Map(this.state.iconsMap);
-
-    tempMap.delete(key);
-    this.setState({
-      iconsMap: tempMap,
       dataChanged: true
     });
   };

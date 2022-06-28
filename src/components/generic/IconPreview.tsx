@@ -13,14 +13,13 @@ import strings from "../../localization/strings";
  * Component properties
  */
 interface Props extends WithStyles<typeof styles> {
-  imagePath: string;
+  value: string;
+  defaultValue?: string;
   uploadKey: string;
-  uploadButtonText: string;
-  allowSetUrl: boolean;
-  onUpload(newUri: string, key: string, type: string): void;
-  onSetUrl(url: string, key?: string): void;
-  onDelete(key?: string): void;
   uploadDialogTitle?: string;
+  uploadButtonText: string;
+  onChange(newUri: string, key: string): void;
+  onRemove(key: string): void;
 }
 
 /**
@@ -51,18 +50,18 @@ class IconPreview extends React.Component<Props, State> {
    * Component render method
    */
   public render = () => {
-    const { imagePath, classes } = this.props;
+    const { value, classes } = this.props;
 
     return (
       <div className={ classes.iconPreviewElement }>
         <div style={{ marginBottom: theme.spacing(1) }}>
           <div
-            key={ imagePath }
+            key={ value }
             onClick={ this.toggleDialog }
           >
             { this.renderPreviewContent() }
           </div>
-          { imagePath && this.renderDeleteImage() }
+          { value && this.renderDeleteImage() }
         </div>
         { this.renderFileUploader() }
         { this.renderDialog() }
@@ -74,9 +73,9 @@ class IconPreview extends React.Component<Props, State> {
    * Renders preview content
    */
   private renderPreviewContent = () => {
-    const { classes, imagePath } = this.props;
+    const { classes, value } = this.props;
 
-    if (!imagePath) {
+    if (!value) {
       return (
         <Box className={ classes.noMediaContainer }>
           <Typography
@@ -92,7 +91,7 @@ class IconPreview extends React.Component<Props, State> {
     return (
       <Box className={ classes.iconWrapper }>
         <img
-          src={ imagePath }
+          src={ value }
           alt="File"
           height="104"
           className={ classes.iconPreview }
@@ -105,7 +104,7 @@ class IconPreview extends React.Component<Props, State> {
    * Render preview dialog
    */
   private renderDialog = () => {
-    const { imagePath, classes } = this.props;
+    const { value, classes } = this.props;
     const { open } = this.state;
 
     return (
@@ -137,7 +136,7 @@ class IconPreview extends React.Component<Props, State> {
           </Box>
         </AppBar>
         <Box className={ classes.imagePreviewFullscreenContainer }>
-          <img src={ imagePath } alt="File"/>
+          <img src={ value } alt="File"/>
         </Box>
       </Dialog>
     );
@@ -147,7 +146,18 @@ class IconPreview extends React.Component<Props, State> {
    * Renders delete image
    */
   private renderDeleteImage = () => {
-    const { classes, onDelete, uploadKey } = this.props;
+    const { 
+      classes,  
+      value, 
+      defaultValue, 
+      uploadKey,
+      onChange,
+      onRemove 
+    } = this.props;
+
+    if (value === defaultValue) {
+      return null;
+    }
 
     return (
       <div className={ classes.deleteImage }>
@@ -156,7 +166,7 @@ class IconPreview extends React.Component<Props, State> {
           color="secondary"
           className={ classes.iconButton }
           title={ strings.applicationEditor.removeCustomIcon }
-          onClick={ () => onDelete(uploadKey) }
+          onClick={ () => defaultValue ? onChange(defaultValue, uploadKey) : onRemove(uploadKey) }
         >
           <DeleteIcon />
         </IconButton>
@@ -169,9 +179,7 @@ class IconPreview extends React.Component<Props, State> {
    */
   private renderFileUploader = () => {
     const {
-      onUpload,
-      onSetUrl,
-      allowSetUrl,
+      onChange,
       uploadButtonText,
       uploadDialogTitle,
       uploadKey
@@ -181,10 +189,10 @@ class IconPreview extends React.Component<Props, State> {
       <FileUploader
         title={ uploadDialogTitle }
         uploadButtonText={ uploadButtonText }
-        allowSetUrl={ allowSetUrl }
+        allowSetUrl={ true }
         allowedFileTypes={ getAllowedFileTypes(ResourceType.CONTENTVERSION) }
-        onUpload={ onUpload }
-        onSetUrl={ onSetUrl }
+        onUpload={ (uri: string) => onChange(uri, uploadKey) }
+        onSetUrl={ () => {} }
         uploadKey={ uploadKey }
       />
     );
@@ -194,10 +202,10 @@ class IconPreview extends React.Component<Props, State> {
    * Toggle dialog
    */
   private toggleDialog = () => {
-    const { imagePath } = this.props;
+    const { value } = this.props;
     const { open } = this.state;
 
-    imagePath && this.setState({ open: !open });
+    value && this.setState({ open: !open });
   }
 
 }
