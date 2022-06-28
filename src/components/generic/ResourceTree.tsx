@@ -347,7 +347,7 @@ class ResourceTree extends React.Component<Props, State> {
         selectResource(undefined);
         this.context.setError(strings.errorManagement.resource.otherUserEditing, error);
       } else {
-        this.context.setError(strings.errorManagement.resource.newLock, error);
+        console.error("Failed to obtain lock", error);
       }
     }
 
