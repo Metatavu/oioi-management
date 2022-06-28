@@ -117,7 +117,8 @@
     "loadingContentTree": "Loading content tree...",
     "deleteApplication": "Delete application",
     "deleteVersion": "Delete version",
-    "deleteLanguage": "Delete language"
+    "deleteLanguage": "Delete language",
+    "removeCustomIcon": "Remove custom icon"
   },
 
   "commonSettingsTexts": {
@@ -213,7 +214,8 @@
     "dropFileHere": "Drop the file here or click and select from file system. Max file size 300 MB.",
     "uploadFile": "Upload file",
     "preview": "Preview",
-    "finalizing": "Finalizing upload..."
+    "finalizing": "Finalizing upload...",
+    "changeIcon": "Change"
   },
 
   "resourceTypes": {

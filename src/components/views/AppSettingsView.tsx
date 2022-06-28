@@ -188,7 +188,7 @@ class AppSettingsView extends React.Component<Props, State> {
           </Typography>
         </Box>
 
-        <Box className={ classes.gridRow }>
+        <Box className={ classes.iconGridRow }>
           { this.renderIconList() }
         </Box>
         <AddIconDialog
@@ -457,11 +457,13 @@ class AppSettingsView extends React.Component<Props, State> {
     iconsMap.forEach((value: string, key: string) => {
       const iconTypeKey = allKeys.find(k => key === k.toString());
       const preview = (
-        <Box key={ key } className={ classes.gridItem }>
-          <Typography variant="h5" color="textSecondary">{ iconTypeKey ? getLocalizedIconTypeString(iconTypeKey) : key }</Typography>
+        <Box key={ key } className={ classes.iconGridItem }>
+          <Typography className={ classes.iconTypeText }>
+            { iconTypeKey ? getLocalizedIconTypeString(iconTypeKey) : key }
+          </Typography>
           <IconPreview
             uploadDialogTitle={ strings.fileUpload.addImage }
-            uploadButtonText={ value ? strings.fileUpload.changeImage : strings.fileUpload.addImage }
+            uploadButtonText={ strings.fileUpload.changeIcon }
             key={ key }
             imagePath={ value }
             allowSetUrl={ false }

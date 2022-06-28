@@ -8,7 +8,6 @@ import FileUploader from "../generic/FileUploader";
 import { getAllowedFileTypes } from "../../commons/resourceTypeHelper";
 import theme from "../../styles/theme";
 import strings from "../../localization/strings";
-import classNames from "classnames";
 
 /**
  * Component properties
@@ -32,7 +31,7 @@ interface State {
 }
 
 /**
- * Image preview
+ * Application Icon preview
  */
 class IconPreview extends React.Component<Props, State> {
 
@@ -55,15 +54,12 @@ class IconPreview extends React.Component<Props, State> {
     const { imagePath, classes } = this.props;
 
     return (
-      <div
-        className={
-          classNames(classes.imagePreviewElement, {
-            video: false
-          })
-        }
-      >
+      <div className={ classes.iconPreviewElement }>
         <div style={{ marginBottom: theme.spacing(1) }}>
-          <div key={ imagePath } onClick={ this.toggleDialog }>
+          <div
+            key={ imagePath }
+            onClick={ this.toggleDialog }
+          >
             { this.renderPreviewContent() }
           </div>
           { imagePath && this.renderDeleteImage() }
@@ -94,12 +90,14 @@ class IconPreview extends React.Component<Props, State> {
     }
 
     return (
-      <img
-        src={ imagePath }
-        alt="File"
-        height="200"
-        className={ classes.imagePreview }
-      />
+      <Box className={ classes.iconWrapper }>
+        <img
+          src={ imagePath }
+          alt="File"
+          height="104"
+          className={ classes.iconPreview }
+        />
+      </Box>
     );
   }
 
@@ -157,7 +155,7 @@ class IconPreview extends React.Component<Props, State> {
           size="small"
           color="secondary"
           className={ classes.iconButton }
-          title={ strings.delete }
+          title={ strings.applicationEditor.removeCustomIcon }
           onClick={ () => onDelete(uploadKey) }
         >
           <DeleteIcon />
