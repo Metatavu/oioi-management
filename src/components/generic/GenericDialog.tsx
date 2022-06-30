@@ -75,7 +75,7 @@ const GenericDialog: React.FC<Props> = ({
    * Renders dialog content
    */
   const renderContent = () => {
-    const loaderText = loaderMessage ? loaderMessage : strings.loading;
+    const loaderText = loaderMessage || strings.loading;
 
     if (showLoader && loading) {
       return (
