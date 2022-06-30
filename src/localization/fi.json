@@ -118,7 +118,7 @@
     "deleteApplication": "Poista sovellus",
     "deleteVersion": "Poista versio",
     "deleteLanguage": "Poista kieli",
-    "removeCustomIcon": "Palauta oletusikoni"
+    "removeCustomIcon": "Poista omavalintainen ikoni"
   },
 
   "commonSettingsTexts": {
@@ -267,7 +267,9 @@
     "cannotDeleteActiveVersion": "Aktiivista versiota ei voida poistaa",
     "deleteSelectedVersion": "Poista valittu versio",
     "deleteVersionConfirmationText": "Haluatko varmasti poistaa tämän sisältöversion? Toimintoa ei voi peruuttaa.",
-    "deleteVersionSuccess": "Sisältöversio poistettu"
+    "deleteVersionSuccess": "Sisältöversio poistettu",
+    "deletingContentVersion": "Poistetaan versiota...",
+    "creatingContentVersion": "Luodaan uutta versiota..."
   },
 
   "iconKeys": {

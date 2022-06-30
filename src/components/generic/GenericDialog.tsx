@@ -19,11 +19,11 @@ interface Props {
   open: boolean;
   error?: boolean;
   fullScreen?: boolean;
-  fullWidth?: boolean;
   disableEnforceFocus?: boolean;
   disabled?: boolean;
   ignoreOutsideClicks?: boolean;
   style?: CSSProperties;
+  loaderMessage?: string;
 }
 
 /**
@@ -40,12 +40,12 @@ const GenericDialog: React.FC<Props> = ({
   onConfirm,
   error,
   fullScreen,
-  fullWidth,
   disableEnforceFocus,
   disabled,
   ignoreOutsideClicks,
   style,
-  children
+  children,
+  loaderMessage
 }) => {
   const [ loading, setLoading ] = React.useState(false);
 
@@ -75,13 +75,15 @@ const GenericDialog: React.FC<Props> = ({
    * Renders dialog content
    */
   const renderContent = () => {
+    const loaderText = loaderMessage ? loaderMessage : strings.loading;
+
     if (showLoader && loading) {
       return (
         <Box marginBottom={ 2 }>
           <LinearProgress color="secondary" style={{ flex: 1 }}/>
           <Box mt={ 2 } display="flex" flex={ 1 } justifyContent="flex-end">
             <Typography>
-              { strings.loading }
+              { loaderText }
             </Typography>
           </Box>
         </Box>
@@ -98,7 +100,8 @@ const GenericDialog: React.FC<Props> = ({
     <Dialog
       open={ open }
       fullScreen={ fullScreen }
-      fullWidth={ fullWidth }
+      fullWidth
+      maxWidth="sm"
       disableEnforceFocus={ disableEnforceFocus }
       onClose={ (event, reason) => onCloseClick(reason) }
       PaperProps={{ style: style }}
@@ -120,28 +123,27 @@ const GenericDialog: React.FC<Props> = ({
       <DialogContent>
         { renderContent() }
       </DialogContent>
-      { !showLoader &&
-        <DialogActions>
-          { cancelButtonText &&
-            <Button
-              onClick={ onCancel }
-              color="secondary"
-            >
-              { cancelButtonText }
-            </Button>
-          }
-          { positiveButtonText &&
+      <DialogActions>
+        { cancelButtonText &&
           <Button
-            disabled={ error || disabled }
-            onClick={ onConfirmClick }
-            color="primary"
-            autoFocus
+            onClick={ onCancel }
+            color="secondary"
+            disabled={ loading }
           >
-            { positiveButtonText }
+            { cancelButtonText }
           </Button>
-          }
-        </DialogActions>
-      }
+        }
+        { positiveButtonText &&
+        <Button
+          disabled={ error || disabled || loading }
+          onClick={ onConfirmClick }
+          color="primary"
+          autoFocus
+        >
+          { positiveButtonText }
+        </Button>
+        }
+      </DialogActions>
     </Dialog>
   );
 }

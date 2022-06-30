@@ -1,5 +1,5 @@
 import * as React from "react";
-import { withStyles, WithStyles, Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, Divider, Typography, MenuItem, Box, IconButton } from "@material-ui/core";
+import { withStyles, WithStyles, Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, Divider, Typography, MenuItem, Box, IconButton, LinearProgress } from "@material-ui/core";
 import styles from "../../styles/generic/add-content-version-dialog";
 import strings from "../../localization/strings";
 import slugify from "slugify";
@@ -18,6 +18,8 @@ interface Props extends ExternalProps {
   open: boolean;
   onSave: (name: string, slug: string, copyId?: string) => void;
   onClose: () => void;
+  loading: boolean;
+  loaderMessage?: string;
 }
 
 /**
@@ -70,7 +72,7 @@ class AddContentVersionDialog extends React.Component<Props, State> {
    * Component render method
    */
   public render = () => {
-    const { classes, open } = this.props;
+    const { classes, open, loading } = this.props;
 
     return (
       <Dialog
@@ -86,7 +88,7 @@ class AddContentVersionDialog extends React.Component<Props, State> {
           <Divider />
         </Box>
         <DialogContent className={ classes.content }>
-          { this.renderDialogContent() }
+          { loading ? this.renderLoader() : this.renderDialogContent() }
         </DialogContent>
         <Box mt={ 3 }>
           <Divider/>
@@ -119,6 +121,25 @@ class AddContentVersionDialog extends React.Component<Props, State> {
         </IconButton>
       </Box>
     );
+  }
+
+  /**
+   * Renders loader
+   */
+  private renderLoader = () => {
+    const { loaderMessage } = this.props;
+    const loaderText = loaderMessage ? loaderMessage : strings.loading;
+
+    return (
+      <Box marginBottom={ 2 }>
+        <LinearProgress color="secondary" style={{ flex: 1 }}/>
+        <Box mt={ 2 } display="flex" flex={ 1 } justifyContent="flex-end">
+          <Typography>
+            { loaderText }
+          </Typography>
+        </Box>
+      </Box>
+    )
   }
 
   /**
@@ -178,6 +199,7 @@ class AddContentVersionDialog extends React.Component<Props, State> {
    * Renders dialog actions
    */
   private renderDialogActions = () => {
+    const { loading } = this.props;
     const { name, slug } = this.state;
 
     return (
@@ -186,6 +208,7 @@ class AddContentVersionDialog extends React.Component<Props, State> {
           variant="text"
           onClick={ this.clearAndClose }
           color="primary"
+          disabled={ loading }
         >
           { strings.cancel }
         </Button>
@@ -194,7 +217,7 @@ class AddContentVersionDialog extends React.Component<Props, State> {
           color="primary"
           autoFocus
           onClick={ this.handleSave }
-          disabled={ !name || !slug }
+          disabled={ !name || !slug || loading }
         >
           { strings.save }
         </Button>
@@ -248,8 +271,6 @@ class AddContentVersionDialog extends React.Component<Props, State> {
     }
 
     onSave(name, slug, copyFromOtherVersion?.id);
-
-    this.clearAndClose();
   }
 
   /**

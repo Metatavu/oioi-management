@@ -31,6 +31,7 @@ interface State {
   popOverAnchor: HTMLElement | null;
   addContentVersionDialogOpen: boolean;
   deleteVersionDialogOpen: boolean;
+  creating: boolean;
 }
 
 /**
@@ -50,7 +51,8 @@ class ContentVersionControls extends React.Component<Props, State> {
     this.state = {
       popOverAnchor: null,
       addContentVersionDialogOpen: false,
-      deleteVersionDialogOpen: false
+      deleteVersionDialogOpen: false,
+      creating: false
     }
   }
 
@@ -235,13 +237,15 @@ class ContentVersionControls extends React.Component<Props, State> {
    * Renders add new dialog
    */
   private renderAddNewDialog = () => {
-    const { addContentVersionDialogOpen } = this.state;
+    const { addContentVersionDialogOpen, creating } = this.state;
 
     return (
       <AddContentVersionDialog
+        loading={ creating }
         open={ addContentVersionDialogOpen }
         onSave={ this.onAddNewContentVersion }
         onClose={ () => this.setState({ addContentVersionDialogOpen: false }) }
+        loaderMessage={ strings.contentVersionControls.creatingContentVersion }
       />
     );
   }
@@ -293,6 +297,7 @@ class ContentVersionControls extends React.Component<Props, State> {
         cancelButtonText={ strings.cancel }
         positiveButtonText={ strings.delete }
         error={ false }
+        loaderMessage={ strings.contentVersionControls.deletingContentVersion }
       >
         <Typography>
           { strings.contentVersionControls.deleteVersionConfirmationText }
@@ -322,8 +327,11 @@ class ContentVersionControls extends React.Component<Props, State> {
    */
   private onAddNewContentVersion = async (name: string, slug: string, copyId?: string) => {
     const { keycloak, application, addContentVersion, selectContentVersionId } = this.props;
-
     const metadata = this.getRequestMetaData();
+
+    this.setState({
+      creating: true
+    });
 
     if (!keycloak?.token || !application || !metadata) {
       return;
@@ -336,8 +344,18 @@ class ContentVersionControls extends React.Component<Props, State> {
 
       addContentVersion(contentVersion);
       selectContentVersionId(contentVersion.id);
+
+      this.setState({
+        creating: false,
+        addContentVersionDialogOpen: false
+      });
     } catch (error) {
       this.context.setError(strings.errorManagement.contentVersion.create, error);
+
+      this.setState({
+        creating: false,
+        addContentVersionDialogOpen: false
+      });
     }
   }
 

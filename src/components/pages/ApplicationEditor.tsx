@@ -485,6 +485,7 @@ class ApplicationEditor extends React.Component<Props, State> {
         onCancel={ () => this.setState({ deleteApplicationDialogOpen: false }) }
         onConfirm={ this.onDeleteApplication }
         title={ strings.applicationSettings.deleteApplication }
+        style={{ minWidth: 500 }}
       />
     )
   }

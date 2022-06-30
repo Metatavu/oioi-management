@@ -324,6 +324,8 @@ export interface IStrings extends LocalizedStringsMethods {
     deleteSelectedVersion: string;
     deleteVersionConfirmationText: string;
     deleteVersionSuccess: string;
+    deletingContentVersion: string;
+    creatingContentVersion: string;
   };
 
   /**

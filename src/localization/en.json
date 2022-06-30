@@ -270,7 +270,9 @@
     "cannotDeleteActiveVersion": "Active version cannot be deleted",
     "deleteSelectedVersion": "Delete selected version",
     "deleteVersionConfirmationText": "Do you want to delete this content version? This action cannot be reverted.",
-    "deleteVersionSuccess": "Deleted content version"
+    "deleteVersionSuccess": "Deleted content version",
+    "deletingContentVersion": "Deleting version...",
+    "creatingContentVersion": "Creating new version..."
   },
 
   "iconKeys": {
