@@ -3,7 +3,7 @@ import { Box, Button, Divider, List, ListItem, ListItemIcon, ListItemText, Popov
 import { ReduxDispatch, ReduxState } from "app/store";
 import { connect, ConnectedProps } from "react-redux";
 import styles from "styles/generic/content-version-controls";
-import { addContentVersion, deleteContentVersion, selectContentVersion, updateContentVersion } from "features/content-version-slice";
+import { addContentVersion, deleteContentVersion, selectContentVersionId, updateContentVersion } from "features/content-version-slice";
 import { ApiRequestMetadata, ContentVersion, ErrorContextType } from "types";
 import strings from "localization/strings";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
@@ -89,7 +89,8 @@ class ContentVersionControls extends React.Component<Props, State> {
    * Renders content version select
    */
   private renderContentVersionSelect = () => {
-    const { classes, selectedContentVersion } = this.props;
+    const { classes } = this.props;
+    const selectedContentVersion = this.getSelectedContentVersion();
 
     return (
       <>
@@ -111,13 +112,13 @@ class ContentVersionControls extends React.Component<Props, State> {
    * Renders set as active version
    */
   private renderSetAsActiveVersion = () => {
-    const { application, selectedContentVersion } = this.props;
+    const { application, selectedContentVersionId } = this.props;
 
-    const alreadyActive = application?.activeContentVersionResourceId === selectedContentVersion?.id;
+    const alreadyActive = application?.activeContentVersionResourceId === selectedContentVersionId;
 
     const tooltipTitle = alreadyActive ?
       strings.contentVersionControls.alreadyActive :
-      !selectedContentVersion ?
+      !selectedContentVersionId ?
         strings.contentVersionControls.notSelected :
         "";
 
@@ -126,7 +127,7 @@ class ContentVersionControls extends React.Component<Props, State> {
         <div>
           <Button
             color="primary"
-            disabled={ !application || !selectContentVersion || alreadyActive }
+            disabled={ !application || !selectContentVersionId || alreadyActive }
             onClick={ this.onSetAsActiveVersion }
             startIcon={ <PlayCircleOutlineOutlinedIcon/> }
           >
@@ -199,9 +200,9 @@ class ContentVersionControls extends React.Component<Props, State> {
    * @param contentVersion content version
    */
   private renderContentVersionOption = (contentVersion: ContentVersion) => {
-    const { selectedContentVersion } = this.props;
+    const { selectedContentVersionId } = this.props;
 
-    const disabled = selectedContentVersion?.id === contentVersion.id;
+    const disabled = selectedContentVersionId === contentVersion.id;
 
     return (
       <ListItem
@@ -249,9 +250,9 @@ class ContentVersionControls extends React.Component<Props, State> {
    * Renders delete version button
    */
   private renderDeleteVersionButton = () => {
-    const { classes, application, selectedContentVersion } = this.props;
+    const { classes, application, selectedContentVersionId } = this.props;
 
-    const isActive = application?.activeContentVersionResourceId === selectedContentVersion?.id;
+    const isActive = application?.activeContentVersionResourceId === selectedContentVersionId;
 
     const tooltipTitle = isActive ?
       strings.contentVersionControls.cannotDeleteActiveVersion :
@@ -306,9 +307,9 @@ class ContentVersionControls extends React.Component<Props, State> {
    * @param contentVersion content version
    */
   private onSelectContentVersion = (contentVersion: ContentVersion) => () => {
-    const { selectContentVersion } = this.props;
+    const { selectContentVersionId } = this.props;
 
-    selectContentVersion(contentVersion);
+    selectContentVersionId(contentVersion.id);
     this.setState({ popOverAnchor: null });
   }
 
@@ -320,7 +321,7 @@ class ContentVersionControls extends React.Component<Props, State> {
    * @param copyId copy ID
    */
   private onAddNewContentVersion = async (name: string, slug: string, copyId?: string) => {
-    const { keycloak, application, addContentVersion, selectContentVersion } = this.props;
+    const { keycloak, application, addContentVersion, selectContentVersionId } = this.props;
 
     const metadata = this.getRequestMetaData();
 
@@ -334,7 +335,7 @@ class ContentVersionControls extends React.Component<Props, State> {
         await this.createContentVersion(name, slug, metadata);
 
       addContentVersion(contentVersion);
-      selectContentVersion(contentVersion);
+      selectContentVersionId(contentVersion.id);
     } catch (error) {
       this.context.setError(strings.errorManagement.contentVersion.create, error);
     }
@@ -344,7 +345,7 @@ class ContentVersionControls extends React.Component<Props, State> {
    * Event handler for set as active version
    */
   private onSetAsActiveVersion = async () => {
-    const { keycloak, application, selectedContentVersion, setApplication } = this.props;
+    const { keycloak, application, selectedContentVersionId, setApplication } = this.props;
 
     const metadata = this.getRequestMetaData();
 
@@ -352,8 +353,8 @@ class ContentVersionControls extends React.Component<Props, State> {
       !keycloak?.token ||
       !application ||
       !metadata ||
-      !selectedContentVersion?.id ||
-      selectedContentVersion.id === application.activeContentVersionResourceId
+      !selectedContentVersionId ||
+      selectedContentVersionId === application.activeContentVersionResourceId
     ) {
       return;
     }
@@ -363,7 +364,7 @@ class ContentVersionControls extends React.Component<Props, State> {
         ...metadata,
         application: {
           ...application,
-          activeContentVersionResourceId: selectedContentVersion.id
+          activeContentVersionResourceId: selectedContentVersionId
         }
       });
 
@@ -449,9 +450,10 @@ class ContentVersionControls extends React.Component<Props, State> {
    * Event handler for delete content version
    */
   private onDeleteVersion = async () => {
-    const { keycloak, application, selectedContentVersion, deleteContentVersion } = this.props;
+    const { keycloak, application, deleteContentVersion } = this.props;
 
     const metadata = this.getRequestMetaData();
+    const selectedContentVersion = this.getSelectedContentVersion();
 
     if (
       !keycloak?.token ||
@@ -512,6 +514,20 @@ class ContentVersionControls extends React.Component<Props, State> {
     return moment(dateB).diff(dateA);
   }
 
+  /**
+   * Returns selected content version or undefined if not set
+   * 
+   * @returns selected content version or undefined if not set
+   */
+  private getSelectedContentVersion = () => {
+    const { selectedContentVersionId, contentVersions } = this.props;
+    if (!selectedContentVersionId) {
+      return undefined;
+    }
+
+    return contentVersions.find(contentVersion => contentVersion.id === selectedContentVersionId);
+  }
+
 }
 
 /**
@@ -526,7 +542,7 @@ const mapStateToProps = (state: ReduxState) => ({
   device: state.device.device,
   application: state.application.application,
   contentVersions: state.contentVersion.contentVersions,
-  selectedContentVersion: state.contentVersion.selectedContentVersion
+  selectedContentVersionId: state.contentVersion.selectedContentVersionId
 });
 
 /**
@@ -535,7 +551,7 @@ const mapStateToProps = (state: ReduxState) => ({
  * @param dispatch Redux dispatch
  */
 const mapDispatchToProps = (dispatch: ReduxDispatch) => ({
-  selectContentVersion: (contentVersion: ContentVersion) => dispatch(selectContentVersion(contentVersion)),
+  selectContentVersionId: (contentVersionId: string | undefined) => dispatch(selectContentVersionId(contentVersionId)),
   addContentVersion: (contentVersion: ContentVersion) => dispatch(addContentVersion(contentVersion)),
   updateContentVersion: (contentVersion: ContentVersion) => dispatch(updateContentVersion(contentVersion)),
   deleteContentVersion: (contentVersion: ContentVersion) => dispatch(deleteContentVersion(contentVersion)),

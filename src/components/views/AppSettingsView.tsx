@@ -2,7 +2,7 @@ import * as React from "react";
 import { ReduxDispatch, ReduxState } from "app/store";
 import { connect, ConnectedProps } from "react-redux";
 import { addResources } from "features/resource-slice";
-import { addContentVersion, selectContentVersion } from "features/content-version-slice";
+import { addContentVersion, selectContentVersionId } from "features/content-version-slice";
 import { withStyles, WithStyles, TextField, Button, Divider, Typography, CircularProgress, IconButton, Box, Accordion, AccordionSummary, AccordionDetails } from "@material-ui/core";
 import styles from "../../styles/editor-view";
 import strings from "../../localization/strings";
@@ -24,6 +24,7 @@ import AdminOnly from "components/containers/AdminOnly";
 import { Config } from "app/config";
 import WallJSONImporter from "utils/wall-json-importer";
 import IconPreview from "components/generic/IconPreview";
+import deepEqual from "fast-deep-equal";
 
 /**
  * Component Props
@@ -109,7 +110,7 @@ class AppSettingsView extends React.Component<Props, State> {
   public componentDidUpdate = (prevProps: Props) => {
     const { applicationForm } = this.state;
 
-    if (prevProps.selectedContentVersion !== this.props.selectedContentVersion) {
+    if (!deepEqual(prevProps.selectedContentVersion, this.props.selectedContentVersion)) {
       this.updateMaps(validateForm(applicationForm));
     }
   }
@@ -512,7 +513,7 @@ class AppSettingsView extends React.Component<Props, State> {
       application,
       rootResourceId,
       addContentVersion,
-      selectContentVersion
+      selectContentVersionId
     } = this.props;
 
     const file = event.target.files?.item(0);
@@ -541,7 +542,7 @@ class AppSettingsView extends React.Component<Props, State> {
       try {
         const contentVersion = await importer.import(JSON.parse(target.result));
         addContentVersion(contentVersion);
-        selectContentVersion(contentVersion);
+        selectContentVersionId(contentVersion.id);
 
         toast.success(strings.importDone);
       } catch (error) {
@@ -596,7 +597,8 @@ class AppSettingsView extends React.Component<Props, State> {
    */
   private onUpdateApplication = () => {
     const { onUpdateApplication } = this.props;
-    const { name } = this.state.applicationForm.values;
+    const { applicationForm } = this.state;
+    const { name } = applicationForm.values;
 
     if (!name) {
       return;
@@ -767,7 +769,7 @@ const mapStateToProps = (state: ReduxState) => ({
 const mapDispatchToProps = (dispatch: ReduxDispatch) => ({
   addResources: (resources: Resource[]) => dispatch(addResources(resources)),
   addContentVersion: (contentVersion: Resource) => dispatch(addContentVersion(contentVersion)),
-  selectContentVersion: (contentVersion: Resource) => dispatch(selectContentVersion(contentVersion))
+  selectContentVersionId: (contentVersionId: string | undefined) => dispatch(selectContentVersionId(contentVersionId))
 });
 
 const connector = connect(mapStateToProps, mapDispatchToProps);
