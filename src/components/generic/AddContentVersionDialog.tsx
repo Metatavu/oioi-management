@@ -128,7 +128,7 @@ class AddContentVersionDialog extends React.Component<Props, State> {
    */
   private renderLoader = () => {
     const { loaderMessage } = this.props;
-    const loaderText = loaderMessage ? loaderMessage : strings.loading;
+    const loaderText = loaderMessage || strings.loading;
 
     return (
       <Box marginBottom={ 2 }>
