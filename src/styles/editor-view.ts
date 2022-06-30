@@ -233,6 +233,40 @@ export default createStyles({
 
   imagePreviewElement: {
     cursor: "pointer",
+    position: "relative"
+  },
+
+  iconGridRow: {
+    maxWidth: "100%",
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fill, minmax(120px, 1fr))",
+    gridGap: theme.spacing(2)
+  },
+
+  iconGridItem: {
+    maxWidth: 120,
+    alignItems: "center",
+    display: "flex",
+    flexDirection: "column"
+  },
+
+  iconTypeText: {
+    fontSize: 11,
+    fontWeight: "bold",
+    color: theme.palette.text.secondary
+  },
+
+  iconPreviewElement: {
+    cursor: "pointer",
+    position: "relative",
+    width: 120
+  },
+
+  iconWrapper: {
+    borderRadius: 3,
+    display: "flex",
+    backgroundColor: "rgba(38, 50, 56, 0.1)",
+    padding: theme.spacing(1)
   },
 
   videoPreviewElement: {
@@ -269,8 +303,15 @@ export default createStyles({
   },
 
   imagePreview: {
+    display: "flex",
     backgroundColor: "rgba(38, 50, 56, 0.1)",
     objectFit: "cover",
+    maxWidth: "100%"
+  },
+
+  iconPreview: {
+    objectFit: "cover",
+    width: "100%",
     maxWidth: "100%"
   },
 
@@ -284,7 +325,7 @@ export default createStyles({
   deleteImage: {
     position: "absolute",
     top: 5,
-    left: 5
+    right: 5
   },
 
   iconButton: {

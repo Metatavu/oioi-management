@@ -70,14 +70,14 @@ class ResourceTree extends React.Component<Props, State> {
   public componentDidMount = async () => {
     const {
       resources,
-      contentVersion,
+      selectedContentVersionId,
       keycloak,
       customer,
       device,
       application
     } = this.props;
 
-    if (!keycloak?.token || !customer?.id || !device?.id || !application?.id || !contentVersion?.id) {
+    if (!keycloak?.token || !customer?.id || !device?.id || !application?.id || !selectedContentVersionId) {
       return;
     }
 
@@ -97,7 +97,7 @@ class ResourceTree extends React.Component<Props, State> {
    * @param prevProps previous component properties
    */
   public componentDidUpdate = async (prevProps: Props) => {
-    const { resources, contentVersion, selectedResource } = this.props;
+    const { resources, selectedContentVersionId, selectedResource } = this.props;
     const { lockedResourceIds } = this.state;
 
     if (prevProps.selectedResource && !selectedResource) {
@@ -117,7 +117,7 @@ class ResourceTree extends React.Component<Props, State> {
       this.resourceLockInterval = setInterval(this.renewLock, 10000);
     }
 
-    if (!contentVersion?.id) {
+    if (!selectedContentVersionId) {
       return;
     }
 
@@ -214,9 +214,11 @@ class ResourceTree extends React.Component<Props, State> {
    * @param parentResource parent resource
    */
   private renderAdd = (parentResource?: Resource) => {
-    const { classes, contentVersion, resources } = this.props;
+    const { classes, resources } = this.props;
 
-    if (!contentVersion) {
+    const selectedContentVersion = this.getSelectedContentVersion();
+
+    if (!selectedContentVersion) {
       return null;
     }
 
@@ -232,8 +234,8 @@ class ResourceTree extends React.Component<Props, State> {
     return (
       <ListItem
         className={ classes.treeAddItem }
-        onClick={ this.onAddResource(parentResource ?? contentVersion) }
-        key={ `${parentResource?.id || contentVersion.id}-add` }
+        onClick={ this.onAddResource(parentResource ?? selectedContentVersion) }
+        key={ `${parentResource?.id || selectedContentVersion.id}-add` }
       >
         <ListItemIcon style={{ minWidth: 0, marginRight: 8 }}>
           <AddIcon fontSize="small"/>
@@ -274,13 +276,13 @@ class ResourceTree extends React.Component<Props, State> {
    * @returns tree structure as array of data nodes
    */
   private buildTree = (resources: Resource[]): TreeItem[] => {
-    const { contentVersion } = this.props;
+    const { selectedContentVersionId } = this.props;
 
-    if (!contentVersion?.id) {
+    if (!selectedContentVersionId) {
       return [];
     }
 
-    const treeData = this.recursiveTree(resources, contentVersion.id);
+    const treeData = this.recursiveTree(resources, selectedContentVersionId);
 
     return treeData;
   }
@@ -683,6 +685,20 @@ class ResourceTree extends React.Component<Props, State> {
     }
   }
 
+  /**
+   * Returns selected content version or undefined if not set
+   * 
+   * @returns selected content version or undefined if not set
+   */
+  private getSelectedContentVersion = () => {
+    const { selectedContentVersionId, contentVersions } = this.props;
+    if (!selectedContentVersionId) {
+      return undefined;
+    }
+
+    return contentVersions.find(contentVersion => contentVersion.id === selectedContentVersionId);
+  }
+
 }
 
 /**
@@ -695,7 +711,8 @@ const mapStateToProps = (state: ReduxState) => ({
   customer: state.customer.customer,
   device: state.device.device,
   application: state.application.application,
-  contentVersion: state.contentVersion.selectedContentVersion,
+  contentVersions: state.contentVersion.contentVersions,
+  selectedContentVersionId: state.contentVersion.selectedContentVersionId,
   resources: state.resource.resources,
   selectedResource: state.resource.selectedResource
 });

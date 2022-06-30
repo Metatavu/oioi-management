@@ -108,7 +108,6 @@ class FileUploader extends React.Component<Props, State> {
         onConfirm={ this.closeDialog  }
         title={ title || strings.fileUpload.uploadFile }
         cancelButtonText={ strings.fileUpload.cancel }
-        fullWidth
         ignoreOutsideClicks
       >
         { this.renderUploader() }
@@ -214,6 +213,8 @@ class FileUploader extends React.Component<Props, State> {
       <Dialog
         open={ urlDialogOpen }
         onClose={ this.closeUrlDialog }
+        fullWidth
+        maxWidth="sm"
       >
         <DialogTitle>
           { strings.urlAddressDialogTitle }

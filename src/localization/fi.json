@@ -117,7 +117,8 @@
     "loadingContentTree": "Ladataan sovelluspuuta...",
     "deleteApplication": "Poista sovellus",
     "deleteVersion": "Poista versio",
-    "deleteLanguage": "Poista kieli"
+    "deleteLanguage": "Poista kieli",
+    "removeCustomIcon": "Poista omavalintainen ikoni"
   },
 
   "commonSettingsTexts": {
@@ -210,7 +211,8 @@
     "dropFileHere": "Pudota tiedosto tähän tai valitse klikkaamalla. Tiedoston maksimikoko on 300 Mt.",
     "uploadFile": "Lisää tiedosto",
     "preview": "Esikatselu",
-    "finalizing": "Viimeistellään..."
+    "finalizing": "Viimeistellään...",
+    "changeIcon": "Vaihda"
   },
 
   "resourceTypes": {
@@ -265,7 +267,9 @@
     "cannotDeleteActiveVersion": "Aktiivista versiota ei voida poistaa",
     "deleteSelectedVersion": "Poista valittu versio",
     "deleteVersionConfirmationText": "Haluatko varmasti poistaa tämän sisältöversion? Toimintoa ei voi peruuttaa.",
-    "deleteVersionSuccess": "Sisältöversio poistettu"
+    "deleteVersionSuccess": "Sisältöversio poistettu",
+    "deletingContentVersion": "Poistetaan versiota...",
+    "creatingContentVersion": "Luodaan uutta versiota..."
   },
 
   "iconKeys": {

@@ -133,6 +133,7 @@ export interface IStrings extends LocalizedStringsMethods {
     deleteApplication: string;
     deleteVersion: string;
     deleteLanguage: string;
+    removeCustomIcon: string;
   };
 
   /**
@@ -259,6 +260,7 @@ export interface IStrings extends LocalizedStringsMethods {
     uploadFile: string;
     preview: string;
     finalizing: string;
+    changeIcon: string;
   };
 
   /**
@@ -322,6 +324,8 @@ export interface IStrings extends LocalizedStringsMethods {
     deleteSelectedVersion: string;
     deleteVersionConfirmationText: string;
     deleteVersionSuccess: string;
+    deletingContentVersion: string;
+    creatingContentVersion: string;
   };
 
   /**

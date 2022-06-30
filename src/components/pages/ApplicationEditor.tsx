@@ -24,7 +24,7 @@ import { blueGrey } from "@material-ui/core/colors";
 import ChevronRight from "@material-ui/icons/ChevronRight";
 import { setCustomer } from "features/customer-slice";
 import { setApplication } from "features/application-slice";
-import { setContentVersions, selectContentVersion } from "features/content-version-slice";
+import { setContentVersions, selectContentVersionId, updateContentVersion } from "features/content-version-slice";
 import { setDevice } from "features/device-slice";
 import { deleteResources, selectResource, setResources, updateResources } from "features/resource-slice";
 import { ReduxDispatch, ReduxState } from "app/store";
@@ -120,7 +120,7 @@ class ApplicationEditor extends React.Component<Props, State> {
    * @param prevProps previous properties
    */
   public componentDidUpdate = async (prevProps: Props) => {
-    const { application, selectedContentVersion } = this.props;
+    const { application, selectedContentVersionId } = this.props;
 
     if (prevProps.application?.id !== application?.id) {
       this.setState({ loading: true });
@@ -128,9 +128,9 @@ class ApplicationEditor extends React.Component<Props, State> {
       this.setState({ loading: false });
     }
 
-    if (selectedContentVersion?.id && prevProps.selectedContentVersion?.id !== selectedContentVersion.id) {
+    if (selectedContentVersionId && prevProps.selectedContentVersionId !== selectedContentVersionId) {
       this.setState({ loading: true });
-      await this.setResources(selectedContentVersion?.id);
+      await this.setResources(selectedContentVersionId);
       this.setState({ loading: false });
     }
   };
@@ -347,7 +347,8 @@ class ApplicationEditor extends React.Component<Props, State> {
       deviceId,
       selectedResource,
       application,
-      selectedContentVersion
+      contentVersions,
+      selectedContentVersionId
     } = this.props;
     const { loading, rootResource } = this.state;
 
@@ -370,6 +371,8 @@ class ApplicationEditor extends React.Component<Props, State> {
         </main>
       );
     }
+
+    const selectedContentVersion = contentVersions.find(contentVersion => contentVersion.id === selectedContentVersionId);
 
     if (application && selectedContentVersion) {
       return (
@@ -482,6 +485,7 @@ class ApplicationEditor extends React.Component<Props, State> {
         onCancel={ () => this.setState({ deleteApplicationDialogOpen: false }) }
         onConfirm={ this.onDeleteApplication }
         title={ strings.applicationSettings.deleteApplication }
+        style={{ minWidth: 500 }}
       />
     )
   }
@@ -550,7 +554,15 @@ class ApplicationEditor extends React.Component<Props, State> {
    * @param childResources child resources to be updated (optional)
    */
   private onUpdateResource = async (resource: Resource, childResources?: Resource[]) => {
-    const { keycloak, customerId, deviceId, applicationId, selectResource, updateResources } = this.props;
+    const { 
+      keycloak, 
+      customerId, 
+      deviceId, 
+      applicationId,
+      selectResource, 
+      updateResources, 
+      updateContentVersion 
+    } = this.props;
 
     if (!keycloak || !keycloak.token) {
       return;
@@ -593,10 +605,11 @@ class ApplicationEditor extends React.Component<Props, State> {
       updateResources(updatedResources);
       const resourceType = resource.type;
 
-      if (resourceType !== ResourceType.ROOT && resourceType !== ResourceType.CONTENTVERSION) {
-        selectResource(updatedResource);
-      } else {
+      if (resourceType === ResourceType.CONTENTVERSION) {
         this.setState({ rootResource: updatedResource });
+        updateContentVersion(updatedResource);
+      } else {
+        selectResource(updatedResource);
       }
 
       this.setState({
@@ -758,7 +771,7 @@ class ApplicationEditor extends React.Component<Props, State> {
       setCustomer,
       setApplication,
       setContentVersions,
-      selectContentVersion,
+      selectContentVersionId,
       setResources
     } = this.props;
 
@@ -788,7 +801,7 @@ class ApplicationEditor extends React.Component<Props, State> {
       setDevice(device);
       setApplication(application);
       setContentVersions(contentVersions);
-      selectContentVersion(activeContentVersion);
+      selectContentVersionId(activeContentVersion.id);
       setResources(resources);
 
       this.setState({ rootResource: rootResource });
@@ -991,7 +1004,7 @@ const mapStateToProps = (state: ReduxState) => ({
   device: state.device.device,
   application: state.application.application,
   contentVersions: state.contentVersion.contentVersions,
-  selectedContentVersion: state.contentVersion.selectedContentVersion,
+  selectedContentVersionId: state.contentVersion.selectedContentVersionId,
   resources: state.resource.resources,
   selectedResource: state.resource.selectedResource
 });
@@ -1006,7 +1019,8 @@ const mapDispatchToProps = (dispatch: ReduxDispatch) => ({
   setDevice: (device: Device) => dispatch(setDevice(device)),
   setApplication: (application: Application) => dispatch(setApplication(application)),
   setContentVersions: (contentVersions: ContentVersion[]) => dispatch(setContentVersions(contentVersions)),
-  selectContentVersion: (contentVersion: ContentVersion) => dispatch(selectContentVersion(contentVersion)),
+  selectContentVersionId: (contentVersionId: string | undefined) => dispatch(selectContentVersionId(contentVersionId)),
+  updateContentVersion: (contentVersion: ContentVersion) => dispatch(updateContentVersion(contentVersion)),
   setResources: (resources: Resource[]) => dispatch(setResources(resources)),
   selectResource: (resource?: Resource) => dispatch(selectResource(resource)),
   updateResources: (resources: Resource[]) => dispatch(updateResources(resources)),

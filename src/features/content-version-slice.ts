@@ -7,7 +7,7 @@ import { ContentVersion } from "types";
  */
 export type ContentVersionState = {
   contentVersions: ContentVersion[];
-  selectedContentVersion?: ContentVersion;
+  selectedContentVersionId?: string;
 };
 
 /**
@@ -15,7 +15,7 @@ export type ContentVersionState = {
  */
 const initialState: ContentVersionState = {
   contentVersions: [],
-  selectedContentVersion: undefined
+  selectedContentVersionId: undefined
 };
 
 /**
@@ -39,14 +39,14 @@ export const contentVersionSlice = createSlice({
     deleteContentVersion: (state: ContentVersionState, { payload }: PayloadAction<ContentVersion>) => {
       state.contentVersions = state.contentVersions.filter(contentVersion => contentVersion.id !== payload.id);
 
-      if (state.selectedContentVersion?.id === payload.id) {
-        state.selectedContentVersion = state.contentVersions.length ?
-          state.contentVersions[0] :
+      if (state.selectedContentVersionId === payload.id) {
+        state.selectedContentVersionId = state.contentVersions.length ?
+          state.contentVersions[0]?.id :
           undefined;
       }
     },
-    selectContentVersion: (state: ContentVersionState, { payload }: PayloadAction<ContentVersion | undefined>) => {
-      state.selectedContentVersion = payload;
+    selectContentVersionId: (state: ContentVersionState, { payload }: PayloadAction<string | undefined>) => {
+      state.selectedContentVersionId = payload;
     }
   }
 });
@@ -59,7 +59,7 @@ export const {
   addContentVersion,
   updateContentVersion,
   deleteContentVersion,
-  selectContentVersion
+  selectContentVersionId
 } = contentVersionSlice.actions;
 
 /**
@@ -76,7 +76,7 @@ export const selectContentVersions = (state: ReduxState) => state.contentVersion
  * @param state Redux store root state
  * @returns selected content version from Redux store
  */
-export const selectSelectedContentVersion = (state: ReduxState) => state.contentVersion.selectedContentVersion;
+export const selectSelectedContentVersionId = (state: ReduxState) => state.contentVersion.selectedContentVersionId;
 
 /**
  * Reducer for content version slice

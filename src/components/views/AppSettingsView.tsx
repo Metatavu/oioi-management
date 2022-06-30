@@ -2,7 +2,7 @@ import * as React from "react";
 import { ReduxDispatch, ReduxState } from "app/store";
 import { connect, ConnectedProps } from "react-redux";
 import { addResources } from "features/resource-slice";
-import { addContentVersion, selectContentVersion } from "features/content-version-slice";
+import { addContentVersion, selectContentVersionId } from "features/content-version-slice";
 import { withStyles, WithStyles, TextField, Button, Divider, Typography, CircularProgress, IconButton, Box, Accordion, AccordionSummary, AccordionDetails } from "@material-ui/core";
 import styles from "../../styles/editor-view";
 import strings from "../../localization/strings";
@@ -23,6 +23,8 @@ import { ResourceUtils } from "utils/resource";
 import AdminOnly from "components/containers/AdminOnly";
 import { Config } from "app/config";
 import WallJSONImporter from "utils/wall-json-importer";
+import IconPreview from "components/generic/IconPreview";
+import deepEqual from "fast-deep-equal";
 
 /**
  * Component Props
@@ -108,7 +110,7 @@ class AppSettingsView extends React.Component<Props, State> {
   public componentDidUpdate = (prevProps: Props) => {
     const { applicationForm } = this.state;
 
-    if (prevProps.selectedContentVersion !== this.props.selectedContentVersion) {
+    if (!deepEqual(prevProps.selectedContentVersion, this.props.selectedContentVersion)) {
       this.updateMaps(validateForm(applicationForm));
     }
   }
@@ -187,13 +189,13 @@ class AppSettingsView extends React.Component<Props, State> {
           </Typography>
         </Box>
 
-        <Box className={ classes.gridRow }>
+        <Box className={ classes.iconGridRow }>
           { this.renderIconList() }
         </Box>
         <AddIconDialog
           keycloak={ keycloak }
           resource={ selectedContentVersion }
-          onSave={ this.onIconFileChange }
+          onSave={ this.onIconChange }
           onToggle={ this.toggleDialog }
           open={ this.state.iconDialogOpen }
         />
@@ -448,28 +450,29 @@ class AppSettingsView extends React.Component<Props, State> {
    */
   private renderIconList = () => {
     const { iconsMap } = this.state;
-    const { classes, selectedContentVersion } = this.props;
+    const { classes } = this.props;
 
     const icons: JSX.Element[] = [];
     const allKeys = Object.values(IconKeys);
 
     iconsMap.forEach((value: string, key: string) => {
       const iconTypeKey = allKeys.find(k => key === k.toString());
+      const defaultValue = iconTypeKey ? getDefaultIconURL(iconTypeKey) : undefined;
+
       const preview = (
-        <Box key={ key } className={ classes.gridItem }>
-          <Typography variant="h5" color="textSecondary">{ iconTypeKey ? getLocalizedIconTypeString(iconTypeKey) : key }</Typography>
-          <MediaPreview
+        <Box key={ key } className={ classes.iconGridItem }>
+          <Typography className={ classes.iconTypeText }>
+            { iconTypeKey ? getLocalizedIconTypeString(iconTypeKey) : key }
+          </Typography>
+          <IconPreview
             uploadDialogTitle={ strings.fileUpload.addImage }
-            uploadButtonText={ value ? strings.fileUpload.changeImage : strings.fileUpload.addImage }
+            uploadButtonText={ strings.fileUpload.changeIcon }
             key={ key }
-            resourcePath={ value }
-            allowSetUrl={ false }
-            onSetUrl={ () => {} }
-            onUpload={ this.onIconFileChange }
-            resource={ selectedContentVersion }
+            defaultValue={ defaultValue }
+            value={ value }
+            onChange={ this.onIconChange }
+            onRemove={ this.onIconRemove }
             uploadKey={ key }
-            onDelete={ this.onIconFileDelete }
-            imgHeight="200px"
           />
         </Box>
       );
@@ -510,7 +513,7 @@ class AppSettingsView extends React.Component<Props, State> {
       application,
       rootResourceId,
       addContentVersion,
-      selectContentVersion
+      selectContentVersionId
     } = this.props;
 
     const file = event.target.files?.item(0);
@@ -539,7 +542,7 @@ class AppSettingsView extends React.Component<Props, State> {
       try {
         const contentVersion = await importer.import(JSON.parse(target.result));
         addContentVersion(contentVersion);
-        selectContentVersion(contentVersion);
+        selectContentVersionId(contentVersion.id);
 
         toast.success(strings.importDone);
       } catch (error) {
@@ -594,7 +597,8 @@ class AppSettingsView extends React.Component<Props, State> {
    */
   private onUpdateApplication = () => {
     const { onUpdateApplication } = this.props;
-    const { name } = this.state.applicationForm.values;
+    const { applicationForm } = this.state;
+    const { name } = applicationForm.values;
 
     if (!name) {
       return;
@@ -701,7 +705,7 @@ class AppSettingsView extends React.Component<Props, State> {
     this.setState({
       resourceMap: new Map(this.state.resourceMap).set(key, newUri),
       dataChanged: true
-    }, () => this.onUpdateResource());
+    });
   };
 
   /**
@@ -710,11 +714,26 @@ class AppSettingsView extends React.Component<Props, State> {
    * @param newUri new URI
    * @param key key
    */
-  private onIconFileChange = (newUri: string, key: string) => {
+  private onIconChange = (newUri: string, key: string) => {
     this.setState({
       iconsMap: new Map(this.state.iconsMap).set(key, newUri),
       dataChanged: true
-    }, () => this.onUpdateResource());
+    });
+  };
+
+  /**
+   * Handles icon removal
+   *
+   * @param key key
+   */
+  private onIconRemove = (key: string) => {
+    const iconsMap = new Map(this.state.iconsMap);
+    iconsMap.delete(key);
+
+    this.setState({
+      iconsMap: iconsMap,
+      dataChanged: true
+    });
   };
 
   /**
@@ -727,20 +746,7 @@ class AppSettingsView extends React.Component<Props, State> {
     this.setState({
       resourceMap: tempMap,
       dataChanged: true
-    }, () => this.onUpdateResource());
-  };
-
-  /**
-   * Delete icon file with key
-   */
-  private onIconFileDelete = (key: string) => {
-    const tempMap = new Map(this.state.iconsMap);
-
-    tempMap.delete(key);
-    this.setState({
-      iconsMap: tempMap,
-      dataChanged: true
-    }, () => this.onUpdateResource());
+    });
   };
 
 }
@@ -763,7 +769,7 @@ const mapStateToProps = (state: ReduxState) => ({
 const mapDispatchToProps = (dispatch: ReduxDispatch) => ({
   addResources: (resources: Resource[]) => dispatch(addResources(resources)),
   addContentVersion: (contentVersion: Resource) => dispatch(addContentVersion(contentVersion)),
-  selectContentVersion: (contentVersion: Resource) => dispatch(selectContentVersion(contentVersion))
+  selectContentVersionId: (contentVersionId: string | undefined) => dispatch(selectContentVersionId(contentVersionId))
 });
 
 const connector = connect(mapStateToProps, mapDispatchToProps);
