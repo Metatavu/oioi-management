@@ -134,14 +134,14 @@ const GenericDialog: React.FC<Props> = ({
           </Button>
         }
         { positiveButtonText &&
-        <Button
-          disabled={ error || disabled || loading }
-          onClick={ onConfirmClick }
-          color="primary"
-          autoFocus
-        >
-          { positiveButtonText }
-        </Button>
+          <Button
+            disabled={ error || disabled || loading }
+            onClick={ onConfirmClick }
+            color="primary"
+            autoFocus
+          >
+            { positiveButtonText }
+          </Button>
         }
       </DialogActions>
     </Dialog>
