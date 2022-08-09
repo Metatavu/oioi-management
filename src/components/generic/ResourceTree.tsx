@@ -301,12 +301,16 @@ class ResourceTree extends React.Component<Props, State> {
       return;
     }
 
-    await Api.getResourcesApi(keycloak.token).deleteResourceLock({
-      customerId: customer.id,
-      deviceId: device.id,
-      applicationId: application.id,
-      resourceId: resource.id
-    });
+    try {
+      await Api.getResourcesApi(keycloak.token).deleteResourceLock({
+        customerId: customer.id,
+        deviceId: device.id,
+        applicationId: application.id,
+        resourceId: resource.id
+      });
+    } catch (error) {
+      console.error("Failed to release lock", error);
+    }
   }
 
   /**
