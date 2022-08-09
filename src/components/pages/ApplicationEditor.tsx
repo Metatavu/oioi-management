@@ -8,10 +8,8 @@ import { connect, ConnectedProps } from "react-redux";
 import { ContentVersion, ErrorContextType } from "../../types";
 import Api from "../../api";
 import { Customer, Device, Application, Resource, ResourceType } from "../../generated/client";
-import ResourceTreeItem from "../generic/ResourceTreeItem";
 import AddResourceDialog from "../generic/AddResourceDialog";
 import ResourceSettingsView from "../views/ResourceSettingsView";
-import { TreeItem as TreeItemSortable } from "react-sortable-tree";
 import MenuResourceSettingsView from "../views/MenuResourceSettingsView";
 import SettingsIcon from "@material-ui/icons/Tune";
 import PageResourceSettingsView from "../views/PageResourceSettingsView";
@@ -49,6 +47,14 @@ interface Props extends ExternalProps {
 }
 
 /**
+ * Unsaved confirmation details
+ */
+interface ConfirmationDetails {
+  resource?: Resource;
+  type: "RESOURCE"
+}
+
+/**
  * Component state
  */
 interface State {
@@ -58,21 +64,13 @@ interface State {
   childToDelete?: Resource;
   parentResourceId?: string;
   rootResource?: Resource;
-  treeData?: ResourceTreeItem[];
-  confirmationRequired: boolean;
   treeResizing: boolean;
   treeWidth: number;
   isSaving: boolean;
   loading: boolean;
   deleting: boolean;
-}
-
-/**
- * Resource tree item
- */
-interface ResourceTreeItem extends TreeItemSortable {
-  id?: string;
-  resource?: Resource;
+  confirmationRequired: boolean;
+  confirmationDetails?: ConfirmationDetails;
 }
 
 /**
@@ -182,9 +180,31 @@ class ApplicationEditor extends React.Component<Props, State> {
           { this.renderSavingOverlay() }
           { this.renderDeleteResourceDialog() }
           { this.renderDeleteApplicationDialog() }
+          { this.renderConfirmUnsaved() }
         </div>
       </AppLayout>
     );
+  }
+
+  /**
+   * Renders confirm unsaved dialog
+   */
+  private renderConfirmUnsaved = () => {
+    const { confirmationDetails } = this.state;
+
+    return (
+      <GenericDialog 
+        title={ strings.confirmUnsavedChangesDialog.title }
+        positiveButtonText={ strings.confirmUnsavedChangesDialog.confirm }
+        cancelButtonText={ strings.confirmUnsavedChangesDialog.cancel }
+        open={ !!confirmationDetails }
+        onClose={ this.onConfirmUnsavedCancel }
+        onConfirm={ this.onConfirmUnsavedConfirm }
+        onCancel={ this.onConfirmUnsavedCancel }
+      >
+        { strings.confirmUnsavedChangesDialog.text }
+      </GenericDialog>
+    );    
   }
 
   /**
@@ -334,7 +354,11 @@ class ApplicationEditor extends React.Component<Props, State> {
       );
     }
 
-    return <ResourceTree/>;
+    return (
+      <ResourceTree 
+        selectResource={ this.onResourceTreeSelectResource }
+      />
+    );
   }
 
   /**
@@ -625,38 +649,6 @@ class ApplicationEditor extends React.Component<Props, State> {
   };
 
   /**
-   * Handles update child resources
-   *
-   * @param childResources child resources
-   */
-  private onUpdateChildResources = async (childResources: Resource[]) => {
-    const { keycloak, customerId, deviceId, applicationId, updateResources } = this.props;
-    const token = keycloak?.token;
-
-    if (!token) {
-      return;
-    }
-
-    try {
-      const updatedResources = await Promise.all(
-        childResources.map(resource =>
-          Api.getResourcesApi(token).updateResource({
-            resource: resource,
-            customerId: customerId,
-            deviceId: deviceId,
-            applicationId: applicationId,
-            resourceId: resource.id!
-          })
-        )
-      );
-
-      updateResources(updatedResources);
-    } catch (error) {
-      this.context.setError(strings.errorManagement.resource.updateChild);
-    }
-  }
-
-  /**
    * Returns delete resource title
    *
    * @param resourceType resource type
@@ -702,6 +694,53 @@ class ApplicationEditor extends React.Component<Props, State> {
       this.context.setError(strings.errorManagement.resource.delete, error);
     }
   };
+
+  /**
+   * Confirm unsaved confirm handler
+   */
+  private onConfirmUnsavedConfirm = () => {
+    const { confirmationDetails } = this.state;
+    const { selectResource } = this.props;
+
+    if (confirmationDetails?.type === "RESOURCE") {
+      selectResource(confirmationDetails?.resource);
+    }
+
+    this.setState({ 
+      confirmationRequired: false,
+      confirmationDetails: undefined
+    });
+  };
+
+  /**
+   * Confirm unsaved cancel handler
+   */
+  private onConfirmUnsavedCancel = () => {
+    this.setState({ 
+      confirmationDetails: undefined 
+    });
+  };
+
+  /**
+   * Resource tree select resource event handler
+   * 
+   * @param resource selected resource
+   */
+  private onResourceTreeSelectResource = (resource?: Resource) => {
+    const { confirmationRequired } = this.state;
+    const { selectResource } = this.props;
+
+    if (!confirmationRequired) {
+      selectResource(resource);
+    } else {
+      this.setState({
+        confirmationDetails: {
+          type: "RESOURCE",
+          resource: resource
+        }
+      });
+    }    
+  }
 
   /**
    * Does leaving the current resource need confirmation

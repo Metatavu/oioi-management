@@ -3,7 +3,7 @@ import { connect, ConnectedProps } from "react-redux";
 import Api from "api";
 import { Resource, ResourceType } from "../../generated/client";
 import { ReduxDispatch, ReduxState } from "app/store";
-import { selectResource, setResources, updateResources } from "features/resource-slice";
+import { setResources, updateResources } from "features/resource-slice";
 import strings from "localization/strings";
 import { ErrorContext } from "components/containers/ErrorHandler";
 import { ErrorContextType } from "types";
@@ -23,7 +23,9 @@ import { Config } from "app/config";
 /**
  * Component properties
  */
-interface Props extends ExternalProps { }
+interface Props extends ExternalProps { 
+   selectResource: (resource?: Resource) => void;
+ }
 
 /**
  * Component state
@@ -473,6 +475,7 @@ class ResourceTree extends React.Component<Props, State> {
         parentLocked={ parentLocked }
         locked={ locked }
         loading={ loading }
+        selectResource={ this.props.selectResource }
       />
     ),
     expanded: this.state.expandedKeys.includes(resource.id || ""),
@@ -724,7 +727,6 @@ const mapStateToProps = (state: ReduxState) => ({
  */
 const mapDispatchToProps = (dispatch: ReduxDispatch) => ({
   setResources: (resources: Resource[]) => dispatch(setResources(resources)),
-  selectResource: (resource?: Resource) => dispatch(selectResource(resource)),
   updateResources: (resources: Resource[]) => dispatch(updateResources(resources))
 });
 

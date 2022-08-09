@@ -27,7 +27,6 @@
   "deviceInformation": "Device information",
   "dropFile": "Drop file or click to add",
   "deleteConfirmation": "Delete confirmation",
-  "continueWithoutSaving": "You have unsaved modifications! Do you want to continue?",
   "deleteSuccess": "Delete success",
   "edit": "Edit",
   "editDevice": "Edit device",
@@ -354,5 +353,12 @@
     "VIDEO": "Delete video {0}?",
     "TEXT": "Delete text {0}?",
     "APPLICATION": "Delete application {0}?"
+  },
+
+  "confirmUnsavedChangesDialog": {
+    "title": "Do you wish to continue?",
+    "text": "You have unsaved modifications! Do you wish to continue?",
+    "confirm": "Yes",
+    "cancel": "Cancel"
   }
 }

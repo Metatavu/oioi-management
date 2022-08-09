@@ -31,6 +31,7 @@ interface Props extends ExternalProps {
   parentLocked: boolean;
   locked: boolean;
   loading: boolean;
+  selectResource: (resource?: Resource) => void;
 }
 
 /**
@@ -216,7 +217,6 @@ const mapStateToProps = (state: ReduxState) => ({
  * @param dispatch Redux dispatch
  */
 const mapDispatchToProps = (dispatch: ReduxDispatch) => ({
-  selectResource: (resource?: Resource) => dispatch(selectResource(resource))
 });
 
 const connector = connect(mapStateToProps, mapDispatchToProps);

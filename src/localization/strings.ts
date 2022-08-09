@@ -60,7 +60,6 @@ export interface IStrings extends LocalizedStringsMethods {
   slug: string;
   deleteResource: string;
   deleteResourceDialogDescription: string;
-  continueWithoutSaving: string;
   andAllChildren: string;
   key: string;
   value: string;
@@ -419,6 +418,14 @@ export interface IStrings extends LocalizedStringsMethods {
     "TEXT": string;
     "APPLICATION": string;
   };
+  
+  confirmUnsavedChangesDialog: {
+    title: string;
+    text: string;
+    confirm: string;
+    cancel: string;
+  };
+
 };
 
 const strings: IStrings = new LocalizedStrings({ en, fi });

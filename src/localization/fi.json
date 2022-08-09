@@ -26,7 +26,6 @@
   "deviceImage": "Laitekuva",
   "deviceInformation": "Laitteen tiedot",
   "deleteConfirmation": "Varmista poisto",
-  "continueWithoutSaving": "Sinulla on tallentamattomia muutoksia! Haluatko varmasti jatkaa?",
   "deleteSuccess": "Poisto onnistui",
   "dropFile": "Tiputa tiedosto tai klikkaa ja etsi",
   "edit": "Editoi",
@@ -351,5 +350,12 @@
     "VIDEO": "Poista video {0}?",
     "TEXT": "Poista teksti {0}?",
     "APPLICATION": "Poista sovellus {0}?"
+  },
+
+  "confirmUnsavedChangesDialog": {
+    "title": "Haluatko jatkaa?",
+    "text": "Sinulla on tallentamattomia muutoksia! Haluatko jatkaa?",
+    "confirm": "Kyllä",
+    "cancel": "Peruuttaa"
   }
 }
