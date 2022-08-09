@@ -51,7 +51,7 @@ interface Props extends ExternalProps {
  */
 interface ConfirmationDetails {
   resource?: Resource;
-  type: "RESOURCE"
+  type: "RESOURCE";
 }
 
 /**
