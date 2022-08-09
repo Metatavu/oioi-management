@@ -24,8 +24,8 @@ import { Config } from "app/config";
  * Component properties
  */
 interface Props extends ExternalProps { 
-   selectResource: (resource?: Resource) => void;
- }
+  selectResource: (resource?: Resource) => void;
+}
 
 /**
  * Component state
