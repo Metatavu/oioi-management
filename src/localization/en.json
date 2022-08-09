@@ -356,9 +356,9 @@
   },
 
   "confirmUnsavedChangesDialog": {
-    "title": "Do you wish to continue?",
-    "text": "You have unsaved modifications! Do you wish to continue?",
-    "confirm": "Yes",
+    "title": "You have unsaved modifications?",
+    "text": "Do you wish to continue without saving?",
+    "confirm": "Continue",
     "cancel": "Cancel"
   }
 }

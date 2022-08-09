@@ -353,9 +353,9 @@
   },
 
   "confirmUnsavedChangesDialog": {
-    "title": "Haluatko jatkaa?",
-    "text": "Sinulla on tallentamattomia muutoksia! Haluatko jatkaa?",
-    "confirm": "Kyllä",
-    "cancel": "Peruuttaa"
+    "title": "Tallentamattomia muutoksia!",
+    "text": "Sinulla on tallentamattomia muutoksia! Haluatko poistua näkymästä tallentamatta?",
+    "confirm": "Jatka tallentamatta",
+    "cancel": "Peruuta"
   }
 }
