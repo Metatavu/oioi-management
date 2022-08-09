@@ -10,13 +10,13 @@ import { FormValidationRules, MessageType, validateForm, initForm, Form } from "
 import FileUpload from "../../utils/file-upload";
 import { ErrorContext } from "../containers/ErrorHandler";
 import CloseIcon from "@material-ui/icons/Close";
-import { KeycloakInstance } from "keycloak-js";
+import Keycloak from "keycloak-js";
 
 /**
  * Component properties
  */
 interface Props extends WithStyles<typeof styles> {
-  keycloak?: KeycloakInstance;
+  keycloak?: Keycloak;
   open: boolean;
   dialogType: DialogType;
   device?: Device;

@@ -11,7 +11,7 @@ import { ReduxState } from "app/store";
 import AdminOnly from "components/containers/AdminOnly";
 import WithDebounce from "components/generic/with-debounce";
 import deepEqual from "fast-deep-equal";
-import { KeycloakInstance } from "keycloak-js";
+import Keycloak from "keycloak-js";
 import MaterialTable from "material-table";
 import * as React from "react";
 import { forwardRef } from "react";
@@ -32,7 +32,7 @@ import MediaPreview from "../generic/MediaPreview";
  * Component props
  */
 interface Props extends ExternalProps {
-  keycloak?: KeycloakInstance;
+  keycloak?: Keycloak;
   deviceId: string;
   applicationId: string;
   resource: Resource;

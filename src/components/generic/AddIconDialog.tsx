@@ -11,13 +11,13 @@ import CloseIcon from "@material-ui/icons/Close";
 import { DropzoneArea } from "material-ui-dropzone";
 import FileUpload from "../../utils/file-upload";
 import { UploadData } from "../../types";
-import { KeycloakInstance } from "keycloak-js";
+import Keycloak from "keycloak-js";
 
 /**
  * Component props
  */
 interface Props extends WithStyles<typeof styles> {
-  keycloak?: KeycloakInstance;
+  keycloak?: Keycloak;
   open: boolean;
   resource: Resource;
   onSave: (newUri: string, key: string) => void;

@@ -19,7 +19,7 @@ import { ErrorContext } from "../containers/ErrorHandler";
 import PDFPreview from "../generic/PDFPreview";
 import StyledMTableToolbar from "../../styles/generic/styled-mtable-toolbar";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
-import { KeycloakInstance } from "keycloak-js";
+import Keycloak from "keycloak-js";
 import { nanoid } from "@reduxjs/toolkit";
 import { ResourceUtils } from "utils/resource";
 
@@ -27,7 +27,7 @@ import { ResourceUtils } from "utils/resource";
  * Component props
  */
 interface Props extends WithStyles<typeof styles> {
-  keycloak?: KeycloakInstance;
+  keycloak?: Keycloak;
   deviceId: string;
   applicationId: string;
   resource: Resource;

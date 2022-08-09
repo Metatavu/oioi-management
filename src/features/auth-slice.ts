@@ -1,12 +1,12 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import type { ReduxState } from "app/store";
-import { KeycloakInstance } from "keycloak-js";
+import Keycloak from "keycloak-js";
 
 /**
  * Interface describing auth state in Redux
  */
 export interface AuthState {
-  keycloak?: KeycloakInstance;
+  keycloak?: Keycloak;
 }
 
 /**
@@ -23,7 +23,7 @@ export const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
-    login: (state, { payload }: PayloadAction<KeycloakInstance>) => {
+    login: (state, { payload }: PayloadAction<Keycloak>) => {
       state.keycloak = payload;
     },
     logout: state => {

@@ -10,7 +10,7 @@ import { nanoid } from "@reduxjs/toolkit";
 import { getAllowedFileTypes } from "commons/resourceTypeHelper";
 import AdminOnly from "components/containers/AdminOnly";
 import FileUploader from "components/generic/FileUploader";
-import { KeycloakInstance } from "keycloak-js";
+import Keycloak from "keycloak-js";
 import MaterialTable from "material-table";
 import AudioPlayer from "material-ui-audio-player";
 import * as React from "react";
@@ -30,7 +30,7 @@ import { ErrorContext } from "../containers/ErrorHandler";
  * Component props
  */
 interface Props extends WithStyles<typeof styles> {
-  keycloak?: KeycloakInstance;
+  keycloak?: Keycloak;
   deviceId: string;
   applicationId: string;
   resource: Resource;
