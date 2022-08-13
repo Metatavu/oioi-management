@@ -27,7 +27,7 @@ import { ErrorContext } from "../containers/ErrorHandler";
 import { resolveChildResourceTypes } from "../../commons/resourceTypeHelper";
 import StyledMTableToolbar from "../../styles/generic/styled-mtable-toolbar";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
-import { KeycloakInstance } from "keycloak-js";
+import Keycloak from "keycloak-js";
 import { nanoid } from "@reduxjs/toolkit";
 import { ResourceUtils } from "utils/resource";
 
@@ -37,7 +37,7 @@ import { ResourceUtils } from "utils/resource";
 interface Props extends WithStyles<typeof styles> {
   deviceId: string;
   applicationId: string;
-  keycloak?: KeycloakInstance;
+  keycloak?: Keycloak;
   resource: Resource;
   customerId: string;
   confirmationRequired: (value: boolean) => void;
