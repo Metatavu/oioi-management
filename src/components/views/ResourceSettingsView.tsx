@@ -466,11 +466,10 @@ class ResourceSettingsView extends React.Component<Props, State> {
     }
 
     this.setState({
+      dataChanged: true,
       resourceData: { ...resourceData, [key]: newUri },
       form: { ...form, values: values }
     });
-
-    this.onUpdateResource();
   };
 
   /**
@@ -480,10 +479,9 @@ class ResourceSettingsView extends React.Component<Props, State> {
     const { resourceData } = this.state;
 
     this.setState({
+      dataChanged: true,
       resourceData: { ...resourceData, data: "" }
     });
-
-    this.onUpdateResource();
   };
 
   /**
