@@ -119,7 +119,7 @@ class AddResourceDialog extends React.Component<Props, State> {
   public componentDidUpdate = async (prevProps: Props) => {
     const { open, parentResource } = this.props;
 
-    if (open && (prevProps.open !== open || prevProps.parentResource !== parentResource)) {
+    if (open && (prevProps.open === false || prevProps.parentResource !== parentResource)) {
       await this.updateData();
     }
   };
