@@ -22,7 +22,7 @@
     "material-table": "^1.69.3",
     "material-ui-audio-player": "^1.7.1",
     "material-ui-dropzone": "^3.5.0",
-    "moment": "^2.29.1",
+    "moment": "^2.29.4",
     "react": "^16.13.1",
     "react-device-detect": "^1.17.0",
     "react-dom": "^16.13.1",
