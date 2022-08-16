@@ -155,7 +155,7 @@ class PDFResourceSettingsView extends React.Component<Props, State> {
         type={ type }
         error={ message && message.type === MessageType.ERROR }
         helperText={ message && message.message }
-        value={ values[key] || "" }
+        value={ values[key] ?? "" }
         onChange={ this.onHandleResourceTextChange(key) }
         onBlur={ this.onHandleBlur(key) }
         name={ key }

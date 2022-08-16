@@ -199,7 +199,7 @@ class PageResourceSettingsView extends React.Component<Props, State> {
         type={ type }
         error={ message && message.type === MessageType.ERROR }
         helperText={ message && message.message }
-        value={ values[key] || "" }
+        value={ values[key] ?? "" }
         onChange={ this.onResourceTextChange(key) }
         onBlur={ this.onHandleBlur(key) }
         name={ key }
