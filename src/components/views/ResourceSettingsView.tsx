@@ -39,7 +39,6 @@ interface Props extends WithStyles<typeof styles> {
 interface State {
   form: Form<ResourceSettingsForm>;
   resourceId: string;
-  resourceData: any;
   dataChanged: boolean;
 }
 
@@ -62,10 +61,11 @@ class ResourceSettingsView extends React.Component<Props, State> {
         name: undefined,
         orderNumber: undefined,
         slug: undefined,
-        data: undefined
+        data: undefined,
+        styles: undefined,
+        properties: undefined
       }, resourceRules),
       resourceId: "",
-      resourceData: {},
       dataChanged: false
     };
   }
@@ -83,8 +83,7 @@ class ResourceSettingsView extends React.Component<Props, State> {
 
     this.setState({
       form: validateForm(initForm<ResourceSettingsForm>({ ...resource }, resourceRules)),
-      resourceId: resourceId,
-      resourceData: ResourceToJSON(resource)
+      resourceId: resourceId
     });
   }
 
@@ -98,8 +97,7 @@ class ResourceSettingsView extends React.Component<Props, State> {
 
     if (prevProps.resource !== resource) {
       this.setState({
-        form: validateForm(initForm<ResourceSettingsForm>({ ...resource }, resourceRules)),
-        resourceData: ResourceToJSON(resource)
+        form: validateForm(initForm<ResourceSettingsForm>({ ...resource }, resourceRules))
       });
     }
   }
@@ -187,7 +185,7 @@ class ResourceSettingsView extends React.Component<Props, State> {
    * Render table that contains style data
    */
   private renderStyleTable = () => {
-    const { resourceData } = this.state;
+    const { form } = this.state;
 
     return (
       <MaterialTable
@@ -203,36 +201,43 @@ class ResourceSettingsView extends React.Component<Props, State> {
           { title: strings.key, field: "key" },
           { title: strings.value, field: "value" }
         ]}
-        data={ resourceData.styles }
+        data={ form.values.styles || [] }
         editable={{
-          onRowAdd: async newData => {
-            const updatedData = { ...resourceData };
-            updatedData.styles.push(newData);
+          onRowAdd: async newStyle => {
+            const updatedFormValues = { ...form.values };
+            updatedFormValues.styles?.push(newStyle);
             this.props.confirmationRequired(true);
 
             this.setState({
               dataChanged: true,
-              resourceData: updatedData
+              form: { ...form, values: updatedFormValues }
             });
           },
-          onRowUpdate: async (newData, oldData) => {
-            const updatedData = { ...resourceData };
-            updatedData.styles.splice(updatedData.styles.indexOf(oldData), 1, newData);
+          onRowUpdate: async (newStyle, oldStyle) => {
+            const updatedFormValues = { ...form.values };
+            updatedFormValues.styles?.splice(
+              updatedFormValues.styles.findIndex(style => style.key === oldStyle?.key),
+              1,
+              newStyle
+            );
             this.props.confirmationRequired(true);
 
             this.setState({
               dataChanged: true,
-              resourceData: updatedData
+              form: { ...form, values: updatedFormValues }
             });
           },
-          onRowDelete: async oldData => {
-            const updatedData = { ...resourceData };
-            updatedData.styles.splice(updatedData.styles.indexOf(oldData), 1);
+          onRowDelete: async styleToDelete => {
+            const updatedFormValues = { ...form.values };
+            updatedFormValues.styles?.splice(
+              updatedFormValues.styles.findIndex(style => style.key === styleToDelete.key),
+              1
+            );
             this.props.confirmationRequired(true);
 
             this.setState({
               dataChanged: true,
-              resourceData: updatedData
+              form: { ...form, values: updatedFormValues }
             });
           }
         }}
@@ -273,7 +278,7 @@ class ResourceSettingsView extends React.Component<Props, State> {
    * Render table that contains properties data
    */
   private renderPropertiesTable = () => {
-    const { resourceData } = this.state;
+    const { form } = this.state;
 
     return (
       <MaterialTable
@@ -289,36 +294,43 @@ class ResourceSettingsView extends React.Component<Props, State> {
           { title: strings.key, field: "key" },
           { title: strings.value, field: "value" }
         ]}
-        data={ resourceData.properties }
+        data={ form.values.properties || [] }
         editable={{
-          onRowAdd: async newData => {
-            const updatedData = { ...resourceData };
-            updatedData.properties.push(newData);
+          onRowAdd: async newProperty => {
+            const updatedFormValues = { ...form.values };
+            updatedFormValues.properties?.push(newProperty);
             this.props.confirmationRequired(true);
 
             this.setState({
               dataChanged: true,
-              resourceData: updatedData
+              form: { ...form, values: updatedFormValues }
             });
           },
-          onRowUpdate: async (newData, oldData) => {
-            const updatedData = { ...resourceData };
-            updatedData.properties.splice(updatedData.properties.indexOf(oldData), 1, newData);
+          onRowUpdate: async (updatedProperty, prevProperty) => {
+            const updatedFormValues = { ...form.values };
+            updatedFormValues.properties?.splice(
+              updatedFormValues.properties.findIndex(property => property.key === prevProperty?.key),
+              1,
+              updatedProperty
+            );
             this.props.confirmationRequired(true);
 
             this.setState({
               dataChanged: true,
-              resourceData: updatedData
+              form: { ...form, values: updatedFormValues }
             });
           },
-          onRowDelete: async oldData => {
-            const updatedData = { ...resourceData };
-            updatedData.properties.splice(updatedData.properties.indexOf(oldData), 1);
+          onRowDelete: async propertyToDelete => {
+            const updatedFormValues = { ...form.values };
+            updatedFormValues.properties?.splice(
+              updatedFormValues.properties.findIndex(property => property.key === propertyToDelete.key),
+              1
+            );
             this.props.confirmationRequired(true);
 
             this.setState({
-              resourceData: resourceData,
-              dataChanged: true
+              dataChanged: true,
+              form: { ...form, values: updatedFormValues }
             });
           }
         }}
@@ -362,14 +374,14 @@ class ResourceSettingsView extends React.Component<Props, State> {
    */
   private renderDataField = (label: string) => {
     const { resource } = this.props;
-    const { form, resourceData } = this.state;
+    const { form } = this.state;
 
     if (resource.type === ResourceType.TEXT) {
       return (
         <TextField
           fullWidth
           name="data"
-          value={ resourceData.data || "" }
+          value={ form.values.data || "" }
           onChange={ this.onDataChange }
           label={ label }
           multiline
@@ -379,12 +391,10 @@ class ResourceSettingsView extends React.Component<Props, State> {
       );
     }
 
-    const fileData = form.values.data || "";
-
     return (
       <MediaPreview
-        uploadButtonText={ fileData ? strings.fileUpload.changeFile : strings.fileUpload.addFile }
-        resourcePath={ fileData }
+        uploadButtonText={ form.values.data ? strings.fileUpload.changeFile : strings.fileUpload.addFile }
+        resourcePath={ form.values.data || "" }
         allowSetUrl
         onUpload={ this.onFileOrUriChange }
         onSetUrl={ this.onFileOrUriChange }
@@ -455,20 +465,21 @@ class ResourceSettingsView extends React.Component<Props, State> {
    * @param key resource key
    * @param fileType file type
    */
-  private onFileOrUriChange = (newUri: string, key: string, fileType?: string) => {
-    const { resourceData, form } = this.state;
-    const values = { ...form.values };
+  private onFileOrUriChange = (newUri: string, _: string, fileType?: string) => {
+    const { form } = this.state;
+    const updatedValues = { ...form.values };
+
+    updatedValues.data = newUri;
 
     const resourceType = ResourceUtils.getResourceTypeFromFileType(fileType);
 
-    if (resourceType && resourceType !== values.type) {
-      values.type = resourceType;
+    if (resourceType && resourceType !== updatedValues.type) {
+      updatedValues.type = resourceType;
     }
 
     this.setState({
       dataChanged: true,
-      resourceData: { ...resourceData, [key]: newUri },
-      form: { ...form, values: values }
+      form: { ...form, values: updatedValues }
     });
   };
 
@@ -476,11 +487,11 @@ class ResourceSettingsView extends React.Component<Props, State> {
    * Handles image delete
    */
   private onImageFileDelete = () => {
-    const { resourceData } = this.state;
+    const { form } = this.state;
 
     this.setState({
       dataChanged: true,
-      resourceData: { ...resourceData, data: "" }
+      form: { ...form, values: { ...form.values, data: "" } }
     });
   };
 
@@ -491,12 +502,12 @@ class ResourceSettingsView extends React.Component<Props, State> {
    */
   private onDataChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { confirmationRequired } = this.props;
-    const { resourceData } = this.state;
+    const { form } = this.state;
     const { name, value } = event.target;
 
     this.setState({
       dataChanged: true,
-      resourceData: { ...resourceData, [name]: value }
+      form: { ...form, values: { ...form.values, [name]: value } }
     });
 
     confirmationRequired(true);
@@ -507,10 +518,11 @@ class ResourceSettingsView extends React.Component<Props, State> {
    */
   private onUpdateResource = () => {
     const { onUpdate } = this.props;
-    const { resourceData, form } = this.state;
-    const { id, name, slug, orderNumber, type, parentId } = form.values;
+    const { form } = this.state;
+    const { values } = form;
+    const { id, name, slug, orderNumber, type, parentId, data, styles, properties } = values;
 
-    if (!id || !name || !slug || !orderNumber || !type || !parentId) {
+    if (!id || !name || !slug || !orderNumber || !type || !parentId || !data || !styles || !properties) {
       return;
     }
 
@@ -521,15 +533,12 @@ class ResourceSettingsView extends React.Component<Props, State> {
       orderNumber: orderNumber,
       type: type,
       parentId: parentId,
-      data: resourceData.data,
-      styles: resourceData.styles,
-      properties: resourceData.properties
+      data: data,
+      styles: styles,
+      properties: properties
     });
 
-    this.setState({
-      resourceData: resourceData,
-      dataChanged: false
-    });
+    this.setState({ dataChanged: false });
   };
 
   /**
