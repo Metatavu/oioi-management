@@ -466,6 +466,7 @@ class ResourceSettingsView extends React.Component<Props, State> {
    * @param fileType file type
    */
   private onFileOrUriChange = (newUri: string, _: string, fileType?: string) => {
+    const { confirmationRequired } = this.props;
     const { form } = this.state;
     const updatedValues = { ...form.values };
 
@@ -481,18 +482,23 @@ class ResourceSettingsView extends React.Component<Props, State> {
       dataChanged: true,
       form: { ...form, values: updatedValues }
     });
+
+    confirmationRequired(true);
   };
 
   /**
    * Handles image delete
    */
   private onImageFileDelete = () => {
+    const { confirmationRequired } = this.props;
     const { form } = this.state;
 
     this.setState({
       dataChanged: true,
       form: { ...form, values: { ...form.values, data: "" } }
     });
+
+    confirmationRequired(true);
   };
 
   /**
