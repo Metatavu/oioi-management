@@ -49,6 +49,11 @@ export interface Configuration {
     uploadPath: string;
     cdnPath: string;
   };
+  mqtt: {
+    brokerUrl: string;
+    username: string;
+    password: string;
+  };
 }
 
 /**

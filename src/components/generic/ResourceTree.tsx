@@ -19,12 +19,14 @@ import { ResourceUtils } from "utils/resource";
 import AddResourceDialog from "./AddResourceDialog";
 import theme from "styles/theme";
 import { Config } from "app/config";
+import deepEqual from "fast-deep-equal";
 
 /**
  * Component properties
  */
 interface Props extends ExternalProps { 
   selectResource: (resource?: Resource) => void;
+  lockedResourceIds: string[];
 }
 
 /**
@@ -34,7 +36,6 @@ interface State {
   treeData: TreeItem[];
   expandedKeys: string[];
   addResourceDialogOpen: boolean;
-  lockedResourceIds: string[];
   loading: boolean;
   updating: boolean;
 }
@@ -47,7 +48,6 @@ class ResourceTree extends React.Component<Props, State> {
   static contextType: React.Context<ErrorContextType> = ErrorContext;
 
   private resourceLockInterval?: NodeJS.Timeout;
-  private resourceLocksInterval?: NodeJS.Timeout;
 
   /**
    * Component constructor
@@ -60,7 +60,6 @@ class ResourceTree extends React.Component<Props, State> {
       treeData: [],
       expandedKeys: [],
       addResourceDialogOpen: false,
-      lockedResourceIds: [],
       loading: false,
       updating: false
     };
@@ -83,13 +82,8 @@ class ResourceTree extends React.Component<Props, State> {
       return;
     }
 
-    const lockedResourceIds = await Api.getResourcesApi(keycloak.token).getLockedResourceIds({ applicationId: application.id });
+    this.setState({ treeData: this.buildTree(resources) });
 
-    this.setState({
-      lockedResourceIds: lockedResourceIds
-    }, () => this.setState({ treeData: this.buildTree(resources) }));
-
-    this.resourceLocksInterval = setInterval(this.fetchLockedResourceIds, 5000);
     window.addEventListener("beforeunload", this.componentCleanup);
   }
 
@@ -99,35 +93,35 @@ class ResourceTree extends React.Component<Props, State> {
    * @param prevProps previous component properties
    */
   public componentDidUpdate = async (prevProps: Props) => {
-    const { resources, selectedContentVersionId, selectedResource } = this.props;
-    const { lockedResourceIds } = this.state;
+    const { resources, selectedResource, lockedResourceIds } = this.props;
 
-    if (prevProps.selectedResource && !selectedResource) {
-      await this.releaseLock(prevProps.selectedResource);
 
-      this.setState({
-        lockedResourceIds: [ ...lockedResourceIds ].filter(id => id !== prevProps.selectedResource!.id)
-      }, () => this.setState({ treeData: this.buildTree(resources) }));
+    const selectedResourceChanged = !deepEqual(prevProps.selectedResource, selectedResource) || prevProps.selectedResource?.id !== selectedResource?.id;
+    const lockedResourcesChanged = !deepEqual(prevProps.lockedResourceIds, lockedResourceIds);
+    const loading = selectedResourceChanged || lockedResourcesChanged;
+    
+    if (loading) {
+      this.setState({ 
+        loading: true
+      });
+    };
 
-      this.resourceLockInterval && clearInterval(this.resourceLockInterval);
-      return;
-    }
-
-    if (prevProps.selectedResource?.id !== selectedResource?.id) {
-      this.setState({ loading: true }, () => this.setState({ treeData: this.buildTree(resources), loading: false }));
+    if (selectedResourceChanged) {
       await this.releaseAndAcquireLock(selectedResource, prevProps.selectedResource);
       this.resourceLockInterval = setInterval(this.renewLock, 10000);
-    }
+    };
 
-    if (!selectedContentVersionId) {
-      return;
-    }
+    if (selectedResourceChanged || lockedResourcesChanged) {
+      this.setState({ 
+        treeData: this.buildTree(resources)
+      });
+    };
 
-    if (prevProps.resources === resources && prevProps.selectedResource === selectedResource) {
-      return;
-    }
-
-    this.setState({ treeData: this.buildTree(resources) });
+    if (loading) {
+      this.setState({ 
+        loading: false
+      });
+    };
   }
 
   /**
@@ -145,7 +139,6 @@ class ResourceTree extends React.Component<Props, State> {
     const { selectedResource } = this.props;
 
     selectedResource && this.releaseLock(selectedResource);
-    this.resourceLocksInterval && clearInterval(this.resourceLocksInterval);
     this.resourceLockInterval && clearInterval(this.resourceLockInterval);
     this.releaseLockWithServiceWorker();
   }
@@ -321,7 +314,6 @@ class ResourceTree extends React.Component<Props, State> {
    */
   private releaseAndAcquireLock = async (newResource?: Resource, previousResource?: Resource) => {
     const { keycloak, customer, device, application, selectResource } = this.props;
-    let tempLockedResourceIds = [ ...this.state.lockedResourceIds ];
 
     if (!keycloak?.token || !customer?.id || !device?.id || !application?.id || !newResource?.id) {
       return;
@@ -329,10 +321,9 @@ class ResourceTree extends React.Component<Props, State> {
 
     const resourcesApi = Api.getResourcesApi(keycloak.token);
     try {
-      if (previousResource && tempLockedResourceIds.includes(previousResource.id!)) {
+      if (previousResource) {
         await this.releaseLock(previousResource);
         this.resourceLockInterval && clearInterval(this.resourceLockInterval);
-        tempLockedResourceIds = tempLockedResourceIds.filter(id => id !== previousResource.id);
       }
     } catch (error) {
       console.error("Error while releasing lock", error);
@@ -346,9 +337,6 @@ class ResourceTree extends React.Component<Props, State> {
         resourceId: newResource.id,
         resourceLock: {}
       });
-
-      tempLockedResourceIds.push(newResource.id);
-      this.setState({ lockedResourceIds: tempLockedResourceIds });
 
     } catch (error) {
       if (error instanceof Response && error.status === 409) {
@@ -388,20 +376,6 @@ class ResourceTree extends React.Component<Props, State> {
   }
 
   /**
-   * Fetches locked resource ids
-   */
-  private fetchLockedResourceIds = async () => {
-    const { keycloak, application, resources } = this.props;
-
-    if (!keycloak?.token || !application?.id) {
-      return;
-    }
-
-    const newLocks = await Api.getResourcesApi(keycloak.token).getLockedResourceIds({ applicationId: application.id });
-    this.setState({ lockedResourceIds: newLocks }, () => this.setState({ treeData: this.buildTree(resources) }));
-  }
-
-  /**
    * Recursive tree
    *
    * @param resources resources
@@ -410,8 +384,8 @@ class ResourceTree extends React.Component<Props, State> {
    * @returns list of tree items
    */
   private recursiveTree = (resources: Resource[], parentId: string): TreeItem[] => {
-    const { selectedResource } = this.props;
-    const { lockedResourceIds, loading } = this.state;
+    const { lockedResourceIds, selectedResource } = this.props;
+    const { loading } = this.state;
 
     const tree = [ ...resources ].reduce<TreeItem[]>((tree, resource) => {
       if (!resource?.id || resource.parentId !== parentId) {
@@ -590,7 +564,8 @@ class ResourceTree extends React.Component<Props, State> {
    * @param data tree data object
    */
   private canDrag = (data: ExtendedNodeData) => {
-    const { lockedResourceIds, updating } = this.state;
+    const { lockedResourceIds } = this.props;
+    const { updating } = this.state;
     const { node } = data;
     const resource = node.resource;
     const resourceId = resource?.id;
@@ -721,7 +696,8 @@ const mapStateToProps = (state: ReduxState) => ({
   contentVersions: state.contentVersion.contentVersions,
   selectedContentVersionId: state.contentVersion.selectedContentVersionId,
   resources: state.resource.resources,
-  selectedResource: state.resource.selectedResource
+  selectedResource: state.resource.selectedResource,
+  lockedResourceIds: state.resource.lockedResourceIds
 });
 
 /**

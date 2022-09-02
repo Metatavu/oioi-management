@@ -35,6 +35,8 @@ import LanguageMenuResourceSettingsView from "components/views/LanguageMenuResou
 import ApplicationResourceSettingsView from "components/views/ApplicationResourceSettingsView";
 import AudioResourceSettingsView from "../views/AudioResourceSettingsView";
 import GenericDialog from "components/generic/GenericDialog";
+import ResourceLocksProvider from "components/containers/resource-locks-provider";
+import MqttConnector from "components/containers/mqtt-connector";
 
 /**
  * Component properties
@@ -148,7 +150,7 @@ class ApplicationEditor extends React.Component<Props, State> {
    * Component render method
    */
   public render = () => {
-    const { classes, selectedResource } = this.props;
+    const { classes, selectedResource, applicationId } = this.props;
     const { treeResizing } = this.state;
 
     const resourceType = selectedResource ? selectedResource.type : ResourceType.ROOT;
@@ -175,12 +177,18 @@ class ApplicationEditor extends React.Component<Props, State> {
               }
             </div>
           </AppBar>
-          { this.renderResponsiveDrawer() }
-          { this.renderEditor() }
-          { this.renderSavingOverlay() }
-          { this.renderDeleteResourceDialog() }
-          { this.renderDeleteApplicationDialog() }
-          { this.renderConfirmUnsaved() }
+          <MqttConnector>
+            <ResourceLocksProvider
+              applicationId={ applicationId }
+            >
+              { this.renderResponsiveDrawer() }
+              { this.renderEditor() }
+              { this.renderSavingOverlay() }
+              { this.renderDeleteResourceDialog() }
+              { this.renderDeleteApplicationDialog() }
+              { this.renderConfirmUnsaved() }
+            </ResourceLocksProvider>
+          </MqttConnector>
         </div>
       </AppLayout>
     );
