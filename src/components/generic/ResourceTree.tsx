@@ -96,7 +96,7 @@ class ResourceTree extends React.Component<Props, State> {
     const { resources, selectedResource, lockedResourceIds } = this.props;
 
 
-    const selectedResourceChanged = (!deepEqual(prevProps.selectedResource, selectedResource)) || prevProps.selectedResource?.id !== selectedResource?.id;
+    const selectedResourceChanged = !deepEqual(prevProps.selectedResource, selectedResource) || prevProps.selectedResource?.id !== selectedResource?.id;
     const lockedResourcesChanged = !deepEqual(prevProps.lockedResourceIds, lockedResourceIds);
     const loading = selectedResourceChanged || lockedResourcesChanged;
     
