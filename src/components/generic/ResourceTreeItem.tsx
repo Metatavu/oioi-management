@@ -95,7 +95,6 @@ class ResourceTreeItem extends React.Component<Props, State> {
     const disabled = loading || (selectedResource?.id !== resource.id && locked) || (parentLocked && parentTypeIsPage && !parentSelected);
 
     return (
-    
       <ListItem
         key={ resource.id }
         selected={ selected }
