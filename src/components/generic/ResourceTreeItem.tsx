@@ -1,11 +1,10 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import * as React from "react";
 import styles from "styles/generic/resource-tree-item";
-import { withStyles, WithStyles, ListItem, ListItemIcon, ListItemText, Box, Tooltip } from "@material-ui/core";
+import { withStyles, WithStyles, ListItem, ListItemIcon, ListItemText, Box, Tooltip, Fade } from "@material-ui/core";
 import { Resource, ResourceLock, ResourceType } from "generated/client";
 import { ReduxDispatch, ReduxState } from "app/store";
 import { connect, ConnectedProps } from "react-redux";
-import { selectResource } from "features/resource-slice";
 
 import LanguageIcon from "@material-ui/icons/Language";
 import PageIcon from "@material-ui/icons/CropLandscapeOutlined";
@@ -96,6 +95,7 @@ class ResourceTreeItem extends React.Component<Props, State> {
     const disabled = loading || (selectedResource?.id !== resource.id && locked) || (parentLocked && parentTypeIsPage && !parentSelected);
 
     return (
+    
       <ListItem
         key={ resource.id }
         selected={ selected }
@@ -106,16 +106,16 @@ class ResourceTreeItem extends React.Component<Props, State> {
           { this.renderIcon(resource.type) }
         </ListItemIcon>
         <ListItemText primary={ resource.name }/>
-        { locked && !loading && !selected &&
+        <Fade in={ locked && !loading && !selected }>
           <Tooltip title={ lockInfo?.userDisplayName || "" }>
             <Box className={ classes.lockContainer }>
               <LockIcon
-                fontSize="small"
-                color="error"
-              />
+                  fontSize="small"
+                  color="error"
+                />
             </Box>
           </Tooltip>
-        }
+        </Fade>
       </ListItem>
     );
   }

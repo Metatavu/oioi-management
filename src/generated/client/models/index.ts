@@ -5,6 +5,7 @@ export * from './ErrorResponse';
 export * from './KeyValueProperty';
 export * from './Media';
 export * from './MediaType';
+export * from './MqttResourceLockUpdate';
 export * from './Resource';
 export * from './ResourceLock';
 export * from './ResourceType';

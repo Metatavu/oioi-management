@@ -8,6 +8,7 @@ import { Resource } from "generated/client";
 export type ResourceState = {
   resources: Resource[];
   selectedResource?: Resource;
+  lockedResourceIds: string[];
 };
 
 /**
@@ -15,7 +16,8 @@ export type ResourceState = {
  */
 const initialState: ResourceState = {
   resources: [],
-  selectedResource: undefined
+  selectedResource: undefined,
+  lockedResourceIds: []
 };
 
 /**
@@ -46,6 +48,9 @@ export const resourceSlice = createSlice({
     selectResource: (state: ResourceState, { payload }: PayloadAction<Resource | undefined>) => {
       state.selectedResource = payload;
     },
+    setLockedResourceIds: (state: ResourceState, { payload }: PayloadAction<string[]>) => {
+      state.lockedResourceIds = payload;
+    },
   }
 });
 
@@ -57,7 +62,8 @@ export const {
   addResources,
   updateResources,
   deleteResources,
-  selectResource
+  selectResource,
+  setLockedResourceIds
 } = resourceSlice.actions;
 
 /**
@@ -75,6 +81,14 @@ export const selectResources = (state: ReduxState) => state.resource.resources;
  * @returns selected resource from Redux store
  */
 export const selectSelectedResource = (state: ReduxState) => state.resource.selectedResource;
+
+/**
+ * Select locked resource ids
+ *
+ * @param state Redux store root state
+ * @returns selected locked resource ids from Redux store
+ */
+ export const selectLockedResourceIds = (state: ReduxState) => state.resource.lockedResourceIds;
 
 /**
  * Reducer for resource slice
