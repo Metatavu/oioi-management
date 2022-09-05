@@ -97,8 +97,9 @@ class ResourceTree extends React.Component<Props, State> {
 
     const selectedResourceChanged = !deepEqual(prevProps.selectedResource, selectedResource) || prevProps.selectedResource?.id !== selectedResource?.id;
     const lockedResourcesChanged = !deepEqual(prevProps.lockedResourceIds, lockedResourceIds);
+    const resourcesChanged = !deepEqual(prevProps.resources, resources);
     
-    if (selectedResourceChanged || lockedResourcesChanged) {
+    if (selectedResourceChanged || lockedResourcesChanged || resourcesChanged) {
       this.setState({ 
         treeData: this.buildTree(resources)
       });
@@ -258,9 +259,7 @@ class ResourceTree extends React.Component<Props, State> {
       return [];
     }
 
-    const treeData = this.recursiveTree(resources, selectedContentVersionId);
-
-    return treeData;
+    return this.recursiveTree(resources, selectedContentVersionId);
   }
 
   /**
