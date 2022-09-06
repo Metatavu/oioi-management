@@ -1227,9 +1227,7 @@ class ApplicationEditor extends React.Component<Props, State> {
    * @param parentType type of
    * @returns whether parent should be locked instead of current resource
    */
-  private shouldLockParent = (parentType: ResourceType) => {
-    return parentType === ResourceType.PAGE;
-  }
+  private shouldLockParent = (parentType: ResourceType) => parentType === ResourceType.PAGE;
   
   /**
    * Finds resource by id
