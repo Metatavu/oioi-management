@@ -74,7 +74,7 @@ interface State {
   deleting: boolean;
   confirmationRequired: boolean;
   confirmationDetails?: ConfirmationDetails;
-  currentLockedResource: Resource | undefined;
+  currentLockedResource?: Resource;
   savingLock: boolean;
 }
 
