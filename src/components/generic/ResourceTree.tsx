@@ -95,31 +95,13 @@ class ResourceTree extends React.Component<Props, State> {
   public componentDidUpdate = async (prevProps: Props) => {
     const { resources, selectedResource, lockedResourceIds } = this.props;
 
-
     const selectedResourceChanged = !deepEqual(prevProps.selectedResource, selectedResource) || prevProps.selectedResource?.id !== selectedResource?.id;
     const lockedResourcesChanged = !deepEqual(prevProps.lockedResourceIds, lockedResourceIds);
-    const loading = selectedResourceChanged || lockedResourcesChanged;
+    const resourcesChanged = !deepEqual(prevProps.resources, resources);
     
-    if (loading) {
-      this.setState({ 
-        loading: true
-      });
-    };
-
-    if (selectedResourceChanged) {
-      await this.releaseAndAcquireLock(selectedResource, prevProps.selectedResource);
-      this.resourceLockInterval = setInterval(this.renewLock, 10000);
-    };
-
-    if (selectedResourceChanged || lockedResourcesChanged) {
+    if (selectedResourceChanged || lockedResourcesChanged || resourcesChanged) {
       this.setState({ 
         treeData: this.buildTree(resources)
-      });
-    };
-
-    if (loading) {
-      this.setState({ 
-        loading: false
       });
     };
   }
@@ -277,9 +259,7 @@ class ResourceTree extends React.Component<Props, State> {
       return [];
     }
 
-    const treeData = this.recursiveTree(resources, selectedContentVersionId);
-
-    return treeData;
+    return this.recursiveTree(resources, selectedContentVersionId);
   }
 
   /**
@@ -388,22 +368,24 @@ class ResourceTree extends React.Component<Props, State> {
     const { loading } = this.state;
 
     const tree = [ ...resources ].reduce<TreeItem[]>((tree, resource) => {
-      if (!resource?.id || resource.parentId !== parentId) {
+      const resourceId = resource?.id;
+
+      if (!resourceId || resource.parentId !== parentId) {
         return tree;
       }
 
-      const locked = lockedResourceIds.includes(resource.id);
+      const locked = resourceId !== selectedResource?.id && lockedResourceIds.includes(resourceId);
       const parentLocked = lockedResourceIds.includes(resource.parentId);
       const treeItem = this.translateToTreeItem(resource, locked, parentLocked, loading);
 
       const children: TreeItem[] = [];
 
-      const foundChildren = resources.some(child => child.parentId === resource.id);
+      const foundChildren = resources.some(child => child.parentId === resourceId);
       if (foundChildren) {
-        children.push(...this.recursiveTree(resources, resource.id));
+        children.push(...this.recursiveTree(resources, resourceId));
       }
 
-      if (selectedResource?.id === resource.id && this.canHaveChildren(treeItem)) {
+      if (selectedResource?.id === resourceId && this.canHaveChildren(treeItem)) {
         children.push({ title: this.renderAdd(resource) });
       }
 
@@ -453,12 +435,33 @@ class ResourceTree extends React.Component<Props, State> {
         parentLocked={ parentLocked }
         locked={ locked }
         loading={ loading }
-        selectResource={ this.props.selectResource }
+        selectResource={ this.selectResource }
       />
     ),
     expanded: this.state.expandedKeys.includes(resource.id || ""),
     resource: resource
   });
+
+  /**
+   * Handler for selecting selected resource
+   * 
+   * @param resource selected resource
+   */
+  private selectResource = async (resource: Resource | undefined) => {
+    const previousResource = this.props.selectedResource;
+
+    this.setState({
+      loading: true
+    });
+
+    await this.releaseAndAcquireLock(resource, previousResource);
+    this.resourceLockInterval = setInterval(this.renewLock, 10000);
+    this.props.selectResource(resource);
+
+    this.setState({
+      loading: false
+    });
+  }
 
   /**
    * Event handler for node visibility toggle
