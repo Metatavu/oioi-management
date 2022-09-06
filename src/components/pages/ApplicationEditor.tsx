@@ -37,6 +37,7 @@ import AudioResourceSettingsView from "../views/AudioResourceSettingsView";
 import GenericDialog from "components/generic/GenericDialog";
 import ResourceLocksProvider from "components/containers/resource-locks-provider";
 import MqttConnector from "components/containers/mqtt-connector";
+import { Config } from "app/config";
 
 /**
  * Component properties
@@ -73,6 +74,8 @@ interface State {
   deleting: boolean;
   confirmationRequired: boolean;
   confirmationDetails?: ConfirmationDetails;
+  currentLockedResource?: Resource;
+  savingLock: boolean;
 }
 
 /**
@@ -81,6 +84,8 @@ interface State {
 class ApplicationEditor extends React.Component<Props, State> {
 
   static contextType: React.Context<ErrorContextType> = ErrorContext;
+
+  private resourceLockInterval?: NodeJS.Timeout;
 
   /**
    * Constructor
@@ -98,7 +103,9 @@ class ApplicationEditor extends React.Component<Props, State> {
       treeResizing: false,
       treeWidth: 400,
       loading: true,
-      deleting: false
+      deleting: false,
+      currentLockedResource: undefined,
+      savingLock: false
     };
   }
 
@@ -108,6 +115,7 @@ class ApplicationEditor extends React.Component<Props, State> {
   public componentDidMount = async () => {
     document.addEventListener("mousemove", this.handleMousemove);
     document.addEventListener("mouseup", this.handleMouseup);
+    window.addEventListener("beforeunload", this.componentCleanup);
 
     await this.fetchData();
 
@@ -141,7 +149,9 @@ class ApplicationEditor extends React.Component<Props, State> {
   public componentWillUnmount = () => {
     const { selectResource } = this.props;
 
+    this.componentCleanup();
     selectResource(undefined);
+    window.removeEventListener("beforeunload", this.componentCleanup);
     document.removeEventListener("mousemove", this.handleMousemove);
     document.removeEventListener("mouseup", this.handleMouseup);
   }
@@ -345,7 +355,7 @@ class ApplicationEditor extends React.Component<Props, State> {
    */
   private renderResourceTree = () => {
     const { classes } = this.props;
-    const { loading } = this.state;
+    const { loading, savingLock, currentLockedResource } = this.state;
 
     if (loading) {
       return (
@@ -365,6 +375,8 @@ class ApplicationEditor extends React.Component<Props, State> {
     return (
       <ResourceTree 
         selectResource={ this.onResourceTreeSelectResource }
+        currentLockedResource={ currentLockedResource }
+        savingLock={ savingLock }
       />
     );
   }
@@ -708,10 +720,9 @@ class ApplicationEditor extends React.Component<Props, State> {
    */
   private onConfirmUnsavedConfirm = () => {
     const { confirmationDetails } = this.state;
-    const { selectResource } = this.props;
 
     if (confirmationDetails?.type === "RESOURCE") {
-      selectResource(confirmationDetails?.resource);
+      this.selectResource(confirmationDetails?.resource);
     }
 
     this.setState({ 
@@ -736,10 +747,9 @@ class ApplicationEditor extends React.Component<Props, State> {
    */
   private onResourceTreeSelectResource = (resource?: Resource) => {
     const { confirmationRequired } = this.state;
-    const { selectResource } = this.props;
 
     if (!confirmationRequired) {
-      selectResource(resource);
+      this.selectResource(resource);
     } else {
       this.setState({
         confirmationDetails: {
@@ -1037,6 +1047,232 @@ class ApplicationEditor extends React.Component<Props, State> {
       return Promise.reject(new Error(strings.errorManagement.resource.listChild));
     }
   }
+
+  /**
+   * Handler for selecting selected resource
+   * 
+   * @param resource selected resource
+   */
+  private selectResource = async (resource: Resource | undefined) => {
+    const previouslyLockedResource = this.state.currentLockedResource;
+    const lockResource = this.getLockResource(resource);    
+    await this.releaseAndAcquireLock(lockResource, previouslyLockedResource);
+    this.props.selectResource(resource);
+  }
+
+  /**
+   * Component clean up for unmount and beforeunload page event
+   */
+   private componentCleanup = () => {
+    const { currentLockedResource } = this.state;
+    
+    if (currentLockedResource) {
+      this.releaseLock(currentLockedResource);
+      this.releaseLockWithServiceWorker(currentLockedResource);
+    }
+  }
+
+  /**
+   * Releases single resource lock
+   *
+   * @param lockResource lock resource
+   */
+   private releaseLock = async (lockResource: Resource) => {
+    const { keycloak, customer, device, application } = this.props;
+
+    if (!keycloak?.token || !customer?.id || !device?.id || !application?.id || !lockResource.id) {
+      return;
+    }
+
+    if (this.resourceLockInterval) {
+      clearInterval(this.resourceLockInterval);
+      this.resourceLockInterval = undefined;
+    }
+
+    try {
+      await Api.getResourcesApi(keycloak.token).deleteResourceLock({
+        customerId: customer.id,
+        deviceId: device.id,
+        applicationId: application.id,
+        resourceId: lockResource.id
+      });
+
+      this.setState({
+        currentLockedResource: undefined
+      });
+    } catch (error) {
+      console.error("Failed to release lock", error);
+    }
+  }
+
+  /**
+   * Acquires a resource lock
+   * 
+   * @param lockResource resource to be locked
+   */
+  private acquireLock = async (lockResource: Resource) => {
+    const { keycloak, customer, device, application, selectResource } = this.props;
+
+    if (!keycloak?.token || !customer?.id || !device?.id || !application?.id || !lockResource?.id) {
+      return;
+    }
+
+    const resourcesApi = Api.getResourcesApi(keycloak.token);
+    
+    try {
+      await resourcesApi.updateResourceLock({
+        customerId: customer.id,
+        deviceId: device.id,
+        applicationId: application.id,
+        resourceId: lockResource.id,
+        resourceLock: {}
+      });
+
+      this.setState({
+        currentLockedResource: lockResource
+      });
+
+      this.resourceLockInterval = setInterval(this.renewLock, 10000);
+    } catch (error) {
+      if (error instanceof Response && error.status === 409) {
+        selectResource(undefined);
+        this.context.setError(strings.errorManagement.resource.otherUserEditing, error);
+      } else {
+        console.error("Failed to obtain lock", error);
+      }
+    }
+  }
+
+  /**
+   * Release old resource lock and acquire new lock for selected resource
+   *
+   * @param newLockResource new resource to be locked
+   * @param previousLockResource previously locked resource
+   */
+  private releaseAndAcquireLock = async (newLockResource?: Resource, previousLockResource?: Resource) => {
+    if (newLockResource?.id === previousLockResource?.id) {
+      return;
+    }
+    
+    this.setState({ 
+      savingLock: true 
+    });
+    
+    try {
+      if (previousLockResource) {
+        await this.releaseLock(previousLockResource);
+      }
+    } catch (error) {
+      console.error("Error while releasing lock", error);
+    }
+
+    try {
+      if (newLockResource) {
+        await this.acquireLock(newLockResource);
+      }
+    } catch (error) {
+      console.error("Error while acquiring lock", error);
+    }
+    
+    this.setState({ 
+      savingLock: false 
+    });
+  }
+  
+  /**
+   * Renews single lock
+   */
+  private renewLock = async () => {
+    const { keycloak, customer, device, application } = this.props;
+    const { currentLockedResource } = this.state;
+
+    if (!keycloak?.token || !customer?.id || !device?.id || !application?.id || !currentLockedResource?.id) {
+      return;
+    }
+
+    await Api.getResourcesApi(keycloak.token).updateResourceLock({
+      customerId: customer.id,
+      deviceId: device.id,
+      applicationId: application.id,
+      resourceId: currentLockedResource.id,
+      resourceLock: {}
+    });
+  }
+
+  /**
+   * Returns lock resource for given resource.
+   * 
+   * Lock resource can be either the resource itself or it's parent depending on the
+   * type of the parent resource 
+   * 
+   * @param resource resource
+   * @returns lock resource
+   */
+  private getLockResource = (resource: Resource | undefined) => {
+    if (!resource) {
+      return undefined;
+    }
+
+    const parentResource = this.findResourceById(resource.parentId);
+    if (!parentResource) {
+      return resource;
+    }
+
+    return this.shouldLockParent(parentResource.type) ? parentResource : resource;
+  }
+
+  /**
+   * Returns whether parent should be locked instead of current resource
+   * 
+   * @param parentType type of
+   * @returns whether parent should be locked instead of current resource
+   */
+  private shouldLockParent = (parentType: ResourceType) => parentType === ResourceType.PAGE;
+  
+  /**
+   * Finds resource by id
+   * 
+   * @param id id
+   * @returns found resource or undefined if not found
+   */
+  private findResourceById = (id: string | undefined) => {
+    if (!id) {
+      return undefined;
+    }
+
+    const { resources } = this.props;
+
+    return resources.find(resource => resource.id === id);
+  }
+
+  /**
+   * Releases lock with service worker
+   * 
+   * @param lockedResource locked resource
+   */
+  private releaseLockWithServiceWorker = (lockedResource: Resource) => {
+    const { keycloak, customer, device, application } = this.props;
+
+    if (!keycloak?.token || !customer?.id || !device?.id || !application?.id || !lockedResource?.id) {
+      return;
+    }
+
+    navigator.serviceWorker.controller?.postMessage({
+      url: `${Config.get().api.baseUrl}/v1/customers/${customer.id}/devices/${device.id}/applications/${application.id}/resources/${lockedResource.id}/lock`,
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json;charset=UTF-8",
+        "Authorization": `Bearer ${keycloak.token}`
+      },
+      body: JSON.stringify({
+        customerId: customer.id,
+        deviceId: device.id,
+        applicationId: application.id,
+        resourceId: lockedResource.id
+      })
+    });
+  }
+
 }
 
 /**
