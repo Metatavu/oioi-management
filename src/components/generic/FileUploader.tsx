@@ -105,7 +105,7 @@ class FileUploader extends React.Component<Props, State> {
         error={ false }
         onClose={ this.closeDialog }
         onCancel={ this.onAbortUpload }
-        onConfirm={ this.closeDialog  }
+        onConfirm={ this.closeDialog }
         title={ title || strings.fileUpload.uploadFile }
         cancelButtonText={ strings.fileUpload.cancel }
         ignoreOutsideClicks
