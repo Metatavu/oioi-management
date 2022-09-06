@@ -27,7 +27,7 @@ interface Props extends ExternalProps {
   savingLock: boolean;
   selectResource: (resource?: Resource) => void;
   lockedResourceIds: string[];
-  currentLockedResource: Resource | undefined;
+  currentLockedResource?: Resource;
 }
 
 /**
