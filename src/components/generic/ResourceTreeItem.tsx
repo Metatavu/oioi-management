@@ -27,7 +27,6 @@ interface Props extends ExternalProps {
   resource: Resource;
   parent?: Resource;
   onSelect?: (resource: Resource) => void;
-  parentLocked: boolean;
   locked: boolean;
   loading: boolean;
   selectResource: (resource?: Resource) => void;
@@ -82,17 +81,13 @@ class ResourceTreeItem extends React.Component<Props, State> {
       classes,
       resource,
       selectedResource,
-      parentLocked,
       locked,
-      loading,
-      parent
+      loading
     } = this.props;
     const { lockInfo } = this.state;
 
     const selected = selectedResource?.id === resource.id;
-    const parentSelected = parent?.id === selectedResource?.id;
-    const parentTypeIsPage = parent?.type === ResourceType.PAGE;
-    const disabled = loading || (selectedResource?.id !== resource.id && locked) || (parentLocked && parentTypeIsPage && !parentSelected);
+    const disabled = loading || locked;
 
     return (
       <ListItem

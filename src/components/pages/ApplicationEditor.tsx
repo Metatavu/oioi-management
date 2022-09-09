@@ -354,8 +354,8 @@ class ApplicationEditor extends React.Component<Props, State> {
    * Renders resource tree
    */
   private renderResourceTree = () => {
-    const { classes } = this.props;
-    const { loading, savingLock, currentLockedResource } = this.state;
+    const { classes, lockedResourceIds } = this.props;
+    const { loading, savingLock } = this.state;
 
     if (loading) {
       return (
@@ -374,9 +374,10 @@ class ApplicationEditor extends React.Component<Props, State> {
 
     return (
       <ResourceTree 
-        selectResource={ this.onResourceTreeSelectResource }
-        currentLockedResource={ currentLockedResource }
         savingLock={ savingLock }
+        lockedResourceIds={ lockedResourceIds }
+        selectResource={ this.onResourceTreeSelectResource }
+        isResourceLocked={ this.isResourceLocked }
       />
     );
   }
@@ -1054,10 +1055,47 @@ class ApplicationEditor extends React.Component<Props, State> {
    * @param resource selected resource
    */
   private selectResource = async (resource: Resource | undefined) => {
-    const previouslyLockedResource = this.state.currentLockedResource;
-    const lockResource = this.getLockResource(resource);    
-    await this.releaseAndAcquireLock(lockResource, previouslyLockedResource);
-    this.props.selectResource(resource);
+    if (this.isResourceLocked(resource)) {
+      this.selectResource(undefined);
+      this.context.setError(strings.errorManagement.resource.otherUserEditing);
+    } else {
+      const previouslyLockedResource = this.state.currentLockedResource;
+      const lockResource = this.getLockResource(resource);    
+      
+      if (await this.releaseAndAcquireLock(lockResource, previouslyLockedResource)) {
+        this.props.selectResource(resource);
+      } else {
+        this.props.selectResource(undefined);
+        this.context.setError(strings.errorManagement.resource.otherUserEditing);
+      }
+    }
+  }
+
+  /**
+   * Returns whether given resource is locked or not
+   * 
+   * @param resource resource
+   * @returns whether given resource is locked or not
+   */
+  private isResourceLocked = (resource?: Resource): boolean => {
+    const { currentLockedResource } = this.state;
+    const { lockedResourceIds } = this.props;
+    const resourceId = resource?.id;
+
+    if (!resource || !resourceId) {
+      return false;
+    }
+
+    if (resource?.id !== currentLockedResource?.id && lockedResourceIds.includes(resourceId)) {
+      return true;
+    }
+
+    const parentId = resource?.parentId;
+    if (parentId && this.shouldLockParent(resource.type)) {
+      return parentId !== currentLockedResource?.id && lockedResourceIds.includes(parentId);
+    };
+
+    return false;
   }
 
   /**
@@ -1109,12 +1147,13 @@ class ApplicationEditor extends React.Component<Props, State> {
    * Acquires a resource lock
    * 
    * @param lockResource resource to be locked
+   * @return whether lock was acquired successfully
    */
-  private acquireLock = async (lockResource: Resource) => {
-    const { keycloak, customer, device, application, selectResource } = this.props;
+  private acquireLock = async (lockResource: Resource): Promise<boolean> => {
+    const { keycloak, customer, device, application } = this.props;
 
     if (!keycloak?.token || !customer?.id || !device?.id || !application?.id || !lockResource?.id) {
-      return;
+      return false;
     }
 
     const resourcesApi = Api.getResourcesApi(keycloak.token);
@@ -1133,14 +1172,13 @@ class ApplicationEditor extends React.Component<Props, State> {
       });
 
       this.resourceLockInterval = setInterval(this.renewLock, 10000);
+
+      return true;
     } catch (error) {
-      if (error instanceof Response && error.status === 409) {
-        selectResource(undefined);
-        this.context.setError(strings.errorManagement.resource.otherUserEditing, error);
-      } else {
-        console.error("Failed to obtain lock", error);
-      }
+      console.error("Failed to obtain lock", error);
     }
+
+    return false;
   }
 
   /**
@@ -1148,12 +1186,15 @@ class ApplicationEditor extends React.Component<Props, State> {
    *
    * @param newLockResource new resource to be locked
    * @param previousLockResource previously locked resource
+   * @return whether lock was acquired successfully
    */
-  private releaseAndAcquireLock = async (newLockResource?: Resource, previousLockResource?: Resource) => {
+  private releaseAndAcquireLock = async (newLockResource?: Resource, previousLockResource?: Resource): Promise<boolean> => {
     if (newLockResource?.id === previousLockResource?.id) {
-      return;
+      return true;
     }
     
+    let result = true;
+
     this.setState({ 
       savingLock: true 
     });
@@ -1168,7 +1209,7 @@ class ApplicationEditor extends React.Component<Props, State> {
 
     try {
       if (newLockResource) {
-        await this.acquireLock(newLockResource);
+        result = await this.acquireLock(newLockResource);
       }
     } catch (error) {
       console.error("Error while acquiring lock", error);
@@ -1177,6 +1218,8 @@ class ApplicationEditor extends React.Component<Props, State> {
     this.setState({ 
       savingLock: false 
     });
+
+    return result;
   }
   
   /**
@@ -1289,7 +1332,8 @@ const mapStateToProps = (state: ReduxState) => ({
   contentVersions: state.contentVersion.contentVersions,
   selectedContentVersionId: state.contentVersion.selectedContentVersionId,
   resources: state.resource.resources,
-  selectedResource: state.resource.selectedResource
+  selectedResource: state.resource.selectedResource,
+  lockedResourceIds: state.resource.lockedResourceIds
 });
 
 /**

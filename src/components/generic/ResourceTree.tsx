@@ -27,7 +27,7 @@ interface Props extends ExternalProps {
   savingLock: boolean;
   selectResource: (resource?: Resource) => void;
   lockedResourceIds: string[];
-  currentLockedResource?: Resource;
+  isResourceLocked: (resource?: Resource) => boolean;
 }
 
 /**
@@ -225,7 +225,7 @@ class ResourceTree extends React.Component<Props, State> {
    * @returns list of tree items
    */
   private recursiveTree = (resources: Resource[], parentId: string): TreeItem[] => {
-    const { lockedResourceIds, selectedResource, currentLockedResource, savingLock } = this.props;
+    const { selectedResource, savingLock, isResourceLocked } = this.props;
     const { loading } = this.state;
 
     const tree = [ ...resources ].reduce<TreeItem[]>((tree, resource) => {
@@ -235,9 +235,8 @@ class ResourceTree extends React.Component<Props, State> {
         return tree;
       }
 
-      const locked = resourceId !== currentLockedResource?.id && lockedResourceIds.includes(resourceId);
-      const parentLocked = resource.parentId !== currentLockedResource?.id && lockedResourceIds.includes(resource.parentId);
-      const treeItem = this.translateToTreeItem(resource, locked, parentLocked, loading || savingLock);
+      const locked = isResourceLocked(resource);
+      const treeItem = this.translateToTreeItem(resource, locked, loading || savingLock);
 
       const children: TreeItem[] = [];
 
@@ -282,9 +281,11 @@ class ResourceTree extends React.Component<Props, State> {
    * Translates resource to tree item
    *
    * @param resource resource
+   * @param locked whether resource is locked or not
+   * @param loading whether tree
    * @returns translated tree item
    */
-  private translateToTreeItem = (resource: Resource, locked: boolean, parentLocked: boolean, loading: boolean): TreeItem => ({
+  private translateToTreeItem = (resource: Resource, locked: boolean, loading: boolean): TreeItem => ({
     id: resource.id,
     key: resource.id,
     parentId: resource.parentId,
@@ -293,7 +294,6 @@ class ResourceTree extends React.Component<Props, State> {
       <ResourceTreeItem
         parent={ this.findResourceById(resource.parentId) }
         resource={ resource }
-        parentLocked={ parentLocked }
         locked={ locked }
         loading={ loading }
         selectResource={ this.props.selectResource }
@@ -407,7 +407,7 @@ class ResourceTree extends React.Component<Props, State> {
    * @param data tree data object
    */
   private canDrag = (data: ExtendedNodeData) => {
-    const { lockedResourceIds } = this.props;
+    const { isResourceLocked } = this.props;
     const { updating } = this.state;
     const { node } = data;
     const resource = node.resource;
@@ -417,7 +417,7 @@ class ResourceTree extends React.Component<Props, State> {
       return false;
     }
 
-    return !lockedResourceIds.includes(resourceId);
+    return !isResourceLocked(resource);
   }
 
   /**
@@ -555,8 +555,7 @@ const mapStateToProps = (state: ReduxState) => ({
   contentVersions: state.contentVersion.contentVersions,
   selectedContentVersionId: state.contentVersion.selectedContentVersionId,
   resources: state.resource.resources,
-  selectedResource: state.resource.selectedResource,
-  lockedResourceIds: state.resource.lockedResourceIds
+  selectedResource: state.resource.selectedResource
 });
 
 /**
