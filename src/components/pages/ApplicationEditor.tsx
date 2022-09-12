@@ -1090,8 +1090,9 @@ class ApplicationEditor extends React.Component<Props, State> {
       return true;
     }
 
-    const parentId = resource?.parentId;
-    if (parentId && this.shouldLockParent(resource.type)) {
+    const parentResource = this.findResourceById(resource?.parentId);
+    if (parentResource && this.shouldLockParent(parentResource.type)) {
+      const parentId = parentResource.id!;
       return parentId !== currentLockedResource?.id && lockedResourceIds.includes(parentId);
     };
 
