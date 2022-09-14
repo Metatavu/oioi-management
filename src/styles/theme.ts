@@ -1,14 +1,14 @@
-import { createMuiTheme, responsiveFontSizes } from "@material-ui/core";
+import { createTheme, responsiveFontSizes } from "@material-ui/core";
 import { blueGrey, grey } from "@material-ui/core/colors";
 
-let theme = createMuiTheme();
+let theme = createTheme();
 theme = responsiveFontSizes(theme);
 
-export default createMuiTheme({
+export default createTheme({
+
   palette: {
     primary: { main: blueGrey[900] },
     secondary: { main: grey[900] },
-
     background: {
       default: blueGrey[200],
       paper: blueGrey[50]
@@ -23,6 +23,7 @@ export default createMuiTheme({
       main: "#d41b3f"
     },
   },
+
   typography: {
     fontFamily: "TTNorms-Regular",
     h1: {
@@ -71,40 +72,12 @@ export default createMuiTheme({
       fontFamily: "TTNorms-Black",
     }
   },
+
   overrides: {
     MuiCssBaseline: {
       "@global": {
         "body": {
           margin: 0
-        },
-        ".wrapper": {
-          overflow: "hidden",
-          height: "100vh",
-          display: "grid",
-          gridTemplateRows: "auto auto 1fr",
-          gridTemplateAreas: `
-            "header"
-            "breadcrumb"
-            "content"
-          `
-        },
-        ".content": {
-          gridArea: "content"
-        },
-        ".page-content": {
-          overflow: "hidden",
-          maxHeight: "100%",
-          height: "100%",
-          paddingBottom: 50,
-          paddingTop: 50,
-          "@media screen and (max-width: 600px)": {
-            paddingTop: 25
-          }
-        },
-        ".card-list": {
-          overflowY: "auto",
-          maxHeight: "calc(100% - 50px)",
-          marginBottom: 0
         },
         "::-webkit-scrollbar": {
           width: 10
@@ -129,6 +102,7 @@ export default createMuiTheme({
         borderRadius: 0,
         fontFamily: "TTNorms-Black",
         padding: "6px 30px",
+        whiteSpace: "nowrap",
         "&.Mui-disabled": {
           opacity: 0.5
         }
@@ -174,12 +148,13 @@ export default createMuiTheme({
           backgroundColor: "rgba(38, 50, 56, 0.1)",
         },
         "&.Mui-selected": {
-          backgroundColor: "rgba(38, 50, 56, 0.1)",
+          backgroundColor: "rgba(0, 180, 216, 0.2)",
           "& .MuiTypography-body1": {
             fontFamily: "TTNorms-Bold",
           },
           "& ~ .MuiListItemSecondaryAction-root": {
-            opacity: 1
+            opacity: 1,
+            color: "#00B4D8"
           },
           "&:hover": {
             backgroundColor: "rgba(38, 50, 56, 0.1)"
@@ -211,6 +186,54 @@ export default createMuiTheme({
       head: {
         fontFamily: "TTNorms-Bold",
       }
+    },
+    MuiBreadcrumbs: {
+      separator: {
+        marginLeft: 16,
+        marginRight: 16
+      },
+      li: {
+        fontFamily: "TTNorms-Light",
+        "&:last-child": {
+          fontFamily: "TTNorms-Bold",
+        }
+      }
+    },
+    MuiAccordion: {
+      root: {
+        border: "1px solid rgba(0,0,0,0.1)",
+        "&:before": {
+          display: "none"
+        }
+      }
+    },
+    MuiAccordionSummary: {
+      root: {
+        borderBottom: "1px solid rgba(0,0,0,0.1)",
+        height: 56,
+        minHeight: 56,
+        "&$expanded": {
+          height: 56,
+          minHeight: 56
+        }
+      },
+      expanded: {}
+    },
+    MuiAccordionDetails: {
+      root: {
+        backgroundColor: "#f6f6f6",
+        flexDirection: "column"
+      }
+    }
+  },
+  props: {
+    MuiAccordion: {
+      square: true,
+      elevation: 0
+    },
+    MuiPaper: {
+      elevation: 0
     }
   }
+
 });

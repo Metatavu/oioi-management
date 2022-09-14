@@ -1,7 +1,9 @@
 import * as React from "react";
 
-import { Dialog, DialogTitle, DialogContent, DialogActions, Button, IconButton, Box, Typography } from "@material-ui/core";
+import { Dialog, DialogTitle, DialogContent, DialogActions, Button, IconButton, Box, Typography, LinearProgress } from "@material-ui/core";
 import CloseIcon from "@material-ui/icons/Close";
+import { CSSProperties } from "@material-ui/styles";
+import strings from "localization/strings";
 
 /**
  * Interface representing component properties
@@ -13,13 +15,15 @@ interface Props {
   onClose: () => void;
   onCancel: () => void;
   onConfirm: () => void | Promise<void>;
+  showLoader?: boolean;
   open: boolean;
-  error: boolean;
+  error?: boolean;
   fullScreen?: boolean;
-  fullWidth?: boolean;
   disableEnforceFocus?: boolean;
   disabled?: boolean;
   ignoreOutsideClicks?: boolean;
+  style?: CSSProperties;
+  loaderMessage?: string;
 }
 
 /**
@@ -32,15 +36,18 @@ const GenericDialog: React.FC<Props> = ({
   onClose,
   onCancel,
   title,
+  showLoader,
   onConfirm,
   error,
   fullScreen,
-  fullWidth,
   disableEnforceFocus,
   disabled,
   ignoreOutsideClicks,
-  children
+  style,
+  children,
+  loaderMessage
 }) => {
+  const [ loading, setLoading ] = React.useState(false);
 
   /**
    * Event handler for on close click
@@ -55,25 +62,57 @@ const GenericDialog: React.FC<Props> = ({
     onClose();
   }
 
+  /**
+   * Event handler for confirm click
+   */
+  const onConfirmClick = async () => {
+    setLoading(true);
+    await onConfirm();
+    setTimeout(() => setLoading(false), 500);
+  }
+
+  /**
+   * Renders dialog content
+   */
+  const renderContent = () => {
+    const loaderText = loaderMessage || strings.loading;
+
+    if (showLoader && loading) {
+      return (
+        <Box marginBottom={ 2 }>
+          <LinearProgress color="secondary" style={{ flex: 1 }}/>
+          <Box mt={ 2 } display="flex" flex={ 1 } justifyContent="flex-end">
+            <Typography>
+              { loaderText }
+            </Typography>
+          </Box>
+        </Box>
+      );
+    }
+
+    return children;
+  }
+
+  /**
+   * Component render
+   */
   return (
     <Dialog
-      disableEnforceFocus={ disableEnforceFocus }
       open={ open }
-      onClose={ (event, reason) => onCloseClick(reason) }
-      aria-labelledby="alert-dialog-title"
-      aria-describedby="alert-dialog-description"
       fullScreen={ fullScreen }
-      fullWidth={ fullWidth }
+      fullWidth
+      maxWidth="sm"
+      disableEnforceFocus={ disableEnforceFocus }
+      onClose={ (event, reason) => onCloseClick(reason) }
+      PaperProps={{ style: style }}
     >
-      <DialogTitle
-        id="alert-dialog-title"
-        disableTypography
-      >
+      <DialogTitle disableTypography>
         <Box display="flex" justifyContent="space-between" alignItems="center">
           <Typography variant="h4">
             { title }
           </Typography>
           <IconButton
+            disabled={ showLoader }
             size="small"
             onClick={ onCancel }
           >
@@ -82,26 +121,27 @@ const GenericDialog: React.FC<Props> = ({
         </Box>
       </DialogTitle>
       <DialogContent>
-        { children }
+        { renderContent() }
       </DialogContent>
       <DialogActions>
         { cancelButtonText &&
           <Button
             onClick={ onCancel }
             color="secondary"
+            disabled={ loading }
           >
             { cancelButtonText }
           </Button>
         }
         { positiveButtonText &&
-        <Button
-          disabled={ error || disabled }
-          onClick={ onConfirm }
-          color="primary"
-          autoFocus
-        >
-          { positiveButtonText }
-        </Button>
+          <Button
+            disabled={ error || disabled || loading }
+            onClick={ onConfirmClick }
+            color="primary"
+            autoFocus
+          >
+            { positiveButtonText }
+          </Button>
         }
       </DialogActions>
     </Dialog>

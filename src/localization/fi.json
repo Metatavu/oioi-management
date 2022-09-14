@@ -1,5 +1,6 @@
 {
   "active": "Aktiivinen",
+  "actions": "Toiminnot",
   "address": "Osoite (valinnainen)",
   "addNew": "Lisää..",
   "addNewIcon": "Lisää uusi ikoni",
@@ -18,13 +19,13 @@
   "customers": "Asiakkaat",
   "customerLogo": "Logo",
   "customerInformation": "Asiakkaan tiedot",
+  "copying": "Kopioidaan sisältöjä...",
   "delete": "Poista",
   "details": "Tiedot",
   "devices": "Laitteet",
   "deviceImage": "Laitekuva",
   "deviceInformation": "Laitteen tiedot",
   "deleteConfirmation": "Varmista poisto",
-  "continueWithoutSaving": "Sinulla on tallentamattomia muutoksia! Haluatko varmasti jatkaa?",
   "deleteSuccess": "Poisto onnistui",
   "dropFile": "Tiputa tiedosto tai klikkaa ja etsi",
   "edit": "Editoi",
@@ -69,15 +70,15 @@
   "unknownErrorMessage": "Tuntematon virhe, yritä myöhemmin uudelleen",
   "badRequestErrorMessage": "Virhe lähetetyissä tiedoissa, tarkista tiedot ja yritä uudelleen",
   "forbiddenErrorMessage": "Pääsy estetty, yritä kirjautua uudelleen sisään",
-  "notFoundErrorMessage": "Haettua tietoa ei löytynyt, se voi olla poistettu tai siirretty", 
+  "notFoundErrorMessage": "Haettua tietoa ei löytynyt, se voi olla poistettu tai siirretty",
   "internalErrorMessage": "Palvelimella tapahtui virhe, voit raportoida virheestä järjestelmän ylläpitäjälle",
   "unavailableErrorMessage": "Palvelu on väliaikaisesti poissa käytöstä, jos ongelma ei katoa, ota yhteyttä järjestelmän ylläpitäjiin.",
   "updateSuccessMessage": "Päivitys onnistui.",
   "createSuccessMessage": "Luonti onnistui.",
   "deleteSuccessMessage": "Poisto onnistui.",
-  "importInProgress": "Sisältöä tuodaan, odota äläkä tee mitään.",
-  "importDone": "Onnistui, sivu ladataan uudelleen hetken kuluttua.",
-  "importLabel": "Tuo sisältö json tiedostosta.",
+  "importInProgress": "Sisältöä tuodaan...",
+  "importDone": "Sisällön tuonti onnistui",
+  "importLabel": "Tuo sisältö JSON-tiedostosta",
   "playback": "Toisto",
   "autoplay": "Automaattinen toisto",
   "loop": "Looppi",
@@ -97,9 +98,98 @@
   "urlAddressDialogContent": "Syötä suora URL-osoite resurssiin.",
   "urlAddressDialogLabel": "URL-osoite",
   "actionCannotBeReverted": "Toimintoa ei voi peruuttaa.",
-  
+
+  "customersList": {
+    "loadingCustomers": "Ladataan asiakkaita..."
+  },
+
+  "devicesList": {
+    "loadingDevices": "Ladataan laitteita..."
+  },
+
+  "applicationsList": {
+    "loadingApplications": "Ladataan sovelluksia..."
+  },
+
   "applicationEditor": {
-    "dragSidebar": "Raahaa leveämmäksi / kapeammaksi"
+    "dragSidebar": "Raahaa leveämmäksi / kapeammaksi",
+    "loadingContentTree": "Ladataan sovelluspuuta...",
+    "deleteApplication": "Poista sovellus",
+    "deleteVersion": "Poista versio",
+    "deleteLanguage": "Poista kieli",
+    "removeCustomIcon": "Poista omavalintainen ikoni"
+  },
+
+  "commonSettingsTexts": {
+    "name": "Valikkonimi",
+    "teaserText": "Ingressiteksti valikossa",
+    "media": "Taustamedia valikossa"
+  },
+
+  "introSettingsView": {
+    "title": "Intron otsikko",
+    "contentText": "Kuvausteksti",
+    "backgroundMedia": "Taustamedia",
+    "foregroundMedia": "Etualan media",
+    "delete": "Poista intro"
+  },
+
+  "languageMenuSettingsView": {
+    "title": "Otsikko",
+    "contentText": "Kuvausteksti",
+    "backgroundMedia": "Taustamedia",
+    "foregroundMedia": "Etualan media",
+    "delete": "Poista kielivalikko"
+  },
+
+  "languageSettingsView": {
+    "title": "Otsikko",
+    "contentText": "Kuvausteksti",
+    "backgroundMedia": "Taustamedia",
+    "foregroundMedia": "Etualan media",
+    "delete": "Poista kieli"
+  },
+
+  "menuSettingsView": {
+    "title": "Otsikko",
+    "contentText": "Kuvausteksti",
+    "backgroundMedia": "Taustamedia",
+    "foregroundMedia": "Etualan media",
+    "delete": "Poista valikko"
+  },
+
+  "applicationSettingsView": {
+    "title": "Otsikko",
+    "contentText": "Kuvausteksti",
+    "backgroundMedia": "Taustamedia",
+    "foregroundMedia": "Etualan media",
+    "delete": "Poista sovellus",
+    "activeJsonUrl": "Aktiivinen seinä-JSON:",
+    "versionJsonUrl": "Version seinä-JSON:"
+  },
+
+  "pageSettingsView": {
+    "delete": "Poista sivu"
+  },
+
+  "slideshowSettingsView": {
+    "title": "Otsikko",
+    "contentText": "Slideshown kuvausteksti",
+    "backgroundMedia": "Taustamedia",
+    "foregroundMedia": "Etualan media",
+    "delete": "Poista slideshow"
+  },
+
+  "pdfSettingsView": {
+    "delete": "Poista PDF"
+  },
+
+  "audioSettingsView": {
+    "download": "Lataa äänitiedosto",
+    "uploadAudioTitle": "Lataa äänitiedosto",
+    "uploadAudioFile": "Lataa äänitiedosto",
+    "changeAudioFile": "Vaihda äänitiedosto",
+    "delete": "Poista äänitiedosto"
   },
 
   "fileUpload": {
@@ -111,6 +201,8 @@
     "changeFile": "Vaihda tiedosto",
     "addVideo": "Lisää video",
     "changeVideo": "Vaihda video",
+    "addAudio": "Lisää audio",
+    "changeAudio": "Vaihda audio",
     "addPDF": "Lisää PDF-tiedosto",
     "changePDF": "Vaihda PDF-tiedosto",
     "upload": "Lähetä",
@@ -118,11 +210,13 @@
     "dropFileHere": "Pudota tiedosto tähän tai valitse klikkaamalla. Tiedoston maksimikoko on 300 Mt.",
     "uploadFile": "Lisää tiedosto",
     "preview": "Esikatselu",
-    "finalizing": "Viimeistellään..."
+    "finalizing": "Viimeistellään...",
+    "changeIcon": "Vaihda"
   },
 
   "resourceTypes": {
     "root": "Root",
+    "contentVersion": "Sisältöversio",
     "page": "Sivu",
     "slideshow": "Slideshow",
     "slideshowPdf": "Slideshow - PDF",
@@ -134,6 +228,7 @@
     "text": "Teksti",
     "image": "Kuva",
     "video": "Video",
+    "audio": "Audio",
     "application": "Sovellus"
   },
 
@@ -148,7 +243,32 @@
     "returnDelay": "Alkutilan paluuviive minuutteina",
     "bundleId": "Bundle Id",
     "id": "Sovelluksen id",
-    "addIcon": "Lisää ikoni"
+    "addIcon": "Lisää ikoni",
+    "advancedSettings": "Edistyneet asetukset",
+    "deleteApplication": "Poista sovellus",
+    "deleteApplicationConfirmationText": "Haluatko varmasti poistaa koko sovelluksen ja kaikki sen versiot?"
+  },
+
+  "contentVersionControls": {
+    "contentVersion": "Versio",
+    "notSelected": "Ei valittu",
+    "addNewVersion": "Uusi versio",
+    "setActive": "Aseta aktiiviseksi",
+    "alreadyActive": "Versio on jo aktiivinen",
+    "versionNotSelected": "Ei valittua versiota",
+    "activeVersion": "Aktiivinen versio",
+    "createNew": "Luo uusi",
+    "alreadyExists": "Nimi on jo varattu",
+    "content": "Sisältö",
+    "empty": "Tyhjä",
+    "activeVersionUpdateSuccess": "Aktiivinen versio päivitetty",
+    "deleteVersion": "Poista versio",
+    "cannotDeleteActiveVersion": "Aktiivista versiota ei voida poistaa",
+    "deleteSelectedVersion": "Poista valittu versio",
+    "deleteVersionConfirmationText": "Haluatko varmasti poistaa tämän sisältöversion? Toimintoa ei voi peruuttaa.",
+    "deleteVersionSuccess": "Sisältöversio poistettu",
+    "deletingContentVersion": "Poistetaan versiota...",
+    "creatingContentVersion": "Luodaan uutta versiota..."
   },
 
   "iconKeys": {
@@ -161,7 +281,11 @@
     "iconClose": "Sulje normaali",
     "iconCloseActive": "Sulje aktiivinen",
     "iconExitApp": "Sulje sovellus",
-    "iconExitAppActive": "Sulje sovellus aktiivinen"
+    "iconExitAppActive": "Sulje sovellus aktiivinen",
+    "iconLeft": "Vasemmalle normaali",
+    "iconLeftActive": "Vasemmalle aktiivinen",
+    "iconRight": "Oikealle normaali",
+    "iconRightActive": "Oikealle aktiivinen"
   },
 
   "errorManagement": {
@@ -187,6 +311,12 @@
       "update": "Virhe päivittäessä sovellusta {0}",
       "delete": "Virhe poistaessa sovellusta"
     },
+    "contentVersion": {
+      "list": "Virhe listattaessa sisältöversioita",
+      "create": "Virhe luotaessa uutta sisältöversiota",
+      "update": "Virhe päivitettäessä sisältöversiota",
+      "delete": "Virhe poistettaessa sisältöversiota"
+    },
     "resource": {
       "list": "Virhe listattaessa resursseja",
       "listChild": "Virhe listattaessa alaresursseja",
@@ -194,7 +324,9 @@
       "find": "Virhe haettaessa resurssin tietoja",
       "update": "Virhe päivittäessä resurssin tietoja",
       "updateChild": "Virhe päivittäessä alaresurssin tietoja",
-      "delete": "Virhe poistettaessa resurssia {0}"
+      "delete": "Virhe poistettaessa resurssia {0}",
+      "newLock": "Virhe resurssin lukituksessa",
+      "otherUserEditing": "Toinen henkilö on jo muokkaamassa resurssia"
     },
     "file": {
       "upload": "Virhe lähetettäessä tiedostoa: {0}"
@@ -203,5 +335,27 @@
       "init": "Kirjautumisessa tapahtui virhe",
       "refresh": "Autentikoinnin päivityksessä tapahtui virhe"
     }
+  },
+
+  "deleteConfirmationsByType": {
+    "INTRO": "Poista intro {0} ja kaikki sen alla olevat resurssit?",
+    "LANGUAGE_MENU": "Poista kielivalikko {} ja kaikki sen alla olevat resurssit?",
+    "LANGUAGE": "Poista kieli {0} ja kaikki sen alla olevat resurssit?",
+    "SLIDESHOW": "Poista slideshow {0} ja kaikki sen alla olevat resurssit?",
+    "SLIDESHOW_PDF": "Poista PDF-slideshow {0}?",
+    "MENU": "Poista valikko {0} ja kaikki sen alla olevat resurssit?",
+    "PAGE": "Poista sivu {0} ja kaikki sen alla olevat resurssit?",
+    "PDF": "Poista PDF {0}?",
+    "IMAGE": "Poista kuva {0}?",
+    "VIDEO": "Poista video {0}?",
+    "TEXT": "Poista teksti {0}?",
+    "APPLICATION": "Poista sovellus {0}?"
+  },
+
+  "confirmUnsavedChangesDialog": {
+    "title": "Tallentamattomia muutoksia!",
+    "text": "Sinulla on tallentamattomia muutoksia! Haluatko poistua näkymästä tallentamatta?",
+    "confirm": "Jatka tallentamatta",
+    "cancel": "Peruuta"
   }
 }

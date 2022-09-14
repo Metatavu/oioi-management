@@ -1,8 +1,8 @@
 import * as React from "react";
 import { DialogTitle, Typography, Dialog, DialogContent, Button, WithStyles, withStyles, Box, DialogActions } from "@material-ui/core";
-import { Application } from "../../generated/client/src/models/Application";
-import { Customer } from "../../generated/client/src/models/Customer";
-import { Device } from "../../generated/client/src/models/Device";
+import { Application } from "../../generated/client/models/Application";
+import { Customer } from "../../generated/client/models/Customer";
+import { Device } from "../../generated/client/models/Device";
 import strings from "../../localization/strings";
 import styles from "../../styles/dialog";
 

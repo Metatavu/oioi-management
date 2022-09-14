@@ -1,7 +1,10 @@
 import LocalizedStrings, { LocalizedStringsMethods } from "localized-strings";
+import en from "./en.json";
+import fi from "./fi.json";
 
 export interface IStrings extends LocalizedStringsMethods {
   active: string;
+  actions: string;
   address: string;
   advanced: string;
   addNew: string;
@@ -20,6 +23,7 @@ export interface IStrings extends LocalizedStringsMethods {
   customers: string;
   customerLogo: string;
   customerInformation: string;
+  copying: string;
   delete: string;
   details: string;
   devices: string;
@@ -56,7 +60,6 @@ export interface IStrings extends LocalizedStringsMethods {
   slug: string;
   deleteResource: string;
   deleteResourceDialogDescription: string;
-  continueWithoutSaving: string;
   andAllChildren: string;
   key: string;
   value: string;
@@ -100,11 +103,139 @@ export interface IStrings extends LocalizedStringsMethods {
   actionCannotBeReverted: string;
 
   /**
+   * Translations related to customers list screen
+   */
+  customersList: {
+    loadingCustomers: string;
+  }
+
+  /**
+   * Translations related to applications list screen
+   */
+  applicationsList: {
+    loadingApplications: string;
+  }
+
+  /**
+   * Translations related to devices list screen
+   */
+  devicesList: {
+    loadingDevices: string;
+  }
+
+  /**
    * Translations related to application editor
    */
   applicationEditor: {
     dragSidebar: string;
+    loadingContentTree: string;
+    deleteApplication: string;
+    deleteVersion: string;
+    deleteLanguage: string;
+    removeCustomIcon: string;
   };
+
+  /**
+   * Translations common to each settings view
+   */
+  commonSettingsTexts: {
+    name: string;
+    teaserText: string;
+    media: string;
+  }
+
+  /**
+   * Translations related to intro settings
+   */
+  introSettingsView: {
+    title: string;
+    contentText: string;
+    backgroundMedia: string;
+    foregroundMedia: string;
+    delete: string;
+  };
+
+  /**
+   * Translations related to language settings
+   */
+  languageSettingsView: {
+    title: string;
+    contentText: string;
+    backgroundMedia: string;
+    foregroundMedia: string;
+    delete: string;
+  };
+
+  /**
+   * Translations related to language menu settings
+   */
+  languageMenuSettingsView: {
+    title: string;
+    contentText: string;
+    backgroundMedia: string;
+    foregroundMedia: string;
+    delete: string;
+  },
+
+  /**
+   * Translations related to menu settings
+   */
+  menuSettingsView: {
+    title: string;
+    contentText: string;
+    backgroundMedia: string;
+    foregroundMedia: string;
+    delete: string;
+  },
+
+  /**
+   * Translations related to application settings
+   */
+  applicationSettingsView: {
+    title: string;
+    contentText: string;
+    backgroundMedia: string;
+    foregroundMedia: string;
+    delete: string;
+    activeJsonUrl: string;
+    versionJsonUrl: string;
+  },
+
+  /**
+   * Translations related to page settings
+   */
+  pageSettingsView: {
+    delete: string;
+  },
+
+  /**
+   * Translations related to slideshow settings
+   */
+  slideshowSettingsView: {
+    title: string;
+    contentText: string;
+    backgroundMedia: string;
+    foregroundMedia: string;
+    delete: string;
+  },
+
+  /**
+   * Translations related to PDF settings
+   */
+  pdfSettingsView: {
+    delete: string;
+  },
+
+  /**
+   * Translations related to audio settings
+   */
+  audioSettingsView: {
+    download: string;
+    uploadAudioTitle: string;
+    uploadAudioFile: string;
+    changeAudioFile: string;
+    delete: string;
+  },
 
   /**
    * Translations related to file upload
@@ -118,6 +249,8 @@ export interface IStrings extends LocalizedStringsMethods {
     changeImage: string;
     addVideo: string;
     changeVideo: string;
+    addAudio: string;
+    changeAudio: string;
     addPDF: string;
     changePDF: string;
     upload: string;
@@ -126,12 +259,14 @@ export interface IStrings extends LocalizedStringsMethods {
     uploadFile: string;
     preview: string;
     finalizing: string;
+    changeIcon: string;
   };
 
   /**
    * Translations related to resource types
    */
   resourceTypes: {
+    contentVersion: string;
     root: string;
     video: string;
     page: string;
@@ -144,6 +279,7 @@ export interface IStrings extends LocalizedStringsMethods {
     pdf: string;
     text: string;
     image: string;
+    audio: string;
     application: string;
   };
 
@@ -162,6 +298,33 @@ export interface IStrings extends LocalizedStringsMethods {
     bundleId: string;
     id: string;
     addIcon: string;
+    advancedSettings: string;
+    deleteApplication: string;
+    deleteApplicationConfirmationText: string;
+  };
+
+  /**
+   * Translations related to content version controls
+   */
+  contentVersionControls: {
+    contentVersion: string;
+    notSelected: string;
+    addNewVersion: string;
+    setActive: string;
+    alreadyActive: string;
+    versionNotSelected: string;
+    activeVersion: string;
+    alreadyExists: string;
+    content: string;
+    empty: string;
+    activeVersionUpdateSuccess: string;
+    deleteVersion: string;
+    cannotDeleteActiveVersion: string;
+    deleteSelectedVersion: string;
+    deleteVersionConfirmationText: string;
+    deleteVersionSuccess: string;
+    deletingContentVersion: string;
+    creatingContentVersion: string;
   };
 
   /**
@@ -178,6 +341,10 @@ export interface IStrings extends LocalizedStringsMethods {
     iconCloseActive: string;
     iconExitApp: string;
     iconExitAppActive: string;
+    iconLeft: string;
+    iconLeftActive: string;
+    iconRight: string;
+    iconRightActive: string;
   };
 
   /**
@@ -206,6 +373,12 @@ export interface IStrings extends LocalizedStringsMethods {
       update: string;
       delete: string;
     };
+    contentVersion: {
+      list: string;
+      create: string;
+      update: string;
+      delete: string;
+    };
     resource: {
       list: string;
       listChild: string;
@@ -214,6 +387,8 @@ export interface IStrings extends LocalizedStringsMethods {
       update: string;
       updateChild: string;
       delete: string;
+      newLock: string;
+      otherUserEditing: string;
     };
     file: {
       upload: string;
@@ -223,11 +398,36 @@ export interface IStrings extends LocalizedStringsMethods {
       refresh: string;
     };
   };
-}
 
-const strings: IStrings = new LocalizedStrings({
-  en: require("./en.json"),
-  fi: require("./fi.json")
-});
+  /**
+   * Localized delete confirmations by resource type
+   *
+   * - properties are named as the resource type enum for ease of use
+   */
+  deleteConfirmationsByType: {
+    "INTRO": string;
+    "LANGUAGE_MENU": string;
+    "LANGUAGE": string;
+    "SLIDESHOW": string;
+    "SLIDESHOW_PDF": string;
+    "MENU": string;
+    "PAGE": string;
+    "PDF": string;
+    "IMAGE": string;
+    "VIDEO": string;
+    "TEXT": string;
+    "APPLICATION": string;
+  };
+  
+  confirmUnsavedChangesDialog: {
+    title: string;
+    text: string;
+    confirm: string;
+    cancel: string;
+  };
+
+};
+
+const strings: IStrings = new LocalizedStrings({ en, fi });
 
 export default strings;

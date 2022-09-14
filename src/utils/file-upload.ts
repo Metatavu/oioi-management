@@ -34,24 +34,21 @@ export default class FileUpload {
 
     const { data, basePath } = response;
     const formData = new FormData();
-    Object.keys(data.fields).forEach(key =>
-      formData.append(key, data.fields[key])
-    );
+    Object.keys(data.fields).forEach(key => formData.append(key, data.fields[key]));
 
     formData.append("file", file);
 
     const xhr = new XMLHttpRequest();
 
-    xhr.upload.addEventListener("progress", (event) => {
-      callback(event.loaded / event.total * 100);
-    });
+    xhr.upload.addEventListener("progress", event => callback(event.loaded / event.total * 100));
 
     return {
       xhrRequest: xhr,
       uploadUrl: data.url,
       key: data.fields.key,
       formData: formData,
-      cdnBasePath: basePath
+      cdnBasePath: basePath,
+      fileType: file.type
     };
   };
 

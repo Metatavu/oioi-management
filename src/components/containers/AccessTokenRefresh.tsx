@@ -1,68 +1,38 @@
 import * as React from "react";
 
-import { useInterval } from "../../app/hooks";
-import { login } from "../../actions/auth";
-import { AuthUtils } from "../../utils/auth";
-import { AuthState } from "../../types";
-import { ReduxActions, ReduxState } from "../../store";
-import { Dispatch } from "redux";
-import { KeycloakInstance } from "keycloak-js";
-import { connect } from "react-redux";
+import { useAppDispatch, useAppSelector, useInterval } from "app/hooks";
+import { AuthUtils } from "utils/auth";
 import { ErrorContext } from "./ErrorHandler";
 import strings from "../../localization/strings";
-
-/**
- * Component properties
- */
-interface Props {
-  auth?: AuthState;
-  onLogin: typeof login;
-}
+import { login, selectKeycloak } from "features/auth-slice";
 
 /**
  * Component for keeping access token fresh
  *
  * @param props component properties
  */
-const AccessTokenRefresh: React.FC<Props> = ({ children, auth, onLogin }) => {
-
+const AccessTokenRefresh: React.FC = ({ children }) => {
   const context = React.useContext(ErrorContext);
+  const keycloak = useAppSelector(selectKeycloak);
+  const dispatch = useAppDispatch();
 
   React.useEffect(() => {
     AuthUtils.initAuth()
-      .then(auth => auth && onLogin(auth))
+      .then(keycloak => keycloak && dispatch(login(keycloak)))
       .catch(error => context.setError(strings.errorManagement.auth.init, error));
     // eslint-disable-next-line
   }, []);
 
   useInterval(() => {
-    auth && AuthUtils.refreshAccessToken(auth)
-      .then(onLogin)
+    keycloak && AuthUtils.refreshAccessToken(keycloak)
+      .then(keycloak => keycloak && dispatch(login(keycloak)))
       .catch(error => context.setError(strings.errorManagement.auth.refresh, error));
   }, 1000 * 60);
 
   /**
    * Component render
    */
-  return auth ? <>{ children }</> : null;
+  return keycloak ? <>{ children }</> : null;
 }
 
-/**
- * Maps Redux state to component properties
- *
- * @param state Redux state
- */
-const mapStateToProps = (state: ReduxState) => ({
-  auth: state.auth
-});
-
-/**
- * Maps Redux dispatch to component properties
- *
- * @param dispatch Redux dispatch
- */
-const mapDispatchToProps = (dispatch: Dispatch<ReduxActions>) => ({
-  onLogin: (keycloak: KeycloakInstance) => dispatch(login(keycloak))
-});
-
-export default connect(mapStateToProps, mapDispatchToProps)(AccessTokenRefresh);
+export default AccessTokenRefresh;

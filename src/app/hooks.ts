@@ -1,4 +1,16 @@
 import React from "react";
+import { useDispatch, TypedUseSelectorHook, useSelector } from "react-redux";
+import { ReduxDispatch, ReduxState } from "./store";
+
+/**
+ * Custom hook for accessing dispatch function for Redux state
+ */
+export const useAppDispatch = () => useDispatch<ReduxDispatch>();
+
+/**
+ * Custom hook for accessing selector function for redux state
+ */
+export const useAppSelector: TypedUseSelectorHook<ReduxState> = useSelector;
 
 /**
  * Custom hook for running given callback function in intervals

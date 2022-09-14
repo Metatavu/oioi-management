@@ -4,8 +4,6 @@ import { ThemeProvider } from "@material-ui/styles";
 import { CssBaseline, responsiveFontSizes } from "@material-ui/core";
 import { Provider as ReduxProvider } from "react-redux";
 import theme from "./styles/theme";
-import { createStore } from "redux";
-import { ReduxState, ReduxActions, rootReducer } from "./store";
 import strings from "./localization/strings";
 import AccessTokenRefresh from "./components/containers/AccessTokenRefresh";
 import ApplicationEditor from "./components/pages/ApplicationEditor";
@@ -18,11 +16,9 @@ import "moment/locale/fi";
 import "moment/locale/en-gb";
 import { Slide, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-
-/**
- * Redux store
- */
-const store = createStore<ReduxState, ReduxActions, any, any>(rootReducer);
+import { blueGrey } from "@material-ui/core/colors";
+import CheckmarkIcon from "@material-ui/icons/Check";
+import { store } from "app/store";
 
 /**
  * Interface representing component properties
@@ -63,6 +59,12 @@ class App extends React.Component<Props, State> {
             hideProgressBar
             position="top-center"
             theme="dark"
+            toastStyle={{
+              backgroundColor: blueGrey[700],
+              fontFamily: "TTNorms-light",
+              fontSize: 16,
+            }}
+            icon={ <CheckmarkIcon htmlColor="#00B4D8"/> }
             draggable={ false }
             transition={ Slide }
             closeButton={ false }
@@ -76,7 +78,7 @@ class App extends React.Component<Props, State> {
                       path="/"
                       exact
                       render={({ history }) => (
-                        <CustomersList history={ history } />
+                        <CustomersList history={ history }/>
                       )}
                     />
                     <Route

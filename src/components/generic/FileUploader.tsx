@@ -1,26 +1,25 @@
 import * as React from "react";
 import { withStyles, WithStyles, Button, Menu, MenuItem, Dialog, DialogTitle, DialogContent, DialogContentText, TextField, DialogActions, LinearProgress, Typography, Box } from "@material-ui/core";
-import styles from "../../styles/dialog";
+import styles from "styles/dialog";
 import { DropzoneArea } from "material-ui-dropzone";
-import strings from "../../localization/strings";
+import strings from "localization/strings";
 import { ChangeEvent } from "react";
-import VisibleWithRole from "./VisibleWithRole";
+import VisibleWithRole from "../containers/VisibleWithRole";
 import GenericDialog from "./GenericDialog";
-import FileUpload from "../../utils/file-upload";
-import { ReduxState } from "../../store";
-import { connect } from "react-redux";
-import { AuthState, UploadData } from "../../types";
+import FileUpload from "utils/file-upload";
+import { ReduxState } from "app/store";
+import { connect, ConnectedProps } from "react-redux";
+import { UploadData } from "types";
 
 /**
  * Component properties
  */
-interface Props extends WithStyles<typeof styles> {
-  auth: AuthState;
+interface Props extends ExternalProps {
   uploadKey?: string;
-  allowedFileTypes: string[];
+  allowedFileTypes?: string[];
   allowSetUrl?: boolean;
   uploadButtonText: string;
-  onUpload: (uri: string, key: string) => void;
+  onUpload: (uri: string, key: string, type: string) => void;
   onSetUrl?: (url: string, key?: string) => void;
   title?: string;
 }
@@ -106,11 +105,10 @@ class FileUploader extends React.Component<Props, State> {
         error={ false }
         onClose={ this.closeDialog }
         onCancel={ this.onAbortUpload }
-        onConfirm={ this.closeDialog  }
+        onConfirm={ this.closeDialog }
         title={ title || strings.fileUpload.uploadFile }
         cancelButtonText={ strings.fileUpload.cancel }
-        fullWidth={ true }
-        ignoreOutsideClicks={ true }
+        ignoreOutsideClicks
       >
         { this.renderUploader() }
       </GenericDialog>
@@ -170,7 +168,7 @@ class FileUploader extends React.Component<Props, State> {
         dropzoneText={ strings.fileUpload.uploadFile }
         onDrop={ this.onFileUpload }
         showPreviewsInDropzone={ false }
-        maxFileSize={ 314572800 * 1000000 }
+        maxFileSize={ 4 * 1024 * 1024 * 1024 }
         filesLimit={ 1 }
       />
     );
@@ -215,6 +213,8 @@ class FileUploader extends React.Component<Props, State> {
       <Dialog
         open={ urlDialogOpen }
         onClose={ this.closeUrlDialog }
+        fullWidth
+        maxWidth="sm"
       >
         <DialogTitle>
           { strings.urlAddressDialogTitle }
@@ -357,7 +357,7 @@ class FileUploader extends React.Component<Props, State> {
     }
 
     setTimeout(() => {
-      onUpload(`${uploadData.cdnBasePath}/${uploadData.key}`, uploadKey || "");
+      onUpload(`${uploadData.cdnBasePath}/${uploadData.key}`, uploadKey || "", uploadData.fileType);
       this.closeDialog();
     }, 3000);
   }
@@ -366,25 +366,25 @@ class FileUploader extends React.Component<Props, State> {
    * Handle save/upload
    *
    * @param files list of files
+   * @param event drop event
    */
   private onFileUpload = async (files: File[]) => {
-    const { auth } = this.props;
-    if (!auth || !auth.token || !files.length) {
+    const { keycloak } = this.props;
+
+    if (!keycloak?.token || !files.length) {
       return;
     }
-
-    const fileToUpload = files[0];
 
     this.setState({ uploading: true, progress: 0 });
 
     try {
-      const uploadData = await FileUpload.upload(auth.token, fileToUpload, this.updateProgress);
+      const uploadData = await FileUpload.upload(keycloak.token, files[0], this.updateProgress);
       const { xhrRequest, uploadUrl, formData } = uploadData;
       this.setState({ uploadData: uploadData });
       xhrRequest.open("POST", uploadUrl, true);
       xhrRequest.send(formData);
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
   }
 }
@@ -395,7 +395,11 @@ class FileUploader extends React.Component<Props, State> {
  * @param state Redux state
  */
 const mapStateToProps = (state: ReduxState) => ({
-  auth: state.auth
+  keycloak: state.auth.keycloak
 });
 
-export default connect(mapStateToProps)(withStyles(styles)(FileUploader));
+const connector = connect(mapStateToProps);
+
+type ExternalProps = ConnectedProps<typeof connector> & WithStyles<typeof styles>;
+
+export default connector(withStyles(styles)(FileUploader));

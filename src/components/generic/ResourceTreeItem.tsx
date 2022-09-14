@@ -1,172 +1,220 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import * as React from "react";
-import styles from "../../styles/editor-view";
-import { withStyles, WithStyles, ListItem, ListItemIcon, ListItemText, ListItemSecondaryAction } from "@material-ui/core";
-import { Resource, ResourceType } from "../../generated/client/src";
-import { AuthState } from "../../types";
-import { ReduxState, ReduxActions } from "../../store";
-import { Dispatch } from "redux";
-import { connect } from "react-redux";
-import { openResource } from "../../actions/resources";
+import styles from "styles/generic/resource-tree-item";
+import { withStyles, WithStyles, ListItem, ListItemIcon, ListItemText, Box, Tooltip, Fade } from "@material-ui/core";
+import { Resource, ResourceLock, ResourceType } from "generated/client";
+import { ReduxDispatch, ReduxState } from "app/store";
+import { connect, ConnectedProps } from "react-redux";
 
 import LanguageIcon from "@material-ui/icons/Language";
 import PageIcon from "@material-ui/icons/CropLandscapeOutlined";
 import IntroIcon from "@material-ui/icons/VideoLibraryOutlined";
 import MenuIcon from "@material-ui/icons/Menu";
 import SlideshowIcon from "@material-ui/icons/SlideshowOutlined";
-import UnknownIcon from "@material-ui/icons/HelpOutlineOutlined";
 import VideoIcon from "@material-ui/icons/PlayCircleOutlineOutlined";
 import TextIcon from "@material-ui/icons/TitleOutlined";
 import PDFIcon from "@material-ui/icons/PictureAsPdfOutlined";
 import ImageIcon from "@material-ui/icons/ImageOutlined";
+import AudioIcon from "@material-ui/icons/AudiotrackOutlined";
 import ApplicationIcon from "@material-ui/icons/LaptopMacOutlined";
-import theme from "../../styles/theme";
+import LockIcon from "../../resources/svg/lock-icon";
+import Api from "api";
 
 /**
- * Component props
+ * Component properties
  */
-interface Props extends WithStyles<typeof styles> {
-  customerId: string;
-  deviceId: string;
-  applicationId: string;
+interface Props extends ExternalProps {
   resource: Resource;
-  auth?: AuthState;
-  openedResource?: Resource;
-  openResource: typeof openResource;
-  onDelete: (resourceId: string) => void;
-  onOpenResource: (resource: Resource) => void;
+  parent?: Resource;
+  onSelect?: (resource: Resource) => void;
+  locked: boolean;
+  loading: boolean;
+  selectResource: (resource?: Resource) => void;
 }
 
 /**
  * Component state
  */
 interface State {
-  parentResourceId?: string;
+  lockInfo?: ResourceLock;
 }
 
 /**
- * Creates tree item
+ * Resource tree item
  */
-class ResourceTreeItemClass extends React.Component<Props, State> {
+class ResourceTreeItem extends React.Component<Props, State> {
+
   /**
-   * Constructor
+   * Component constructor
    *
    * @param props component properties
    */
   constructor(props: Props) {
     super(props);
-    this.state = {};
+    this.state = {
+    };
   }
 
   /**
-   * Component did update
-   * @param prevProps
-   * @param prevState
+   * Component did mount life cycle handler
    */
-  public componentDidUpdate = async (prevProps: Props, prevState: State) => {};
+  public componentDidMount = async () => {
+    this.props.locked && await this.fetchLockInfo();
+  }
+
+  /**
+   * Component did update life cycle handler
+   *
+   * @param prevProps previous props
+   */
+  public componentDidUpdate = async (prevProps: Props) => {
+    if (!prevProps.locked && this.props.locked) {
+      await this.fetchLockInfo();
+    }
+  }
 
   /**
    * Component render method
    */
-  public render() {
-    const { classes, resource, openedResource } = this.props;
+  public render = () => {
+    const {
+      classes,
+      resource,
+      selectedResource,
+      locked,
+      loading
+    } = this.props;
+    const { lockInfo } = this.state;
 
-    const icon = this.renderIconComponentByResourceType(resource.type);
-
-    if (!resource.id) {
-      return;
-    }
+    const selected = selectedResource?.id === resource.id;
+    const disabled = loading || locked;
 
     return (
-      <ListItem onClick={ this.onTreeItemClick } key={ resource.id } selected={ openedResource && openedResource.id === resource.id }>
-        <ListItemIcon style={{ minWidth: 0, marginRight: theme.spacing(1) }}>{ icon }</ListItemIcon>
-        <ListItemText primary={ resource.name } />
+      <ListItem
+        key={ resource.id }
+        selected={ selected }
+        onClick={ () => !disabled && this.onSelectResource(resource) }
+        disabled={ disabled }
+      >
+        <ListItemIcon className={ classes.icon }>
+          { this.renderIcon(resource.type) }
+        </ListItemIcon>
+        <ListItemText primary={ resource.name }/>
+        <Fade in={ locked && !loading && !selected }>
+          <Tooltip title={ lockInfo?.userDisplayName || "" }>
+            <Box className={ classes.lockContainer }>
+              <LockIcon
+                  fontSize="small"
+                  color="error"
+                />
+            </Box>
+          </Tooltip>
+        </Fade>
       </ListItem>
     );
   }
 
   /**
-   * get icon component by resource type method
+   * Returns icon by resource type
+   *
+   * @param type resource type
+   */
+  private renderIcon = (type: ResourceType) => {
+    const NodeIcon = this.getIconByResourceType(type);
+
+    if (NodeIcon) {
+      return (
+        <NodeIcon
+          fontSize="small"
+          style={{ marginRight: 10 }}
+        />
+      );
+    }
+  }
+
+  /**
+   * Get icon component by resource type method
    *
    * @param resourceType resource type
    */
-  private renderIconComponentByResourceType = (resourceType: ResourceType) => {
-    switch (resourceType) {
-      case ResourceType.INTRO: {
-        return <IntroIcon fontSize="small" />;
-      }
-      case ResourceType.PAGE: {
-        return <PageIcon fontSize="small" />;
-      }
-      case ResourceType.IMAGE: {
-        return <ImageIcon fontSize="small" />;
-      }
-      case ResourceType.VIDEO: {
-        return <VideoIcon fontSize="small" />;
-      }
-      case ResourceType.TEXT: {
-        return <TextIcon fontSize="small" />;
-      }
-      case ResourceType.PDF: {
-        return <PDFIcon fontSize="small" />;
-      }
-      case ResourceType.LANGUAGEMENU: {
-        return <LanguageIcon fontSize="small" />;
-      }
-      case ResourceType.LANGUAGE: {
-        return <LanguageIcon fontSize="small" />;
-      }
-      case ResourceType.MENU: {
-        return <MenuIcon fontSize="small" />;
-      }
-      case ResourceType.SLIDESHOW : {
-        return <SlideshowIcon fontSize="small" />;
-      }
-      case ResourceType.SLIDESHOWPDF : {
-        return <PDFIcon fontSize="small" />;
-      }
-      case ResourceType.APPLICATION : {
-        return <ApplicationIcon fontSize="small" />;
-      }
-      default: {
-        return <UnknownIcon fontSize="small" />;
-      }
-    }
-  };
+  private getIconByResourceType = (type: ResourceType) => ({
+    [ResourceType.ROOT]: null,
+    [ResourceType.CONTENTVERSION]: null,
+    [ResourceType.INTRO]: IntroIcon,
+    [ResourceType.PAGE]: PageIcon,
+    [ResourceType.IMAGE]: ImageIcon,
+    [ResourceType.AUDIO]: AudioIcon,
+    [ResourceType.VIDEO]: VideoIcon,
+    [ResourceType.TEXT]: TextIcon,
+    [ResourceType.PDF]: PDFIcon,
+    [ResourceType.LANGUAGEMENU]: LanguageIcon,
+    [ResourceType.LANGUAGE]: LanguageIcon,
+    [ResourceType.MENU]: MenuIcon,
+    [ResourceType.SLIDESHOW]: SlideshowIcon,
+    [ResourceType.SLIDESHOWPDF]: PDFIcon,
+    [ResourceType.APPLICATION]: ApplicationIcon
+  })[type];
 
   /**
-   * On treeItem open method
+   * Event handler for select resource
+   *
+   * @param resource resource
    */
-  private onTreeItemClick = async () => {
-    this.props.onOpenResource(this.props.resource);
-  };
+  private onSelectResource = (resource: Resource) => {
+    const { onSelect, selectResource } = this.props;
+
+    selectResource(resource);
+    onSelect && onSelect(resource);
+  }
 
   /**
-   * check if resource is allowed to have children method
+   * Fetches lock info
    */
-  private isAllowedChildren = (): boolean => {
-    const resourceType = this.props.resource.type;
-    if (!resourceType) {
-      return false;
+  private fetchLockInfo = async () => {
+    const { keycloak, customer, device, application, resource } = this.props;
+
+    if (!keycloak?.token || !customer?.id || !device?.id || !application?.id || !resource.id) {
+      return;
     }
 
-    return (
-      resourceType !== ResourceType.IMAGE && resourceType !== ResourceType.PDF && resourceType !== ResourceType.TEXT && resourceType !== ResourceType.VIDEO
-    );
-  };
+    try {
+      const lockInfo = await Api.getResourcesApi(keycloak.token).findResourceLock({
+        customerId: customer.id,
+        deviceId: device.id,
+        applicationId: application.id,
+        resourceId: resource.id
+      });
+
+      this.setState({ lockInfo: lockInfo });
+    } catch {
+      this.setState({ lockInfo: undefined });
+    }
+  }
 }
 
+/**
+ * Map Redux state to props
+ *
+ * @param state Redux state
+ */
 const mapStateToProps = (state: ReduxState) => ({
-  auth: state.auth,
-  openedResource: state.resource.resourceOpen
+  keycloak: state.auth.keycloak,
+  selectedResource: state.resource.selectedResource,
+  customer: state.customer.customer,
+  device: state.device.device,
+  application: state.application.application,
 });
 
-const mapDispatchToProps = (dispatch: Dispatch<ReduxActions>) => {
-  return {
-    openResource: (resource?: Resource) => dispatch(openResource(resource))
-  };
-};
+/**
+ * Map Redux dispatch to props
+ *
+ * @param dispatch Redux dispatch
+ */
+const mapDispatchToProps = (dispatch: ReduxDispatch) => ({
+});
 
-const ResourceTreeItem = connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(ResourceTreeItemClass));
+const connector = connect(mapStateToProps, mapDispatchToProps);
 
-export default ResourceTreeItem;
+type ExternalProps = ConnectedProps<typeof connector> & WithStyles<typeof styles>;
+
+export default connector(withStyles(styles)(ResourceTreeItem));

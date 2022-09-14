@@ -1,8 +1,5 @@
 import { Config } from "../app/config";
 import Keycloak from "keycloak-js";
-import { KeycloakInstance } from "keycloak-js";
-import { AuthState } from "../types";
-import { isSafari } from "react-device-detect";
 
 /**
  * Utility class for authentication
@@ -14,9 +11,9 @@ export class AuthUtils {
    *
    * @param keycloak keycloak instance
    */
-  public static keycloakInit = (keycloak: KeycloakInstance) => {
+  public static keycloakInit = (keycloak: Keycloak) => {
     return new Promise<boolean>((resolve, reject) =>
-      keycloak.init({ onLoad: "login-required", checkLoginIframe: !isSafari })
+      keycloak.init({ onLoad: "login-required", checkLoginIframe: false })
         .success(resolve)
         .error(reject)
     );
@@ -27,7 +24,7 @@ export class AuthUtils {
    *
    * @param keycloak keycloak instance
    */
-  public static loadUserProfile = (keycloak: KeycloakInstance) => {
+  public static loadUserProfile = (keycloak: Keycloak) => {
     return new Promise((resolve, reject) =>
       keycloak.loadUserProfile()
         .success(resolve)
@@ -41,7 +38,7 @@ export class AuthUtils {
    * @param keycloak Keycloak instance
    * @returns true if token did not need refreshing or refreshing was successful, otherwise false
    */
-  private static updateToken = (keycloak: KeycloakInstance): Promise<boolean> => {
+  private static updateToken = (keycloak: Keycloak): Promise<boolean> => {
     return new Promise<boolean>((resolve, reject) =>
       keycloak.updateToken(70)
         .success(resolve)
@@ -54,9 +51,9 @@ export class AuthUtils {
    *
    * @returns promise of initialized auth state
    */
-  public static initAuth = async (): Promise<AuthState> => {
+  public static initAuth = async (): Promise<Keycloak> => {
     try {
-      const keycloak = Keycloak(Config.get().auth);
+      const keycloak = new Keycloak(Config.get().auth);
 
       await AuthUtils.keycloakInit(keycloak);
 
@@ -78,7 +75,7 @@ export class AuthUtils {
    * @param keycloak keycloak instance
    * @returns refreshed access token or undefined
    */
-  public static refreshAccessToken = async (keycloak: KeycloakInstance): Promise<KeycloakInstance> => {
+  public static refreshAccessToken = async (keycloak: Keycloak): Promise<Keycloak> => {
     try {
       await AuthUtils.updateToken(keycloak);
       return keycloak;

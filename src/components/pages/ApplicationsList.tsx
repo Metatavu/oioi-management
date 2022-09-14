@@ -1,40 +1,32 @@
 import * as React from "react";
-import { Container, Typography, Grid, Card, withStyles, WithStyles, CardActionArea } from "@material-ui/core";
+import { Container, Typography, Grid, Card, withStyles, WithStyles, CardActionArea, Box, CircularProgress, Fade } from "@material-ui/core";
 import img from "../../resources/images/infowall.png";
 import AddIcon from "@material-ui/icons/AddCircle";
 import styles from "../../styles/card-item";
 import { History } from "history";
 import CardItem from "../generic/CardItem";
 import strings from "../../localization/strings";
-import { Customer, Device, Application } from "../../generated/client/src";
-import { ReduxState, ReduxActions } from "../../store";
-import { Dispatch } from "redux";
-import { connect } from "react-redux";
-import { AuthState, ErrorContextType } from "../../types";
-import ApiUtils from "../../utils/api";
+import { Customer, Device, Application } from "../../generated/client";
+import { ReduxState, ReduxDispatch } from "app/store";
+import { connect, ConnectedProps } from "react-redux";
+import { ErrorContextType } from "../../types";
+import Api from "../../api";
 import DeleteDialog from "../generic/DeleteDialog";
-import { setCustomer } from "../../actions/customer";
-import { setApplication } from "../../actions/application";
-import { setDevice } from "../../actions/device";
-import VisibleWithRole from "../generic/VisibleWithRole";
+import VisibleWithRole from "../containers/VisibleWithRole";
 import AppLayout from "../layouts/app-layout";
 import { ErrorContext } from "../containers/ErrorHandler";
 import { toast } from "react-toastify";
+import { setApplication } from "features/application-slice";
+import { setCustomer } from "features/customer-slice";
+import { setDevice } from "features/device-slice";
 
 /**
  * Component props
  */
-interface Props extends WithStyles<typeof styles> {
+interface Props extends ExternalProps {
   history: History;
   customerId: string;
   deviceId: string;
-  auth: AuthState;
-  locale: string;
-  setCustomer: typeof setCustomer;
-  setDevice: typeof setDevice;
-  setApplication: typeof setApplication;
-  customer?: Customer;
-  device?: Device;
 }
 
 /**
@@ -45,6 +37,7 @@ interface State {
   applications: Application[];
   deleteDialogOpen: boolean;
   applicationImages?: { id: string, src: string }[];
+  loading: boolean;
 }
 
 /**
@@ -64,7 +57,8 @@ class ApplicationsList extends React.Component<Props, State> {
     this.state = {
       applications: [],
       applicationInDialog: undefined,
-      deleteDialogOpen: false
+      deleteDialogOpen: false,
+      loading: false
     };
   }
 
@@ -85,11 +79,16 @@ class ApplicationsList extends React.Component<Props, State> {
 
     return (
       <AppLayout>
-        <Container maxWidth="xl" className="page-content">
+        <Container maxWidth="xl" className={ classes.pageContent }>
           <Typography className={ classes.heading } variant="h2">
             { customer ? customer.name : strings.loading } / { device ? device.name : strings.loading } / { strings.applications }
           </Typography>
-          <Grid container spacing={ 5 } direction="row" className="card-list">
+          <Grid
+            container
+            spacing={ 5 }
+            direction="row"
+            className={ classes.cardList }
+          >
             { cards }
             { this.renderAdd() }
           </Grid>
@@ -101,8 +100,32 @@ class ApplicationsList extends React.Component<Props, State> {
             handleClose={ () => this.setState({ deleteDialogOpen: false }) }
             title={ strings.deleteConfirmation }
           />
+          { this.renderLoader() }
         </Container>
       </AppLayout>
+    );
+  }
+
+  /**
+   * Loader render method
+   */
+  private renderLoader = () => {
+    const { classes } = this.props;
+    const { loading } = this.state;
+
+    return (
+      <Fade in={ loading } timeout={ 200 }>
+        <Box className={ classes.loaderOverlay }>
+          <Box alignSelf="center" textAlign="center">
+            <CircularProgress color="inherit" />
+            <Box mt={ 2 }>
+              <Typography color="inherit">
+                { strings.applicationsList.loadingApplications }
+              </Typography>
+            </Box>
+          </Box>
+        </Box>
+      </Fade>
     );
   }
 
@@ -172,26 +195,26 @@ class ApplicationsList extends React.Component<Props, State> {
   /**
    * Event handler for delete application click
    *
-   * @param application application to delete
+   * @param applicationToDelete application to delete
    */
-  private onDeleteApplicationClick = async (application: Application) => {
-    const { auth, customerId, deviceId } = this.props;
+  private onDeleteApplicationClick = async (applicationToDelete: Application) => {
+    const { keycloak, customerId, deviceId } = this.props;
     const { applications } = this.state;
 
-    if (!auth || !auth.token || !application.id) {
+    if (!keycloak?.token || !applicationToDelete.id) {
       return;
     }
 
     try {
-      await ApiUtils.getApplicationsApi(auth.token).deleteApplication({
+      await Api.getApplicationsApi(keycloak.token).deleteApplication({
         customerId: customerId,
         deviceId: deviceId,
-        applicationId: application.id
+        applicationId: applicationToDelete.id
       });
 
       this.setState({
         deleteDialogOpen: false,
-        applications: applications.filter(c => c.id !== application.id)
+        applications: applications.filter(application => application.id !== applicationToDelete.id)
       });
 
       toast.success(strings.deleteSuccessMessage);
@@ -216,14 +239,14 @@ class ApplicationsList extends React.Component<Props, State> {
    * Event handler for add application click
    */
   private onAddApplicationClick = async () => {
-    const { auth, customerId, deviceId } = this.props;
+    const { keycloak, customerId, deviceId } = this.props;
 
-    if (!auth || !auth.token) {
+    if (!keycloak?.token) {
       return;
     }
 
     try {
-      const application = await ApiUtils.getApplicationsApi(auth.token).createApplication({
+      const application = await Api.getApplicationsApi(keycloak.token).createApplication({
         customerId: customerId,
         deviceId: deviceId,
         application: {
@@ -244,25 +267,24 @@ class ApplicationsList extends React.Component<Props, State> {
    * @param application application
    */
   private getApplicationImage = async (application: Application) => {
-    const { auth, customerId, deviceId } = this.props;
+    const { keycloak, customerId, deviceId } = this.props;
 
-    if (!auth || !auth.token) {
+    if (!keycloak?.token) {
       return;
     }
 
     try {
-      return ApiUtils.getResourcesApi(auth.token).findResource({
+      return Api.getResourcesApi(keycloak.token).findResource({
         customerId: customerId,
         deviceId: deviceId,
         applicationId: application.id || "",
         resourceId: application.rootResourceId || ""
-      }).then((rootResource) => {
-        if (rootResource && rootResource.properties) {
-          const img = rootResource.properties.find(resource => resource.key === "applicationImage");
+      }).then(rootResource => {
+          const img = rootResource.properties?.find(resource => resource.key === "applicationImage");
+
           if (img) {
             return img.value;
           }
-        }
       });
     } catch (error) {
       this.context.setError(strings.errorManagement.resource.find, error);
@@ -282,18 +304,21 @@ class ApplicationsList extends React.Component<Props, State> {
    * Fetches initial data
    */
   private fetchData = async () => {
-    const { auth, customerId, deviceId, setDevice, setCustomer, customer, device } = this.props;
+    const { keycloak, customerId, deviceId, setDevice, setCustomer, customer, device } = this.props;
 
-    if (!auth || !auth.token) {
+    this.setState({
+      loading: true
+    })
+
+    if (!keycloak?.token) {
       return;
     }
 
-    const { token } = auth;
     const { setError } = this.context;
 
     if (!customer || customer.id !== customerId) {
       try {
-        const findCustomer = await ApiUtils.getCustomersApi(token).findCustomer({ customerId: customerId });
+        const findCustomer = await Api.getCustomersApi(keycloak.token).findCustomer({ customerId: customerId });
         setCustomer(findCustomer);
       } catch (error) {
         setError(strings.errorManagement.customer.find, error);
@@ -303,7 +328,7 @@ class ApplicationsList extends React.Component<Props, State> {
 
     if (!device || device.id !== deviceId) {
       try {
-        const foundDevice = await ApiUtils.getDevicesApi(token).findDevice({ customerId: customerId, deviceId: deviceId });
+        const foundDevice = await Api.getDevicesApi(keycloak.token).findDevice({ customerId: customerId, deviceId: deviceId });
         setDevice(foundDevice);
       } catch (error) {
         setError(strings.errorManagement.device.find, error);
@@ -312,7 +337,7 @@ class ApplicationsList extends React.Component<Props, State> {
     }
 
     try {
-      const applications = await ApiUtils.getApplicationsApi(token).listApplications({ customerId: customerId, deviceId: deviceId });
+      const applications = await Api.getApplicationsApi(keycloak.token).listApplications({ customerId: customerId, deviceId: deviceId });
       const applicationImages = await Promise.all(
         applications.map(async app => {
           return {
@@ -323,7 +348,8 @@ class ApplicationsList extends React.Component<Props, State> {
       );
       this.setState({
         applications: applications,
-        applicationImages: applicationImages
+        applicationImages: applicationImages,
+        loading: false
       });
     } catch (error) {
       setError(strings.errorManagement.application.list, error);
@@ -338,7 +364,7 @@ class ApplicationsList extends React.Component<Props, State> {
  * @param state redux state
  */
 const mapStateToProps = (state: ReduxState) => ({
-  auth: state.auth,
+  keycloak: state.auth.keycloak,
   customer: state.customer.customer,
   device: state.device.device,
   locale: state.locale.locale
@@ -347,14 +373,16 @@ const mapStateToProps = (state: ReduxState) => ({
 /**
  * Function for declaring dispatch functions
  *
- * @param dispatch
+ * @param dispatch Redux dispatch
  */
-const mapDispatchToProps = (dispatch: Dispatch<ReduxActions>) => {
-  return {
-    setCustomer: (customer: Customer) => dispatch(setCustomer(customer)),
-    setDevice: (device: Device) => dispatch(setDevice(device)),
-    setApplication: (application: Application) => dispatch(setApplication(application))
-  };
-};
+const mapDispatchToProps = (dispatch: ReduxDispatch) => ({
+  setCustomer: (customer: Customer) => dispatch(setCustomer(customer)),
+  setDevice: (device: Device) => dispatch(setDevice(device)),
+  setApplication: (application: Application) => dispatch(setApplication(application))
+});
 
-export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(ApplicationsList));
+const connector = connect(mapStateToProps, mapDispatchToProps);
+
+type ExternalProps = ConnectedProps<typeof connector> & WithStyles<typeof styles>;
+
+export default connector(withStyles(styles)(ApplicationsList));

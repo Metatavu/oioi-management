@@ -1,6 +1,9 @@
-import { ResourceType } from "../generated/client/src";
+import { ResourceType } from "../generated/client";
 import strings from "../localization/strings";
 
+/**
+ * Resource type object
+ */
 export interface ResourceTypeObject {
     value?: ResourceType;
     resourceLocal?: string;
@@ -9,14 +12,20 @@ export interface ResourceTypeObject {
 
 /**
  * Find available resource types based on the given parent type.
- * 
+ *
  * TODO: Instead of writing the objects here it would be best to have separate
  * JSON file
- * 
+ *
  * @param type Given ResourceType
  */
 export const resolveChildResourceTypes = (type: ResourceType): ResourceTypeObject[] => ({
-  [ResourceType.ROOT] : [
+  [ResourceType.ROOT]: [
+    {
+      value: ResourceType.CONTENTVERSION,
+      resourceLocal: strings.resourceTypes.contentVersion
+    }
+  ],
+  [ResourceType.CONTENTVERSION]: [
     {
       value: ResourceType.INTRO,
       resourceLocal: strings.resourceTypes.intro
@@ -31,13 +40,13 @@ export const resolveChildResourceTypes = (type: ResourceType): ResourceTypeObjec
       resourceLocal: strings.resourceTypes.page
     }
   ],
-  [ResourceType.LANGUAGEMENU] : [
+  [ResourceType.LANGUAGEMENU]: [
     {
       value: ResourceType.LANGUAGE,
       resourceLocal: strings.resourceTypes.language
     }
   ],
-  [ResourceType.LANGUAGE] : [
+  [ResourceType.LANGUAGE]: [
     {
       value: ResourceType.MENU,
       resourceLocal: strings.resourceTypes.menu
@@ -64,13 +73,13 @@ export const resolveChildResourceTypes = (type: ResourceType): ResourceTypeObjec
       resourceLocal: strings.resourceTypes.application
     }
   ],
-  [ResourceType.SLIDESHOW] : [
+  [ResourceType.SLIDESHOW]: [
     {
       value: ResourceType.PAGE,
       resourceLocal: strings.resourceTypes.page
     }
   ],
-  [ResourceType.SLIDESHOWPDF] : [],
+  [ResourceType.SLIDESHOWPDF]: [],
   [ResourceType.PAGE]: [
     {
       value: ResourceType.VIDEO,
@@ -78,9 +87,12 @@ export const resolveChildResourceTypes = (type: ResourceType): ResourceTypeObjec
     }, {
       value: ResourceType.TEXT,
       resourceLocal: strings.resourceTypes.text
-    },{
+    }, {
       value: ResourceType.IMAGE,
       resourceLocal: strings.resourceTypes.image
+    }, {
+      value: ResourceType.AUDIO,
+      resourceLocal: strings.resourceTypes.audio
     }, {
       value: ResourceType.PDF,
       resourceLocal: strings.resourceTypes.pdf
@@ -88,9 +100,10 @@ export const resolveChildResourceTypes = (type: ResourceType): ResourceTypeObjec
   ],
   // These resources won't act as a parent but are required for the object literal
   [ResourceType.PDF]: [],
-  [ResourceType.IMAGE] : [],
+  [ResourceType.IMAGE]: [],
   [ResourceType.TEXT]: [],
   [ResourceType.VIDEO]: [],
+  [ResourceType.AUDIO]: [],
   [ResourceType.APPLICATION]: []
 })[type];
 
@@ -100,46 +113,53 @@ export const resolveChildResourceTypes = (type: ResourceType): ResourceTypeObjec
  * @param type
  */
 export const resolveUploadLocalizationString = (type: ResourceType): ResourceTypeObject => ({
-  [ResourceType.ROOT] : {
-    fileUploadLocal : [
+  [ResourceType.ROOT]: {
+    fileUploadLocal: [
       strings.fileUpload.addMedia,
       strings.fileUpload.changeMedia
     ]
   },
+  [ResourceType.CONTENTVERSION]: {},
   [ResourceType.INTRO]: {},
-  [ResourceType.LANGUAGEMENU] : {},
-  [ResourceType.LANGUAGE] : {},
+  [ResourceType.LANGUAGEMENU]: {},
+  [ResourceType.LANGUAGE]: {},
   [ResourceType.MENU]: {
-    fileUploadLocal : [
+    fileUploadLocal: [
       strings.fileUpload.addImage,
       strings.fileUpload.changeImage
     ]
   },
-  [ResourceType.SLIDESHOW] : {},
-  [ResourceType.SLIDESHOWPDF] : {
-    fileUploadLocal : [
+  [ResourceType.SLIDESHOW]: {},
+  [ResourceType.SLIDESHOWPDF]: {
+    fileUploadLocal: [
       strings.fileUpload.addPDF,
       strings.fileUpload.changePDF
     ]
   },
   [ResourceType.PAGE]: {},
   [ResourceType.PDF]: {
-    fileUploadLocal : [
+    fileUploadLocal: [
       strings.fileUpload.addPDF,
       strings.fileUpload.changePDF
     ]
   },
-  [ResourceType.IMAGE] : {
-    fileUploadLocal : [
+  [ResourceType.IMAGE]: {
+    fileUploadLocal: [
       strings.fileUpload.addImage,
       strings.fileUpload.changeImage
     ]
   },
   [ResourceType.TEXT]: {},
   [ResourceType.VIDEO]: {
-    fileUploadLocal : [
+    fileUploadLocal: [
       strings.fileUpload.addVideo,
       strings.fileUpload.changeVideo
+    ]
+  },
+  [ResourceType.AUDIO]: {
+    fileUploadLocal: [
+      strings.fileUpload.addAudio,
+      strings.fileUpload.changeAudio
     ]
   },
   [ResourceType.APPLICATION]: {}
@@ -147,23 +167,20 @@ export const resolveUploadLocalizationString = (type: ResourceType): ResourceTyp
 
 /**
  * Get allowed filetype for file uploader
- * @param type
+ *
+ * @param type resource type
  */
 export const getAllowedFileTypes = (type: ResourceType): string[] => {
   switch (type) {
-    case ResourceType.ROOT:
-    case ResourceType.IMAGE: {
-      return ["image/*"];
-    }
-    case ResourceType.PDF: {
-      return ["application/pdf"];
-    }
-    case ResourceType.VIDEO: {
-      return ["video/*"];
-    }
-    default: {
+    case ResourceType.PDF:
+      return [ "application/pdf" ];
+    case ResourceType.IMAGE:
+    case ResourceType.VIDEO:
+      return [ "video/*", "image/*" ];
+    case ResourceType.AUDIO:
+      return [ "audio/*" ];
+    default:
       return [];
-    }
   }
 };
 
@@ -172,17 +189,19 @@ export const getAllowedFileTypes = (type: ResourceType): string[] => {
  * @param type
  */
 export const getLocalizedTypeString = (type: ResourceType): string => ({
-  [ResourceType.ROOT] : strings.resourceTypes.root,
+  [ResourceType.CONTENTVERSION]: strings.resourceTypes.contentVersion,
+  [ResourceType.ROOT]: strings.resourceTypes.root,
   [ResourceType.INTRO]: strings.resourceTypes.intro,
-  [ResourceType.LANGUAGEMENU] : strings.resourceTypes.languageMenu,
-  [ResourceType.LANGUAGE] : strings.resourceTypes.language,
+  [ResourceType.LANGUAGEMENU]: strings.resourceTypes.languageMenu,
+  [ResourceType.LANGUAGE]: strings.resourceTypes.language,
   [ResourceType.MENU]: strings.resourceTypes.menu,
-  [ResourceType.SLIDESHOW] : strings.resourceTypes.slideshow,
-  [ResourceType.SLIDESHOWPDF] : strings.resourceTypes.slideshowPdf,
+  [ResourceType.SLIDESHOW]: strings.resourceTypes.slideshow,
+  [ResourceType.SLIDESHOWPDF]: strings.resourceTypes.slideshowPdf,
   [ResourceType.PAGE]: strings.resourceTypes.page,
   [ResourceType.PDF]: strings.resourceTypes.pdf,
-  [ResourceType.IMAGE] : strings.resourceTypes.image,
+  [ResourceType.IMAGE]: strings.resourceTypes.image,
   [ResourceType.TEXT]: strings.resourceTypes.text,
   [ResourceType.VIDEO]: strings.resourceTypes.video,
+  [ResourceType.AUDIO]: strings.resourceTypes.audio,
   [ResourceType.APPLICATION]: strings.resourceTypes.application
 })[type];
