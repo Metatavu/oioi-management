@@ -651,7 +651,6 @@ class ApplicationEditor extends React.Component<Props, State> {
       const resourceType = resource.type;
 
       if (resourceType === ResourceType.CONTENTVERSION) {
-        this.setState({ rootResource: updatedResource });
         updateContentVersion(updatedResource);
       } else {
         selectResource(updatedResource);
