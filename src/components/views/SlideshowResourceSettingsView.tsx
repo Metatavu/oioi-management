@@ -132,7 +132,7 @@ class SlideshowResourceSettingsView extends React.Component<Props, State> {
           { this.renderPropertiesField("nameText", strings.commonSettingsTexts.teaserText, "textarea") }
         </Box>
         <Box maxWidth={ 300 }>
-          { this.renderUploaderAndPreview(strings.commonSettingsTexts.media, "menuImg") }
+          { this.renderUploaderAndPreview(strings.commonSettingsTexts.media, "menuImg", true) }
         </Box>
         <Box mt={ 3 } mb={ 3 }>
           <Divider/>
@@ -148,10 +148,10 @@ class SlideshowResourceSettingsView extends React.Component<Props, State> {
         </Box>
         <Box className={ classes.gridRow }>
           <Box className={ classes.gridItem }>
-            { this.renderUploaderAndPreview(strings.slideshowSettingsView.backgroundMedia, "background") }
+            { this.renderUploaderAndPreview(strings.slideshowSettingsView.backgroundMedia, "background", true) }
           </Box>
           <Box className={ classes.gridItem }>
-            { this.renderUploaderAndPreview(strings.slideshowSettingsView.foregroundMedia, "foreground") }
+            { this.renderUploaderAndPreview(strings.slideshowSettingsView.foregroundMedia, "foreground", true) }
           </Box>
         </Box>
         <Box mt={ 3 } mb={ 3 }>
@@ -626,7 +626,7 @@ class SlideshowResourceSettingsView extends React.Component<Props, State> {
    * @param title title
    * @param uploadKey upload key
    */
-  private renderUploaderAndPreview = (title: string, uploadKey: string) => {
+  private renderUploaderAndPreview = (title: string, uploadKey: string, showDeleteButton: boolean) => {
     const { resource } = this.props;
     const { resourceData } = this.state;
 
@@ -642,6 +642,7 @@ class SlideshowResourceSettingsView extends React.Component<Props, State> {
           { title }
         </Typography>
         <MediaPreview
+          showDeleteButton={ showDeleteButton }
           uploadButtonText={ previewItem ? strings.fileUpload.changeMedia : strings.fileUpload.addMedia }
           resourcePath={ previewItem }
           allowSetUrl={ true }
@@ -678,6 +679,7 @@ class SlideshowResourceSettingsView extends React.Component<Props, State> {
             { displayName }
           </Typography>
           <MediaPreview
+            showDeleteButton={false}
             uploadButtonText={ resource ? strings.fileUpload.changeImage : strings.fileUpload.addImage }
             key={ key }
             resourcePath={ value }

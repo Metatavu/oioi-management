@@ -9,6 +9,7 @@ import strings from "../../localization/strings";
 import styles from "../../styles/editor-view";
 import theme from "../../styles/theme";
 import FileUploader from "./FileUploader";
+import DeleteIcon from "@material-ui/icons/DeleteForever";
 
 /**
  * Component properties
@@ -24,6 +25,7 @@ interface Props extends WithStyles<typeof styles> {
   onDelete(key?: string): void;
   uploadDialogTitle?: string;
   imgHeight?: string;
+  showDeleteButton?: boolean;
 }
 
 /**
@@ -48,6 +50,36 @@ class MediaPreview extends React.Component<Props, State> {
     this.state = {
       open: false
     };
+  }
+
+  /**
+   * Renders delete button
+   */
+  private renderDeleteButton = () => {
+    const { 
+      classes,
+      uploadKey,
+      onDelete,
+      showDeleteButton
+    } = this.props;
+
+    if (!showDeleteButton) {
+      return null;
+    }
+
+    return (
+      <div className={ classes.deleteImage }>
+        <IconButton
+          size="small"
+          color="secondary"
+          className={ classes.iconButton }
+          title={ strings.delete }
+          onClick={ () => onDelete(uploadKey) }
+        >
+          <DeleteIcon />
+        </IconButton>
+      </div>
+    );
   }
 
   /**
@@ -89,6 +121,7 @@ class MediaPreview extends React.Component<Props, State> {
             { this.renderPreviewContent() }
           </div>
         </div>
+        { this.renderDeleteButton() }
         { this.renderFileUploader() }
         { this.renderDialog() }
       </div>
