@@ -131,7 +131,7 @@ class SlideshowResourceSettingsView extends React.Component<Props, State> {
         <Box mb={ 3 }>
           { this.renderPropertiesField("nameText", strings.commonSettingsTexts.teaserText, "textarea") }
         </Box>
-        <Box maxWidth={ 300 }>
+        <Box maxWidth={ 300 } className={ classes.menuMediaImgContainer }>
           { this.renderUploaderAndPreview(strings.commonSettingsTexts.media, "menuImg", true) }
         </Box>
         <Box mt={ 3 } mb={ 3 }>

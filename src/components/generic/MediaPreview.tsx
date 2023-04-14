@@ -60,10 +60,11 @@ class MediaPreview extends React.Component<Props, State> {
       classes,
       uploadKey,
       onDelete,
-      showDeleteButton
+      showDeleteButton,
+      resourcePath
     } = this.props;
 
-    if (!showDeleteButton) {
+    if (!showDeleteButton || !resourcePath) {
       return null;
     }
 
@@ -92,7 +93,7 @@ class MediaPreview extends React.Component<Props, State> {
       return (
         <div className={ classes.videoPreviewElement }>
           <div style={{ marginBottom: theme.spacing(1) }}>
-            <div key={ resourcePath }>
+            <div key={ resourcePath } className={ classes.previewContainer }>
               { this.renderPreviewContent() }
             </div>
           </div>
