@@ -625,6 +625,7 @@ class SlideshowResourceSettingsView extends React.Component<Props, State> {
    *
    * @param title title
    * @param uploadKey upload key
+   * @param showDeleteButton whether to show delete button or not
    */
   private renderUploaderAndPreview = (title: string, uploadKey: string, showDeleteButton: boolean) => {
     const { resource } = this.props;
