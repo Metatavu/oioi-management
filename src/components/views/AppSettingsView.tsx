@@ -25,6 +25,8 @@ import { Config } from "app/config";
 import WallJSONImporter from "utils/wall-json-importer";
 import IconPreview from "components/generic/IconPreview";
 import deepEqual from "fast-deep-equal";
+import ResourceStylesTable from "components/generic/ResourceStylesTable";
+import ResourcePropertiesTable from "components/generic/ResourcePropertiesTable";
 
 /**
  * Component Props
@@ -51,6 +53,7 @@ interface State {
   importingContent: boolean;
   dataChanged: boolean;
   deleteApplicationDialogOpen: boolean;
+  selectedContentVersionData: Resource;
 }
 
 /**
@@ -79,7 +82,8 @@ class AppSettingsView extends React.Component<Props, State> {
       iconDialogOpen: false,
       importingContent: false,
       dataChanged: false,
-      deleteApplicationDialogOpen: false
+      deleteApplicationDialogOpen: false,
+      selectedContentVersionData: ResourceUtils.getMaterialTableResourceData(props.selectedContentVersion)
     };
   }
 
@@ -87,7 +91,7 @@ class AppSettingsView extends React.Component<Props, State> {
    * Component did mount life cycle handler
    */
   public componentDidMount = () => {
-    const { application } = this.props;
+    const { application, selectedContentVersion } = this.props;
 
     if (!application) {
       return;
@@ -97,6 +101,10 @@ class AppSettingsView extends React.Component<Props, State> {
       { name: application?.name },
       applicationRules
     );
+
+    this.setState({
+      selectedContentVersionData: ResourceUtils.getMaterialTableResourceData(selectedContentVersion)
+    });
 
     applicationForm = validateForm(applicationForm);
     this.updateMaps(applicationForm);
@@ -109,9 +117,16 @@ class AppSettingsView extends React.Component<Props, State> {
    */
   public componentDidUpdate = (prevProps: Props) => {
     const { applicationForm } = this.state;
+    const { selectedContentVersion } = this.props;
 
     if (!deepEqual(prevProps.selectedContentVersion, this.props.selectedContentVersion)) {
       this.updateMaps(validateForm(applicationForm));
+    }
+
+    if (prevProps.selectedContentVersion !== selectedContentVersion && selectedContentVersion?.id) {
+      this.setState({
+        selectedContentVersionData: ResourceUtils.getMaterialTableResourceData(selectedContentVersion)
+      });
     }
   }
 
@@ -262,6 +277,12 @@ class AppSettingsView extends React.Component<Props, State> {
                 { this.renderTextField(strings.applicationSettings.bundleId, 1, "text", undefined, "bundleId") }
               </Box>
             </Box>
+            <Box mt={ 3 } mb={ 3 }>
+              { this.renderPropertiesTable() }
+            </Box>
+            <Box>
+              { this.renderStyleTable() }
+            </Box>
             <VisibleWithRole role="admin">
               <Divider/>
               <Box mt={ 3 } mb={ 1 }>
@@ -317,6 +338,46 @@ class AppSettingsView extends React.Component<Props, State> {
       </Box>
     );
   }
+
+  /**
+   * Renders table that contains properties data
+   */
+  private renderPropertiesTable = () => {
+    const { selectedContentVersionData } = this.state;
+
+    return (
+      <ResourcePropertiesTable
+        resourceData={ selectedContentVersionData }
+        onResourceDataChange={ (updatedResourceData: Resource) => {
+          this.setState({
+            dataChanged: true,
+            selectedContentVersionData: updatedResourceData,
+          });
+        }}
+        onConfirmationRequired={ this.props.confirmationRequired }
+      />
+    );
+  };
+
+  /**
+   * Renders table that contains style data
+   */
+  private renderStyleTable = () => {
+    const { selectedContentVersionData } = this.state;
+
+    return (
+      <ResourceStylesTable
+        resourceData={ selectedContentVersionData }
+        onResourceDataChange={ (updatedResourceData: Resource) => {
+          this.setState({
+            dataChanged: true,
+            selectedContentVersionData: updatedResourceData,
+          });
+        }}
+        onConfirmationRequired={ this.props.confirmationRequired }
+      />
+    );
+  };
 
   /**
    * Render delete application confirmation dialog
@@ -618,13 +679,15 @@ class AppSettingsView extends React.Component<Props, State> {
    */
   private onUpdateResource = () => {
     const { onUpdateContentVersionResource } = this.props;
-    const { resourceMap, iconsMap } = this.state;
+    const { resourceMap, iconsMap, selectedContentVersionData } = this.state;
 
     const properties = ResourceUtils.getPropertiesToUpdate(resourceMap, iconsMap);
+    const resourceProperties = selectedContentVersionData.properties || [];
 
     const resource = {
       ...this.props.selectedContentVersion,
-      properties: properties.filter(p => !!p.value)
+      styles: selectedContentVersionData.styles,
+      properties: [ ...resourceProperties, ...properties ].filter(p => !!p.value)
     } as Resource;
 
     onUpdateContentVersionResource(resource);
