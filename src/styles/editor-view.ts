@@ -233,7 +233,9 @@ export default createStyles({
 
   imagePreviewElement: {
     cursor: "pointer",
-    position: "relative"
+    position: "relative",
+    display: "flex",
+    flexDirection: "column"
   },
 
   iconGridRow: {
@@ -319,7 +321,13 @@ export default createStyles({
     background: "#ddd",
     textAlign: "center",
     padding: theme.spacing(8),
-    width: 200
+    width: "100%"
+  },
+
+  previewContainer: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center"
   },
 
   deleteImage: {
@@ -387,6 +395,11 @@ export default createStyles({
     "& .MuiFormControl-root": {
       zIndex: 1
     }
+  },
+
+  menuMediaImgContainer: {
+    display: "flex",
+    flexDirection: "column"
   }
 
 });
