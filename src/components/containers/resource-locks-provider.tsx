@@ -5,6 +5,7 @@ import { selectLockedResourceIds, setLockedResourceIds } from "../../features/re
 import { useAppDispatch, useAppSelector } from "app/hooks";
 import { selectKeycloak } from "features/auth-slice";
 import Api from "api";
+import deepEqual from "fast-deep-equal";
 
 /**
  * Component properties
@@ -54,7 +55,9 @@ const ResourceLocksProvider: FC<Props> = ({
         ? Array.from(new Set([ ...lockedResourceIds, resourceId ]))
         : lockedResourceIds.filter(lockedResourceId => lockedResourceId !== resourceId);
 
-      dispatch(setLockedResourceIds(updatedLockedResourceIds));
+      if (!deepEqual(lockedResourceIds, updatedLockedResourceIds)) {
+        dispatch(setLockedResourceIds(updatedLockedResourceIds));
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [message]);
