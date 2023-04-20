@@ -1,18 +1,11 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import * as React from "react";
 import { withStyles, WithStyles, TextField, Divider, Typography, Button, TableContainer, Paper, Table, TableHead, TableRow, TableCell, TableBody, Box, Accordion, AccordionSummary, AccordionDetails } from "@material-ui/core";
-import MaterialTable from "material-table";
 import AddIcon from "@material-ui/icons/Add";
-import AddCircleIcon from "@material-ui/icons/AddCircle";
-import DeleteIcon from "@material-ui/icons/DeleteForever";
-import CheckIcon from "@material-ui/icons/Check";
-import ClearIcon from "@material-ui/icons/Clear";
-import EditIcon from "@material-ui/icons/Edit";
 import styles from "../../styles/editor-view";
 import strings from "../../localization/strings";
 import theme from "../../styles/theme";
 import { Resource } from "../../generated/client";
-import { forwardRef } from "react";
 import { MessageType, initForm, Form, validateForm } from "ts-form-validation";
 import { ErrorContextType } from "../../types";
 import Api from "../../api";
@@ -25,11 +18,12 @@ import AdminOnly from "components/containers/AdminOnly";
 import { getLocalizedTypeString } from "../../commons/resourceTypeHelper";
 import { ErrorContext } from "../containers/ErrorHandler";
 import { resolveChildResourceTypes } from "../../commons/resourceTypeHelper";
-import StyledMTableToolbar from "../../styles/generic/styled-mtable-toolbar";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import Keycloak from "keycloak-js";
-import { nanoid } from "@reduxjs/toolkit";
 import { ResourceUtils } from "utils/resource";
+import ResourcePropertiesTable from "components/generic/ResourcePropertiesTable";
+import ResourceStylesTable from "components/generic/ResourceStylesTable";
+import deepEqual from "fast-deep-equal";
 
 /**
  * Component props
@@ -100,8 +94,8 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
    *
    * @param prevProps previous props
    */
-  public componentDidUpdate = async (prevProps: Props) => {
-    if (prevProps.resource !== this.props.resource) {
+  public componentDidUpdate = async (prevProps: Props, prevState: State) => {
+    if (!deepEqual(prevProps.resource, this.props.resource)) {
       await this.fetchData();
     }
   }
@@ -300,95 +294,18 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
   private renderPropertiesTable = () => {
     const { resourceData } = this.state;
 
-    if (!resourceData?.properties) {
-      return null;
-    }
-
     return (
-      <MaterialTable
-        key={ nanoid() }
-        icons={{
-          Add: forwardRef((props, ref) => <AddCircleIcon color="secondary" { ...props } ref={ ref } />),
-          Delete: forwardRef((props, ref) => <DeleteIcon { ...props } ref={ ref } />),
-          Check: forwardRef((props, ref) => <CheckIcon { ...props } ref={ ref } />),
-          Clear: forwardRef((props, ref) => <ClearIcon { ...props } ref={ ref } />),
-          Edit: forwardRef((props, ref) => <EditIcon { ...props } ref={ ref } />)
+      <ResourcePropertiesTable
+        resourceData={ resourceData }
+        onResourceDataChange={ (resourceData: Resource) => {
+          this.setState({
+            dataChanged: true,
+            resourceData: resourceData,
+          });
         }}
-        columns={[
-          { title: strings.key, field: "key" },
-          { title: strings.value, field: "value" }
-        ]}
-        data={ resourceData.properties }
-        editable={{
-          onRowAdd: async currentData => {
-            const updatedData = ResourceUtils.updateMaterialTableProperty(resourceData, currentData);
-            if (!updatedData) {
-              return;
-            }
-
-            this.setState({
-              dataChanged: true,
-              resourceData: updatedData,
-            }, () => this.props.confirmationRequired(true));
-          },
-          onRowUpdate: async (updatedData, currentData) => {
-            if (!currentData) {
-              return;
-            }
-
-            const updatedResourceData = ResourceUtils.updateMaterialTableProperty(resourceData, currentData, updatedData);
-            if (!updatedResourceData) {
-              return;
-            }
-
-            this.setState({
-              dataChanged: true,
-              resourceData: updatedResourceData
-            });
-          },
-          onRowDelete: async updatedData => {
-            const updatedResourceData = ResourceUtils.deleteFromPropertyList(resourceData, updatedData.key);
-            if (!updatedResourceData) {
-              return;
-            }
-
-            this.setState({
-              resourceData: updatedResourceData,
-              dataChanged: true
-            }, () => this.props.confirmationRequired(true));
-          }
-        }}
-        title={ strings.properties }
-        components={{
-          Toolbar: props => <StyledMTableToolbar { ...props }/>,
-          Container: props => <Paper { ...props } elevation={ 0 }/>
-        }}
-        localization={{
-          body: {
-            editTooltip: strings.edit,
-            deleteTooltip: strings.delete,
-            addTooltip: strings.addNew
-          },
-          header: {
-            actions: strings.actions
-          }
-        }}
-        options={{
-          grouping: false,
-          search: false,
-          selection: false,
-          sorting: false,
-          draggable: false,
-          exportButton: false,
-          filtering: false,
-          paging: false,
-          showTextRowsSelected: false,
-          showFirstLastPageButtons: false,
-          showSelectAllCheckbox: false,
-          actionsColumnIndex: 3
-        }}
+        onConfirmationRequired={ this.props.confirmationRequired }
       />
-    )
+    );
   };
 
   /**
@@ -397,93 +314,16 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
   private renderStyleTable = () => {
     const { resourceData } = this.state;
 
-    if (resourceData.styles === undefined) {
-      return null;
-    }
-
     return (
-      <MaterialTable
-        key={ nanoid() }
-        icons={{
-          Add: forwardRef((props, ref) => <AddCircleIcon color="secondary" { ...props } ref={ ref } />),
-          Delete: forwardRef((props, ref) => <DeleteIcon { ...props } ref={ ref } />),
-          Check: forwardRef((props, ref) => <CheckIcon { ...props } ref={ ref } />),
-          Clear: forwardRef((props, ref) => <ClearIcon { ...props } ref={ ref } />),
-          Edit: forwardRef((props, ref) => <EditIcon { ...props } ref={ ref } />)
+      <ResourceStylesTable
+        resourceData={ resourceData }
+        onResourceDataChange={ (updatedResourceData: Resource) => {
+          this.setState({
+            dataChanged: true,
+            resourceData: updatedResourceData,
+          });
         }}
-        columns={[
-          { title: strings.key, field: "key" },
-          { title: strings.value, field: "value" }
-        ]}
-        data={ resourceData.styles }
-        editable={{
-          onRowAdd: async updatedData => {
-            const updatedResourceData = ResourceUtils.updateMaterialTableStyle(resourceData, updatedData);
-            if (!updatedResourceData) {
-              return;
-            }
-
-            this.setState({
-              dataChanged: true,
-              resourceData: updatedResourceData,
-            }, () => this.props.confirmationRequired(true));
-          },
-          onRowUpdate: async (updatedData, currentData) => {
-            if (!currentData) {
-              return;
-            }
-
-            const updatedResourceData = ResourceUtils.updateMaterialTableStyle(resourceData, currentData, updatedData);
-            if (!updatedResourceData) {
-              return;
-            }
-
-            this.setState({
-              dataChanged: true,
-              resourceData: updatedResourceData
-            });
-          },
-          onRowDelete: async updatedData => {
-            const updatedResourceData = ResourceUtils.deleteFromStyleList(resourceData, updatedData.key);
-            if (!updatedResourceData) {
-              return;
-            }
-
-            this.setState({
-              resourceData: updatedResourceData,
-              dataChanged: true
-            }, () => this.props.confirmationRequired(true));
-          }
-        }}
-        title={ strings.styles }
-        components={{
-          Toolbar: props => <StyledMTableToolbar { ...props }/>,
-          Container: props => <Paper { ...props } elevation={ 0 }/>
-        }}
-        localization={{
-          body: {
-            editTooltip: strings.edit,
-            deleteTooltip: strings.delete,
-            addTooltip: strings.addNew
-          },
-          header: {
-            actions: strings.actions
-          }
-        }}
-        options={{
-          grouping: false,
-          search: false,
-          selection: false,
-          sorting: false,
-          draggable: false,
-          exportButton: false,
-          filtering: false,
-          paging: false,
-          showTextRowsSelected: false,
-          showFirstLastPageButtons: false,
-          showSelectAllCheckbox: false,
-          actionsColumnIndex: 3
-        }}
+        onConfirmationRequired={ this.props.confirmationRequired }
       />
     );
   };
