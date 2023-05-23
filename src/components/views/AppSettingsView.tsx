@@ -6,7 +6,7 @@ import { addContentVersion, selectContentVersionId } from "features/content-vers
 import { withStyles, WithStyles, TextField, Button, Divider, Typography, CircularProgress, IconButton, Box, Accordion, AccordionSummary, AccordionDetails } from "@material-ui/core";
 import styles from "../../styles/editor-view";
 import strings from "../../localization/strings";
-import { Application, Resource } from "../../generated/client";
+import { Application, Resource, WallApplicationFromJSON } from "../../generated/client";
 import { Form, initForm, validateForm, MessageType } from "ts-form-validation";
 import { ApplicationForm, applicationRules, ResourceSettingsForm } from "../../commons/formRules";
 import AddIconDialog from "../generic/AddIconDialog";
@@ -22,7 +22,7 @@ import GenericDialog from "components/generic/GenericDialog";
 import { ResourceUtils } from "utils/resource";
 import AdminOnly from "components/containers/AdminOnly";
 import { Config } from "app/config";
-import WallJSONImporter from "utils/wall-json-importer";
+import Api from "../../api";
 import IconPreview from "components/generic/IconPreview";
 import deepEqual from "fast-deep-equal";
 import ResourceStylesTable from "components/generic/ResourceStylesTable";
@@ -572,24 +572,17 @@ class AppSettingsView extends React.Component<Props, State> {
       customerId,
       deviceId,
       application,
-      rootResourceId,
       addContentVersion,
       selectContentVersionId
     } = this.props;
 
+    const applicationId = application?.id;
     const file = event.target.files?.item(0);
+    const accessToken = keycloak?.token;
 
-    if (!file || !keycloak?.token || !application?.id) {
+    if (!file || !accessToken || !applicationId) {
       return;
     }
-
-    const importer = new WallJSONImporter({
-      accessToken: keycloak.token,
-      customerId: customerId,
-      deviceId: deviceId,
-      applicationId: application.id,
-      rootResourceId: rootResourceId
-    });
 
     const reader = new FileReader();
 
@@ -598,19 +591,36 @@ class AppSettingsView extends React.Component<Props, State> {
         return;
       }
 
-      this.setState({ importingContent: true });
+      this.setState({
+        importingContent: true 
+      });
 
       try {
-        const contentVersion = await importer.import(JSON.parse(target.result));
+        const wallApplication = WallApplicationFromJSON(JSON.parse(target.result));
+
+        if (!wallApplication.root) {
+          throw new Error("Incorrect JSON structure");
+        }
+
+        const contentVersion = await Api.getResourcesApi(accessToken).importWallApplication({
+          customerId: customerId,
+          deviceId: deviceId,
+          applicationId: applicationId,
+          wallApplication: wallApplication
+        });
+
         addContentVersion(contentVersion);
         selectContentVersionId(contentVersion.id);
 
         toast.success(strings.importDone);
       } catch (error) {
+        console.error(error);
         this.context.setError(strings.errorManagement.resource.create, error);
       }
 
-      this.setState({ importingContent: false });
+      this.setState({ 
+        importingContent: false 
+      });
     }
 
     reader.readAsText(file);

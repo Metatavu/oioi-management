@@ -49,7 +49,7 @@ export interface WallDevice {
      * @type {Date}
      * @memberof WallDevice
      */
-    readonly modifiedAt: Date;
+    modifiedAt: Date;
 }
 
 export function WallDeviceFromJSON(json: any): WallDevice {
@@ -81,6 +81,7 @@ export function WallDeviceToJSON(value?: WallDevice | null): any {
         'name': value.name,
         'applications': ((value.applications as Array<any>).map(WallDeviceApplicationToJSON)),
         'activeApplication': value.activeApplication,
+        'modifiedAt': (value.modifiedAt.toISOString()),
     };
 }
 
