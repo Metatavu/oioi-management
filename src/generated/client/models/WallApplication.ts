@@ -37,7 +37,7 @@ export interface WallApplication {
      * @type {Date}
      * @memberof WallApplication
      */
-    readonly modifiedAt: Date;
+    modifiedAt: Date;
 }
 
 export function WallApplicationFromJSON(json: any): WallApplication {
@@ -65,6 +65,7 @@ export function WallApplicationToJSON(value?: WallApplication | null): any {
     return {
         
         'root': WallResourceToJSON(value.root),
+        'modifiedAt': (value.modifiedAt.toISOString()),
     };
 }
 

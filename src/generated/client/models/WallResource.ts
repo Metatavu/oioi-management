@@ -43,7 +43,7 @@ export interface WallResource {
      * @type {string}
      * @memberof WallResource
      */
-    name?: string;
+    name: string;
     /**
      * 
      * @type {string}
@@ -73,7 +73,7 @@ export interface WallResource {
      * @type {Date}
      * @memberof WallResource
      */
-    readonly modifiedAt: Date;
+    modifiedAt: Date;
 }
 
 export function WallResourceFromJSON(json: any): WallResource {
@@ -88,7 +88,7 @@ export function WallResourceFromJSONTyped(json: any, ignoreDiscriminator: boolea
         
         'slug': json['slug'],
         'type': ResourceTypeFromJSON(json['type']),
-        'name': !exists(json, 'name') ? undefined : json['name'],
+        'name': json['name'],
         'data': !exists(json, 'data') ? undefined : json['data'],
         'children': ((json['children'] as Array<any>).map(WallResourceFromJSON)),
         'styles': json['styles'],
@@ -113,6 +113,7 @@ export function WallResourceToJSON(value?: WallResource | null): any {
         'children': ((value.children as Array<any>).map(WallResourceToJSON)),
         'styles': value.styles,
         'properties': value.properties,
+        'modifiedAt': (value.modifiedAt.toISOString()),
     };
 }
 
