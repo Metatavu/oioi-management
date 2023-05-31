@@ -27,6 +27,9 @@ import {
     ResourceType,
     ResourceTypeFromJSON,
     ResourceTypeToJSON,
+    WallApplication,
+    WallApplicationFromJSON,
+    WallApplicationToJSON,
 } from '../models';
 
 export interface CreateResourceRequest {
@@ -69,6 +72,13 @@ export interface FindResourceLockRequest {
 export interface GetLockedResourceIdsRequest {
     applicationId: string;
     resourceId?: string;
+}
+
+export interface ImportWallApplicationRequest {
+    wallApplication: WallApplication;
+    customerId: string;
+    deviceId: string;
+    applicationId: string;
 }
 
 export interface ListResourcesRequest {
@@ -406,6 +416,61 @@ export class ResourcesApi extends runtime.BaseAPI {
      */
     async getLockedResourceIds(requestParameters: GetLockedResourceIdsRequest): Promise<Array<string>> {
         const response = await this.getLockedResourceIdsRaw(requestParameters);
+        return await response.value();
+    }
+
+    /**
+     * Endpoint for importing new content version from wall application JSON export file
+     * Endpoint for importing new content version from wall application JSON export file
+     */
+    async importWallApplicationRaw(requestParameters: ImportWallApplicationRequest): Promise<runtime.ApiResponse<Resource>> {
+        if (requestParameters.wallApplication === null || requestParameters.wallApplication === undefined) {
+            throw new runtime.RequiredError('wallApplication','Required parameter requestParameters.wallApplication was null or undefined when calling importWallApplication.');
+        }
+
+        if (requestParameters.customerId === null || requestParameters.customerId === undefined) {
+            throw new runtime.RequiredError('customerId','Required parameter requestParameters.customerId was null or undefined when calling importWallApplication.');
+        }
+
+        if (requestParameters.deviceId === null || requestParameters.deviceId === undefined) {
+            throw new runtime.RequiredError('deviceId','Required parameter requestParameters.deviceId was null or undefined when calling importWallApplication.');
+        }
+
+        if (requestParameters.applicationId === null || requestParameters.applicationId === undefined) {
+            throw new runtime.RequiredError('applicationId','Required parameter requestParameters.applicationId was null or undefined when calling importWallApplication.');
+        }
+
+        const queryParameters: runtime.HTTPQuery = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json;charset=utf-8';
+
+        if (this.configuration && this.configuration.accessToken) {
+            const token = this.configuration.accessToken;
+            const tokenString = typeof token === 'function' ? token("BearerAuth", []) : token;
+
+            if (tokenString) {
+                headerParameters["Authorization"] = `Bearer ${tokenString}`;
+            }
+        }
+        const response = await this.request({
+            path: `/v1/customers/{customerId}/devices/{deviceId}/applications/{applicationId}/importWallApplication`.replace(`{${"customerId"}}`, encodeURIComponent(String(requestParameters.customerId))).replace(`{${"deviceId"}}`, encodeURIComponent(String(requestParameters.deviceId))).replace(`{${"applicationId"}}`, encodeURIComponent(String(requestParameters.applicationId))),
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+            body: WallApplicationToJSON(requestParameters.wallApplication),
+        });
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => ResourceFromJSON(jsonValue));
+    }
+
+    /**
+     * Endpoint for importing new content version from wall application JSON export file
+     * Endpoint for importing new content version from wall application JSON export file
+     */
+    async importWallApplication(requestParameters: ImportWallApplicationRequest): Promise<Resource> {
+        const response = await this.importWallApplicationRaw(requestParameters);
         return await response.value();
     }
 
