@@ -24,14 +24,14 @@ interface Props {
 
 /**
  * Resource properties table component
- * 
+ *
  * @returns resource properties table component
  */
 const ResourcePropertiesTable: FC<Props> = ({ resourceData, onConfirmationRequired, onResourceDataChange }: Props) => {
   if (!resourceData?.properties) {
     return null;
   }
-  
+
   return (
     <MaterialTable
       key={ nanoid() }

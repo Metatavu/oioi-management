@@ -277,7 +277,7 @@ class AddIconDialog extends React.Component<Props, State> {
         key: key.replace("icon_", ""),
         title: getLocalizedIconTypeString(key)
       }))
-      .map(({ key, title }) => 
+      .map(({ key, title }) =>
         <MenuItem key={ key } value={ key }>
           { title }
         </MenuItem>
