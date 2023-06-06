@@ -211,7 +211,7 @@ class ApplicationEditor extends React.Component<Props, State> {
     const { confirmationDetails } = this.state;
 
     return (
-      <GenericDialog 
+      <GenericDialog
         title={ strings.confirmUnsavedChangesDialog.title }
         positiveButtonText={ strings.confirmUnsavedChangesDialog.confirm }
         cancelButtonText={ strings.confirmUnsavedChangesDialog.cancel }
@@ -222,7 +222,7 @@ class ApplicationEditor extends React.Component<Props, State> {
       >
         { strings.confirmUnsavedChangesDialog.text }
       </GenericDialog>
-    );    
+    );
   }
 
   /**
@@ -373,7 +373,7 @@ class ApplicationEditor extends React.Component<Props, State> {
     }
 
     return (
-      <ResourceTree 
+      <ResourceTree
         savingLock={ savingLock }
         lockedResourceIds={ lockedResourceIds }
         selectResource={ this.onResourceTreeSelectResource }
@@ -599,14 +599,14 @@ class ApplicationEditor extends React.Component<Props, State> {
    * @param childResources child resources to be updated (optional)
    */
   private onUpdateResource = async (resource: Resource, childResources?: Resource[]) => {
-    const { 
-      keycloak, 
-      customerId, 
-      deviceId, 
+    const {
+      keycloak,
+      customerId,
+      deviceId,
       applicationId,
-      selectResource, 
-      updateResources, 
-      updateContentVersion 
+      selectResource,
+      updateResources,
+      updateContentVersion
     } = this.props;
 
     if (!keycloak || !keycloak.token) {
@@ -633,7 +633,7 @@ class ApplicationEditor extends React.Component<Props, State> {
       }));
 
       if (childResources) {
-        childResources.forEach(childResource => 
+        childResources.forEach(childResource =>
           updateResourceCalls.push(Api.getResourcesApi(token).updateResource({
             resource: childResource,
             customerId: customerId,
@@ -725,7 +725,7 @@ class ApplicationEditor extends React.Component<Props, State> {
       this.selectResource(confirmationDetails?.resource);
     }
 
-    this.setState({ 
+    this.setState({
       confirmationRequired: false,
       confirmationDetails: undefined
     });
@@ -735,14 +735,14 @@ class ApplicationEditor extends React.Component<Props, State> {
    * Confirm unsaved cancel handler
    */
   private onConfirmUnsavedCancel = () => {
-    this.setState({ 
-      confirmationDetails: undefined 
+    this.setState({
+      confirmationDetails: undefined
     });
   };
 
   /**
    * Resource tree select resource event handler
-   * 
+   *
    * @param resource selected resource
    */
   private onResourceTreeSelectResource = (resource?: Resource) => {
@@ -757,7 +757,7 @@ class ApplicationEditor extends React.Component<Props, State> {
           resource: resource
         }
       });
-    }    
+    }
   }
 
   /**
@@ -1050,7 +1050,7 @@ class ApplicationEditor extends React.Component<Props, State> {
 
   /**
    * Handler for selecting selected resource
-   * 
+   *
    * @param resource selected resource
    */
   private selectResource = async (resource: Resource | undefined) => {
@@ -1059,8 +1059,8 @@ class ApplicationEditor extends React.Component<Props, State> {
       this.context.setError(strings.errorManagement.resource.otherUserEditing);
     } else {
       const previouslyLockedResource = this.state.currentLockedResource;
-      const lockResource = this.getLockResource(resource);    
-      
+      const lockResource = this.getLockResource(resource);
+
       if (await this.releaseAndAcquireLock(lockResource, previouslyLockedResource)) {
         this.props.selectResource(resource);
       } else {
@@ -1072,7 +1072,7 @@ class ApplicationEditor extends React.Component<Props, State> {
 
   /**
    * Returns whether given resource is locked or not
-   * 
+   *
    * @param resource resource
    * @returns whether given resource is locked or not
    */
@@ -1101,9 +1101,9 @@ class ApplicationEditor extends React.Component<Props, State> {
   /**
    * Component clean up for unmount and beforeunload page event
    */
-   private componentCleanup = () => {
+  private componentCleanup = () => {
     const { currentLockedResource } = this.state;
-    
+
     if (currentLockedResource) {
       this.releaseLock(currentLockedResource);
       this.releaseLockWithServiceWorker(currentLockedResource);
@@ -1115,7 +1115,7 @@ class ApplicationEditor extends React.Component<Props, State> {
    *
    * @param lockResource lock resource
    */
-   private releaseLock = async (lockResource: Resource) => {
+  private releaseLock = async (lockResource: Resource) => {
     const { keycloak, customer, device, application } = this.props;
 
     if (!keycloak?.token || !customer?.id || !device?.id || !application?.id || !lockResource.id) {
@@ -1145,7 +1145,7 @@ class ApplicationEditor extends React.Component<Props, State> {
 
   /**
    * Acquires a resource lock
-   * 
+   *
    * @param lockResource resource to be locked
    * @return whether lock was acquired successfully
    */
@@ -1157,7 +1157,7 @@ class ApplicationEditor extends React.Component<Props, State> {
     }
 
     const resourcesApi = Api.getResourcesApi(keycloak.token);
-    
+
     try {
       await resourcesApi.updateResourceLock({
         customerId: customer.id,
@@ -1192,13 +1192,13 @@ class ApplicationEditor extends React.Component<Props, State> {
     if (newLockResource?.id === previousLockResource?.id) {
       return true;
     }
-    
+
     let result = true;
 
-    this.setState({ 
-      savingLock: true 
+    this.setState({
+      savingLock: true
     });
-    
+
     try {
       if (previousLockResource) {
         await this.releaseLock(previousLockResource);
@@ -1214,14 +1214,14 @@ class ApplicationEditor extends React.Component<Props, State> {
     } catch (error) {
       console.error("Error while acquiring lock", error);
     }
-    
-    this.setState({ 
-      savingLock: false 
+
+    this.setState({
+      savingLock: false
     });
 
     return result;
   }
-  
+
   /**
    * Renews single lock
    */
@@ -1244,10 +1244,10 @@ class ApplicationEditor extends React.Component<Props, State> {
 
   /**
    * Returns lock resource for given resource.
-   * 
+   *
    * Lock resource can be either the resource itself or it's parent depending on the
-   * type of the parent resource 
-   * 
+   * type of the parent resource
+   *
    * @param resource resource
    * @returns lock resource
    */
@@ -1266,15 +1266,15 @@ class ApplicationEditor extends React.Component<Props, State> {
 
   /**
    * Returns whether parent should be locked instead of current resource
-   * 
+   *
    * @param parentType type of
    * @returns whether parent should be locked instead of current resource
    */
   private shouldLockParent = (parentType: ResourceType) => parentType === ResourceType.PAGE;
-  
+
   /**
    * Finds resource by id
-   * 
+   *
    * @param id id
    * @returns found resource or undefined if not found
    */
@@ -1290,7 +1290,7 @@ class ApplicationEditor extends React.Component<Props, State> {
 
   /**
    * Releases lock with service worker
-   * 
+   *
    * @param lockedResource locked resource
    */
   private releaseLockWithServiceWorker = (lockedResource: Resource) => {
