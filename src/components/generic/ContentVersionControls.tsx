@@ -534,7 +534,7 @@ class ContentVersionControls extends React.Component<Props, State> {
 
   /**
    * Returns selected content version or undefined if not set
-   * 
+   *
    * @returns selected content version or undefined if not set
    */
   private getSelectedContentVersion = () => {

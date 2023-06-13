@@ -592,7 +592,7 @@ class AppSettingsView extends React.Component<Props, State> {
       }
 
       this.setState({
-        importingContent: true 
+        importingContent: true
       });
 
       try {
@@ -618,8 +618,8 @@ class AppSettingsView extends React.Component<Props, State> {
         this.context.setError(strings.errorManagement.resource.create, error);
       }
 
-      this.setState({ 
-        importingContent: false 
+      this.setState({
+        importingContent: false
       });
     }
 
@@ -633,7 +633,7 @@ class AppSettingsView extends React.Component<Props, State> {
    */
   private updateMaps(applicationForm: Form<ApplicationForm>) {
     const { selectedContentVersion } = this.props;
-    
+
     const initResourceMap = new Map<string, string>();
     const initIconsMap = new Map<string, string>();
     const props = selectedContentVersion.properties;
@@ -692,12 +692,11 @@ class AppSettingsView extends React.Component<Props, State> {
     const { resourceMap, iconsMap, selectedContentVersionData } = this.state;
 
     const properties = ResourceUtils.getPropertiesToUpdate(resourceMap, iconsMap);
-    const resourceProperties = selectedContentVersionData.properties || [];
 
     const resource = {
       ...this.props.selectedContentVersion,
       styles: selectedContentVersionData.styles,
-      properties: [ ...resourceProperties, ...properties ].filter(p => !!p.value)
+      properties: [ ...properties ].filter(p => !!p.value)
     } as Resource;
 
     onUpdateContentVersionResource(resource);
