@@ -110,7 +110,7 @@ class AudioResourceSettingsView extends React.Component<Props, State> {
    * Component render method
    */
   public render = () => {
-    const { classes } = this.props;
+    const { classes, onDelete } = this.props;
     const { loading, dataChanged, form } = this.state;
     const { isFormValid } = form;
 
@@ -137,6 +137,18 @@ class AudioResourceSettingsView extends React.Component<Props, State> {
         <AdminOnly>
           { this.renderAdvancedSettings() }
         </AdminOnly>
+        {/* TODO: test audio delete works */}
+        <Box mt={1}>
+          <Button
+            disableElevation
+            className={ classes.deleteButton }
+            color="primary"
+            variant="contained"
+            onClick={ onDelete }
+          >
+            { strings.audioSettingsView.delete }
+          </Button>
+        </Box>
       </Box>
     );
   }
@@ -388,8 +400,8 @@ class AudioResourceSettingsView extends React.Component<Props, State> {
 
   /**
    * Renders player for audio file
-   * 
-   * @param src URL to existing audio file or none if not set 
+   *
+   * @param src URL to existing audio file or none if not set
    * @returns rendered player
    */
   private renderPlayer = (src: string | undefined) => {
@@ -413,8 +425,8 @@ class AudioResourceSettingsView extends React.Component<Props, State> {
 
   /**
    * Renders download link for audio file
-   * 
-   * @param src URL to existing audio file or none if not set 
+   *
+   * @param src URL to existing audio file or none if not set
    * @returns rendered link or null if not set
    */
   private renderDownloadLink = (src: string | undefined) => {
@@ -433,7 +445,7 @@ class AudioResourceSettingsView extends React.Component<Props, State> {
 
   /**
    * Renders file uploader for audio file
-   * 
+   *
    * @param src URL to existing audio file or none if not set
    * @returns rendered file uploader
    */
@@ -456,7 +468,7 @@ class AudioResourceSettingsView extends React.Component<Props, State> {
    * Renders advanced settings
    */
   private renderAdvancedSettings = () => {
-    const { classes, onDelete } = this.props;
+    const { classes } = this.props;
 
     return (
       <Box mt={ 3 }>
@@ -486,17 +498,6 @@ class AudioResourceSettingsView extends React.Component<Props, State> {
                 <Box mb={ 1 }>
                   { this.renderField("slug", strings.slug, "text") }
                 </Box>
-              </Box>
-              <Box>
-                <Button
-                  disableElevation
-                  className={ classes.deleteButton }
-                  color="primary"
-                  variant="contained"
-                  onClick={ onDelete }
-                >
-                  { strings.audioSettingsView.delete }
-                </Button>
               </Box>
             </Box>
             <Box mb={ 3 }>

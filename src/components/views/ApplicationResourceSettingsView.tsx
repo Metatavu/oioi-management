@@ -110,7 +110,7 @@ class ApplicationResourceSettingsView extends React.Component<Props, State> {
    * Component render method
    */
   public render = () => {
-    const { classes, keycloak } = this.props;
+    const { classes, keycloak, onDelete } = this.props;
     const { dataChanged, form } = this.state;
     const { isFormValid } = form;
 
@@ -174,6 +174,18 @@ class ApplicationResourceSettingsView extends React.Component<Props, State> {
         <AdminOnly>
           { this.renderAdvancedSettings() }
         </AdminOnly>
+        {/* TODO: check the application resource still works */}
+        <Box mt={1}>
+          <Button
+            disableElevation
+            className={ classes.deleteButton }
+            color="primary"
+            variant="contained"
+            onClick={ onDelete }
+          >
+            { strings.applicationSettingsView.delete }
+          </Button>
+        </Box>
       </div>
     );
   }
@@ -241,7 +253,7 @@ class ApplicationResourceSettingsView extends React.Component<Props, State> {
    * Renders advanced settings
    */
   private renderAdvancedSettings = () => {
-    const { classes, onDelete } = this.props;
+    const { classes } = this.props;
 
     return (
       <Accordion>
@@ -270,17 +282,6 @@ class ApplicationResourceSettingsView extends React.Component<Props, State> {
               <Box mb={ 1 }>
                 { this.renderFormField("slug", strings.slug, "text") }
               </Box>
-            </Box>
-            <Box>
-              <Button
-                disableElevation
-                className={ classes.deleteButton }
-                color="primary"
-                variant="contained"
-                onClick={ onDelete }
-              >
-                { strings.applicationSettingsView.delete }
-              </Button>
             </Box>
           </Box>
           <Box mb={ 3 }>

@@ -105,7 +105,7 @@ class PDFResourceSettingsView extends React.Component<Props, State> {
    * Component render method
    */
   public render = () => {
-    const { classes } = this.props;
+    const { classes, onDelete } = this.props;
     const { loading, dataChanged, form } = this.state;
     const { isFormValid } = form;
 
@@ -132,6 +132,18 @@ class PDFResourceSettingsView extends React.Component<Props, State> {
         <AdminOnly>
           { this.renderAdvancedSettings() }
         </AdminOnly>
+        {/* TODO: check the pdf slide delete still works */}
+        <Box mt={1}>
+          <Button
+            disableElevation
+            className={ classes.deleteButton }
+            color="primary"
+            variant="contained"
+            onClick={ onDelete }
+          >
+            { strings.pdfSettingsView.delete }
+          </Button>
+        </Box>
       </Box>
     );
   }
@@ -388,7 +400,7 @@ class PDFResourceSettingsView extends React.Component<Props, State> {
    * Renders advanced settings
    */
   private renderAdvancedSettings = () => {
-    const { classes, onDelete } = this.props;
+    const { classes } = this.props;
 
     return (
       <Box mt={ 3 }>
@@ -418,17 +430,6 @@ class PDFResourceSettingsView extends React.Component<Props, State> {
                 <Box mb={ 1 }>
                   { this.renderField("slug", strings.slug, "text") }
                 </Box>
-              </Box>
-              <Box>
-                <Button
-                  disableElevation
-                  className={ classes.deleteButton }
-                  color="primary"
-                  variant="contained"
-                  onClick={ onDelete }
-                >
-                  { strings.pdfSettingsView.delete }
-                </Button>
               </Box>
             </Box>
             <Box mb={ 3 }>

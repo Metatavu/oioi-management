@@ -214,9 +214,24 @@ class AppSettingsView extends React.Component<Props, State> {
           onToggle={ this.toggleDialog }
           open={ this.state.iconDialogOpen }
         />
+        <Box mt={ 3 } mb={ 3 }>
+          <Divider/>
+        </Box>
         <AdminOnly>
           { this.renderAdvancedSettings() }
         </AdminOnly>
+        {/* TODO: check app delete works */}
+        <Box mt={1}>
+          <Button
+            disableElevation
+            className={ classes.deleteButton }
+            color="primary"
+            variant="contained"
+            onClick={ this.toggleDeleteApplicationDialog }
+          >
+            { strings.applicationEditor.deleteApplication }
+          </Button>
+        </Box>
       </>
     );
   }
@@ -229,9 +244,6 @@ class AppSettingsView extends React.Component<Props, State> {
 
     return (
       <>
-        <Box mt={ 3 } mb={ 3 }>
-          <Divider/>
-        </Box>
         <Accordion>
           <AccordionSummary
             expandIcon={ <ExpandMoreIcon color="primary" /> }
@@ -258,15 +270,6 @@ class AppSettingsView extends React.Component<Props, State> {
                   </Typography>
                 </Box>
               </Box>
-              <Button
-                disableElevation
-                className={ classes.deleteButton }
-                color="primary"
-                variant="contained"
-                onClick={ this.toggleDeleteApplicationDialog }
-              >
-                { strings.applicationEditor.deleteApplication }
-              </Button>
             </Box>
             { this.renderWallJsonUrls() }
             <Box display="flex" mb={ 3 }>
