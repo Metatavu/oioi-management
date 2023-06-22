@@ -697,10 +697,11 @@ class ApplicationEditor extends React.Component<Props, State> {
     const resourcesApi = Api.getResourcesApi(keycloak.token);
 
     try {
-      const lockResource = this.getLockResource(resource);
-      if (!lockResource) throw new Error("Error obtaining lock resource");
+      // TODO: commented code is incomplete but potential solution for the resource lock 404 errors
+      // const lockResource = this.getLockResource(resource);
+      // if (!lockResource) throw new Error("Error obtaining lock resource");
 
-      await this.releaseLock(lockResource);
+      // await this.releaseLock(lockResource);
       await resourcesApi.deleteResource({
         customerId: customerId,
         deviceId: deviceId,
@@ -710,7 +711,7 @@ class ApplicationEditor extends React.Component<Props, State> {
 
       deleteResources([ resource ]);
 
-      setLockedResourceIds(lockedResourceIds.filter(lockedResourceId => lockedResourceId !== resource.id));
+      // setLockedResourceIds(lockedResourceIds.filter(lockedResourceId => lockedResourceId !== resource.id));
       this.setState({
         deleting: false
       });
@@ -1238,8 +1239,6 @@ class ApplicationEditor extends React.Component<Props, State> {
     if (!keycloak?.token || !customer?.id || !device?.id || !application?.id || !currentLockedResource?.id) {
       return;
     }
-
-    console.log("this is the root  of the put error", currentLockedResource);
 
     await Api.getResourcesApi(keycloak.token).updateResourceLock({
       customerId: customer.id,
