@@ -220,18 +220,6 @@ class AppSettingsView extends React.Component<Props, State> {
         <AdminOnly>
           { this.renderAdvancedSettings() }
         </AdminOnly>
-        {/* TODO: check app delete works */}
-        <Box mt={1}>
-          <Button
-            disableElevation
-            className={ classes.deleteButton }
-            color="primary"
-            variant="contained"
-            onClick={ this.toggleDeleteApplicationDialog }
-          >
-            { strings.applicationEditor.deleteApplication }
-          </Button>
-        </Box>
       </>
     );
   }
@@ -270,6 +258,15 @@ class AppSettingsView extends React.Component<Props, State> {
                   </Typography>
                 </Box>
               </Box>
+              <Button
+                disableElevation
+                className={ classes.deleteButton }
+                color="primary"
+                variant="contained"
+                onClick={ this.toggleDeleteApplicationDialog }
+              >
+                { strings.applicationEditor.deleteApplication }
+              </Button>
             </Box>
             { this.renderWallJsonUrls() }
             <Box display="flex" mb={ 3 }>

@@ -24,7 +24,7 @@ import { setCustomer } from "features/customer-slice";
 import { setApplication } from "features/application-slice";
 import { setContentVersions, selectContentVersionId, updateContentVersion } from "features/content-version-slice";
 import { setDevice } from "features/device-slice";
-import { deleteResources, selectResource, setResources, updateResources } from "features/resource-slice";
+import { deleteResources, selectResource, setLockedResourceIds, setResources, updateResources } from "features/resource-slice";
 import { ReduxDispatch, ReduxState } from "app/store";
 import ResourceTree from "components/generic/ResourceTree";
 import ContentVersionControls from "components/generic/ContentVersionControls";
@@ -684,7 +684,7 @@ class ApplicationEditor extends React.Component<Props, State> {
    * @param resource resource
    */
   private onDeleteResource = async (resource: Resource) => {
-    const { keycloak, customerId, deviceId, applicationId, deleteResources } = this.props;
+    const { keycloak, customerId, deviceId, applicationId, deleteResources, lockedResourceIds } = this.props;
 
     this.setState({
       deleting: true
@@ -697,6 +697,10 @@ class ApplicationEditor extends React.Component<Props, State> {
     const resourcesApi = Api.getResourcesApi(keycloak.token);
 
     try {
+      const lockResource = this.getLockResource(resource);
+      if (!lockResource) throw new Error("Error obtaining lock resource");
+
+      await this.releaseLock(lockResource);
       await resourcesApi.deleteResource({
         customerId: customerId,
         deviceId: deviceId,
@@ -705,6 +709,8 @@ class ApplicationEditor extends React.Component<Props, State> {
       });
 
       deleteResources([ resource ]);
+
+      setLockedResourceIds(lockedResourceIds.filter(lockedResourceId => lockedResourceId !== resource.id));
       this.setState({
         deleting: false
       });
@@ -1232,6 +1238,8 @@ class ApplicationEditor extends React.Component<Props, State> {
     if (!keycloak?.token || !customer?.id || !device?.id || !application?.id || !currentLockedResource?.id) {
       return;
     }
+
+    console.log("this is the root  of the put error", currentLockedResource);
 
     await Api.getResourcesApi(keycloak.token).updateResourceLock({
       customerId: customer.id,
