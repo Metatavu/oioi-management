@@ -684,7 +684,7 @@ class ApplicationEditor extends React.Component<Props, State> {
    * @param resource resource
    */
   private onDeleteResource = async (resource: Resource) => {
-    const { keycloak, customerId, deviceId, applicationId, deleteResources, lockedResourceIds } = this.props;
+    const { keycloak, customerId, deviceId, applicationId, deleteResources } = this.props;
 
     this.setState({
       deleting: true
