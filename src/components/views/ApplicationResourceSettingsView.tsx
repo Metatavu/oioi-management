@@ -174,7 +174,6 @@ class ApplicationResourceSettingsView extends React.Component<Props, State> {
         <AdminOnly>
           { this.renderAdvancedSettings() }
         </AdminOnly>
-        {/* TODO: check the application resource still works */}
         <Box mt={1}>
           <Button
             disableElevation

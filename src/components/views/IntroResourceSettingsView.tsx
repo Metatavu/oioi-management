@@ -177,7 +177,6 @@ class IntroResourceSettingsView extends React.Component<Props, State> {
         <AdminOnly>
           { this.renderAdvancedSettings() }
         </AdminOnly>
-        {/* TODO: test intro delete works */}
         <Box mt={1}>
           <Button
             disableElevation

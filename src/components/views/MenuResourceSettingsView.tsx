@@ -171,7 +171,6 @@ class MenuResourceSettingsView extends React.Component<Props, State> {
         <AdminOnly>
           { this.renderAdvancedSettings() }
         </AdminOnly>
-        {/* TODO: check menu delete works */}
         <Box mt={1}>
           <Button
             disableElevation

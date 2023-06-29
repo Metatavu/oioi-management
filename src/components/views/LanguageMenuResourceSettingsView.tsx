@@ -177,7 +177,6 @@ class LanguageMenuResourceSettingsView extends React.Component<Props, State> {
         <AdminOnly>
           { this.renderAdvancedSettings() }
         </AdminOnly>
-        {/* TODO: Check language menu delete works */}
         <Box mt={1}>
           <Button
             disableElevation

@@ -137,7 +137,6 @@ class AudioResourceSettingsView extends React.Component<Props, State> {
         <AdminOnly>
           { this.renderAdvancedSettings() }
         </AdminOnly>
-        {/* TODO: test audio delete works */}
         <Box mt={1}>
           <Button
             disableElevation

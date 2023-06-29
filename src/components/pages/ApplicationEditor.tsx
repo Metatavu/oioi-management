@@ -697,11 +697,6 @@ class ApplicationEditor extends React.Component<Props, State> {
     const resourcesApi = Api.getResourcesApi(keycloak.token);
 
     try {
-      // TODO: commented code is incomplete but potential solution for the resource lock 404 errors
-      // const lockResource = this.getLockResource(resource);
-      // if (!lockResource) throw new Error("Error obtaining lock resource");
-
-      // await this.releaseLock(lockResource);
       await resourcesApi.deleteResource({
         customerId: customerId,
         deviceId: deviceId,
@@ -710,8 +705,6 @@ class ApplicationEditor extends React.Component<Props, State> {
       });
 
       deleteResources([ resource ]);
-
-      // setLockedResourceIds(lockedResourceIds.filter(lockedResourceId => lockedResourceId !== resource.id));
       this.setState({
         deleting: false
       });

@@ -132,7 +132,6 @@ class PDFResourceSettingsView extends React.Component<Props, State> {
         <AdminOnly>
           { this.renderAdvancedSettings() }
         </AdminOnly>
-        {/* TODO: check the pdf slide delete still works */}
         <Box mt={1}>
           <Button
             disableElevation

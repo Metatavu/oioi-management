@@ -180,7 +180,6 @@ class SlideshowResourceSettingsView extends React.Component<Props, State> {
         <AdminOnly>
           { this.renderAdvancedSettings() }
         </AdminOnly>
-        {/* TODO: test slide delete works */}
         <Box mt={1}>
           <Button
             disableElevation
