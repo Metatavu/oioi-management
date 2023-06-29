@@ -24,7 +24,7 @@ import { setCustomer } from "features/customer-slice";
 import { setApplication } from "features/application-slice";
 import { setContentVersions, selectContentVersionId, updateContentVersion } from "features/content-version-slice";
 import { setDevice } from "features/device-slice";
-import { deleteResources, selectResource, setLockedResourceIds, setResources, updateResources } from "features/resource-slice";
+import { deleteResources, selectResource, setResources, updateResources } from "features/resource-slice";
 import { ReduxDispatch, ReduxState } from "app/store";
 import ResourceTree from "components/generic/ResourceTree";
 import ContentVersionControls from "components/generic/ContentVersionControls";
