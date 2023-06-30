@@ -400,6 +400,12 @@ export default createStyles({
   menuMediaImgContainer: {
     display: "flex",
     flexDirection: "column"
+  },
+
+  deleteButtonContainer: {
+    marginTop: theme.spacing(2),
+    display: "flex",
+    justifyContent: "flex-end",
   }
 
 });

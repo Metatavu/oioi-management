@@ -214,6 +214,9 @@ class AppSettingsView extends React.Component<Props, State> {
           onToggle={ this.toggleDialog }
           open={ this.state.iconDialogOpen }
         />
+        <Box mt={ 3 } mb={ 3 }>
+          <Divider/>
+        </Box>
         <AdminOnly>
           { this.renderAdvancedSettings() }
         </AdminOnly>
@@ -229,9 +232,6 @@ class AppSettingsView extends React.Component<Props, State> {
 
     return (
       <>
-        <Box mt={ 3 } mb={ 3 }>
-          <Divider/>
-        </Box>
         <Accordion>
           <AccordionSummary
             expandIcon={ <ExpandMoreIcon color="primary" /> }
