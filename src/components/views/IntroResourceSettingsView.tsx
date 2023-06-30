@@ -110,7 +110,7 @@ class IntroResourceSettingsView extends React.Component<Props, State> {
    * Component render method
    */
   public render = () => {
-    const { classes, keycloak } = this.props;
+    const { classes, keycloak, onDelete } = this.props;
     const { dataChanged, form } = this.state;
     const { isFormValid } = form;
 
@@ -171,9 +171,23 @@ class IntroResourceSettingsView extends React.Component<Props, State> {
           <Divider/>
         </Box>
         { this.renderChildResources() }
+        <Box mt={ 3 } mb={ 3 }>
+          <Divider/>
+        </Box>
         <AdminOnly>
           { this.renderAdvancedSettings() }
         </AdminOnly>
+        <Box className={ classes.deleteButtonContainer }>
+          <Button
+            disableElevation
+            className={ classes.deleteButton }
+            color="primary"
+            variant="contained"
+            onClick={ onDelete }
+          >
+            { strings.introSettingsView.delete }
+          </Button>
+        </Box>
       </div>
     );
   }
@@ -241,7 +255,7 @@ class IntroResourceSettingsView extends React.Component<Props, State> {
    * Renders advanced settings
    */
   private renderAdvancedSettings = () => {
-    const { classes, onDelete } = this.props;
+    const { classes } = this.props;
 
     return (
       <Accordion>
@@ -270,17 +284,6 @@ class IntroResourceSettingsView extends React.Component<Props, State> {
               <Box mb={ 1 }>
                 { this.renderFormField("slug", strings.slug, "text") }
               </Box>
-            </Box>
-            <Box>
-              <Button
-                disableElevation
-                className={ classes.deleteButton }
-                color="primary"
-                variant="contained"
-                onClick={ onDelete }
-              >
-                { strings.introSettingsView.delete }
-              </Button>
             </Box>
           </Box>
           <Box mb={ 3 }>

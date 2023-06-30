@@ -133,7 +133,7 @@ class PageResourceSettingsView extends React.Component<Props, State> {
    */
   public render = () => {
     const { loading, dataChanged, form } = this.state;
-    const { classes } = this.props;
+    const { classes, onDelete } = this.props;
 
     if (loading) {
       return;
@@ -161,6 +161,17 @@ class PageResourceSettingsView extends React.Component<Props, State> {
         <AdminOnly>
           { this.renderAdvancedSettings() }
         </AdminOnly>
+        <Box className={ classes.deleteButtonContainer }>
+          <Button
+            disableElevation
+            className={ classes.deleteButton }
+            color="primary"
+            variant="contained"
+            onClick={ onDelete }
+          >
+            { strings.pageSettingsView.delete }
+          </Button>
+        </Box>
       </Box>
     );
   }
@@ -545,7 +556,7 @@ class PageResourceSettingsView extends React.Component<Props, State> {
    * Renders advanced settings
    */
   private renderAdvancedSettings = () => {
-    const { classes, onDelete } = this.props;
+    const { classes } = this.props;
 
     return (
       <Accordion>
@@ -560,15 +571,6 @@ class PageResourceSettingsView extends React.Component<Props, State> {
             className={ classes.advancedSettingRow }
           >
             { this.renderResourceFields() }
-            <Button
-              disableElevation
-              className={ classes.deleteButton }
-              color="primary"
-              variant="contained"
-              onClick={ onDelete }
-            >
-              { strings.pageSettingsView.delete }
-            </Button>
           </Box>
           <Box mt={ 3 } mb={ 3 }>
             { this.renderPropertiesTable() }
