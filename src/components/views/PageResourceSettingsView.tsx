@@ -161,7 +161,7 @@ class PageResourceSettingsView extends React.Component<Props, State> {
         <AdminOnly>
           { this.renderAdvancedSettings() }
         </AdminOnly>
-        <Box mt={1}>
+        <Box className={ classes.deleteButtonContainer }>
           <Button
             disableElevation
             className={ classes.deleteButton }
