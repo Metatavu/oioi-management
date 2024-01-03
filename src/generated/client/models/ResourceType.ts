@@ -32,7 +32,8 @@ export enum ResourceType {
     VIDEO = 'VIDEO',
     TEXT = 'TEXT',
     APPLICATION = 'APPLICATION',
-    AUDIO = 'AUDIO'
+    AUDIO = 'AUDIO',
+    COLOR = 'COLOR'
 }
 
 export function ResourceTypeFromJSON(json: any): ResourceType {

@@ -232,7 +232,8 @@
     "image": "Image",
     "video": "Video",
     "audio": "Audio",
-    "application": "Application"
+    "application": "Application",
+    "color": "Color"
   },
 
   "applicationSettings": {
