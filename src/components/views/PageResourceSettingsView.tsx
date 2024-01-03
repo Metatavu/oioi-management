@@ -516,10 +516,12 @@ class PageResourceSettingsView extends React.Component<Props, State> {
         return this.renderUploaderAndPreview(resource);
       case ResourceType.COLOR:
         return (
-          <SketchPicker
-            color={ resource.data && JSON.parse(resource.data).hsl }
-            onChangeComplete={ (color: ColorResult) => this.onHandleChildResourceColorChange(color, resource) }
-          />
+          <Box style={{ display: "flex", flexDirection: "column", flex: 1 }}>
+            <SketchPicker
+              color={ resource.data && JSON.parse(resource.data).hsl }
+              onChangeComplete={ (color: ColorResult) => this.onHandleChildResourceColorChange(color, resource) }
+            />
+          </Box>
         )
       default:
       return null;
