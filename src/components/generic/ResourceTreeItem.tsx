@@ -17,6 +17,7 @@ import PDFIcon from "@material-ui/icons/PictureAsPdfOutlined";
 import ImageIcon from "@material-ui/icons/ImageOutlined";
 import AudioIcon from "@material-ui/icons/AudiotrackOutlined";
 import ApplicationIcon from "@material-ui/icons/LaptopMacOutlined";
+import ColorIcon from '@material-ui/icons/Palette';
 import LockIcon from "../../resources/svg/lock-icon";
 import Api from "api";
 
@@ -152,7 +153,8 @@ class ResourceTreeItem extends React.Component<Props, State> {
     [ResourceType.MENU]: MenuIcon,
     [ResourceType.SLIDESHOW]: SlideshowIcon,
     [ResourceType.SLIDESHOWPDF]: PDFIcon,
-    [ResourceType.APPLICATION]: ApplicationIcon
+    [ResourceType.APPLICATION]: ApplicationIcon,
+    [ResourceType.COLOR]: ColorIcon
   })[type];
 
   /**

@@ -229,7 +229,8 @@
     "image": "Kuva",
     "video": "Video",
     "audio": "Audio",
-    "application": "Sovellus"
+    "application": "Sovellus",
+    "color": "Väri"
   },
 
   "applicationSettings": {

@@ -27,6 +27,7 @@ import theme from "../../styles/theme";
 import { ErrorContextType } from "../../types";
 import { ErrorContext } from "../containers/ErrorHandler";
 import MediaPreview from "../generic/MediaPreview";
+import { ColorResult, SketchPicker } from "react-color";
 
 /**
  * Component props
@@ -513,6 +514,15 @@ class PageResourceSettingsView extends React.Component<Props, State> {
       case ResourceType.IMAGE:
       case ResourceType.VIDEO:
         return this.renderUploaderAndPreview(resource);
+      case ResourceType.COLOR:
+        return (
+          <Box style={{ display: "flex", flexDirection: "column", flex: 1 }}>
+            <SketchPicker
+              color={ resource.data && JSON.parse(resource.data).hsl }
+              onChangeComplete={ (color: ColorResult) => this.onHandleChildResourceColorChange(color, resource) }
+            />
+          </Box>
+        )
       default:
       return null;
     }
@@ -666,6 +676,15 @@ class PageResourceSettingsView extends React.Component<Props, State> {
    */
   private onHandleChildResourceTextChange = (childResource: Resource) => (event: React.ChangeEvent<HTMLInputElement>) => {
     this.updateChildResource({ ...childResource, data: event.target.value });
+  }
+
+  /**
+   * Handles child resource color change
+   *
+   * @param childResource child resource
+   */
+  private onHandleChildResourceColorChange = (color: ColorResult, childResource: Resource) => {
+    this.updateChildResource({ ...childResource, data: JSON.stringify(color) });
   }
 
   /**
