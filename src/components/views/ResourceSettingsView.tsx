@@ -9,7 +9,7 @@ import ClearIcon from "@material-ui/icons/Clear";
 import EditIcon from "@material-ui/icons/Edit";
 import styles from "styles/editor-view";
 import strings from "localization/strings";
-import { Resource, ResourceToJSON, ResourceType } from "generated/client";
+import { Resource, ResourceType } from "generated/client";
 import { forwardRef } from "react";
 import { MessageType, initForm, Form, validateForm } from "ts-form-validation";
 import { ResourceSettingsForm, resourceRules } from "commons/formRules";
@@ -22,6 +22,7 @@ import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import { nanoid } from "@reduxjs/toolkit";
 import { ResourceUtils } from "utils/resource";
 import WithDebounce from "components/generic/with-debounce";
+import { ColorResult, SketchPicker } from "react-color";
 
 /**
  * Component props
@@ -390,6 +391,14 @@ class ResourceSettingsView extends React.Component<Props, State> {
         />
       );
     }
+    if (resource.type === ResourceType.COLOR) {
+      return (
+        <SketchPicker
+          color={ form.values.data && JSON.parse(form.values.data).hsl }
+          onChangeComplete={ (color: ColorResult) => this.onColorChange(color) }
+        />
+      );
+    }
 
     return (
       <MediaPreview
@@ -454,6 +463,7 @@ class ResourceSettingsView extends React.Component<Props, State> {
       case ResourceType.PDF: return strings.resourceTypes.pdf;
       case ResourceType.TEXT: return strings.resourceTypes.text;
       case ResourceType.VIDEO: return strings.resourceTypes.video;
+      case ResourceType.COLOR: return strings.resourceTypes.color;
       default: return strings.file;
     }
   };
@@ -514,6 +524,23 @@ class ResourceSettingsView extends React.Component<Props, State> {
     this.setState({
       dataChanged: true,
       form: { ...form, values: { ...form.values, [name]: value } }
+    });
+
+    confirmationRequired(true);
+  };
+
+  /**
+   * Event handler for color change
+   *
+   * @param color ColorResult
+   */
+  private onColorChange = (color: ColorResult) => {
+    const { confirmationRequired } = this.props;
+    const { form } = this.state;
+
+    this.setState({
+      dataChanged: true,
+      form: { ...form, values: { ...form.values, data: JSON.stringify(color) } }
     });
 
     confirmationRequired(true);

@@ -281,6 +281,7 @@ export interface IStrings extends LocalizedStringsMethods {
     image: string;
     audio: string;
     application: string;
+    color: string;
   };
 
   /**
@@ -418,7 +419,7 @@ export interface IStrings extends LocalizedStringsMethods {
     "TEXT": string;
     "APPLICATION": string;
   };
-  
+
   confirmUnsavedChangesDialog: {
     title: string;
     text: string;

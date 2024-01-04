@@ -96,6 +96,9 @@ export const resolveChildResourceTypes = (type: ResourceType): ResourceTypeObjec
     }, {
       value: ResourceType.PDF,
       resourceLocal: strings.resourceTypes.pdf
+    }, {
+      value: ResourceType.COLOR,
+      resourceLocal: strings.resourceTypes.color
     }
   ],
   // These resources won't act as a parent but are required for the object literal
@@ -104,7 +107,8 @@ export const resolveChildResourceTypes = (type: ResourceType): ResourceTypeObjec
   [ResourceType.TEXT]: [],
   [ResourceType.VIDEO]: [],
   [ResourceType.AUDIO]: [],
-  [ResourceType.APPLICATION]: []
+  [ResourceType.APPLICATION]: [],
+  [ResourceType.COLOR]: []
 })[type];
 
 /**
@@ -162,7 +166,8 @@ export const resolveUploadLocalizationString = (type: ResourceType): ResourceTyp
       strings.fileUpload.changeAudio
     ]
   },
-  [ResourceType.APPLICATION]: {}
+  [ResourceType.APPLICATION]: {},
+  [ResourceType.COLOR]: {}
 })[type];
 
 /**
@@ -203,5 +208,6 @@ export const getLocalizedTypeString = (type: ResourceType): string => ({
   [ResourceType.TEXT]: strings.resourceTypes.text,
   [ResourceType.VIDEO]: strings.resourceTypes.video,
   [ResourceType.AUDIO]: strings.resourceTypes.audio,
-  [ResourceType.APPLICATION]: strings.resourceTypes.application
+  [ResourceType.APPLICATION]: strings.resourceTypes.application,
+  [ResourceType.COLOR]: strings.resourceTypes.color
 })[type];
