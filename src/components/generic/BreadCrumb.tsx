@@ -5,6 +5,8 @@ import { useAppSelector } from "app/hooks";
 import { selectCustomer } from "features/customer-slice";
 import { selectDevice } from "features/device-slice";
 import { selectApplication } from "features/application-slice";
+import { selectContentVersions, selectSelectedContentVersionId } from "features/content-version-slice";
+import strings from "localization/strings";
 
 /**
  * Component properties
@@ -40,6 +42,16 @@ const BreadCrumb: React.FC<Props> = ({ classes, level }) => {
   const customer = useAppSelector(selectCustomer);
   const device = useAppSelector(selectDevice);
   const application = useAppSelector(selectApplication);
+  const contentVersions = useAppSelector(selectContentVersions);
+  const contentVersionId = useAppSelector(selectSelectedContentVersionId);
+
+  const activeContentVersion = contentVersions.find(contentVersion =>
+    contentVersion.id === application?.activeContentVersionResourceId
+  );
+  const selectedContentVersion = contentVersions.find(contentVersion => contentVersion.id === contentVersionId);
+  const isActive = selectedContentVersion?.id === activeContentVersion?.id ? `(${strings.contentVersionControls.activeVersion})` : ""
+
+  const contentVersionString = `${strings.contentVersionControls.contentVersion}: ${selectedContentVersion?.name} ${isActive}`;
 
   /**
    * Renders single breadcrumb
@@ -76,6 +88,12 @@ const BreadCrumb: React.FC<Props> = ({ classes, level }) => {
         { customer && device && application && level > 4 &&
           renderBreadcrumb(
             application.name,
+            `/${customer.id}/devices/${device.id}/applications/${application.id}`
+          )
+        }
+        { customer && device && application && selectedContentVersion && level > 4 &&
+          renderBreadcrumb(
+            contentVersionString,
             `/${customer.id}/devices/${device.id}/applications/${application.id}`
           )
         }
