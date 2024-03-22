@@ -14,8 +14,8 @@ export class AuthUtils {
   public static keycloakInit = (keycloak: Keycloak) => {
     return new Promise<boolean>((resolve, reject) =>
       keycloak.init({ onLoad: "login-required", checkLoginIframe: false })
-        .success(resolve)
-        .error(reject)
+        .then(resolve)
+        .catch(reject)
     );
   }
 
@@ -27,8 +27,8 @@ export class AuthUtils {
   public static loadUserProfile = (keycloak: Keycloak) => {
     return new Promise((resolve, reject) =>
       keycloak.loadUserProfile()
-        .success(resolve)
-        .error(reject)
+        .then(resolve)
+        .catch(reject)
     );
   }
 
@@ -41,8 +41,8 @@ export class AuthUtils {
   private static updateToken = (keycloak: Keycloak): Promise<boolean> => {
     return new Promise<boolean>((resolve, reject) =>
       keycloak.updateToken(70)
-        .success(resolve)
-        .error(reject)
+        .then(resolve)
+        .catch(reject)
     );
   }
 
