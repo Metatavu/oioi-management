@@ -27,9 +27,10 @@ export const authSlice = createSlice({
       state.keycloak = payload;
     },
     logout: state => {
-      state.keycloak?.logout().success(() => {
-        state.keycloak = undefined;
-      });
+      state.keycloak?.logout()
+        .then(() => {
+          state.keycloak = undefined;
+        });
     }
   }
 });
