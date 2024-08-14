@@ -55,11 +55,17 @@ export class ResourceUtils {
       parentId: parentId,
       orderNumber: 2
     }, {
-      name: "background",
-      slug: "background",
+      name: "image",
+      slug: "image",
       type: ResourceType.IMAGE,
       parentId: parentId,
       orderNumber: 3
+    }, {
+      name: "video",
+      slug: "video",
+      type: ResourceType.VIDEO,
+      parentId: parentId,
+      orderNumber: 4
     }
   ];
 
