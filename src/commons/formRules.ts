@@ -21,6 +21,7 @@ export interface ResourceSettingsForm extends Partial<Resource> {
   autoplay?: boolean;
   loop?: boolean;
   slideTimeOnScreen?: string;
+  volume?: string;
 }
 
 /**

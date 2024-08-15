@@ -557,6 +557,7 @@ class PageResourceSettingsView extends React.Component<Props, State> {
           onSetUrl={ this.onChildResourceSetFileUrl }
           uploadKey={ resource.id }
           imgHeight="200px"
+          onVideoPropertiesChange={ this.onHandleChildResourceMediaChange }
         />
       </Box>
     );
@@ -685,6 +686,15 @@ class PageResourceSettingsView extends React.Component<Props, State> {
    */
   private onHandleChildResourceColorChange = (color: ColorResult, childResource: Resource) => {
     this.updateChildResource({ ...childResource, data: JSON.stringify(color) });
+  }
+
+  /**
+   * Handles child resource media change
+   *
+   * @param childResource child resource
+   */
+  private onHandleChildResourceMediaChange = (childResource: Resource) => {
+    this.updateChildResource({ ...childResource });
   }
 
   /**
