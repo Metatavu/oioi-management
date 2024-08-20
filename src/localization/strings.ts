@@ -263,6 +263,14 @@ export interface IStrings extends LocalizedStringsMethods {
   };
 
   /**
+   * Translations related to video settings
+   */
+  videoSettings: {
+    loopVideo: string;
+    videoVolume: string;
+  };
+
+  /**
    * Translations related to resource types
    */
   resourceTypes: {

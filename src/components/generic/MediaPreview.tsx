@@ -155,13 +155,13 @@ class MediaPreview extends React.Component<Props, State> {
         <div className={ classes.videoPreviewElement }>
           <div style={{ marginBottom: theme.spacing(1) }}>
             <div key={ resourcePath } className={ classes.previewContainer }>
-              { this.renderPreviewContent(loopValue, parseFloat(volumeValue)) }
+              { this.renderPreviewContent(loopValue, volumeValue) }
             </div>
           </div>
           {/* TODO: Should these only appear when there is media to load?? */}
           <div style={{ display: "flex", flexDirection: "column" }}>
             <FormControlLabel
-              label="Loop video"
+              label={strings.videoSettings.loopVideo}
               control={
                 <Checkbox
                   name="loop"
@@ -172,7 +172,7 @@ class MediaPreview extends React.Component<Props, State> {
               }
             />
             <FormControlLabel
-              label="Volume"
+              label={strings.videoSettings.videoVolume}
               control={
                 <TextField
                   name="volume"
@@ -184,8 +184,9 @@ class MediaPreview extends React.Component<Props, State> {
                     max: 1,
                     step: 0.1,
                   }}
-                  style={{ marginLeft: "0.7rem", marginBottom: "1rem" }}
+                  style={{ marginLeft: "0.7rem", marginRight: "0.5rem", marginBottom: "1rem" }}
                   variant="outlined"
+                  size="small"
                 />
               }
             />
@@ -225,7 +226,7 @@ class MediaPreview extends React.Component<Props, State> {
   /**
    * Renders preview content
    */
-  private renderPreviewContent = (loop?: boolean, volume?: number) => {
+  private renderPreviewContent = (loop?: boolean, volume?: string) => {
     const { classes, resource, resourcePath, imgHeight } = this.props;
 
     if (!resourcePath) {
@@ -247,7 +248,7 @@ class MediaPreview extends React.Component<Props, State> {
           controls
           url={ resourcePath }
           loop={ loop }
-          volume={ volume ?? undefined }
+          volume={ parseFloat(volume || "1") }
           style={{
             backgroundColor: "#000",
             padding: theme.spacing(2)
