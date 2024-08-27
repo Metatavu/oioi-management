@@ -90,8 +90,8 @@ class MediaPreview extends React.Component<Props, State> {
   private onHandleVolumeChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>, resource: Resource, key: keyof ResourceSettingsForm) => {
     let value = parseFloat(event.target.value);
 
-    if (value > 1) {
-      value = 1;
+    if (value > 2) {
+      value = 2;
     }
 
     const updatedResourceData = ResourceUtils.updatePropertyList(resource, key, String(value || 0));
@@ -148,7 +148,7 @@ class MediaPreview extends React.Component<Props, State> {
 
     if (resourceData.type === ResourceType.VIDEO) {
       const loopValue = resourceData.properties?.find(prop => prop.key === "loop")?.value === "true" ? true : false;
-      // TODO: Currently volume is only being set between 0-1 with 100% max. This config may need to be changed as working with preview but what about actual devices?
+      // TODO: Currently volume can be set between 0-2 but preview player has max volume at 1 (100%)
       const volumeValue = resourceData.properties?.find(prop => prop.key === "volume")?.value ?? "1";
 
       return (
@@ -158,38 +158,8 @@ class MediaPreview extends React.Component<Props, State> {
               { this.renderPreviewContent(loopValue, volumeValue) }
             </div>
           </div>
-          {/* TODO: Should these only appear when there is media to load?? */}
           <div style={{ display: "flex", flexDirection: "column" }}>
-            <FormControlLabel
-              label={strings.videoSettings.loopVideo}
-              control={
-                <Checkbox
-                  name="loop"
-                  checked={ loopValue }
-                  value={ loopValue }
-                  onChange={ e => this.onHandleCheckBoxChange(e, resourceData, "loop") }
-                />
-              }
-            />
-            <FormControlLabel
-              label={strings.videoSettings.videoVolume}
-              control={
-                <TextField
-                  name="volume"
-                  value={ volumeValue }
-                  type="number"
-                  onChange={ e => this.onHandleVolumeChange(e, resourceData, "volume") }
-                  inputProps={{
-                    min: 0,
-                    max: 1,
-                    step: 0.1,
-                  }}
-                  style={{ marginLeft: "0.7rem", marginRight: "0.5rem", marginBottom: "1rem" }}
-                  variant="outlined"
-                  size="small"
-                />
-              }
-            />
+            { this.renderVideoSettings(resourceData, loopValue, volumeValue) }
           </div>
           { this.renderFileUploader() }
         </div>
@@ -229,6 +199,9 @@ class MediaPreview extends React.Component<Props, State> {
   private renderPreviewContent = (loop?: boolean, volume?: string) => {
     const { classes, resource, resourcePath, imgHeight } = this.props;
 
+    const parsedVolume = parseFloat(volume || "1");
+    const cappedVolume = parsedVolume > 1 ? 1 : parsedVolume;
+
     if (!resourcePath) {
       return (
         <Box className={ classes.noMediaContainer }>
@@ -248,7 +221,7 @@ class MediaPreview extends React.Component<Props, State> {
           controls
           url={ resourcePath }
           loop={ loop }
-          volume={ parseFloat(volume || "1") }
+          volume={ cappedVolume }
           style={{
             backgroundColor: "#000",
             padding: theme.spacing(2)
@@ -280,6 +253,52 @@ class MediaPreview extends React.Component<Props, State> {
         className={ classes.imagePreview }
       />
     );
+  }
+
+  /**
+   * Renders video settings- loop and volume controls
+   *
+   * @param resourceData Resource
+   * @param loopValue boolean
+   * @param volumeValue string
+   */
+  private renderVideoSettings = (resourceData: Resource, loopValue?: boolean, volumeValue?: string) => {
+    if (!this.props.resourcePath) return null;
+
+    return (
+      <>
+        <FormControlLabel
+          label={strings.videoSettings.loopVideo}
+          control={
+            <Checkbox
+              name="loop"
+              checked={ loopValue }
+              value={ loopValue }
+              onChange={ e => this.onHandleCheckBoxChange(e, resourceData, "loop") }
+            />
+          }
+        />
+        <FormControlLabel
+          label={strings.videoSettings.videoVolume}
+          control={
+            <TextField
+              name="volume"
+              value={ volumeValue }
+              type="number"
+              onChange={ e => this.onHandleVolumeChange(e, resourceData, "volume") }
+              inputProps={{
+                min: 0,
+                max: 2,
+                step: 0.1,
+              }}
+              style={{ marginLeft: "0.7rem", marginRight: "0.5rem", marginBottom: "1rem" }}
+              variant="outlined"
+              size="small"
+            />
+          }
+        />
+      </>
+    )
   }
 
   /**
