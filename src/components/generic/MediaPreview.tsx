@@ -1,4 +1,4 @@
-import { AppBar, Box, Dialog, IconButton, Toolbar, Typography, withStyles, WithStyles } from "@material-ui/core";
+import { AppBar, Box, Checkbox, Dialog, FormControlLabel, IconButton, TextField, Toolbar, Typography, withStyles, WithStyles } from "@material-ui/core";
 import CloseIcon from "@material-ui/icons/Close";
 import AudioPlayer from "material-ui-audio-player";
 import * as React from "react";
@@ -10,6 +10,8 @@ import styles from "../../styles/editor-view";
 import theme from "../../styles/theme";
 import FileUploader from "./FileUploader";
 import DeleteIcon from "@material-ui/icons/DeleteForever";
+import { ResourceSettingsForm } from "commons/formRules";
+import { ResourceUtils } from "utils/resource";
 
 /**
  * Component properties
@@ -26,6 +28,8 @@ interface Props extends WithStyles<typeof styles> {
   uploadDialogTitle?: string;
   imgHeight?: string;
   showDeleteButton?: boolean;
+  handleVideoPropertiesChange?: (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
+  onVideoPropertiesChange?: (childResource: Resource) => void;
 }
 
 /**
@@ -33,6 +37,7 @@ interface Props extends WithStyles<typeof styles> {
  */
 interface State {
   open: boolean;
+  resourceData: Resource;
 }
 
 /**
@@ -48,15 +53,66 @@ class MediaPreview extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
     this.state = {
-      open: false
+      open: false,
+      resourceData: props.resource,
     };
   }
+
+  /**
+   * Event handler for loop checkbox change
+   *
+   * @param event change event
+   * @param resource resource
+   * @param key key
+   */
+  private onHandleCheckBoxChange = (event: React.ChangeEvent<HTMLInputElement>, resource: Resource, key: keyof ResourceSettingsForm) => {
+    const updatedResourceData = ResourceUtils.updatePropertyList(resource, key, String(event.target.checked));
+    if(!updatedResourceData) {
+      return;
+    }
+
+    this.setState({
+      resourceData: updatedResourceData,
+    });
+    // Handles save at the resource screen
+    this.props.handleVideoPropertiesChange && this.props.handleVideoPropertiesChange(event);
+    // Handles save at the page settings screen
+    this.props.onVideoPropertiesChange && this.props.onVideoPropertiesChange(updatedResourceData);
+  };
+
+  /**
+   * Event handler for volume change
+   *
+   * @param event change event
+   * @param resource resource
+   * @param key key
+   */
+  private onHandleVolumeChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>, resource: Resource, key: keyof ResourceSettingsForm) => {
+    let value = parseFloat(event.target.value);
+
+    if (value > 2) {
+      value = 2;
+    }
+
+    const updatedResourceData = ResourceUtils.updatePropertyList(resource, key, String(value || 0));
+    if(!updatedResourceData) {
+      return;
+    }
+
+    this.setState({
+      resourceData: updatedResourceData,
+    });
+    // Handles save at the resource screen
+    this.props.handleVideoPropertiesChange && this.props.handleVideoPropertiesChange(event);
+    // Handles save at the page settings screen
+    this.props.onVideoPropertiesChange && this.props.onVideoPropertiesChange(updatedResourceData);
+  };
 
   /**
    * Renders delete button
    */
   private renderDeleteButton = () => {
-    const { 
+    const {
       classes,
       uploadKey,
       onDelete,
@@ -88,14 +144,22 @@ class MediaPreview extends React.Component<Props, State> {
    */
   public render = () => {
     const { resourcePath, resource, classes } = this.props;
+    const { resourceData } = this.state;
 
-    if (resource.type === ResourceType.VIDEO) {
+    if (resourceData.type === ResourceType.VIDEO) {
+      const loopValue = resourceData.properties?.find(prop => prop.key === "loop")?.value === "true" ? true : false;
+      // TODO: Currently volume can be set between 0-2 but preview player has max volume at 1 (100%)
+      const volumeValue = resourceData.properties?.find(prop => prop.key === "volume")?.value ?? "1";
+
       return (
         <div className={ classes.videoPreviewElement }>
           <div style={{ marginBottom: theme.spacing(1) }}>
             <div key={ resourcePath } className={ classes.previewContainer }>
-              { this.renderPreviewContent() }
+              { this.renderPreviewContent(loopValue, volumeValue) }
             </div>
+          </div>
+          <div style={{ display: "flex", flexDirection: "column" }}>
+            { this.renderVideoSettings(resourceData, loopValue, volumeValue) }
           </div>
           { this.renderFileUploader() }
         </div>
@@ -116,7 +180,7 @@ class MediaPreview extends React.Component<Props, State> {
     }
 
     return (
-      <div className={ classes.imagePreviewElement }> 
+      <div className={ classes.imagePreviewElement }>
         <div style={{ marginBottom: theme.spacing(1) }}>
           <div key={ resourcePath } onClick={ this.toggleDialog }>
             { this.renderPreviewContent() }
@@ -132,8 +196,11 @@ class MediaPreview extends React.Component<Props, State> {
   /**
    * Renders preview content
    */
-  private renderPreviewContent = () => {
+  private renderPreviewContent = (loop?: boolean, volume?: string) => {
     const { classes, resource, resourcePath, imgHeight } = this.props;
+
+    const parsedVolume = parseFloat(volume || "1");
+    const cappedVolume = parsedVolume > 1 ? 1 : parsedVolume;
 
     if (!resourcePath) {
       return (
@@ -153,6 +220,8 @@ class MediaPreview extends React.Component<Props, State> {
         <ReactPlayer
           controls
           url={ resourcePath }
+          loop={ loop }
+          volume={ cappedVolume }
           style={{
             backgroundColor: "#000",
             padding: theme.spacing(2)
@@ -184,6 +253,52 @@ class MediaPreview extends React.Component<Props, State> {
         className={ classes.imagePreview }
       />
     );
+  }
+
+  /**
+   * Renders video settings- loop and volume controls
+   *
+   * @param resourceData Resource
+   * @param loopValue boolean
+   * @param volumeValue string
+   */
+  private renderVideoSettings = (resourceData: Resource, loopValue?: boolean, volumeValue?: string) => {
+    if (!this.props.resourcePath) return null;
+
+    return (
+      <>
+        <FormControlLabel
+          label={strings.videoSettings.loopVideo}
+          control={
+            <Checkbox
+              name="loop"
+              checked={ loopValue }
+              value={ loopValue }
+              onChange={ e => this.onHandleCheckBoxChange(e, resourceData, "loop") }
+            />
+          }
+        />
+        <FormControlLabel
+          label={strings.videoSettings.videoVolume}
+          control={
+            <TextField
+              name="volume"
+              value={ volumeValue }
+              type="number"
+              onChange={ e => this.onHandleVolumeChange(e, resourceData, "volume") }
+              inputProps={{
+                min: 0,
+                max: 2,
+                step: 0.1,
+              }}
+              style={{ marginLeft: "0.7rem", marginRight: "0.5rem", marginBottom: "1rem" }}
+              variant="outlined"
+              size="small"
+            />
+          }
+        />
+      </>
+    )
   }
 
   /**

@@ -98,19 +98,15 @@
   "urlAddressDialogContent": "Input direct URL address to resource.",
   "urlAddressDialogLabel": "URL Address",
   "actionCannotBeReverted": "This action cannot be reverted.",
-
   "customersList": {
     "loadingCustomers": "Loading customers..."
   },
-
   "devicesList": {
     "loadingDevices": "Loading devices..."
   },
-
   "applicationsList": {
     "loadingApplications": "Loading applications..."
   },
-
   "applicationEditor": {
     "dragSidebar": "Click and drag to narrow or widen",
     "loadingContentTree": "Loading content tree...",
@@ -119,13 +115,11 @@
     "deleteLanguage": "Delete language",
     "removeCustomIcon": "Remove custom icon"
   },
-
   "commonSettingsTexts": {
     "name": "Menu name",
     "teaserText": "Menu teaser text",
     "media": "Menu media"
   },
-
   "languageMenuSettingsView": {
     "title": "Title",
     "contentText": "Content text",
@@ -133,7 +127,6 @@
     "foregroundMedia": "Foreground media",
     "delete": "Delete language menu"
   },
-
   "languageSettingsView": {
     "title": "Title",
     "contentText": "Content text",
@@ -141,7 +134,6 @@
     "foregroundMedia": "Foreground media",
     "delete": "Delete language"
   },
-
   "introSettingsView": {
     "title": "Title",
     "contentText": "Content text",
@@ -149,7 +141,6 @@
     "foregroundMedia": "Foreground media",
     "delete": "Delete intro"
   },
-
   "menuSettingsView": {
     "title": "Title",
     "contentText": "Content text",
@@ -157,7 +148,6 @@
     "foregroundMedia": "Foreground media",
     "delete": "Delete menu"
   },
-
   "applicationSettingsView": {
     "title": "Title",
     "contentText": "Content text",
@@ -167,11 +157,9 @@
     "activeJsonUrl": "Active wall-JSON:",
     "versionJsonUrl": "Version wall-JSON:"
   },
-
   "pageSettingsView": {
     "delete": "Delete page"
   },
-
   "slideshowSettingsView": {
     "name": "Name",
     "teaserText": "Slideshow teaser text",
@@ -182,11 +170,9 @@
     "foregroundMedia": "Foreground media",
     "delete": "Delete slideshow"
   },
-
   "pdfSettingsView": {
     "delete": "Delete PDF"
   },
-
   "audioSettingsView": {
     "download": "Download audio file",
     "uploadAudioTitle": "Upload audio file",
@@ -194,7 +180,6 @@
     "changeAudioFile": "Change audio file",
     "delete": "Delete audio file"
   },
-
   "fileUpload": {
     "addMedia": "Add media",
     "changeMedia": "Change media",
@@ -216,7 +201,10 @@
     "finalizing": "Finalizing upload...",
     "changeIcon": "Change"
   },
-
+  "videoSettings": {
+    "loopVideo": "Loop video",
+    "videoVolume": "Video volume"
+  },
   "resourceTypes": {
     "root": "Root",
     "contentVersion": "Content version",
@@ -235,7 +223,6 @@
     "application": "Application",
     "color": "Color"
   },
-
   "applicationSettings": {
     "settings": "Basic application settings",
     "teaserText": "Teaser text",
@@ -252,7 +239,6 @@
     "deleteApplication": "Delete application",
     "deleteApplicationConfirmationText": "Do you want to delete application and all it's versions?"
   },
-
   "contentVersionControls": {
     "contentVersion": "Version",
     "notSelected": "Not selected",
@@ -274,7 +260,6 @@
     "deletingContentVersion": "Deleting version...",
     "creatingContentVersion": "Creating new version..."
   },
-
   "iconKeys": {
     "iconHome": "Home normal",
     "iconHomeActive": "Home active",
@@ -291,7 +276,6 @@
     "iconRight": "Right normal",
     "iconRightActive": "Right active"
   },
-
   "errorManagement": {
     "title": "Error",
     "customer": {
@@ -340,7 +324,6 @@
       "refresh": "Error while refreshing authentication"
     }
   },
-
   "deleteConfirmationsByType": {
     "INTRO": "Delete intro {0} and all resources below it?",
     "LANGUAGE_MENU": "Delete language menu {0} and all resources below it?",
@@ -355,7 +338,6 @@
     "TEXT": "Delete text {0}?",
     "APPLICATION": "Delete application {0}?"
   },
-
   "confirmUnsavedChangesDialog": {
     "title": "You have unsaved modifications!",
     "text": "Do you wish to continue without saving?",

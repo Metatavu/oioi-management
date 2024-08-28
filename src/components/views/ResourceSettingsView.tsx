@@ -410,6 +410,7 @@ class ResourceSettingsView extends React.Component<Props, State> {
         resource={ resource }
         uploadKey="data"
         onDelete={ this.onImageFileDelete }
+        handleVideoPropertiesChange={ this.onDataChange }
       />
     );
   };
@@ -521,10 +522,57 @@ class ResourceSettingsView extends React.Component<Props, State> {
     const { form } = this.state;
     const { name, value } = event.target;
 
-    this.setState({
-      dataChanged: true,
-      form: { ...form, values: { ...form.values, [name]: value } }
-    });
+    if (name === "loop") {
+      const checked = (event.target as HTMLInputElement).checked;
+      const updatedProperties = (form.values.properties || []).map(property =>
+        property.key === name ? { ...property, value: String(checked) } : property
+      );
+
+      if (!updatedProperties.some(property => property.key === name)) {
+        updatedProperties.push({ key: name, value: String(checked) });
+      }
+
+      this.setState({
+        dataChanged: true,
+        form: {
+          ...form,
+          values: {
+            ...form.values,
+            properties: updatedProperties
+          }
+        }
+      });
+    } else if (name === "volume") {
+      let value = parseFloat(event.target.value);
+
+      if (value > 2) {
+        value = 2;
+      }
+
+      const updatedProperties = (form.values.properties || []).map(property =>
+        property.key === name ? { ...property, value: String(value || 0) } : property
+      );
+
+      if (!updatedProperties.some(property => property.key === name)) {
+        updatedProperties.push({ key: name, value: String(value || 0) });
+      }
+
+      this.setState({
+        dataChanged: true,
+        form: {
+          ...form,
+          values: {
+            ...form.values,
+            properties: updatedProperties
+          }
+        }
+      });
+    } else {
+      this.setState({
+        dataChanged: true,
+        form: { ...form, values: { ...form.values, [name]: value } }
+      });
+    }
 
     confirmationRequired(true);
   };
