@@ -545,8 +545,8 @@ class ResourceSettingsView extends React.Component<Props, State> {
     } else if (name === "volume") {
       let value = parseFloat(event.target.value);
 
-      if (value > 1) {
-        value = 1;
+      if (value > 2) {
+        value = 2;
       }
 
       const updatedProperties = (form.values.properties || []).map(property =>
