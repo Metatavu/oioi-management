@@ -98,19 +98,15 @@
   "urlAddressDialogContent": "Syötä suora URL-osoite resurssiin.",
   "urlAddressDialogLabel": "URL-osoite",
   "actionCannotBeReverted": "Toimintoa ei voi peruuttaa.",
-
   "customersList": {
     "loadingCustomers": "Ladataan asiakkaita..."
   },
-
   "devicesList": {
     "loadingDevices": "Ladataan laitteita..."
   },
-
   "applicationsList": {
     "loadingApplications": "Ladataan sovelluksia..."
   },
-
   "applicationEditor": {
     "dragSidebar": "Raahaa leveämmäksi / kapeammaksi",
     "loadingContentTree": "Ladataan sovelluspuuta...",
@@ -119,13 +115,11 @@
     "deleteLanguage": "Poista kieli",
     "removeCustomIcon": "Poista omavalintainen ikoni"
   },
-
   "commonSettingsTexts": {
     "name": "Valikkonimi",
     "teaserText": "Ingressiteksti valikossa",
     "media": "Taustamedia valikossa"
   },
-
   "introSettingsView": {
     "title": "Intron otsikko",
     "contentText": "Kuvausteksti",
@@ -133,7 +127,6 @@
     "foregroundMedia": "Etualan media",
     "delete": "Poista intro"
   },
-
   "languageMenuSettingsView": {
     "title": "Otsikko",
     "contentText": "Kuvausteksti",
@@ -141,7 +134,6 @@
     "foregroundMedia": "Etualan media",
     "delete": "Poista kielivalikko"
   },
-
   "languageSettingsView": {
     "title": "Otsikko",
     "contentText": "Kuvausteksti",
@@ -149,7 +141,6 @@
     "foregroundMedia": "Etualan media",
     "delete": "Poista kieli"
   },
-
   "menuSettingsView": {
     "title": "Otsikko",
     "contentText": "Kuvausteksti",
@@ -157,7 +148,6 @@
     "foregroundMedia": "Etualan media",
     "delete": "Poista valikko"
   },
-
   "applicationSettingsView": {
     "title": "Otsikko",
     "contentText": "Kuvausteksti",
@@ -167,11 +157,9 @@
     "activeJsonUrl": "Aktiivinen seinä-JSON:",
     "versionJsonUrl": "Version seinä-JSON:"
   },
-
   "pageSettingsView": {
     "delete": "Poista sivu"
   },
-
   "slideshowSettingsView": {
     "title": "Otsikko",
     "contentText": "Slideshown kuvausteksti",
@@ -179,11 +167,9 @@
     "foregroundMedia": "Etualan media",
     "delete": "Poista slideshow"
   },
-
   "pdfSettingsView": {
     "delete": "Poista PDF"
   },
-
   "audioSettingsView": {
     "download": "Lataa äänitiedosto",
     "uploadAudioTitle": "Lataa äänitiedosto",
@@ -191,7 +177,6 @@
     "changeAudioFile": "Vaihda äänitiedosto",
     "delete": "Poista äänitiedosto"
   },
-
   "fileUpload": {
     "addMedia": "Lisää media",
     "changeMedia": "Vaihda media",
@@ -213,7 +198,10 @@
     "finalizing": "Viimeistellään...",
     "changeIcon": "Vaihda"
   },
-
+  "videoSettings": {
+    "loopVideo": "Silmukkavideo",
+    "videoVolume": "Videon äänenvoimakkuus"
+  },
   "resourceTypes": {
     "root": "Root",
     "contentVersion": "Sisältöversio",
@@ -232,7 +220,6 @@
     "application": "Sovellus",
     "color": "Väri"
   },
-
   "applicationSettings": {
     "settings": "Sovellusasetukset",
     "teaserText": "Teaserteksti",
@@ -249,7 +236,6 @@
     "deleteApplication": "Poista sovellus",
     "deleteApplicationConfirmationText": "Haluatko varmasti poistaa koko sovelluksen ja kaikki sen versiot?"
   },
-
   "contentVersionControls": {
     "contentVersion": "Versio",
     "notSelected": "Ei valittu",
@@ -271,7 +257,6 @@
     "deletingContentVersion": "Poistetaan versiota...",
     "creatingContentVersion": "Luodaan uutta versiota..."
   },
-
   "iconKeys": {
     "iconHome": "Koti normaali",
     "iconHomeActive": "Koti aktiivinen",
@@ -288,7 +273,6 @@
     "iconRight": "Oikealle normaali",
     "iconRightActive": "Oikealle aktiivinen"
   },
-
   "errorManagement": {
     "title": "Virhe",
     "customer": {
@@ -337,7 +321,6 @@
       "refresh": "Autentikoinnin päivityksessä tapahtui virhe"
     }
   },
-
   "deleteConfirmationsByType": {
     "INTRO": "Poista intro {0} ja kaikki sen alla olevat resurssit?",
     "LANGUAGE_MENU": "Poista kielivalikko {} ja kaikki sen alla olevat resurssit?",
@@ -352,7 +335,6 @@
     "TEXT": "Poista teksti {0}?",
     "APPLICATION": "Poista sovellus {0}?"
   },
-
   "confirmUnsavedChangesDialog": {
     "title": "Tallentamattomia muutoksia!",
     "text": "Sinulla on tallentamattomia muutoksia! Haluatko poistua näkymästä tallentamatta?",
