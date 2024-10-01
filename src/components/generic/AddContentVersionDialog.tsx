@@ -149,6 +149,13 @@ class AddContentVersionDialog extends React.Component<Props, State> {
     const { contentVersions } = this.props;
     const { name, error, copyFromOtherVersion } = this.state;
 
+    const sortedContentVersions = contentVersions.slice().sort((a, b) => {
+      if (!a.createdAt || !b.createdAt) {
+        return 0;
+      }
+      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+    });
+
     return (
       <>
         <TextField
@@ -169,7 +176,7 @@ class AddContentVersionDialog extends React.Component<Props, State> {
           onChange={ this.onChangeCopyFromOtherVersion }
         >
           { this.renderEmptyOption() }
-          { contentVersions.map(this.renderContentVersionOption) }
+          { sortedContentVersions.map(this.renderContentVersionOption) }
         </TextField>
       </>
     )
