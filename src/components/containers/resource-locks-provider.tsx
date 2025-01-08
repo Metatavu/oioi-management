@@ -6,6 +6,7 @@ import { useAppDispatch, useAppSelector } from "app/hooks";
 import { selectKeycloak } from "features/auth-slice";
 import Api from "api";
 import deepEqual from "fast-deep-equal";
+import { Config } from "app/config";
 
 /**
  * Component properties
@@ -23,7 +24,7 @@ const ResourceLocksProvider: FC<Props> = ({
   children,
   applicationId 
 }) => {
-  const { message } = useSubscription(`resourcelocks`);
+  const { message } = useSubscription(`${Config.get().mqtt.topicPrefix}/resourcelocks`);
   const dispatch = useAppDispatch();
   const accessToken = useAppSelector(selectKeycloak)?.token;
   const lockedResourceIds = useAppSelector(selectLockedResourceIds);

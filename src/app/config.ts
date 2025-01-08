@@ -11,9 +11,10 @@ const env = cleanEnv(process.env, {
   REACT_APP_API_BASE_URL: url(),
   REACT_APP_FILE_UPLOAD_PATH: url(),
   REACT_APP_CDN_BASE_URL: url(),
-  REACT_APP_MQTT_BROKER_URL: url(),
+  REACT_APP_MQTT_URLS: str(),
   REACT_APP_MQTT_USERNAME: str(),
-  REACT_APP_MQTT_PASSWORD: str()
+  REACT_APP_MQTT_PASSWORD: str(),
+  REACT_APP_MQTT_TOPIC_PREFIX: str()
 });
 
 /**
@@ -40,7 +41,8 @@ export class Config {
       cdnPath: env.REACT_APP_CDN_BASE_URL
     },
     mqtt: {
-      brokerUrl: env.REACT_APP_MQTT_BROKER_URL,
+      topicPrefix: env.REACT_APP_MQTT_TOPIC_PREFIX,
+      urls: env.REACT_APP_MQTT_URLS.split(','),
       username: env.REACT_APP_MQTT_USERNAME,
       password: env.REACT_APP_MQTT_PASSWORD
     }
