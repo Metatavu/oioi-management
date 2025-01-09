@@ -50,7 +50,8 @@ export interface Configuration {
     cdnPath: string;
   };
   mqtt: {
-    brokerUrl: string;
+    topicPrefix: string;
+    urls: string[];
     username: string;
     password: string;
   };
